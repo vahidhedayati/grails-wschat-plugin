@@ -1,16 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<g:if test="${!request.xhr }">
-    	<meta name='layout' content="chat"/>
-    </g:if>
-    <g:else>
-    	<link rel="stylesheet" href="${resource(dir: 'css', file: 'chat.css')}" type="text/css">
-    </g:else>
-   <title>Grails WebSocket Chat</title>
-   <g:javascript library="jquery"/>
-</head>
-<body>
+<div class="page-header uppercase">
+<h3>${chatHeader }</h3>
+<small>  
+<div id="clock" data-time="${now.time}">
+    <h5>${now}</h5>
+</div> 
+</b></small>
+</div>
+
 <div id="chatterBox">
 	<div class="message-container">
 		<div class="message-north" >
@@ -29,7 +25,6 @@
 		</div>
 	</div>						
 </div>
-
 <g:javascript>
         var webSocket=new WebSocket("ws://localhost:8080/${meta(name:'app.name')}/wschat");
         var chatMessages=document.getElementById("chatMessages");
@@ -60,11 +55,12 @@
         function sendMessage() {
             if (messageBox.value!="/disco") {
                 webSocket.send(messageBox.value);
-                scrollToBottom();
                 messageBox.value="";
+                scrollToBottom();
             }else {
             	webSocket.send("DISCO:-"+user);
             	chatMessages.value +=user+" disconnecting from server... "+"\n";
+            	messageBox.value="";
                 websocket.close();
             }   
         }
@@ -89,6 +85,3 @@
         	websocket.close();
         }
 </g:javascript>
-
-</body>
-</html>

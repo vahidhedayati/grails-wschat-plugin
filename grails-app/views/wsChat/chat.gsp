@@ -1,0 +1,1 @@
+<wschat:chooseLayout file="chat"/>

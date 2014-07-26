@@ -303,6 +303,7 @@ height: 3em;
 #contact-area textarea:focus, #contact-area input:focus {
 border: 2px solid #900;
 }
+
 /* Contact Area for emailing */
 #contact-area2 input, #contact-area2 textarea {
 padding: 5px;

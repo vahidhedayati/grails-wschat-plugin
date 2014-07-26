@@ -1,14 +1,17 @@
 package grails.plugin.wschat
 
 
-class UchatController {
+class WsChatController {
 	def grailsApplication
 	
 	def index() { 
 		def process=grailsApplication?.config?.wschat.disable.login ?: 'no'
+		def chatTitle=grailsApplication?.config?.wschat.title ?: 'Grails Websocket Chat'
+		def chatHeader=grailsApplication?.config?.wschat.heading ?: 'Grails websocket chat'
 		if (process.equals('yes')) {
 			render "Default sign in page disabled"
 		}
+		[chatTitle:chatTitle,chatHeader:chatHeader]
 	}
 	
 	def login(String username) {
@@ -21,7 +24,9 @@ class UchatController {
 	}
 	
     def chat() { 
+		def chatTitle=grailsApplication?.config?.wschat.title ?: 'Grails Websocket Chat'
+		def chatHeader=grailsApplication?.config?.wschat.heading ?: 'Grails websocket chat'
 		def chatuser=session.username
-		[chatuser:chatuser]
+		[chatuser:chatuser, chatTitle:chatTitle,chatHeader:chatHeader, now:new Date()]
 	}
 }
