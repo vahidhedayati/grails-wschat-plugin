@@ -37,7 +37,7 @@ Configure properties by adding following to grails-app/conf/Config.groovy under 
 * To disable default login page set following
 * session.user must be set and now simply
 */
-wschat.disable.login = "USER"
+wschat.disable.login = "yes"
 
 
 /*
