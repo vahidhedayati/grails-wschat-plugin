@@ -1,0 +1,15 @@
+/web-app/WEB-INF
+/.classpath
+/.project
+/.settings
+*.log
+/*.zip
+plugin.xml
+/target
+/target-eclipse
+*.iws
+/.idea
+*.iml
+*.iws
+.DS_Store
+/log
