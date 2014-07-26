@@ -1,7 +1,7 @@
 wschat 0.1
 =========
 
-Grails websocket chat Plugin based on existing examples, provides a websocket based chat application that can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
+Grails websocket chat Plugin based on existing examples, provides  websocket chat that can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
 
 
 
