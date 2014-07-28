@@ -71,12 +71,12 @@ wschat.hostname=System.getProperty('SERVERURL')+":8080"
 #Issues:
 
 Whilst running this plugin on a tomcat server from an application that calls plugin, I have seen:
-
+```
 javax.websocket.DeploymentException: Multiple Endpoints may not be deployed to the same path [/WsChatEndpoint]
 	at org.apache.tomcat.websocket.server.WsServerContainer.addEndpoint(WsServerContainer.java:209)
 	at org.apache.tomcat.websocket.server.WsServerContainer.addEndpoint(WsServerContainer.java:268)
 	at javax.websocket.server.ServerContainer$addEndpoint.call(Unknown Source)
-	
+```	
 This does appear to be a warning and endpoint still works fine
 
 	
