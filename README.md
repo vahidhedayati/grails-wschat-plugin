@@ -17,7 +17,7 @@ http://localhost:8080/yourapp/wsChat/
 If you have disabled login as per configuration below, you must set
  
 ```
-session.username 
+session.user
 ```
 with your logged in username.
 
