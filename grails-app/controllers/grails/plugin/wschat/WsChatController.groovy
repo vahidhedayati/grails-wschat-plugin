@@ -19,14 +19,14 @@ class WsChatController {
 		if (process.equals('yes')) {
 			render "Default sign in page disabled"
 		}
-		session.username=username
+		session.user=username
 		redirect(action: "chat")
 	}
 	
     def chat() { 
 		def chatTitle=grailsApplication?.config?.wschat.title ?: 'Grails Websocket Chat'
 		def chatHeader=grailsApplication?.config?.wschat.heading ?: 'Grails websocket chat'
-		def chatuser=session.username
+		def chatuser=session.user
 		[chatuser:chatuser, chatTitle:chatTitle,chatHeader:chatHeader, now:new Date()]
 	}
 }
