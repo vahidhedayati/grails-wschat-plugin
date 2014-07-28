@@ -80,4 +80,6 @@ javax.websocket.DeploymentException: Multiple Endpoints may not be deployed to t
 This does appear to be a warning and endpoint still works fine
 
 	
+# Custom calling plugin
+https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Merging-plugin-with-your-own-custom-calls
 	
