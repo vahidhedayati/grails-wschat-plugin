@@ -89,7 +89,6 @@
         
         $('#messageBox').keypress(function(e){
       		if(e.which == 13){
-           	// submit via ajax or
            		sendMessage();
        		}
     	});
