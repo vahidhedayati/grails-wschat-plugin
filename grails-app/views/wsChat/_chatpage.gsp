@@ -43,7 +43,7 @@
         	<g:if test="${!chatuser}">
         		chatMessages.value +="Chat denied no username"+"\n";
         		webSocket.send("DISCO:-"+user);
-        	 	websocket.close();
+        	 	webSocket.close();
         	</g:if>
         	<g:else>
         		webSocket.send("CONN:-"+user);
@@ -61,14 +61,14 @@
             	webSocket.send("DISCO:-"+user);
             	chatMessages.value +=user+" disconnecting from server... "+"\n";
             	messageBox.value="";
-                websocket.close();
+                webSocket.close();
             }   
         }
         
         function processClose(message) {
         	webSocket.send("DISCO:-"+user);
          	chatMessages.value +=user+" disconnecting from server... "+"\n";
-         	websocket.close();
+         	webSocket.close();
         }
         
         function processError(message) {
@@ -81,7 +81,7 @@
 		
         window.onbeforeunload = function() {
           	webSocket.send("DISCO:-"+user);
-        	websocket.onclose = function() { }
-        	websocket.close();
+        	webSocket.onclose = function() { }
+        	webSocket.close();
         }
 </g:javascript>

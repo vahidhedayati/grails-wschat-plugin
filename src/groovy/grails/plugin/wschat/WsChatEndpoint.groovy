@@ -23,11 +23,14 @@ class WsChatEndpoint implements ServletContextListener {
 	private static List users = Collections.synchronizedList(new ArrayList());
 	static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>())
 	
-    @Override
+   
+	@Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
+	
    		final ServerContainer serverContainer =	org.codehaus.groovy.grails.web.context.ServletContextHolder.getServletContext().getAttribute("javax.websocket.server.ServerContainer")
 	    try {
-            serverContainer.addEndpoint(WsChatEndpoint.class)
+			
+            serverContainer?.addEndpoint(WsChatEndpoint.class)
         } catch (DeploymentException e) {
             e.printStackTrace()
         }
