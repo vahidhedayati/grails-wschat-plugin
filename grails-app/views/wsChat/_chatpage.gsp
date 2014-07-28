@@ -26,7 +26,9 @@
 	</div>						
 </div>
 <g:javascript>
-        var webSocket=new WebSocket("ws://localhost:8080/${meta(name:'app.name')}/wschat");
+
+        var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint");
+        
         var chatMessages=document.getElementById("chatMessages");
         var onlineUsers=document.getElementById("onlineUsers");
         var user="${chatuser}";

@@ -17,7 +17,7 @@ import javax.websocket.server.ServerEndpoint
 
 
 @WebListener
-@ServerEndpoint("/wschat")
+@ServerEndpoint("/WsChatEndpoint")
 class WsChatEndpoint implements ServletContextListener {
 	
 	private static List users = Collections.synchronizedList(new ArrayList());
@@ -26,10 +26,8 @@ class WsChatEndpoint implements ServletContextListener {
    
 	@Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-	
    		final ServerContainer serverContainer =	org.codehaus.groovy.grails.web.context.ServletContextHolder.getServletContext().getAttribute("javax.websocket.server.ServerContainer")
 	    try {
-			
             serverContainer?.addEndpoint(WsChatEndpoint.class)
         } catch (DeploymentException e) {
             e.printStackTrace()

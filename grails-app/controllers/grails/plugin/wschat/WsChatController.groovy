@@ -26,7 +26,8 @@ class WsChatController {
     def chat() { 
 		def chatTitle=grailsApplication?.config?.wschat.title ?: 'Grails Websocket Chat'
 		def chatHeader=grailsApplication?.config?.wschat.heading ?: 'Grails websocket chat'
+		def hostname=grailsApplication?.config?.wschat.hostname ?: 'localhost:8080'
 		def chatuser=session.user
-		[chatuser:chatuser, chatTitle:chatTitle,chatHeader:chatHeader, now:new Date()]
+		[chatuser:chatuser, chatTitle:chatTitle,chatHeader:chatHeader, now:new Date(),hostname:hostname]
 	}
 }

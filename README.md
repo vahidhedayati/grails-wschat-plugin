@@ -51,4 +51,18 @@ wschat.title='Grails Websocket Chat'
 */
 wschat.heading='Grails Websocket Chat'
 
+
+/*
+* This is the most important configuration 
+* in my current version the hostname is being defined by tomcat start up setenv.sh
+* In my tomcat setenv.sh I have
+* HOSTNAME=$(hostname)
+* JAVA_OPTS="$JAVA_OPTS -DSERVERURL=$HOSTNAME"
+*
+* Now as per below the hostname is getting set to this value
+* if not defined wschat will default it localhost:8080
+*
+*/
+wschat.hostname=System.getProperty('SERVERURL')+":8080"
+
 ```
