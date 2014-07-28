@@ -3,6 +3,7 @@ wschat 0.1
 
 Grails websocket chat Plugin based on existing examples, provides  websocket chat that can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
 
+Plugin will work with tomcat 7.0.54 + (8 as well) running java 1.7 +
 
 
 Dependency :
@@ -66,3 +67,17 @@ wschat.heading='Grails Websocket Chat'
 wschat.hostname=System.getProperty('SERVERURL')+":8080"
 
 ```
+
+#Issues:
+
+Whilst running this plugin on a tomcat server from an application that calls plugin, I have seen:
+
+javax.websocket.DeploymentException: Multiple Endpoints may not be deployed to the same path [/WsChatEndpoint]
+	at org.apache.tomcat.websocket.server.WsServerContainer.addEndpoint(WsServerContainer.java:209)
+	at org.apache.tomcat.websocket.server.WsServerContainer.addEndpoint(WsServerContainer.java:268)
+	at javax.websocket.server.ServerContainer$addEndpoint.call(Unknown Source)
+	
+This does appear to be a warning and endpoint still works fine
+
+	
+	
