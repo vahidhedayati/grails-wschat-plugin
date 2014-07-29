@@ -1,1 +1,1 @@
-<wschat:chooseLayout file="chat"/>
+<wschat:chooseLayout file="chat" hostname="${hostname }" chatTitle="${chatTitle }"  chatHeader="${chatHeader }"/>

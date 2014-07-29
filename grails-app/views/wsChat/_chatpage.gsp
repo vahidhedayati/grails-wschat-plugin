@@ -19,45 +19,49 @@
 		</div>	
 		<div class="message-south" >
 			<div id="contact-area">
-			<textarea cols="20" rows="3" id="messageBox"  name="message"  ></textarea>
+			<textarea cols="20" rows="3" id="messageBox"  name="message"></textarea>
 			</div>
 			<input type="button" value="send" class="sendbtn" onClick="sendMessage();">
 		</div>
 	</div>						
 </div>
 <g:javascript>
-
-$(document).ready(function() {
-
 	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
 		$("#pageHeader").html(msg);
+		$("#chatterBox").html('');
 	}
-	
- 	$('#messageBox').keypress(function(e){
-      		if(e.which == 13){
-      			if (messageBox.value!="") {
-           			sendMessage();
-           		}	
-       		}
-    	});
-});
-
-
         var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint");
         
         var chatMessages=document.getElementById("chatMessages");
         var onlineUsers=document.getElementById("onlineUsers");
+        var messageBox=document.getElementById("messageBox");
         var user="${chatuser}";
         webSocket.onopen=function(message) {processOpen(message);};
         webSocket.onmessage=function(message) {
             var jsonData=JSON.parse(message.data);
+            
             if (jsonData.message!=null) {chatMessages.value +=jsonData.message+"\n";}
             if (jsonData.users!=null) {onlineUsers.value=jsonData.users+"\n";}
         }   
         webSocket.onclose=function(message) {processClose(message);};
         webSocket.onerror=function(message) {processError(message);};
-
+		
+	
+ 		$('#messageBox').keypress(function(e){
+ 			if (e.keyCode == 13 && !e.shiftKey) {
+    			e.preventDefault();
+			}
+      		if(e.which == 13){
+      			var tmb=messageBox.value.replace(/^\s*[\r\n]/gm, "");
+      			if (tmb!="") {
+      				sendMessage();
+      				 $("#messageBox").val().trim();
+      				 messageBox.focus();
+           		}
+       		}
+    	});
+    	
         function processOpen(message) {
         	<g:if test="${!chatuser}">
         		chatMessages.value +="Chat denied no username"+"\n";
@@ -75,6 +79,7 @@ $(document).ready(function() {
             if (messageBox.value!="/disco") {
                 webSocket.send(messageBox.value);
                 messageBox.value="";
+                messageBox.value.replace(/^\s*[\r\n]/gm, "");
                 scrollToBottom();
             }else {
             	webSocket.send("DISCO:-"+user);
@@ -103,6 +108,6 @@ $(document).ready(function() {
         	webSocket.onclose = function() { }
         	webSocket.close();
         }
-        
+ 
       
 </g:javascript>

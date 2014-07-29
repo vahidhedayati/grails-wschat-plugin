@@ -12,7 +12,7 @@
 </head>
 <body>
 
-<g:render template="/wsChat/chatpage"/>
+<g:render template="/wsChat/chatpage" model="[hostname:hostname, chatTitle:chatTitle, chatHeader:chatHeader]"/>
 
 </body>
 </html>
