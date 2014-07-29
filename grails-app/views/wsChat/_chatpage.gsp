@@ -1,4 +1,4 @@
-<div class="page-header uppercase">
+<div id="pageHeader" class="page-header uppercase">
 <h3>${chatHeader }</h3>
 <small>  
 <div id="clock" data-time="${now.time}">
@@ -26,6 +26,23 @@
 	</div>						
 </div>
 <g:javascript>
+
+$(document).ready(function() {
+
+	if (!window.WebSocket) {
+		var msg = "Your browser does not have WebSocket support";
+		$("#pageHeader").html(msg);
+	}
+	
+ 	$('#messageBox').keypress(function(e){
+      		if(e.which == 13){
+      			if (messageBox.value!="") {
+           			sendMessage();
+           		}	
+       		}
+    	});
+});
+
 
         var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint");
         
@@ -87,11 +104,5 @@
         	webSocket.close();
         }
         
-        $('#messageBox').keypress(function(e){
-      		if(e.which == 13){
-      			if (messageBox.value!="") {
-           			sendMessage();
-           		}	
-       		}
-    	});
+      
 </g:javascript>
