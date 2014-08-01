@@ -58,14 +58,36 @@ class WsChatEndpoint implements ServletContextListener {
         t.printStackTrace()
     }
 	
-	private void sendUsers() { 
+	private void sendUserList(String iuser,Map msg) {
 		def myMsg=[:]
-		StringBuffer sb=new StringBuffer()
-		getCurrentUserNames().each {
-			sb.append("${it}\n")
+		def myMsgj=msg as JSON
+		Iterator<Session> iterator=chatroomUsers.iterator()
+		while (iterator.hasNext())  {
+			def crec=iterator.next()
+			def cuser=crec.getUserProperties().get("username").toString()
+			if (cuser.equals(iuser)) {
+				crec.getBasicRemote().sendText(myMsgj as String)
+			}
 		}
-		myMsg.put("users", sb.toString())
-		broadcast(myMsg)
+	}
+	
+	private void sendUsers(String username) { 
+		Iterator<Session> iterator=chatroomUsers.iterator()
+		while (iterator.hasNext())  {
+			StringBuffer sb=new StringBuffer()
+			def crec=iterator.next()
+			def myMsg=[:]
+			def iuser=crec.getUserProperties().get("username").toString()
+			getCurrentUserNames().each {
+				def cclass=''
+				if (iuser.equals(it)) {
+					cclass="active"
+				}
+				sb.append("\n<li class=\"${cclass}\">\n<span class=\"user-title\">${it}</span>\n</li>\n")
+			}
+			myMsg.put("users", sb.toString())
+			sendUserList(iuser,myMsg)
+		}
 	}
 	
 	private void broadcast(Map msg) {
@@ -74,12 +96,38 @@ class WsChatEndpoint implements ServletContextListener {
 		while (iterator.hasNext()) iterator.next().getBasicRemote().sendText(myMsgj as String)
 	}
 	
+	private void privateMessage(String user,Map msg,Session userSession) {
+		def myMsg=[:]
+		def myMsgj=msg as JSON
+		Iterator<Session> iterator=chatroomUsers.iterator()
+		Boolean found=false
+		while (iterator.hasNext())  {
+			def crec=iterator.next()
+			def cuser=crec.getUserProperties().get("username").toString()
+			if (cuser.equals(user)) {
+				found=true
+				crec.getBasicRemote().sendText(myMsgj as String)
+				myMsg.put("message","--> PM sent to ${user}")
+				messageUser(userSession,myMsg)
+			}
+		}
+		if (found==false) {
+			myMsg.put("message","Error: ${user} not found - unable to send PM")
+			messageUser(userSession,myMsg)
+		}	
+	}
+	private void messageUser(Session userSession,Map msg) { 
+		def myMsgj=msg as JSON
+		userSession.getBasicRemote().sendText(myMsgj as String)
+	}
+	
 	public static List getCurrentUserNames() {
 		return Collections.unmodifiableList(users);
 	}
 	
 	private void verifyAction(Session userSession,String message) {
 		def myMsg=[:]
+	
 		String usernamec=userSession.getUserProperties().get("username") as String
 		String connector="CONN:-"		
 		if (!usernamec)  {
@@ -89,7 +137,7 @@ class WsChatEndpoint implements ServletContextListener {
 				if (!users.contains(username)){
 					users.add(username)
 				}
-				sendUsers()
+				sendUsers(username)
 				myMsg.put("message", "${username} has joined")
 			} else{
 				myMsg.put("message", "issue with request, being disconnected! ${message}")
@@ -98,20 +146,50 @@ class WsChatEndpoint implements ServletContextListener {
 		}else{
 			if (message.startsWith("DISCO:-")) {
 				users.remove(usernamec)
-				sendUsers()
+				
 				chatroomUsers.remove(userSession)
+				sendUsers('')
 				myMsg.put("message", "${usernamec} has left")
+				broadcast(myMsg)
+				
+			// Private Message
+			// EITHER /pm username,message
+			// OR /pm username message
+			}else if (message.startsWith("/pm")) {
+				def p1="/pm "
+				def mu=message.substring(p1.length(),message.length())
+				def user
+				def msg
+				if (mu.indexOf(",")>-1) {
+				 	user=mu.substring(0,mu.indexOf(","))
+					 msg=mu.substring(user.length()+1,mu.length())
+				}else{
+					user=mu.substring(0,mu.indexOf(" "))
+					msg=mu.substring(user.length()+1,mu.length())
+				}
+				if (!user.equals(usernamec)) {
+					myMsg.put("message", "PM(${usernamec}):${msg}")
+					privateMessage(user,myMsg,userSession)
+				}else{
+					myMsg.put("message","Private messaging yourself? action not permitted!")
+					messageUser(userSession,myMsg)
+				}	
+				
+			// Usual chat messages bound for all	
 			}else{
 				myMsg.put("message", "${usernamec}:${message}")
+				broadcast(myMsg)
 			}
 		}
-		broadcast(myMsg)
+		
 	}
 	
 	private String getCurrentUserName(Session userSession) {
+		def myMsg=[:]
 		String username=userSession.getUserProperties().get("username") as String
 		if (!username) {
-			userSession.getBasicRemote().sendText("Access denied no username defined")
+			myMsg.put("message","Access denied no username defined")
+			messageUser(userSession,myMsg)
 			chatroomUsers.remove(userSession)
 		}else{
 			return username

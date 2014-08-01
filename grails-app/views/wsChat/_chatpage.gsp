@@ -10,8 +10,8 @@
 <div id="chatterBox">
 	<div class="message-container">
 		<div class="message-north" >
-		<ul class="message-user-list"  >
-		<textarea  id="onlineUsers" rows="30" cols="25" readonly=readonly></textarea>
+		<ul class='message-user-list'  id='onlineUsers'>
+		<div  id="onlineUsers" ></div>
 		</ul>
 		<div class="message-thread" >
 		<textarea  id="chatMessages" readonly=readonly rows="30" cols="85%"></textarea>
@@ -42,7 +42,10 @@
             var jsonData=JSON.parse(message.data);
             
             if (jsonData.message!=null) {chatMessages.value +=jsonData.message+"\n";}
-            if (jsonData.users!=null) {onlineUsers.value=jsonData.users+"\n";}
+            if (jsonData.users!=null) {
+            //onlineUsers.value=jsonData.users+"\n";
+            $('#onlineUsers').html(jsonData.users);
+            }
         }   
         webSocket.onclose=function(message) {processClose(message);};
         webSocket.onerror=function(message) {processError(message);};
