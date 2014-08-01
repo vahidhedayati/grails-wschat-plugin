@@ -150,6 +150,11 @@
 	font-weight: bold;
 }
 
+.message-container > .message-north > .message-user-list .active { 
+	font-color: #FF0000;
+	font-weight: bold;
+}
+
 .message-container > .message-north > .message-thread {
 	float: right;
 	width: 71%;
