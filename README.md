@@ -27,6 +27,8 @@ Then access chat by going to
 http://localhost:8080/yourapp/wsChat/chat
 ```
 
+# Video:
+It is quite a straight forward plugin but if you must [youtube example grails app running wschat 0.3](https://www.youtube.com/watch?v=U211AZqpkxs)
 
 	 	
 # Config.groovy variables required:
@@ -68,7 +70,19 @@ wschat.hostname=System.getProperty('SERVERURL')+":8080"
 
 ```
 
-#Issues:
+# Commands:
+
+Within chat you can execute
+
+	/disco  		-- to disconnect or leave the page which will auto disconnect you
+	/pm {username} {message}
+	/pm {username},{message}
+	
+	either will send a private message to user defined.. comma for users that have a space in their name..
+	
+	
+	
+# Issues:
 
 Whilst running this plugin on a tomcat server from an application that calls plugin, I have seen:
 ```
@@ -77,7 +91,9 @@ javax.websocket.DeploymentException: Multiple Endpoints may not be deployed to t
 	at org.apache.tomcat.websocket.server.WsServerContainer.addEndpoint(WsServerContainer.java:268)
 	at javax.websocket.server.ServerContainer$addEndpoint.call(Unknown Source)
 ```	
-This does appear to be a warning and endpoint still works fine
+This does appear to be a warning and endpoint still works fine, and happens in tomcat... 7 + 8
+
+
 
 	
 # Custom calling plugin
