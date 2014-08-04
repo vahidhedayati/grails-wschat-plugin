@@ -6,6 +6,7 @@
     </g:if>
     <g:else>
     	<link rel="stylesheet" href="${resource(dir: 'css', file: 'chat.css')}" type="text/css">
+    	<link rel="stylesheet" href="${resource(dir: 'css', file: 'bootstrap.min.css')}" type="text/css">
     </g:else>
    <title>${chatTitle }</title>
    <g:javascript library="jquery"/>

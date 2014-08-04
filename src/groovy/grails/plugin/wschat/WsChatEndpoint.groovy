@@ -79,11 +79,17 @@ class WsChatEndpoint implements ServletContextListener {
 			def myMsg=[:]
 			def iuser=crec.getUserProperties().get("username").toString()
 			getCurrentUserNames().each {
-				def cclass=''
+				def cclass='dropdown-submenu'
 				if (iuser.equals(it)) {
-					cclass="active"
+					cclass="dropdown-submenu active"
 				}
-				sb.append("\n<li class=\"${cclass}\">\n<span class=\"user-title\">${it}</span>\n</li>\n")
+		
+				sb.append("\n<li class=\"${cclass}\">\n<a tabindex=\"-1\" class=\"user-title\" href=\"#\">${it}</a>\n\n")
+				sb.append('<ul class="dropdown-menu">\n')
+				sb.append("<li><a href=\"#\">PM ${it}</li>\n")
+				sb.append('</ul>\n</li>\n')
+				
+				
 			}
 			myMsg.put("users", sb.toString())
 			sendUserList(iuser,myMsg)

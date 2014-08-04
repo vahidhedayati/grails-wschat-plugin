@@ -56,16 +56,18 @@
 	display: block;
 	margin: auto;
 	margin-top: 2.5%;
-	height: 620px; /*Global Height of Widget*/
-	width: 1000px; /*Global Width of Widget*/
+	height: 30em; /*Global Height of Widget*/
+	width: 50em; /*Global Width of Widget*/
 	background: #E1E1E1;
 	box-shadow: 0px 0px 50px #1E1E1E;
+	overflow:auto;
+	resize:both;
 }
 
 .message-container > .message-north {
-	width: 100%;
-	height: 80%;
-
+	width: auto;
+	height: auto;
+	resize:both;
 	-webkit-box-sizing: border-box;
 	   -moz-box-sizing: border-box;
 	        box-sizing: border-box;
@@ -75,20 +77,21 @@
 	width: 100%;
 	height: 20%;
 	padding: 1%;
-
+	resize:both;
 	-webkit-box-sizing: border-box;
 	   -moz-box-sizing: border-box;
 	        box-sizing: border-box;
 }
 
-.message-container > .message-north > .message-user-list {
+.message-container > .message-north > .message-user-list ,.message-container > .message-north >  .dropdown-menu{
 	list-style-type: none;
 	float: left;
 	clear: left;
-	width: 25%;
+	width: 25em;
 	height: 100%;
-	overflow-x: hidden;
-	overflow-y: hidden;
+	overflow:auto;
+	resize:both;
+	
 }
 
 .message-container > .message-north > .message-user-list a {
@@ -118,7 +121,7 @@
 .message-container > .message-north > .message-user-list a .user-img {
 	display: block;
 	float: left;
-	height: 40px;
+	height: 100%;
 	width: 40px;
 	background: #6A8BBA;
 }
@@ -157,17 +160,20 @@
 
 .message-container > .message-north > .message-thread {
 	float: right;
-	width: 71%;
-	height: 98%;
-	padding-left: 0px;
+	width: 81%;
+	height: 25em;
+	white-space: pre;
+	padding-left: 5px;
 	padding-right: 0px;
 	background: #F5F5F5;
-	overflow-x: hidden;
-	overflow-y: hidden;
 
+	overflow:auto;
+	resize:both;
 	-webkit-box-sizing: border-box;
 	   -moz-box-sizing: border-box;
 	        box-sizing: border-box;
+	        
+	    
 }
 
 .message-container > .message-north > .message-thread > .message {
@@ -264,24 +270,10 @@
 
 
 #chatterBox {
-	margin-top: 3em;
-	padding: 5px;
 	left: auto;
 	right: auto;
 }
-#chatMessages2 {
-    border: 1px solid #000;
-    width: 595px;
-    height: 360px;
-    overflow-y: auto;
-    background: #FFF;
-}
-#messageBox2 {
-	border: 1px solid #000;
-    width: 595px;
-    color: #f00;
-    background: #000;
-}
+
 .nickname {
     color: #f00;
     font-weight: bold;
@@ -293,35 +285,16 @@
 
 
 /* Contact Area for emailing */
-#contact-area input, #contact-area textarea {
-padding: 5px;
-width: 50em;
-font-size: 1.1em;
-margin: 0px 0px 10px 0px;
-border: 2px solid #ccc;
-}
-
 #contact-area textarea {
-height: 3em;
+	padding: 1px;
+	width: 89%;
+	font-size: 1.1em;
+	margin: 2px 0px 0px 0em;
+	border: 2px solid #ccc;
+	height: 2em;
 }
 
 #contact-area textarea:focus, #contact-area input:focus {
-border: 2px solid #900;
-}
-/* Contact Area for emailing */
-#contact-area2 input, #contact-area2 textarea {
-padding: 5px;
-width: 10em;
-font-size: 1.1em;
-margin: 0px 0px 10px 0px;
-border: 2px solid #ccc;
-}
-
-#contact-area2 textarea {
-height: 3em;
-}
-
-#contact-area2 textarea:focus, #contact-area2 input:focus {
 border: 2px solid #900;
 }
 .sendbtn { 
@@ -346,8 +319,22 @@ border: 2px solid #900;
 	-webkit-border-radius:4px;
 	 border:1px solid #1A87B9 
 } 
+
+#messageBox textarea {
+	height: 1em;
+	width: 20em;
+}
 #contact-area input.submit-button {
 width: 10px;
 float: right;
 }
-.page-header{padding-bottom:9px;margin:20px 0 30px;border-bottom:1px solid #eeeeee;}
+
+.page-header2{padding-bottom:1px;margin:2px 0 3px;border-bottom:1px solid #eeeeee;}
+
+/*.dropdown-submenu{position:relative;}
+.dropdown-submenu>.dropdown-menu{top:0;left:100%;margin-top:-6px;margin-left:-1px;-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px;}
+.dropdown-submenu:hover>.dropdown-menu{display:block;}
+.dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;}
+.dropdown-submenu:hover>a:after{border-left-color:#ffffff;}
+.dropdown-submenu{float:none;}.dropdown-submenu>.dropdown-menu{right:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
+.sidebar{float:right;margin-right:20px;}*/

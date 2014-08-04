@@ -1,7 +1,7 @@
-<div class="page-header uppercase">
+<div class="page-header2 uppercase">
 <h3>${chatHeader }</h3>
 </div>
-<div id="chatterBox">
+
 
 	<div class="message-container" >
 	<form id="form1" method="post" action="login">
@@ -14,4 +14,3 @@
 		</div>
 	</form>
 	</div>						
-</div>

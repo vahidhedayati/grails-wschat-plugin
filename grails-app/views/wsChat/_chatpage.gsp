@@ -1,116 +1,123 @@
-<div id="pageHeader" class="page-header uppercase">
-<h3>${chatHeader }</h3>
+<div id="pageHeader" class="page-header2">
+<h2>${chatHeader }</h2>
 <small>  
-<div id="clock" data-time="${now.time}">
-    <h5>${now}</h5>
-</div> 
-</b></small>
+${now}
+</small>
 </div>
 
 <div id="chatterBox">
 	<div class="message-container">
 		<div class="message-north" >
-		<ul class='message-user-list'  id='onlineUsers'>
+		
+	<div class="row">
+          <div id="sidebar" class="message-user-list sidebar-nav span3">
+		<div class="message-user-list sidebar">
+		<ul class="nav nav-tabs nav-stacked"  >
+		 <ul class="dropdown-menu" id='onlineUsers' style="display: block; position: static; margin-bottom: 5px; *width: 180px;">
 		<div  id="onlineUsers" ></div>
 		</ul>
-		<div class="message-thread" >
-		<textarea  id="chatMessages" readonly=readonly rows="30" cols="85%"></textarea>
+		</ul>
+		</div>
+		</div>
+		<div class="message-thread" id="cmessage" >
+		<div  id="chatMessages" ></div>
 		</div>
 		</div>	
 		<div class="message-south" >
 			<div id="contact-area">
-			<textarea cols="20" rows="3" id="messageBox"  name="message"></textarea>
-			</div>
+			<textarea cols="20" rows="1" id="messageBox"  name="message"></textarea>
+			
 			<input type="button" value="send" class="sendbtn" onClick="sendMessage();">
+			</div>
 		</div>
 	</div>						
 </div>
+
 <g:javascript>
 	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
 		$("#pageHeader").html(msg);
 		$("#chatterBox").html('');
 	}
-        var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint");
-        
-        var chatMessages=document.getElementById("chatMessages");
-        var onlineUsers=document.getElementById("onlineUsers");
-        var messageBox=document.getElementById("messageBox");
-        var user="${chatuser}";
-        webSocket.onopen=function(message) {processOpen(message);};
-        webSocket.onmessage=function(message) {
-            var jsonData=JSON.parse(message.data);
-            
-            if (jsonData.message!=null) {chatMessages.value +=jsonData.message+"\n";}
-            if (jsonData.users!=null) {
-            //onlineUsers.value=jsonData.users+"\n";
-            $('#onlineUsers').html(jsonData.users);
-            }
-        }   
-        webSocket.onclose=function(message) {processClose(message);};
-        webSocket.onerror=function(message) {processError(message);};
-		
 	
- 		$('#messageBox').keypress(function(e){
- 			if (e.keyCode == 13 && !e.shiftKey) {
-    			e.preventDefault();
-			}
-      		if(e.which == 13){
-      			var tmb=messageBox.value.replace(/^\s*[\r\n]/gm, "");
-      			if (tmb!="") {
-      				sendMessage();
-      				 $("#messageBox").val().trim();
-      				 messageBox.focus();
-           		}
-       		}
-    	});
-    	
-        function processOpen(message) {
-        	<g:if test="${!chatuser}">
-        		chatMessages.value +="Chat denied no username"+"\n";
-        		webSocket.send("DISCO:-"+user);
-        	 	webSocket.close();
-        	</g:if>
-        	<g:else>
-        		webSocket.send("CONN:-"+user);
-            	chatMessages.value +=user+" connected to chat.... "+"\n";
-            	scrollToBottom();
-            </g:else>
-        }
-
-        function sendMessage() {
-            if (messageBox.value!="/disco") {
-                webSocket.send(messageBox.value);
-                messageBox.value="";
-                messageBox.value.replace(/^\s*[\r\n]/gm, "");
-                scrollToBottom();
-            }else {
-            	webSocket.send("DISCO:-"+user);
-            	chatMessages.value +=user+" disconnecting from server... "+"\n";
-            	messageBox.value="";
-                webSocket.close();
-            }   
-        }
-        
-        function processClose(message) {
-        	webSocket.send("DISCO:-"+user);
-         	chatMessages.value +=user+" disconnecting from server... "+"\n";
-         	webSocket.close();
-        }
-        
-        function processError(message) {
-            chatMessages.value +=" Error.... \n";
-        }
-        
-        function scrollToBottom() {
-   			$('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+    var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint");
+       
+    var chatMessages=document.getElementById("chatMessages");
+    var onlineUsers=document.getElementById("onlineUsers");
+    var messageBox=document.getElementById("messageBox");
+    var user="${chatuser}";
+    
+    webSocket.onopen=function(message) {processOpen(message);};
+    webSocket.onclose=function(message) {processClose(message);};
+    webSocket.onerror=function(message) {processError(message);};
+	
+    webSocket.onmessage=function(message) {
+    	var jsonData=JSON.parse(message.data);
+    	if (jsonData.message!=null) {$('#chatMessages').append(jsonData.message+"\n");}
+    	if (jsonData.users!=null) {
+         $('#onlineUsers').html(jsonData.users);
+       	}
+    }
+     
+	$('#messageBox').keypress(function(e){
+		if (e.keyCode == 13 && !e.shiftKey) {
+   			e.preventDefault();
 		}
-		
-        window.onbeforeunload = function() {
-          	webSocket.send("DISCO:-"+user);
-        	webSocket.onclose = function() { }
+     	if(e.which == 13){
+     		var tmb=messageBox.value.replace(/^\s*[\r\n]/gm, "");
+     		if (tmb!="") {
+     			sendMessage();
+     			 $("#messageBox").val().trim();
+     			 messageBox.focus();
+        	}
+   	   }
+   	});
+   	
+   function processOpen(message) {
+    	<g:if test="${!chatuser}">
+       		$('#chatMessages').append("Chat denied no username \n");
+       		webSocket.send("DISCO:-"+user);
+       	 	webSocket.close();
+       	</g:if>
+       	<g:else>
+       		webSocket.send("CONN:-"+user);
+           	$('#chatMessages').append(user+" connected to chat.... \n");
+           	scrollToBottom();
+       </g:else>
+ 	}
+
+    function sendMessage() {
+           if (messageBox.value!="/disco") {
+               webSocket.send(messageBox.value);
+               messageBox.value="";
+               messageBox.value.replace(/^\s*[\r\n]/gm, "");
+               scrollToBottom();
+           }else {
+           	webSocket.send("DISCO:-"+user);
+           	$('#chatMessages').append(user+" disconnecting from server... \n");
+           	messageBox.value="";
+               webSocket.close();
+           }   
+     }
+       
+     function processClose(message) {
+       	webSocket.send("DISCO:-"+user);
+        	$('#chatMessages').append(user+" disconnecting from server... \n");
         	webSocket.close();
-        }
- 
-      
+     }
+       
+     function processError(message) {
+           $('#chatMessages').append("Error.... \n");
+     }
+       
+     function scrollToBottom() {
+  			$('#cmessage').scrollTop($('#cmessage')[0].scrollHeight);
+  			
+	 }
+	
+     window.onbeforeunload = function() {
+       	webSocket.send("DISCO:-"+user);
+       	webSocket.onclose = function() { }
+       	webSocket.close();
+     }
 </g:javascript>

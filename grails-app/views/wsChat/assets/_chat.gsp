@@ -5,7 +5,8 @@
     	<meta name='layout' content="achat"/>
     </g:if>
     <g:else>
-    	 <asset:stylesheet href="application.css" />
+    	 <asset:stylesheet href="chat.css" />
+    	 <asset:stylesheet href="bootstrap.min.css" />
     </g:else>
    <title>${chatTitle }</title>
    <g:javascript library="jquery"/>

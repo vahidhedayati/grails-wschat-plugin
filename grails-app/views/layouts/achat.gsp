@@ -10,6 +10,7 @@
 		<title><g:layoutTitle default="Grails"/></title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<asset:stylesheet src="chat.css"/>
+			<asset:stylesheet src="bootstrap.min.css"/>
 		<g:layoutHead/>
 	</head>
 	<body>
