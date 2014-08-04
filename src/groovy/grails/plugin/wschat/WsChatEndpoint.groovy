@@ -73,12 +73,13 @@ class WsChatEndpoint implements ServletContextListener {
 	
 	private void sendUsers(String username) { 
 		Iterator<Session> iterator=chatroomUsers.iterator()
+		def myMsg=[:]
 		while (iterator.hasNext())  {
 			def crec=iterator.next()
 			def cuser=crec.getUserProperties().get("username").toString()
 			StringBuffer sb=new StringBuffer()
 			if (cuser) {
-				def myMsg=[:]
+				
 				def cclass='dropdown-submenu'
 				if ((username)&&(username.equals(cuser))) {
 					cclass="dropdown-submenu active"
