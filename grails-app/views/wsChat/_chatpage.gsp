@@ -5,20 +5,29 @@ ${now}
 </small>
 </div>
 
+
+          
+          
+          
+          
+          
+          
+
 <div id="chatterBox">
 	<div class="message-container">
+	
 		<div class="message-north" >
+		<div class="message-user-list" >
 		
-	<div class="row">
-          <div id="sidebar" class="message-user-list sidebar-nav span3">
-		<div class="message-user-list sidebar">
+      
 		<ul class="nav nav-tabs nav-stacked"  >
-		 <ul class="dropdown-menu" id='onlineUsers' style="display: block; position: static; margin-bottom: 5px; *width: 180px;">
-		<div  id="onlineUsers" ></div>
+		 <ul class="dropdown-menu" id='onlineUsers' style="display: block; position: static; margin-bottom: 5px; *">
+		<span  id="onlineUsers" />
 		</ul>
 		</ul>
 		</div>
-		</div>
+		
+		
 		<div class="message-thread" id="cmessage" >
 		<div  id="chatMessages" ></div>
 		</div>
@@ -32,6 +41,8 @@ ${now}
 		</div>
 	</div>						
 </div>
+	
+
 
 <g:javascript>
 	if (!window.WebSocket) {

@@ -15,7 +15,7 @@ class WsChatController {
 	}
 	
 	def login(String username) {
-		def process=grailsApplication?.config?.wschat.disable.login ?: 'no'
+		def process=grailsApplication.config.wschat.disable.login ?: 'no'
 		if (process.equals('yes')) {
 			render "Default sign in page disabled"
 		}

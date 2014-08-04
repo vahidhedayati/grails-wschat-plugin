@@ -74,25 +74,20 @@ class WsChatEndpoint implements ServletContextListener {
 	private void sendUsers(String username) { 
 		Iterator<Session> iterator=chatroomUsers.iterator()
 		while (iterator.hasNext())  {
-			StringBuffer sb=new StringBuffer()
 			def crec=iterator.next()
-			def myMsg=[:]
-			def iuser=crec.getUserProperties().get("username").toString()
-			getCurrentUserNames().each {
+			def cuser=crec.getUserProperties().get("username").toString()
+			StringBuffer sb=new StringBuffer()
+			if (cuser) {
+				def myMsg=[:]
 				def cclass='dropdown-submenu'
-				if (iuser.equals(it)) {
+				if ((username)&&(username.equals(cuser))) {
 					cclass="dropdown-submenu active"
 				}
-		
-				sb.append("\n<li class=\"${cclass}\">\n<a tabindex=\"-1\" class=\"user-title\" href=\"#\">${it}</a>\n\n")
-				sb.append('<ul class="dropdown-menu">\n')
-				sb.append("<li><a href=\"#\">PM ${it}</li>\n")
-				sb.append('</ul>\n</li>\n')
-				
-				
-			}
-			myMsg.put("users", sb.toString())
-			sendUserList(iuser,myMsg)
+				sb.append("<li class=\"${cclass}\"><a tabindex=\"-1\" class=\"user-title\" href=\"#\">${cuser}</a>")
+				sb.append('<ul class="dropdown-menu"><li><a href="#">PM'+cuser+'</a></li></ul></li>')
+				myMsg.put("users", sb.toString())
+				sendUserList(cuser,myMsg)
+			}	
 		}
 	}
 	
@@ -154,13 +149,10 @@ class WsChatEndpoint implements ServletContextListener {
 				users.remove(usernamec)
 				
 				chatroomUsers.remove(userSession)
-				sendUsers('')
+				sendUsers(null)
 				myMsg.put("message", "${usernamec} has left")
 				broadcast(myMsg)
-				
-			// Private Message
-			// EITHER /pm username,message
-			// OR /pm username message
+	
 			}else if (message.startsWith("/pm")) {
 				def p1="/pm "
 				def mu=message.substring(p1.length(),message.length())
