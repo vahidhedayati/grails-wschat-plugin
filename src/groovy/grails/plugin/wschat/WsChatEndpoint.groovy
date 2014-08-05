@@ -59,7 +59,6 @@ class WsChatEndpoint implements ServletContextListener {
     }
 	
 	private void sendUserList(String iuser,Map msg) {
-		def myMsg=[:]
 		def myMsgj=msg as JSON
 		Iterator<Session> iterator=chatroomUsers.iterator()
 		while (iterator.hasNext())  {
@@ -73,23 +72,28 @@ class WsChatEndpoint implements ServletContextListener {
 	
 	private void sendUsers(String username) { 
 		Iterator<Session> iterator=chatroomUsers.iterator()
-		def myMsg=[:]
 		while (iterator.hasNext())  {
+			def myMsg=[:]
+			StringBuffer sb=new StringBuffer()
 			def crec=iterator.next()
 			def cuser=crec.getUserProperties().get("username").toString()
-			StringBuffer sb=new StringBuffer()
-			if (cuser) {
-				
-				def cclass='dropdown-submenu'
-				if ((username)&&(username.equals(cuser))) {
+			getCurrentUserNames().each {
+				def cclass
+				if (cuser.equals(it)) {
 					cclass="dropdown-submenu active"
+					sb.append("<li class=\"${cclass}\"><a tabindex=\"-1\" class=\"user-title\" href=\"#\">${it}</a>")
+					sb.append('<ul class="dropdown-menu"><li><a href="#">'+it+'\'s profile</a></li></ul></li>')
+				}else{
+					cclass='dropdown-submenu'
+					sb.append("<li class=\"${cclass}\"><a tabindex=\"-1\" class=\"user-title\" href=\"#\">${it}</a>")
+					sb.append('<ul class="dropdown-menu"><li><a href="#">PM '+it+'</a></li></ul></li>')
 				}
-				sb.append("<li class=\"${cclass}\"><a tabindex=\"-1\" class=\"user-title\" href=\"#\">${cuser}</a>")
-				sb.append('<ul class="dropdown-menu"><li><a href="#">PM'+cuser+'</a></li></ul></li>')
-				myMsg.put("users", sb.toString())
-				sendUserList(cuser,myMsg)
-			}	
+						}	
+			myMsg.put("users", sb.toString())
+			sendUserList(cuser,myMsg)
 		}
+		
+		
 	}
 	
 	private void broadcast(Map msg) {
@@ -167,7 +171,7 @@ class WsChatEndpoint implements ServletContextListener {
 					msg=mu.substring(user.length()+1,mu.length())
 				}
 				if (!user.equals(usernamec)) {
-					myMsg.put("message", "PM(${usernamec}):${msg}")
+					myMsg.put("message", "> PM > ${usernamec}: ${msg}")
 					privateMessage(user,myMsg,userSession)
 				}else{
 					myMsg.put("message","Private messaging yourself? action not permitted!")
@@ -176,7 +180,7 @@ class WsChatEndpoint implements ServletContextListener {
 				
 			// Usual chat messages bound for all	
 			}else{
-				myMsg.put("message", "${usernamec}:${message}")
+				myMsg.put("message", "${usernamec}: ${message}")
 				broadcast(myMsg)
 			}
 		}

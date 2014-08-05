@@ -17,28 +17,33 @@ ${now}
 	<div class="message-container">
 	
 		<div class="message-north" >
-		<div class="message-user-list" >
+
 		
-      
+      		<div class="message-user-list" >
+      	 <div id="fixyflow">
+      		 	<div id="fixflow">
+     
 		<ul class="nav nav-tabs nav-stacked"  >
 		 <ul class="dropdown-menu" id='onlineUsers' style="display: block; position: static; margin-bottom: 5px; *">
 		<span  id="onlineUsers" />
 		</ul>
 		</ul>
 		</div>
-		
-		
+		</div>
+		</div>
 		<div class="message-thread" id="cmessage" >
 		<div  id="chatMessages" ></div>
 		</div>
-		</div>	
+		</div>
+
 		<div class="message-south" >
-			<div id="contact-area">
+
 			<textarea cols="20" rows="1" id="messageBox"  name="message"></textarea>
 			
 			<input type="button" value="send" class="sendbtn" onClick="sendMessage();">
-			</div>
 		</div>
+
+		
 	</div>						
 </div>
 	
