@@ -76,27 +76,24 @@ class WsChatEndpoint implements ServletContextListener {
 	private void sendUsers(String username) { 
 		Iterator<Session> iterator=chatroomUsers.iterator()
 		
-		def js="""<script type="text/javascript"> 
-          
-
-   \$(function() {
-          var box = null;
-
-        	 \$("#privateMessage").click( function(event, ui) {
-              if(box) {
-                  box.chatbox("option", "boxManager").toggleBox();
-              }
-              else {
-                  box = \$("#chat_div").chatbox({id:"chat_div", 
-                                                user:{key : "value"},
-                                                title : "test chat",
-                                                messageSent : function(id, user, msg) {
-                                                    \$("#log").append(id + " said: " + msg + "<br/>");
-                                                    \$("#chat_div").chatbox("option", "boxManager").addMsg(id, msg);
-                                                }});
-              }
-          });
-      });
+		def js="""
+<script type="text/javascript"> 
+	\$(function() {
+		var box = null;
+        \$("#privateMessage").click( function(event, ui) {
+         if(box) {
+        	box.chatbox("option", "boxManager").toggleBox();
+         }else {
+         	box = \$("#chat_div").chatbox({id:"chat_div", 
+            	user:{key : "value"},
+                title : "PM: ",
+                messageSent : function(id, user, msg) {
+                \$("#log").append(id + " said: " + msg + "<br/>");
+                \$("#chat_div").chatbox("option", "boxManager").addMsg(id, msg);
+        		}});
+        }
+       });
+    });
 </script>
 """
 		while (iterator.hasNext())  {
@@ -120,14 +117,11 @@ class WsChatEndpoint implements ServletContextListener {
 					sb.append('<li><a href="#">Block  '+it+'</a></li>\n')
 					sb.append('<li><a href="#" id="privateMessage">PM  '+it+'</a></li>\n')
 					sb.append('</ul>\n</li>\n')
-					
 				}
-						}	
+			}	
 			myMsg.put("users", sb.toString())
 			sendUserList(cuser,myMsg)
 		}
-		
-		
 	}
 	
 	private void broadcast(Map msg) {
