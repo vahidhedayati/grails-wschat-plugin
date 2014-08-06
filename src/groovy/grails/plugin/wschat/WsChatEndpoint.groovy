@@ -12,11 +12,13 @@ import javax.websocket.OnError
 import javax.websocket.OnMessage
 import javax.websocket.OnOpen
 import javax.websocket.Session
+import javax.websocket.server.PathParam
 import javax.websocket.server.ServerContainer
 import javax.websocket.server.ServerEndpoint
 
 
 @WebListener
+//@ServerEndpoint("/WsChatEndpoint/{room}")
 @ServerEndpoint("/WsChatEndpoint")
 class WsChatEndpoint implements ServletContextListener {
 	
@@ -39,7 +41,8 @@ class WsChatEndpoint implements ServletContextListener {
     }
 	
     @OnOpen
-    public void handleOpen(Session userSession) { 
+    //public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) { 
+	public void handleOpen(Session userSession) {
 		chatroomUsers.add(userSession)
     }	
 	
@@ -72,9 +75,34 @@ class WsChatEndpoint implements ServletContextListener {
 	
 	private void sendUsers(String username) { 
 		Iterator<Session> iterator=chatroomUsers.iterator()
+		
+		def js="""<script type="text/javascript"> 
+          
+
+   \$(function() {
+          var box = null;
+
+        	 \$("#privateMessage").click( function(event, ui) {
+              if(box) {
+                  box.chatbox("option", "boxManager").toggleBox();
+              }
+              else {
+                  box = \$("#chat_div").chatbox({id:"chat_div", 
+                                                user:{key : "value"},
+                                                title : "test chat",
+                                                messageSent : function(id, user, msg) {
+                                                    \$("#log").append(id + " said: " + msg + "<br/>");
+                                                    \$("#chat_div").chatbox("option", "boxManager").addMsg(id, msg);
+                                                }});
+              }
+          });
+      });
+</script>
+"""
 		while (iterator.hasNext())  {
 			def myMsg=[:]
 			StringBuffer sb=new StringBuffer()
+			sb.append(js)
 			def crec=iterator.next()
 			def cuser=crec.getUserProperties().get("username").toString()
 			getCurrentUserNames().each {
@@ -85,8 +113,14 @@ class WsChatEndpoint implements ServletContextListener {
 					sb.append('<ul class="dropdown-menu"><li><a href="#">'+it+'\'s profile</a></li></ul></li>')
 				}else{
 					cclass='dropdown-submenu'
-					sb.append("<li class=\"${cclass}\"><a tabindex=\"-1\" class=\"user-title\" href=\"#\">${it}</a>")
-					sb.append('<ul class="dropdown-menu"><li><a href="#">PM '+it+'</a></li></ul></li>')
+					sb.append("<li class=\"${cclass}\"><a tabindex=\"-1\" class=\"user-title\" href=\"#\">${it}</a>\n")
+					sb.append('<ul class="dropdown-menu">\n')
+					sb.append('<li><a href="#">Add '+it+' as friend</a></li>\n')
+					sb.append('<li><a href="#">Ignore '+it+'</a></li>\n')
+					sb.append('<li><a href="#">Block  '+it+'</a></li>\n')
+					sb.append('<li><a href="#" id="privateMessage">PM  '+it+'</a></li>\n')
+					sb.append('</ul>\n</li>\n')
+					
 				}
 						}	
 			myMsg.put("users", sb.toString())
@@ -174,7 +208,7 @@ class WsChatEndpoint implements ServletContextListener {
 					myMsg.put("message", "> PM > ${usernamec}: ${msg}")
 					privateMessage(user,myMsg,userSession)
 				}else{
-					myMsg.put("message","Private messaging yourself? action not permitted!")
+					myMsg.put("message","Private message self?")
 					messageUser(userSession,myMsg)
 				}	
 				

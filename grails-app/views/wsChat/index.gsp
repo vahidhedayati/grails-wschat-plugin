@@ -1,1 +1,1 @@
-<wschat:chooseLayout file="index"/>
+<wschat:chooseLayout file="index"  loadtemplate="indexpage" />

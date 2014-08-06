@@ -5,12 +5,11 @@ ${now}
 </small>
 </div>
 
-
-          
-          
-          
-          
-          
+    <div id="chat_div">
+    </div>
+    <hr />
+    <div id="log">
+    </div>
           
 
 <div id="chatterBox">
@@ -48,13 +47,14 @@ ${now}
 </div>
 	
 
-
 <g:javascript>
 	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
 		$("#pageHeader").html(msg);
 		$("#chatterBox").html('');
 	}
+	
+	
 	
     var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint");
        
