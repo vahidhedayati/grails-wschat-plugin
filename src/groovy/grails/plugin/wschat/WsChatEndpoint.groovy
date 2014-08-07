@@ -75,7 +75,7 @@ class WsChatEndpoint implements ServletContextListener {
 	
 	private void sendUsers(String username) { 
 		Iterator<Session> iterator=chatroomUsers.iterator()
-		
+		/*
 		def js="""
 <script type="text/javascript"> 
 	\$(function() {
@@ -96,31 +96,63 @@ class WsChatEndpoint implements ServletContextListener {
     });
 </script>
 """
+*/
+
 		while (iterator.hasNext())  {
 			def myMsg=[:]
+			def uL=[:]
+			def uList=[:]
 			StringBuffer sb=new StringBuffer()
-			sb.append(js)
+			StringBuffer sb1=new StringBuffer()
 			def crec=iterator.next()
 			def cuser=crec.getUserProperties().get("username").toString()
+			
 			getCurrentUserNames().each {
+				/*
+				 * def js="""
+				 
+<script type="text/javascript">
+var genDiv = "<div id='${it}'></div>";
+
+  \$( genDiv );
+//var container=document.createElement('div');
+//container.id='${it}';
+//var mynode=document.createElement('div');
+//mynode.id='myNode';
+//container.appendChild(mynode);
+
+// \$(container).find('#myNode').wrap('<div id="'+mynode.id+'">');
+</script>
+"""
+				sb.append(js)
+*/
+				
+				//uL.put('flatUsers', it)
+				//uList.add(uL)
+				//uList.add("<div id='${it}'></div>")
+				//uL.put('divUsers', "<div id='${it}'></div>")
+				sb1.append("<div id='${it}'></div>\n")
 				def cclass
 				if (cuser.equals(it)) {
 					cclass="dropdown-submenu active"
 					sb.append("<li class=\"${cclass}\"><a tabindex=\"-1\" class=\"user-title\" href=\"#\">${it}</a>")
-					sb.append('<ul class="dropdown-menu"><li><a href="#">'+it+'\'s profile</a></li></ul></li>')
+					sb.append('<ul class="dropdown-menu"><li><a>'+it+'\'s profile</a></li></ul></li>')
 				}else{
 					cclass='dropdown-submenu'
 					sb.append("<li class=\"${cclass}\"><a tabindex=\"-1\" class=\"user-title\" href=\"#\">${it}</a>\n")
 					sb.append('<ul class="dropdown-menu">\n')
-					sb.append('<li><a href="#">Add '+it+' as friend</a></li>\n')
-					sb.append('<li><a href="#">Ignore '+it+'</a></li>\n')
-					sb.append('<li><a href="#">Block  '+it+'</a></li>\n')
-					sb.append('<li><a href="#" id="privateMessage">PM  '+it+'</a></li>\n')
+					//sb.append('<li><a href="#">Add '+it+' as friend</a></li>\n')
+					//sb.append('<li><a href="#">Ignore '+it+'</a></li>\n')
+					//sb.append('<li><a >Block  '+it+'</a></li>\n')
+					sb.append('<li><a onclick="javascript:pmuser(\''+it+'\', \''+cuser+'\');">PM  '+it+'</a></li>\n')
 					sb.append('</ul>\n</li>\n')
 				}
 			}	
+			//System.out.println(uList.toString)
+			uList.put('genDiv', sb1.toString())
 			myMsg.put("users", sb.toString())
 			sendUserList(cuser,myMsg)
+			sendUserList(cuser,uList)
 		}
 	}
 	

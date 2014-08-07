@@ -11,6 +11,8 @@ ${now}
     <div id="log">
     </div>
           
+          <div id="userList">
+          </div>
 
 <div id="chatterBox">
 	<div class="message-container">
@@ -73,8 +75,30 @@ ${now}
     	if (jsonData.users!=null) {
          $('#onlineUsers').html(jsonData.users);
        	}
+       	if (jsonData.genDiv!=null) {
+    
+         $('#userList').html(jsonData.genDiv);
+       	}
     }
-     
+    
+    function pmuser(suser,sender) {
+	    $(function(event, ui) {
+			var box = null;
+	         if(box) {
+	        	box.chatbox("option", "boxManager").toggleBox();
+	         }else {
+	         	box = $("#"+suser).chatbox({id:sender, 
+	            	user:{key : "value"},
+	                title : "PM: "+user,
+	                messageSent : function(id, user, msg) {
+	                //$("#log").append(id + " said: " + msg + "<br/>");
+	                $("#"+suser).chatbox("option", "boxManager").addMsg(id, msg);
+	                 webSocket.send("/pm "+suser+","+msg);
+	        		}})
+	        		
+	        }
+	     });
+    }
 	$('#messageBox').keypress(function(e){
 		if (e.keyCode == 13 && !e.shiftKey) {
    			e.preventDefault();
