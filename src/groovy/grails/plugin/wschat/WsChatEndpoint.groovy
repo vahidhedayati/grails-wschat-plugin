@@ -75,29 +75,6 @@ class WsChatEndpoint implements ServletContextListener {
 	
 	private void sendUsers(String username) { 
 		Iterator<Session> iterator=chatroomUsers.iterator()
-		/*
-		def js="""
-<script type="text/javascript"> 
-	\$(function() {
-		var box = null;
-        \$("#privateMessage").click( function(event, ui) {
-         if(box) {
-        	box.chatbox("option", "boxManager").toggleBox();
-         }else {
-         	box = \$("#chat_div").chatbox({id:"chat_div", 
-            	user:{key : "value"},
-                title : "PM: ",
-                messageSent : function(id, user, msg) {
-                \$("#log").append(id + " said: " + msg + "<br/>");
-                \$("#chat_div").chatbox("option", "boxManager").addMsg(id, msg);
-        		}});
-        }
-       });
-    });
-</script>
-"""
-*/
-
 		while (iterator.hasNext())  {
 			def myMsg=[:]
 			def uL=[:]
@@ -108,29 +85,6 @@ class WsChatEndpoint implements ServletContextListener {
 			def cuser=crec.getUserProperties().get("username").toString()
 			
 			getCurrentUserNames().each {
-				/*
-				 * def js="""
-				 
-<script type="text/javascript">
-var genDiv = "<div id='${it}'></div>";
-
-  \$( genDiv );
-//var container=document.createElement('div');
-//container.id='${it}';
-//var mynode=document.createElement('div');
-//mynode.id='myNode';
-//container.appendChild(mynode);
-
-// \$(container).find('#myNode').wrap('<div id="'+mynode.id+'">');
-</script>
-"""
-				sb.append(js)
-*/
-				
-				//uL.put('flatUsers', it)
-				//uList.add(uL)
-				//uList.add("<div id='${it}'></div>")
-				//uL.put('divUsers', "<div id='${it}'></div>")
 				sb1.append("<div id='${it}'></div>\n")
 				def cclass
 				if (cuser.equals(it)) {
@@ -148,7 +102,6 @@ var genDiv = "<div id='${it}'></div>";
 					sb.append('</ul>\n</li>\n')
 				}
 			}	
-			//System.out.println(uList.toString)
 			uList.put('genDiv', sb1.toString())
 			myMsg.put("users", sb.toString())
 			sendUserList(cuser,myMsg)
@@ -231,7 +184,9 @@ var genDiv = "<div id='${it}'></div>";
 					msg=mu.substring(user.length()+1,mu.length())
 				}
 				if (!user.equals(usernamec)) {
-					myMsg.put("message", "> PM > ${usernamec}: ${msg}")
+					myMsg.put("msgFrom", usernamec)
+					myMsg.put("msgTo", user)
+					myMsg.put("privateMessage", "${usernamec}: ${msg}")
 					privateMessage(user,myMsg,userSession)
 				}else{
 					myMsg.put("message","Private message self?")

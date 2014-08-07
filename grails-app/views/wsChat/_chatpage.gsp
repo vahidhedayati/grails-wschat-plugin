@@ -71,14 +71,52 @@ ${now}
 	
     webSocket.onmessage=function(message) {
     	var jsonData=JSON.parse(message.data);
-    	if (jsonData.message!=null) {$('#chatMessages').append(jsonData.message+"\n");}
+    	
+    	if (jsonData.message!=null) {
+    		$('#chatMessages').append(jsonData.message+"\n");
+    	}
+    	
     	if (jsonData.users!=null) {
-         $('#onlineUsers').html(jsonData.users);
+        	$('#onlineUsers').html(jsonData.users);
        	}
+       	
        	if (jsonData.genDiv!=null) {
-    
-         $('#userList').html(jsonData.genDiv);
+        	$('#userList').html(jsonData.genDiv);
        	}
+       	
+       	if (jsonData.privateMessage!=null) {
+       		var receiver
+       		var sender
+       		if (jsonData.msgFrom!=null) {
+       			sender=jsonData.msgFrom
+       		}
+       		if (jsonData.msgTo!=null) {
+       			receiver=jsonData.msgTo
+       		}
+       		
+       		//$('#chatMessages').append(jsonData.message+"\n");
+       		sendPM(receiver,sender,jsonData.privateMessage);
+       	}
+       	
+    }
+    // Not working
+    function sendPM(receiver,sender,pm) {
+    $(function(event, ui) {
+    	var box = null;
+	         if(box) {
+	        	box.chatbox("option", "boxManager").toggleBox();
+	         }else {
+	         	box = $("#"+sender).chatbox({id:receiver, 
+	            	user:{key : "value"},
+	                title : "PM: "+receiver,
+	                messageSent : function(sender, user, pm) {
+	                //$("#log").append(id + " said: " + msg + "<br/>");
+	                $("#"+sender).chatbox("option", "boxManager").addMsg(id, pm);
+	                 //webSocket.send("/pm "+suser+","+msg);
+	        		}})
+	        		
+	        }
+	       }); 
     }
     
     function pmuser(suser,sender) {
@@ -89,7 +127,7 @@ ${now}
 	         }else {
 	         	box = $("#"+suser).chatbox({id:sender, 
 	            	user:{key : "value"},
-	                title : "PM: "+user,
+	                title : "PM: "+suser,
 	                messageSent : function(id, user, msg) {
 	                //$("#log").append(id + " said: " + msg + "<br/>");
 	                $("#"+suser).chatbox("option", "boxManager").addMsg(id, msg);
