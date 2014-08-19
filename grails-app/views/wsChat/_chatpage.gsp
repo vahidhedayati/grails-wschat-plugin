@@ -56,7 +56,16 @@ ${now}
 		$("#chatterBox").html('');
 	}
 	
-	
+	//var config = {
+	//	width : 200, //px
+	//	gap : 20,
+	//	maxBoxes : 5,
+	//	messageSent : function(dest, msg) {
+	 //   	// override this
+	  //  	$("#" + dest).chatbox("option", "boxManager").addMsg(dest, msg);
+	//	}
+    //};
+	//var showList=1
 	
     var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint");
        
@@ -73,12 +82,17 @@ ${now}
     	var jsonData=JSON.parse(message.data);
     	
     	if (jsonData.message!=null) {
-    		$('#chatMessages').append(jsonData.message+"\n");
+    		$('#chatMessages').append(htmlEncode(jsonData.message)+"\n");
     	}
     	
     	if (jsonData.users!=null) {
         	$('#onlineUsers').html(jsonData.users);
+        	
        	}
+       	
+       	//if (jsonData.userCount!=null) {
+        //	showList=jsonData.userCount        	
+       	//}
        	
        	if (jsonData.genDiv!=null) {
         	$('#userList').html(jsonData.genDiv);
@@ -93,40 +107,41 @@ ${now}
        		if (jsonData.msgTo!=null) {
        			receiver=jsonData.msgTo
        		}
-       		
        		$('#chatMessages').append("PM("+sender+"): "+jsonData.privateMessage+"\n");
        		sendPM(receiver,sender,jsonData.privateMessage);
-       	}
-       	
+       	}   	
     }
+    
     function sendPM(receiver,sender,pm) {
-    //  chatboxManager.addBox("#"+sender);
-     $(function(event, ui) {
-    	var box = null;
-	         if(box) {
-	        	box.chatbox("option", "boxManager").toggleBox();
-	         }else {
-	         	box = $("#"+sender).chatbox({id:sender, 
-	            	user:{key : "value"},
-	                title : "PM from: "+sender,
-	                messageSent : function(id, user, msg) {
-	                //$("#log").append(id + " said: " + msg + "<br/>");
-	                $("#"+sender).chatbox("option", "boxManager").addMsg(receiver, msg);
-	                 webSocket.send("/pm "+sender+","+msg);
-	        		}
-	        		})
-	        		
-	        }
-	       });
-	        //$("#"+receiver).chatbox("option", "boxManager").addMsg(sender, pm);
-	        $("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);  
-	         
+	    //  chatboxManager.addBox("#"+sender);
+	     $(function(event, ui) {
+	    	var box = null;
+		         if(box) {
+		        	box.chatbox("option", "boxManager").toggleBox();
+		         }else {
+		         	box = $("#"+sender).chatbox({id:sender, 
+		            	user:{key : "value"},
+		                title : "PM from: "+sender,
+		                messageSent : function(id, user, msg) {
+		                	//var getNextOffset = function() {
+							//	return (config.width + config.gap) + (showList*20);
+	    					//};
+       		 				//$("#"+sender).chatbox("option", "offset", getNextOffset());
+	                    	$("#"+sender).chatbox("option", "boxManager").addMsg(receiver, msg);
+		                	webSocket.send("/pm "+sender+","+msg);
+		        		}
+		        	})
+		        }
+		   });
+		   $("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);         
     }
     
     function pmuser(suser,sender) {
 	    $(function(event, ui) {
 			var box = null;
-	         if(box) {
+			
+       		
+	        if(box) {
 	        	box.chatbox("option", "boxManager").toggleBox();
 	         }else {
 	         	box = $("#"+suser).chatbox({id:sender, 
@@ -136,11 +151,12 @@ ${now}
 	                //$("#log").append(id + " said: " + msg + "<br/>");
 	                $("#"+suser).chatbox("option", "boxManager").addMsg(id, msg);
 	                 webSocket.send("/pm "+suser+","+msg);
-	        		}})
-	        		
+	        		}
+	        	})
 	        }
 	     });
     }
+    
 	$('#messageBox').keypress(function(e){
 		if (e.keyCode == 13 && !e.shiftKey) {
    			e.preventDefault();
@@ -155,6 +171,10 @@ ${now}
    	   }
    	});
    	
+   	function htmlEncode(value){
+ 	 return $('<div/>').text(value).html();
+	}
+	
    function processOpen(message) {
     	<g:if test="${!chatuser}">
        		$('#chatMessages').append("Chat denied no username \n");
@@ -163,22 +183,24 @@ ${now}
        	</g:if>
        	<g:else>
        		webSocket.send("CONN:-"+user);
-           	$('#chatMessages').append(user+" connected to chat.... \n");
+           	//$('#chatMessages').append(user+" connected to chat.... \n");
            	scrollToBottom();
        </g:else>
  	}
 
     function sendMessage() {
            if (messageBox.value!="/disco") {
+           	 if (messageBox.value!="") {
                webSocket.send(messageBox.value);
                messageBox.value="";
                messageBox.value.replace(/^\s*[\r\n]/gm, "");
                scrollToBottom();
+             }  
            }else {
-           	webSocket.send("DISCO:-"+user);
-           	$('#chatMessages').append(user+" disconnecting from server... \n");
-           	messageBox.value="";
-               webSocket.close();
+           		webSocket.send("DISCO:-"+user);
+           		$('#chatMessages').append(user+" disconnecting from server... \n");
+           		messageBox.value="";
+               	webSocket.close();
            }   
      }
        

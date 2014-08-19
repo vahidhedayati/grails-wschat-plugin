@@ -6,13 +6,13 @@ import grails.converters.JSON
 import javax.servlet.ServletContextEvent
 import javax.servlet.ServletContextListener
 import javax.servlet.annotation.WebListener
+import javax.swing.text.html.HTML
 import javax.websocket.DeploymentException
 import javax.websocket.OnClose
 import javax.websocket.OnError
 import javax.websocket.OnMessage
 import javax.websocket.OnOpen
 import javax.websocket.Session
-import javax.websocket.server.PathParam
 import javax.websocket.server.ServerContainer
 import javax.websocket.server.ServerEndpoint
 
@@ -77,14 +77,16 @@ class WsChatEndpoint implements ServletContextListener {
 		Iterator<Session> iterator=chatroomUsers.iterator()
 		while (iterator.hasNext())  {
 			def myMsg=[:]
+			def uCount=[:]
 			def uL=[:]
 			def uList=[:]
 			StringBuffer sb=new StringBuffer()
 			StringBuffer sb1=new StringBuffer()
 			def crec=iterator.next()
 			def cuser=crec.getUserProperties().get("username").toString()
-			
+			int i=0;
 			getCurrentUserNames().each {
+				i++;
 				sb1.append("<div id='${it}'></div>\n")
 				def cclass
 				if (cuser.equals(it)) {
@@ -104,8 +106,10 @@ class WsChatEndpoint implements ServletContextListener {
 			}	
 			uList.put('genDiv', sb1.toString())
 			myMsg.put("users", sb.toString())
+			uCount.put("userCount", i.toString())
 			sendUserList(cuser,myMsg)
 			sendUserList(cuser,uList)
+			sendUserList(cuser,uCount)
 		}
 	}
 	
@@ -151,7 +155,7 @@ class WsChatEndpoint implements ServletContextListener {
 		String connector="CONN:-"		
 		if (!usernamec)  {
 			if (message.startsWith(connector)) {
-				String username=message.substring(message.indexOf(connector)+connector.length(),message.length())
+				String username=message.substring(message.indexOf(connector)+connector.length(),message.length()).replaceAll(' ', '_').trim()
 				userSession.getUserProperties().put("username", username)
 				if (!users.contains(username)){
 					users.add(username)
@@ -162,6 +166,7 @@ class WsChatEndpoint implements ServletContextListener {
 				myMsg.put("message", "issue with request, being disconnected! ${message}")
 				chatroomUsers.remove(userSession)
 			}
+			broadcast(myMsg)
 		}else{
 			if (message.startsWith("DISCO:-")) {
 				users.remove(usernamec)

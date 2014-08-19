@@ -174,13 +174,13 @@
 
 .message-container > .message-north > .message-thread {
 	float: right;
-	width: 38em;
+	width: 75%;
 	min-height: 25em;
 	height: 90%;
 	white-space: pre;
 	padding-left: 5px;
 	padding-right: 0px;
-	background: #F5F5F5;
+	background: #FFF;
 
 	overflow:auto;
 	
