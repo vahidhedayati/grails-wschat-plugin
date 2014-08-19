@@ -94,7 +94,7 @@ ${now}
        			receiver=jsonData.msgTo
        		}
        		
-       		//$('#chatMessages').append(jsonData.message+"\n");
+       		$('#chatMessages').append("PM("+sender+"): "+jsonData.privateMessage+"\n");
        		sendPM(receiver,sender,jsonData.privateMessage);
        	}
        	
