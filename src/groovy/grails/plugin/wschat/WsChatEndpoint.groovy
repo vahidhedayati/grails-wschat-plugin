@@ -186,7 +186,7 @@ class WsChatEndpoint implements ServletContextListener {
 				if (!user.equals(usernamec)) {
 					myMsg.put("msgFrom", usernamec)
 					myMsg.put("msgTo", user)
-					myMsg.put("privateMessage", "${usernamec}: ${msg}")
+					myMsg.put("privateMessage", "${msg}")
 					privateMessage(user,myMsg,userSession)
 				}else{
 					myMsg.put("message","Private message self?")

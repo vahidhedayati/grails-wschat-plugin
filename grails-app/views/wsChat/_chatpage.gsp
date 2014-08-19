@@ -99,24 +99,26 @@ ${now}
        	}
        	
     }
-    // Not working
     function sendPM(receiver,sender,pm) {
-    $(function(event, ui) {
+    //  chatboxManager.addBox("#"+sender);
+     $(function(event, ui) {
     	var box = null;
 	         if(box) {
 	        	box.chatbox("option", "boxManager").toggleBox();
 	         }else {
-	         	box = $("#"+sender).chatbox({id:receiver, 
+	         	box = $("#"+sender).chatbox({id:sender, 
 	            	user:{key : "value"},
-	                title : "PM: "+receiver,
-	                messageSent : function(sender, user, pm) {
+	                title : "PM from: "+sender,
+	                messageSent : function(id, user, msg) {
 	                //$("#log").append(id + " said: " + msg + "<br/>");
-	                $("#"+sender).chatbox("option", "boxManager").addMsg(id, pm);
-	                 //webSocket.send("/pm "+suser+","+msg);
-	        		}})
+	               /// $("#"+sender).chatbox("option", "boxManager").addMsg(receiver, msg);
+	                 webSocket.send("/pm "+sender+","+msg);
+	        		}
+	        		})
 	        		
 	        }
-	       }); 
+	       });
+	        $("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);  
     }
     
     function pmuser(suser,sender) {
