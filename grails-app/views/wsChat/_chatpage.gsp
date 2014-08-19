@@ -111,14 +111,16 @@ ${now}
 	                title : "PM from: "+sender,
 	                messageSent : function(id, user, msg) {
 	                //$("#log").append(id + " said: " + msg + "<br/>");
-	               /// $("#"+sender).chatbox("option", "boxManager").addMsg(receiver, msg);
+	                $("#"+sender).chatbox("option", "boxManager").addMsg(receiver, msg);
 	                 webSocket.send("/pm "+sender+","+msg);
 	        		}
 	        		})
 	        		
 	        }
 	       });
+	        //$("#"+receiver).chatbox("option", "boxManager").addMsg(sender, pm);
 	        $("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);  
+	         
     }
     
     function pmuser(suser,sender) {
