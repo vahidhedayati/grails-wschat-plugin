@@ -27,6 +27,11 @@ Then access chat by going to
 http://localhost:8080/yourapp/wsChat/chat
 ```
 
+![Demo under 0.6](https://raw.githubusercontent.com/vahidhedayati/testwschat/master/demo/7.jpg)
+Private messages using jquery-ui.chatbox. For this feature to work you need to ensure that when users log in they use a complete word with no spaces and not a numeric id either. The reason is a div id is created for the pm box and this needs to match javascript conventions. So spaces should be removed or replaced with dashes. refer to custom call which I need to update sometime soon to do the same..
+ 
+
+
 # Video:
 It is quite a straight forward plugin but if you must [youtube example grails app running wschat 0.3](https://www.youtube.com/watch?v=U211AZqpkxs)
 
