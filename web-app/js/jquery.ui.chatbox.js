@@ -232,6 +232,9 @@
                     else
                         this.uiChatbox.show();
                     break;
+                case "show":
+                	 this.uiChatbox.show();
+                	 break;
                 case "offset":
                     this._position(value);
                     break;
