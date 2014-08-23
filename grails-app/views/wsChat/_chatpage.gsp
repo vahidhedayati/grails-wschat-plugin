@@ -148,7 +148,7 @@ ${now}
 		        }
 		   });
 		   verifyPosition(sender);
-		   $("#"+sender).chatbox("option", "boxManager").addMsg(sender, ""+pm);         
+		   $("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);         
     }
     
     function pmuser(suser,sender) {
