@@ -1,4 +1,4 @@
-wschat 0.6
+wschat 0.7
 =========
 
 Grails websocket chat Plugin based on existing examples, provides  websocket chat that can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
@@ -8,7 +8,7 @@ Plugin will work with tomcat 7.0.54 + (8 as well) running java 1.7 +
 
 Dependency :
 
-	compile ":wschat:0.6" 
+	compile ":wschat:0.7" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -107,6 +107,13 @@ https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Merging-plugin-with-y
 	
 # Version info
 ```
+0.7 - 	Basic chat with private messaging using jquery-ui.chat popups now fully 
+		functional. 
+		Issue with long sentences in main room extending room width fixed.
+		Issue with pop ups closed not re-opening fixed.
+		Issue with multiple PM's overlapping - fixed.
+		
+		
 0.6 -	Issues with pm boxes showing wrong name on response - fixed. 
 		clicking send will no longer repeat sending blank response.
 		Leave broadcasts not working fixed.

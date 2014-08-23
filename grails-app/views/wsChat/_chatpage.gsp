@@ -126,8 +126,6 @@ ${now}
        			
        		}
       	} 		
-      	///$("#"+uid).chatbox("option", "boxManager").widget();
-      	//$("#"+uid).chatbox("option", "boxManager").toggleContent();	
       } 		 			
        		 				
     function sendPM(receiver,sender,pm) {
@@ -150,7 +148,7 @@ ${now}
 		        }
 		   });
 		   verifyPosition(sender);
-		   $("#"+sender).chatbox("option", "boxManager").addMsg(sender, "--"+pm);         
+		   $("#"+sender).chatbox("option", "boxManager").addMsg(sender, ""+pm);         
     }
     
     function pmuser(suser,sender) {
@@ -162,15 +160,19 @@ ${now}
 	        if(box) {
 	        	box.chatbox("option", "boxManager").toggleBox();
 	         }else {
+	         
 	         	box = $("#"+suser).chatbox({id:sender, 
 	            	user:{key : "value"},
 	                title : "PM: "+suser,
 	                messageSent : function(id, user, msg) {
 	               verifyPosition(suser);
+	               
 	                $("#"+suser).chatbox("option", "boxManager").addMsg(id, msg);
 	                 webSocket.send("/pm "+suser+","+msg);
 	        		}
-	        	})
+	        	});
+	        	
+	        box.chatbox("option", "show",1);	
 	        }
 	     });
     }
