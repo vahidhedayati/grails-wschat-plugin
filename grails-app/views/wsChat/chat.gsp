@@ -106,7 +106,7 @@
 	var idList = new Array();
 	
     var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint");
-       
+     
     var chatMessages=document.getElementById("chatMessages");
     var onlineUsers=document.getElementById("onlineUsers");
     var messageBox=document.getElementById("messageBox");

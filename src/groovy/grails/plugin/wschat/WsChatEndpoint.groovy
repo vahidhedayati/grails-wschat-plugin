@@ -31,6 +31,8 @@ class WsChatEndpoint implements ServletContextListener {
    		final ServerContainer serverContainer =	org.codehaus.groovy.grails.web.context.ServletContextHolder.getServletContext().getAttribute("javax.websocket.server.ServerContainer")
 	    try {
             serverContainer?.addEndpoint(WsChatEndpoint.class)
+			// Keep chat sessions open for ever
+			serverContainer.setDefaultMaxSessionIdleTimeout(0)
         } catch (DeploymentException e) {
             e.printStackTrace()
         }
