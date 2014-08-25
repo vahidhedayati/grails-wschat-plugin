@@ -73,7 +73,7 @@
 				<textarea cols="20" rows="1" id="messageBox"  name="message"></textarea>
 				<input type="button" id="sendBtn" value="send" class="btn btn-danger btn-lg" onClick="sendMessage();">
 		</div></div>
-	<div style="clear:both;"></div>
+	
 				<div id="cmessage">
 				<div id="fixyflow"><div id="fixflow">
 					<div  id="chatMessages" ></div>
@@ -120,7 +120,7 @@
     	var jsonData=JSON.parse(message.data);
     	
     	if (jsonData.message!=null) {
-    		$('#chatMessages').append(htmlEncode(jsonData.message)+"<br/>");
+    		$('#chatMessages').append(htmlEncode(jsonData.message)+"\n");
     	}
     	
     	if (jsonData.users!=null) {
@@ -150,7 +150,7 @@
        			receiver=jsonData.msgTo
        		}
        		
-       		$('#chatMessages').append("PM("+sender+"): "+jsonData.privateMessage+"<br/>");
+       		$('#chatMessages').append("PM("+sender+"): "+jsonData.privateMessage+"\n");
        		sendPM(receiver,sender,jsonData.privateMessage);
        		
        	}   	
@@ -257,13 +257,13 @@
 	
    function processOpen(message) {
     	<g:if test="${!chatuser}">
-       		$('#chatMessages').append("Chat denied no username <br/>");
+       		$('#chatMessages').append("Chat denied no username \n");
        		webSocket.send("DISCO:-"+user);
        	 	webSocket.close();
        	</g:if>
        	<g:else>
        		webSocket.send("CONN:-"+user);
-           	//$('#chatMessages').append(user+" connected to chat.... <br/>");
+           	//$('#chatMessages').append(user+" connected to chat.... \n");
            	scrollToBottom();
        </g:else>
  	}
@@ -278,7 +278,7 @@
              }  
            }else {
            		webSocket.send("DISCO:-"+user);
-           		$('#chatMessages').append(user+" disconnecting from server... <br/>");
+           		$('#chatMessages').append(user+" disconnecting from server... \n");
            		messageBox.value="";
                	webSocket.close();
            }   
@@ -286,7 +286,7 @@
        
      function processClose(message) {
        	webSocket.send("DISCO:-"+user);
-        	$('#chatMessages').append(user+" disconnecting from server... <br/>");
+        	$('#chatMessages').append(user+" disconnecting from server... \n");
         	webSocket.close();
      }
        

@@ -194,8 +194,8 @@
 	position: relative;
 	display: block;
 	overflow: auto;
-	margin-top: -12px;
-	white-space: pre-wrap;
+	margin-top: 2px;
+	white-space: pre-line;
 	border-style: solid;
 	border-width: thin;
 	border-color: #AAA;
@@ -335,7 +335,7 @@
 
 #sendMessage  textarea {
 	height: 3em;
-	width: 30em;
+	width: 31em;
 }
 
 #sendMessage #sendBtn {
