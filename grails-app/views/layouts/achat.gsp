@@ -16,8 +16,7 @@
     	 <asset:javascript src="jquery-ui.min.js"/>
     	 <asset:stylesheet src="jquery-ui.min.css"/>
     	 <asset:javascript src="jquery.ui.chatbox.js"/>
-    	 <asset:javascript src="chatboxManager.js"/>
-		<g:layoutHead/>
+    	<g:layoutHead/>
 	</head>
 	<body>
 		<g:layoutBody/>

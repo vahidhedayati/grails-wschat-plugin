@@ -66,7 +66,7 @@ ${now}
 		}
     };
 	var idList = new Array();
-	var idList1 = new Array();
+	
     var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint");
        
     var chatMessages=document.getElementById("chatMessages");
@@ -86,17 +86,21 @@ ${now}
     	}
     	
     	if (jsonData.users!=null) {
-        	$('#onlineUsers').html(jsonData.users);
-        	
+    	 $('#onlineUsers').html("");
+    		jsonData.users.forEach(function(entry) {
+    			if (entry.owner!=null) {
+    	 			$('#onlineUsers').append('\n<li class="dropdown-submenu active">\n<a tabindex="-1" class="user-title" href="#">'+entry.owner+'</a>\n\
+    	 			<ul class="dropdown-menu">\n<li><a>'+entry.owner+'s profile</a>\n</li>\n</ul>\n</li>\n\n\n');
+    			 }
+    			 if (entry.user!=null) {
+    				$('#onlineUsers').append('\n<li class="dropdown-submenu"><a tabindex="-1" class="user-title" href="#">'+entry.user+'</a>\n\
+    				<ul class="dropdown-menu">\n<li>\
+    				<a onclick="javascript:pmuser('+wrapIt(entry.user)+', '+wrapIt(user)+');">PM  '+entry.user+'</a>\
+    				</li>\n</ul>\n</li>\n\n\n');
+    			 }
+    	 	});
        	}
-       	
-       	//if (jsonData.userCount!=null) {
-        //	showList=jsonData.userCount        	
-       	//}
-       	
-       	if (jsonData.genDiv!=null) {
-        	$('#userList').html(jsonData.genDiv);
-       	}
+      
        	
        	if (jsonData.privateMessage!=null) {
        		var receiver
@@ -113,7 +117,17 @@ ${now}
        		
        	}   	
     }
-    
+
+	function verifyAdded(uid) {
+		var added="false";
+	  	var idx = idList.indexOf(uid);
+		if (idx != -1) {
+			added="true";
+		}
+		return added;
+	}		
+			
+		
     function verifyPosition(uid) {
     	var idx = idList.indexOf(uid);
 		if(idx == -1) {
@@ -129,52 +143,57 @@ ${now}
       } 		 			
        		 				
     function sendPM(receiver,sender,pm) {
-	    //  chatboxManager.addBox("#"+sender);
 	     $(function(event, ui) {
 	    	var box = null;
 		         if(box) {
 		        	box.chatbox("option", "boxManager").toggleBox();
 		         }else {
-		         	box = $("#"+sender).chatbox({id:sender, 
+		         	var added=verifyAdded(sender);
+		         	var el="#"+sender
+		          	if (added=="false") {
+		           		var el = document.createElement('div');
+	    				el.setAttribute('id', sender);
+	    		  	}	
+		   			box =  $(el).chatbox({id:sender, 
 		            	user:{key : "value"},
 		                title : "PM from: "+sender,
 		                messageSent : function(id, user, msg) {
-		               
-       		 			verifyPosition(sender);
-       		 			$("#"+sender).chatbox("option", "boxManager").addMsg(receiver, msg);
-		                webSocket.send("/pm "+sender+","+msg);
+		               		verifyPosition(sender);
+       		 				$("#"+sender).chatbox("option", "boxManager").addMsg(receiver, msg);
+		                	webSocket.send("/pm "+sender+","+msg);
 		        		}
-		        	})
-		        }
-		   });
-		   verifyPosition(sender);
+		        	});
+                 }                 
+           });
+           
+           verifyPosition(sender);
 		   $("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);         
     }
     
     function pmuser(suser,sender) {
-   
-	    $(function(event, ui) {
-			var box = null;
-			
-       		
-	        if(box) {
-	        	box.chatbox("option", "boxManager").toggleBox();
-	         }else {
-	         
-	         	box = $("#"+suser).chatbox({id:sender, 
-	            	user:{key : "value"},
-	                title : "PM: "+suser,
-	                messageSent : function(id, user, msg) {
-	               verifyPosition(suser);
-	               
-	                $("#"+suser).chatbox("option", "boxManager").addMsg(id, msg);
-	                 webSocket.send("/pm "+suser+","+msg);
-	        		}
-	        	});
-	        	
-	        box.chatbox("option", "show",1);	
-	        }
-	     });
+      $(function(event, ui) {
+	    	var box = null;
+		         if(box) {
+		        	box.chatbox("option", "boxManager").toggleBox();
+		         }else {
+		         	var added=verifyAdded(suser);
+		         	var el="#"+suser
+		          	if (added=="false") {
+		           		var el = document.createElement('div');
+	    				el.setAttribute('id', suser);
+	    		  	}	
+		       		box = $(el).chatbox({id:sender, 
+	            		user:{key : "value"},
+	                	title : "PM: "+suser,
+	                	messageSent : function(id, user, msg) {
+	               			verifyPosition(suser);
+	                		$("#"+suser).chatbox("option", "boxManager").addMsg(id, msg);
+	                 		webSocket.send("/pm "+suser+","+msg);
+	        			}
+	       			});
+          	 box.chatbox("option", "show",1); 
+          }
+      });
     }
     
 	$('#messageBox').keypress(function(e){
@@ -191,6 +210,9 @@ ${now}
    	   }
    	});
    	
+   	function wrapIt(value) {
+   		return "'"+value+"'"
+   	}
    	function htmlEncode(value){
  	 return $('<div/>').text(value).html();
 	}

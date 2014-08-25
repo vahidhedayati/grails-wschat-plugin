@@ -73,46 +73,28 @@ class WsChatEndpoint implements ServletContextListener {
 		}
 	}
 	
-	private void sendUsers(String username) { 
+	private void sendUsers(String username) {
 		Iterator<Session> iterator=chatroomUsers.iterator()
 		while (iterator.hasNext())  {
-			def myMsg=[:]
-			def uCount=[:]
-			def uL=[:]
-			def uList=[:]
-			StringBuffer sb=new StringBuffer()
-			StringBuffer sb1=new StringBuffer()
+			def uList=[]
+			def finalList=[:]
 			def crec=iterator.next()
 			def cuser=crec.getUserProperties().get("username").toString()
-			int i=0;
 			getCurrentUserNames().each {
-				i++;
-				sb1.append("<div id='${it}'></div>\n")
-				def cclass
+				def myUser=[:]
 				if (cuser.equals(it)) {
-					cclass="dropdown-submenu active"
-					sb.append("<li class=\"${cclass}\"><a tabindex=\"-1\" class=\"user-title\" href=\"#\">${it}</a>")
-					sb.append('<ul class="dropdown-menu"><li><a>'+it+'\'s profile</a></li></ul></li>')
+					myUser.put("owner", it)
+					uList.add(myUser)				
 				}else{
-					cclass='dropdown-submenu'
-					sb.append("<li class=\"${cclass}\"><a tabindex=\"-1\" class=\"user-title\" href=\"#\">${it}</a>\n")
-					sb.append('<ul class="dropdown-menu">\n')
-					//sb.append('<li><a href="#">Add '+it+' as friend</a></li>\n')
-					//sb.append('<li><a href="#">Ignore '+it+'</a></li>\n')
-					//sb.append('<li><a >Block  '+it+'</a></li>\n')
-					sb.append('<li><a onclick="javascript:pmuser(\''+it+'\', \''+cuser+'\');">PM  '+it+'</a></li>\n')
-					sb.append('</ul>\n</li>\n')
+					myUser.put("user", it)
+					uList.add(myUser)
 				}
-			}	
-			uList.put('genDiv', sb1.toString())
-			myMsg.put("users", sb.toString())
-			uCount.put("userCount", i.toString())
-			sendUserList(cuser,myMsg)
-			sendUserList(cuser,uList)
-			sendUserList(cuser,uCount)
+			}
+			finalList.put("users", uList)
+			sendUserList(cuser,finalList)
 		}
 	}
-	
+
 	private void broadcast(Map msg) {
 		def myMsgj=msg as JSON
 		Iterator<Session> iterator=chatroomUsers.iterator()
