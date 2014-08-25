@@ -54,6 +54,9 @@
 
 	<div id="chatterBox">
 		<div class="message-container">
+
+
+		
 			<div class="message-north" >
       			<div class="message-user-list" >
       	 			<div id="fixyflow"><div id="fixflow">
@@ -64,14 +67,22 @@
 						</ul>
 					</div></div>
 				</div>
-				<div class="message-thread" id="cmessage" >
+				
+				<div class="message-thread" >
+				<div id="sendMessage" >
+				<textarea cols="20" rows="1" id="messageBox"  name="message"></textarea>
+				<input type="button" id="sendBtn" value="send" class="btn btn-danger btn-lg" onClick="sendMessage();">
+		</div></div>
+	<div style="clear:both;"></div>
+				<div id="cmessage">
+				<div id="fixyflow"><div id="fixflow">
 					<div  id="chatMessages" ></div>
+					
 				</div>
 			</div>
-			<div class="message-south" >
-				<textarea cols="20" rows="1" id="messageBox"  name="message"></textarea>
-				<input type="button" value="send" class="sendbtn" onClick="sendMessage();">
 			</div>
+			</div>
+			
 	</div>						
 </div>
 	
