@@ -1,4 +1,4 @@
-wschat 0.9
+wschat 0.10
 =========
 
 Grails websocket chat Plugin based on existing examples, provides  websocket chat that can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
@@ -8,7 +8,7 @@ Plugin will work with tomcat 7.0.54 + (8 as well) running java 1.7 +
 
 Dependency :
 
-	compile ":wschat:0.9" 
+	compile ":wschat:0.10" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -31,7 +31,13 @@ http://localhost:8080/yourapp/wsChat/chat
 Private messages using jquery-ui.chatbox. For this feature to work you need to ensure that when users log in they use a complete word with no spaces and not a numeric id either. The reason is a div id is created for the pm box and this needs to match javascript conventions. So spaces should be removed or replaced with dashes. refer to custom call which I need to update sometime soon to do the same..
  
 
+# 0.10+ & resources based apps:
+Under Resources based application you can still use the latest code base, but you need to exclude hibernate. Something like this:
 
+```
+compile (":wschat:XXX") { excludes 'hibernate' }
+ ```
+ 
 # Video:
 It is quite a straight forward plugin but if you must [youtube example grails app running wschat 0.3](https://www.youtube.com/watch?v=U211AZqpkxs)
 
@@ -73,7 +79,41 @@ wschat.heading='Grails Websocket Chat'
 */
 wschat.hostname=System.getProperty('SERVERURL')+":8080"
 
+
+/* timeout 
+* 0.10+ feature
+* This is the default timeout value for your chat users.
+* by default it is set to 0 which means indefinite login.
+* If you wish to get user to be timed out if inactive set this to a millisecond value
+*/
+wschat.timeout=0
+
+/*dbsupport
+* 0.10 +
+*/
+wschat.dbsupport='YES'
+
+/*defaultperm
+* this be your chat users being added to db
+* wschat.defaultperm='admin'
+* by default it is set to user if nothing defined
+*/
+wschat.defaultperm='user'
+
 ```
+
+
+##### Creating admin accounts, in your bootstrap.groovy add something like this:
+
+```groovy
+	def perm=ChatPermissions.findOrSaveWhere(name: 'admin').save(flush:true)
+	def cc=new ChatUser()
+	cc.username=username
+	cc.permissions=perm
+	cc.save(flush:true)
+```
+			
+
 
 # Commands:
 
@@ -85,6 +125,8 @@ Within chat you can execute
 	
 	either will send a private message to user defined.. comma for users that have a space in their name..
 	
+	admin commands
+	/kickuser {username}
 	
 	
 # Issues:
@@ -107,6 +149,14 @@ https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Merging-plugin-with-y
 	
 # Version info
 ```
+0.10 - 	MaxIdleTimeout value defined in overrides as timeout,
+		by default endless chat users connections
+		DB tables added, user can now:
+		Block/unblock another user from pms.
+		Add/remove a friend
+		Admin privilages added. - /kickuser username as admin will kick out user
+			 
+
 0.9 - 	Tidy up of gsp pages - added pluginbuddy - cleaned up gsp display calls 
 		for backwards compatibility.
 		revisit of css for chat area which was not working well

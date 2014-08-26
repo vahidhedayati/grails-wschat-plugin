@@ -14,7 +14,6 @@
    		<script type="text/javascript" src="${resource(dir: 'js', file: 'chatboxManager.js')}"></script>
 		<link rel="stylesheet" href="${resource(dir: 'css', file: 'chat.css')}" type="text/css">
     	<link rel="stylesheet" href="${resource(dir: 'css', file: 'bootstrap.min.css')}" type="text/css">
-    
     </g:else>
 </g:if>
 <g:else>
@@ -30,7 +29,6 @@
     	<asset:javascript src="jquery.min.js"/>
     	<asset:javascript src="jquery.min.js"/>
     	<asset:javascript src="jquery.ui.chatbox.js"/>
-    	<asset:javascript src="chatboxManager.js"/>
     </g:else>
 </g:else>    
    <title>${chatTitle }</title>
@@ -115,46 +113,7 @@
     webSocket.onopen=function(message) {processOpen(message);};
     webSocket.onclose=function(message) {processClose(message);};
     webSocket.onerror=function(message) {processError(message);};
-	
-    webSocket.onmessage=function(message) {
-    	var jsonData=JSON.parse(message.data);
-    	
-    	if (jsonData.message!=null) {
-    		$('#chatMessages').append(htmlEncode(jsonData.message)+"\n");
-    	}
-    	
-    	if (jsonData.users!=null) {
-    	 $('#onlineUsers').html("");
-    		jsonData.users.forEach(function(entry) {
-    			if (entry.owner!=null) {
-    	 			$('#onlineUsers').append('\n<li class="dropdown-submenu active">\n<a tabindex="-1" class="user-title" href="#">'+entry.owner+'</a>\n\
-    	 			<ul class="dropdown-menu">\n<li><a>'+entry.owner+'s profile</a>\n</li>\n</ul>\n</li>\n\n\n');
-    			 }
-    			 if (entry.user!=null) {
-    				$('#onlineUsers').append('\n<li class="dropdown-submenu"><a tabindex="-1" class="user-title" href="#">'+entry.user+'</a>\n\
-    				<ul class="dropdown-menu">\n<li>\
-    				<a onclick="javascript:pmuser('+wrapIt(entry.user)+', '+wrapIt(user)+');">PM  '+entry.user+'</a>\
-    				</li>\n</ul>\n</li>\n\n\n');
-    			 }
-    	 	});
-       	}
-      
-       	
-       	if (jsonData.privateMessage!=null) {
-       		var receiver
-       		var sender
-       		if (jsonData.msgFrom!=null) {
-       			sender=jsonData.msgFrom
-       		}
-       		if (jsonData.msgTo!=null) {
-       			receiver=jsonData.msgTo
-       		}
-       		
-       		$('#chatMessages').append("PM("+sender+"): "+jsonData.privateMessage+"\n");
-       		sendPM(receiver,sender,jsonData.privateMessage);
-       		
-       	}   	
-    }
+    webSocket.onmessage=function(message) {processMessage(message);	};
 
 	function verifyAdded(uid) {
 		var added="false";
@@ -208,6 +167,26 @@
 		   $("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);         
     }
     
+    function blockuser(blockid,user) {
+   		webSocket.send("/block "+user+","+blockid);
+    	$('#chatMessages').append(blockid+" has been added to "+user+"'s blocklist\n");
+    }
+    
+    function unblockuser(blockid,user) {
+   		webSocket.send("/unblock "+user+","+blockid);
+    	$('#chatMessages').append(blockid+" has been removed from "+user+"'s blocklist\n");
+    }
+    
+    function adduser(addid,user) {
+    	webSocket.send("/add "+user+","+addid);
+    	$('#chatMessages').append(addid+" has been added to "+user+"'s friends list\n");
+    }
+     function removefriend(addid,user) {
+    	webSocket.send("/removefriend "+user+","+addid);
+    	$('#chatMessages').append(addid+" has been removed to "+user+"'s friends list\n");
+    }
+    
+    
     function pmuser(suser,sender) {
       $(function(event, ui) {
 	    	var box = null;
@@ -255,6 +234,92 @@
  	 return $('<div/>').text(value).html();
 	}
 	
+	function processMessage(message) {
+	var jsonData=JSON.parse(message.data);
+    	
+    	if (jsonData.message!=null) {
+    		$('#chatMessages').append(htmlEncode(jsonData.message)+"\n");
+    	}
+    	
+    	if (jsonData.users!=null) {
+    	
+    	 	$('#onlineUsers').html("");
+    		jsonData.users.forEach(function(entry) {
+    		
+    			if (entry.owner!=null) {
+    	 			$('#onlineUsers').append('\n<li class="dropdown-submenu active">\n<a tabindex="-1" class="user-title" href="#">'+entry.owner+'</a>\n\
+    	 			<ul class="dropdown-menu">\n<li><a>'+entry.owner+'s profile</a>\n</li>\n</ul>\n</li>\n\n\n');
+    			 }
+    			  if (entry.friends!=null) {
+     			 	var sb = [];
+    			 	sb.push('\n<li class="dropdown-submenu btn-warning"><a tabindex="-1" class="user-title" href="#">** '+entry.friends+'</a>\n');
+    			 	sb.push('<ul class="dropdown-menu">\n<li>\n');
+    			 	sb.push('<a onclick="javascript:pmuser('+wrapIt(entry.friends)+', '+wrapIt(user)+');">PM  '+entry.friends+'</a>\n');
+    			 	sb.push('\n</li> \n');
+    					
+    			 	sb.push('<li><a onclick="javascript:removefriend('+wrapIt(entry.friends)+', '+wrapIt(user)+');">Remove  '+entry.friends+' from friends list</a>\n');
+    			 	sb.push('\n</li> ');
+    				<g:if test="${dbsupport.equals('yes') }">;
+    					sb.push('<li>\n');
+    					sb.push('<a onclick="javascript:adduser('+wrapIt(entry.friends)+', '+wrapIt(user)+');">Add  '+entry.friends+'</a>\n');
+    					sb.push('</li>\n');
+    					sb.push('<li>\n');
+    					sb.push('<a onclick="javascript:blockuser('+wrapIt(entry.friends)+', '+wrapIt(user)+');">Block  '+entry.friends+'</a>\n');
+    					sb.push('</li>\n');
+    				
+    				</g:if>
+    				
+    				$('#onlineUsers').append(sb.join(""));
+    			 }
+    			 if (entry.user!=null) {
+     			 	var sb = [];
+    			 	sb.push('\n<li class="dropdown-submenu"><a tabindex="-1" class="user-title" href="#">'+entry.user+'</a>\n');
+    			 	sb.push('<ul class="dropdown-menu">\n<li>\n');
+    			 	sb.push('<a onclick="javascript:pmuser('+wrapIt(entry.user)+', '+wrapIt(user)+');">PM  '+entry.user+'</a>\n');
+    			 	sb.push('\n</li> ');
+    				
+    				<g:if test="${dbsupport.equals('yes') }">;
+    					sb.push('<li>\n');
+    					sb.push('<a onclick="javascript:adduser('+wrapIt(entry.user)+', '+wrapIt(user)+');">Add  '+entry.user+'</a>\n');
+    					sb.push('</li>\n');
+    					sb.push('<li>\n');
+    					sb.push('<a onclick="javascript:blockuser('+wrapIt(entry.user)+', '+wrapIt(user)+');">Block  '+entry.user+'</a>\n');
+    					sb.push('</li>\n');
+    				
+    				</g:if>
+    				
+    				sb.push('</ul>\n</li>\n\n\n');
+    				$('#onlineUsers').append(sb.join(""));
+    			 }
+    			 if (entry.blocked!=null) {
+     			 	var sb = [];
+    			 	sb.push('\n<li class="dropdown-submenu btn-danger"><a tabindex="-1" class="user-title" href="#">'+entry.blocked+'</a>\n');
+    			 	sb.push('<ul class="dropdown-menu">\n<li>\n');
+    			 	sb.push('<a onclick="javascript:unblockuser('+wrapIt(entry.blocked)+', '+wrapIt(user)+');">UNBLOCK  '+entry.blocked+'</a>\n');
+    			 	sb.push('\n</li> ');
+    				sb.push('</ul>\n</li>\n\n\n');
+    				$('#onlineUsers').append(sb.join(""));
+    			 }
+    	 	});
+       	}
+      
+       	
+       	if (jsonData.privateMessage!=null) {
+       		var receiver
+       		var sender
+       		if (jsonData.msgFrom!=null) {
+       			sender=jsonData.msgFrom
+       		}
+       		if (jsonData.msgTo!=null) {
+       			receiver=jsonData.msgTo
+       		}
+       		
+       		$('#chatMessages').append("PM("+sender+"): "+jsonData.privateMessage+"\n");
+       		sendPM(receiver,sender,jsonData.privateMessage);
+       		
+       	}   	
+    }
+		
    function processOpen(message) {
     	<g:if test="${!chatuser}">
        		$('#chatMessages').append("Chat denied no username \n");

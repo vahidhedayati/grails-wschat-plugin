@@ -15,7 +15,6 @@
    		<script type="text/javascript" src="${resource(dir: 'js', file: 'chatboxManager.js')}"></script>
 		<link rel="stylesheet" href="${resource(dir: 'css', file: 'chat.css')}" type="text/css">
     	<link rel="stylesheet" href="${resource(dir: 'css', file: 'bootstrap.min.css')}" type="text/css">
-    
     </g:else>
 </g:if>
 <g:else>
@@ -31,7 +30,6 @@
     	<asset:javascript src="jquery.min.js"/>
     	<asset:javascript src="jquery.min.js"/>
     	<asset:javascript src="jquery.ui.chatbox.js"/>
-    	<asset:javascript src="chatboxManager.js"/>
     </g:else>
 </g:else>    
     
