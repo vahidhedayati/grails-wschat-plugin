@@ -9,13 +9,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<title><g:layoutTitle default="Grails"/></title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		 <asset:stylesheet href="chat.css" />
-    	 <asset:stylesheet href="bootstrap.min.css" />
-		 <asset:stylesheet href="jquery.ui.chatbox.css" />
-		 <asset:javascript src="jquery.min.js"/>
-    	 <asset:javascript src="jquery-ui.min.js"/>
-    	 <asset:stylesheet src="jquery-ui.min.css"/>
-    	 <asset:javascript src="jquery.ui.chatbox.js"/>
+		<g:render template="/assets"/>
     	<g:layoutHead/>
 	</head>
 	<body>

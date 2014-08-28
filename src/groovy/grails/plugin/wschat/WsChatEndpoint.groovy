@@ -88,19 +88,23 @@ class WsChatEndpoint implements ServletContextListener {
 			def finalList=[:]
 			def crec=iterator.next()
 			def cuser=crec.getUserProperties().get("username").toString()
-			def blocklist=ChatBlockList.findAllByChatuser(currentUser(cuser))
-			def friendslist=ChatFriendList.findAllByChatuser(currentUser(cuser))
+			def blocklist
+			def friendslist
+			if (dbSupport()) {
+				blocklist=ChatBlockList.findAllByChatuser(currentUser(cuser))
+				friendslist=ChatFriendList.findAllByChatuser(currentUser(cuser))
+			}
 			getCurrentUserNames().each {
 				def myUser=[:]
 				if (cuser.equals(it)) {
 					myUser.put("owner", it)
 					uList.add(myUser)				
 				}else{
-					if (blocklist.username.contains(it)) {
+					if ((blocklist)&&(blocklist.username.contains(it))) {
 						myUser.put("blocked", it)
 						uList.add(myUser)
 						
-					}else if (friendslist.username.contains(it)) {
+					}else if  ((friendslist)&&(friendslist.username.contains(it))) {
 						myUser.put("friends", it)
 						uList.add(myUser)
 					}else{
@@ -287,7 +291,7 @@ class WsChatEndpoint implements ServletContextListener {
 	
 	private Boolean dbSupport() {
 		def config=Holders.config
-		Boolean dbsupport=config.wschat.dbsupport  ?: false
+		Boolean dbsupport=config.wschat.dbsupport  ?: true
 		return dbsupport as Boolean
 	}
 	

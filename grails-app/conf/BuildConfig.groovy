@@ -22,7 +22,7 @@ grails.project.dependency.resolution = {
 			export = false
 		}
 		
-		build ':release:2.2.1', ':rest-client-builder:1.0.3',  ':pluginbuddy:0.1', {
+		build ':release:2.2.1', ':rest-client-builder:1.0.3',  ':pluginbuddy:0.2', {
 			export = false
 		}
 		

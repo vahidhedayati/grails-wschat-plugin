@@ -7,29 +7,15 @@
     	<meta name='layout' content="chat"/>
     </g:if>
     <g:else>
-   	    <link rel="stylesheet" href="${resource(dir: 'css', file: 'jquery-ui.min.css')}" type="text/css" media="screen" />
-   		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.min.js')}"></script>
-   		<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery-ui.min.js')}"></script>
-     	<link rel="stylesheet" href="${resource(dir: 'css', file: 'jquery.ui.chatbox.css')}" type="text/css" >
-    	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.chatbox.js')}"></script>
-   		<script type="text/javascript" src="${resource(dir: 'js', file: 'chatboxManager.js')}"></script>
-		<link rel="stylesheet" href="${resource(dir: 'css', file: 'chat.css')}" type="text/css">
-    	<link rel="stylesheet" href="${resource(dir: 'css', file: 'bootstrap.min.css')}" type="text/css">
-    </g:else>
+   		<g:render template="/resources"/>
+   	 </g:else>
 </g:if>
 <g:else>
 	<g:if test="${!request.xhr }">
     	<meta name='layout' content="achat"/>
     </g:if>
     <g:else>
-    	<asset:stylesheet href="chat.css" />
-     	<asset:stylesheet href="bootstrap.min.css" />
-	  	<asset:stylesheet href="jquery.ui.chatbox.css" />
-    	<asset:javascript src="jquery.min.js"/>
-    	<asset:javascript src="jquery-ui.min.js"/>
-    	<asset:javascript src="jquery.min.js"/>
-    	<asset:javascript src="jquery.min.js"/>
-    	<asset:javascript src="jquery.ui.chatbox.js"/>
+    	<g:render template="/assets"/>
     </g:else>
 </g:else>    
     
