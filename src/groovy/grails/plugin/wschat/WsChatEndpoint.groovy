@@ -27,11 +27,8 @@ import javax.websocket.server.ServerEndpoint
 class WsChatEndpoint implements ServletContextListener {
 	
 	private static List users = Collections.synchronizedList(new ArrayList())
-	// static  Set<Session> chatroomUsers = Collections.synchronizedSet(new ArrayList<Session>())
-	 static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>())
-   
-   // Set<Session> chatroomUsers = Collections.synchronizedSet(new CopyOnWriteArrayList<Session>())
-   
+	static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>())
+	
 	@Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
    		final ServerContainer serverContainer =	org.codehaus.groovy.grails.web.context.ServletContextHolder.getServletContext().getAttribute("javax.websocket.server.ServerContainer")
@@ -101,13 +98,11 @@ class WsChatEndpoint implements ServletContextListener {
 	
 	private void sendUsers(String username) {
 		Iterator<Session> iterator=chatroomUsers.iterator()
-		
 		while (iterator.hasNext())  {
 			def uList=[]
 			def finalList=[:]
 			def crec=iterator.next()
-			def cuser=crec?.getUserProperties()?.get("username")?.toString()
-			if (cuser) {
+			def cuser=crec.getUserProperties().get("username").toString()
 			def blocklist
 			def friendslist
 			if (dbSupport()) {
@@ -132,7 +127,6 @@ class WsChatEndpoint implements ServletContextListener {
 						uList.add(myUser)
 					}
 				}	
-			}
 			}
 			finalList.put("users", uList)
 			sendUserList(cuser,finalList)
@@ -176,7 +170,6 @@ class WsChatEndpoint implements ServletContextListener {
 						messageUser(userSession,myMsg1)
 				
 					}
-				
 					if (!users.contains(username)){
 						users.add(username)
 					}
@@ -196,7 +189,6 @@ class WsChatEndpoint implements ServletContextListener {
 				broadcast(myMsg)
 			}
 		}else{
-			//isuBanned=isBanned(username)
 			if (message.startsWith("DISCO:-")) {
 				users.remove(username)
 				removeUser(username)
@@ -361,7 +353,6 @@ class WsChatEndpoint implements ServletContextListener {
 		}
 	}
 	
-	
 	private void banUser(Session userSession,String username,String duration,String period) {
 		Boolean useris=isAdmin(userSession)
 		if (useris) {
@@ -371,30 +362,21 @@ class WsChatEndpoint implements ServletContextListener {
 	}
 	
 	private void logoutUser(String username) {
-			def myMsg=[:]
-			myMsg.put("message", "${username} about to be kicked off")
-			broadcast(myMsg)
-			Iterator<Session> iterator=chatroomUsers.iterator()
-			while (iterator.hasNext())  {
-				def crec=iterator.next()
-				def uList=[]
-				def finalList=[:]
-				def cuser=crec.getUserProperties().get("username").toString()
-				
-				if (cuser.equals(username)) {
-					def myMsg1=[:]
-					Boolean isuBanned=isBanned(username)
-					if (!isuBanned){
-						myMsg1.put("system","disconnect")
-						messageUser(crec,myMsg1)
-					}
-					//chatroomUsers.remove(crec)
-					//users.remove(cuser)
-				}
-			}	
-			myMsg.put("message", "${username} has left")
-			broadcast(myMsg)
-	
+		def myMsg=[:]
+		myMsg.put("message", "${username} about to be kicked off")
+		broadcast(myMsg)
+		Iterator<Session> iterator=chatroomUsers.iterator()
+		while (iterator.hasNext())  {
+			def crec=iterator.next()
+			def uList=[]
+			def finalList=[:]
+			def cuser=crec.getUserProperties().get("username").toString()
+			if (cuser.equals(username)) {
+				def myMsg1=[:]
+				myMsg1.put("system","disconnect")
+				messageUser(crec,myMsg1)
+			}
+		}	
 	}		
 	
 	private void unblockUser(String username,String urecord) {
