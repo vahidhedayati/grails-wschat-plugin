@@ -36,6 +36,15 @@
     <div id="userList">
     </div>
 
+<div id="bannedconfirmation">
+</div>
+
+
+<div id="banuser" style="display:none;">
+<g:render template="/banuser" />
+
+</div>
+
 	<div id="chatterBox">
 		<div class="message-container">
 
@@ -78,7 +87,6 @@
 		$("#chatterBox").html('');
 	}
 	
-
     var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint");
      
     var chatMessages=document.getElementById("chatMessages");
@@ -102,6 +110,25 @@
            	scrollToBottom();
        </g:else>
  	}
+
+	function getApp() {
+		var baseapp="${meta(name:'app.name')}";
+		return baseapp;
+	}
+	
+	$('#messageBox').keypress(function(e){
+	if (e.keyCode == 13 && !e.shiftKey) {
+		e.preventDefault();
+	}
+	if(e.which == 13){
+		var tmb=messageBox.value.replace(/^\s*[\r\n]/gm, "");
+		if (tmb!="") {
+			sendMessage();
+			$("#messageBox").val().trim();
+			messageBox.focus();
+		}
+	}
+	});
 
      window.onbeforeunload = function() {
        	webSocket.send("DISCO:-"+user);

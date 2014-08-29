@@ -1,6 +1,5 @@
 package grails.plugin.wschat
 
-
 class WsChatController {
 	def grailsApplication
 	
@@ -28,9 +27,15 @@ class WsChatController {
 		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
 		def chatHeader=grailsApplication.config.wschat.heading ?: 'Grails websocket chat'
 		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
-		def dbsupport=grailsApplication.config.wschat.dbsupport ?: 'no'
+		def dbsupport=grailsApplication.config.wschat.dbsupport ?: 'yes'
 
 		def chatuser=session.user
 		[dbsupport:dbsupport.toLowerCase() , chatuser:chatuser, chatTitle:chatTitle,chatHeader:chatHeader, now:new Date(),hostname:hostname]
 	}
+	
+
+	def confirmBan(String username,String duration,String period) {
+		[username:username,duration:duration,period:period]
+	}
+	
 }
