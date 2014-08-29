@@ -68,7 +68,7 @@
 		<label for="birthDate">
 		<g:message code="wschat.birthDate.label" default="Date Of Birth" />
 		</label>
-		<g:textField name="birthDate" value="${profile?.birthDate ?: current}" />
+		<g:textField name="birthDate" value="${cdate ?: current}" />
 		</div>
 		</div>
 				

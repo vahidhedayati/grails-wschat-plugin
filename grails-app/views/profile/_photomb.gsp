@@ -16,7 +16,7 @@
   		if (e.keyCode == 27) { closeModal(); }   
 	});
 
-	function closeModal() {
+	function closePhotos() {
 		$('#photobox1').modal('hide');
 		$('body').removeClass('modal-open');
 		$('.modal-backdrop').remove();

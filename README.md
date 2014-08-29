@@ -1,4 +1,4 @@
-wschat 0.13
+wschat 0.14
 =========
 
 Grails websocket chat Plugin based on existing examples, provides  websocket chat that can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
@@ -8,7 +8,7 @@ Plugin will work with tomcat 7.0.54 + (8 as well) running java 1.7 +
 
 Dependency :
 
-	compile ":wschat:0.13" 
+	compile ":wschat:0.14" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -39,7 +39,12 @@ compile (":wschat:XXX") { excludes 'hibernate' }
  ```
  
 # Video:
-It is quite a straight forward plugin but if you must [youtube example grails app running wschat 0.3](https://www.youtube.com/watch?v=U211AZqpkxs)
+It is quite a straight forward plugin but if you must 
+[youtube example grails app running wschat 0.14 part1](https://www.youtube.com/watch?v=E-NmbDZg9G4)
+
+[youtube example grails app running wschat 0.14 part2](https://www.youtube.com/watch?v=xPxV_iEYYm0)
+
+[youtube example grails app running wschat 0.3](https://www.youtube.com/watch?v=U211AZqpkxs)
 
 	 	
 # Config.groovy variables required:
@@ -106,11 +111,20 @@ wschat.defaultperm='user'
 ##### Creating admin accounts, in your bootstrap.groovy add something like this:
 
 ```groovy
-	def perm=ChatPermissions.findOrSaveWhere(name: 'admin').save(flush:true)
-	def cc=new ChatUser()
-	cc.username=username
-	cc.permissions=perm
-	cc.save(flush:true)
+import grails.plugin.wschat.ChatPermissions
+import grails.plugin.wschat.ChatUser
+
+
+class BootStrap {
+    def init = { servletContext ->		
+		def perm=ChatPermissions.findOrSaveWhere(name: 'admin').save(flush:true)
+		ChatUser.findOrSaveWhere(username:'firefox', permissions:perm).save(flush:true)
+		ChatUser.findOrSaveWhere(username:'chrome', permissions:perm).save(flush:true)
+    }
+    def destroy = {
+    }
+}
+
 ```
 			
 
@@ -154,6 +168,8 @@ https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Merging-plugin-with-y
 	
 # Version info
 ```
+0.14 - 	Bug fixes. new videos. 
+
 0.13 -	User profile modalbox feature added.
 		User can upload many images which appears on their profile. 
 		(Last 5 uploaded shown)

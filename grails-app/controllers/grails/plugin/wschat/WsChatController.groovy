@@ -3,7 +3,6 @@ package grails.plugin.wschat
 import groovy.time.TimeCategory
 
 import java.text.SimpleDateFormat
-import java.util.Date;
 
 
 class WsChatController {
@@ -50,15 +49,24 @@ class WsChatController {
 	}
 
 	def editprofile(String username) {
-		def cc
+		Date cc=new Date()
+		cc.clearTime()
 		use(TimeCategory) {
-			cc=new Date() -(5).years
+			cc=cc -5.years
 	   }
 	   def current = new SimpleDateFormat("dd/MM/yyyy").format(cc)
+	   
 	   def chatuser=ChatUser.findByUsername(username)
 	   def profile=ChatUserProfile.findByChatuser(chatuser)
 		if (username.equals(session.user)) {
-			render template: '/profile/editprofile', model:[profile:profile,chatuser:chatuser,current:current,username:username]
+			def bdate=profile?.birthDate
+			def cdate
+			if (bdate) {
+				cdate = new SimpleDateFormat("dd/MM/yyyy").parse(bdate)
+			}else{
+				cdate=current
+			}	
+			render template: '/profile/editprofile', model:[cdate:cdate,profile:profile,chatuser:chatuser,current:current,username:username]
 		}else{
 			render "Not authorised!"
 		}
@@ -92,7 +100,7 @@ class WsChatController {
 				if (!newRecord.save(flush:true)) {
 					flash.message="Something has gone wrong, could not upload photo"
 				}
-				flash.message="Record  ${newRecord.id} created. Create anoter?"
+				flash.message="Record  ${newRecord.id} created. Create another?"
 				photo(params.username)
 		}
 	}
@@ -117,16 +125,6 @@ class WsChatController {
 					output="Something has gone wrong"
 				}
 			}else{
-				/*exists.firstName=params.firstName
-				exists.middleName=params.middleName
-				exists.lastName=params.lastName
-				exists.age=params.age
-				exists.birthDate=params.birthDate
-				exists.gender=params.gender
-				exists.wage=params.wage
-				exists.email=params.email
-				exists.homePage=params.homePage
-				exists.children=params.children*/
 				exists.properties = params
 				if (!exists.save(flush:true)) { 
 					output="Something has gone wrong"
