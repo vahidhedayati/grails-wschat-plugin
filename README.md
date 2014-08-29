@@ -1,4 +1,4 @@
-wschat 0.11
+wschat 0.12
 =========
 
 Grails websocket chat Plugin based on existing examples, provides  websocket chat that can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
@@ -8,7 +8,7 @@ Plugin will work with tomcat 7.0.54 + (8 as well) running java 1.7 +
 
 Dependency :
 
-	compile ":wschat:0.11" 
+	compile ":wschat:0.12" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -125,8 +125,13 @@ Within chat you can execute
 	
 	either will send a private message to user defined.. comma for users that have a space in their name..
 	
-	admin commands
+	// Admin commands now supported in modalbox popups 
+	// no need to manually define any admin commands
 	/kickuser {username}
+	/banuser {username},1:minutes
+	/banuser {username},10:hours
+	/banuser {username},10:days
+	/banuser {username},10:years
 	
 	
 # Issues:
@@ -149,6 +154,11 @@ https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Merging-plugin-with-y
 	
 # Version info
 ```
+0.12 - 	modalbox added with admin menu addition to each user hover options.
+		Banning user pops open modalbox where you define the period as admin to 
+		ban end user for. 
+		Ban/Kick users added as additional drop downs to admin users.
+		 
 0.11 -	DBsupport by default turned on 
 		Tidy up of javascript call created new wschat.js
 		Tidy up of friends/block list wrapped around dbcheck on endpoint.
