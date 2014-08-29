@@ -20,7 +20,7 @@
    <title>${chatTitle }</title>
 </head>
 <body>
-	<div id="pageHeader" class="page-header2">
+	<div  class="page-header">
 	<h2>${chatHeader }</h2>
 	<small>  
 		${now}
@@ -29,22 +29,28 @@
 
     <div id="chat_div">
     </div>
-    <hr />
-    <div id="log">
-    </div>
-          
+    
     <div id="userList">
     </div>
 
-<div id="bannedconfirmation">
-</div>
+	<div id="bannedconfirmation">
+	</div>
+	
+	<div id="profileconfirmation">
+	</div>
 
+	<div id="banuser" style="display:none;">
+		<g:render template="/banuser" />
+	</div>
+	
+	<div id="userprofile" style="display:none;">
+		<g:render template="/profile/profile" />
+	</div>
 
-<div id="banuser" style="display:none;">
-<g:render template="/banuser" />
-
-</div>
-
+	<div id="userphoto" style="display:none;">
+		<g:render template="/profile/photomb" />
+	</div>
+	
 	<div id="chatterBox">
 		<div class="message-container">
 

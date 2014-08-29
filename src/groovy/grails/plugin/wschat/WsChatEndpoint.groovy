@@ -6,7 +6,6 @@ import grails.util.Holders
 import groovy.time.TimeCategory
 
 import java.text.SimpleDateFormat
-import java.util.Map;
 
 import javax.servlet.ServletContextEvent
 import javax.servlet.ServletContextListener
