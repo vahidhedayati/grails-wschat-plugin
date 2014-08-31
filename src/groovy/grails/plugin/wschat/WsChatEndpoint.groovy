@@ -24,7 +24,6 @@ import javax.websocket.server.ServerEndpoint
 //@ServerEndpoint("/WsChatEndpoint/{room}")
 @ServerEndpoint("/WsChatEndpoint")
 class WsChatEndpoint implements ServletContextListener {
-	
 	private static List users = Collections.synchronizedList(new ArrayList())
 	static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>())
 	
@@ -167,7 +166,7 @@ class WsChatEndpoint implements ServletContextListener {
 		Boolean isuBanned=false		
 		if (!username)  {
 			if (message.startsWith(connector)) {
-				username=message.substring(message.indexOf(connector)+connector.length(),message.length()).replaceAll(' ', '_').trim()
+				username=message.substring(message.indexOf(connector)+connector.length(),message.length()).trim().replace(' ', '_').replace('.', '_')
 				userSession.getUserProperties().put("username", username)
 				isuBanned=isBanned(username)
 				if (!isuBanned){
@@ -300,27 +299,16 @@ class WsChatEndpoint implements ServletContextListener {
 	
 	
 	private String validateLogin(String username) {
-		def exists=ChatUser.findByUsername(username)
-		if (!exists) {
-			def config=Holders.config
-			String defaultPermission=config.wschat.defaultperm  ?: 'user'
-			def perm=ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
-			def cc=new ChatUser()
-			cc.username=username
-			cc.permissions=perm
-			cc.save(flush:true)
-			cc.discard()
-			def logit=new ChatLogs()
-			logit.username=username
-			logit.loggedIn=true
-			logit.loggedOut=false
-			logit.save(flush:true)
-			
-			return perm.name as String
-		}else{
-		
-			return exists.permissions.name as String
-		}
+		def config=Holders.config
+		String defaultPermission=config.wschat.defaultperm  ?: 'user'
+		def perm=ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
+		def user=ChatUser.findOrSaveWhere(username:username, permissions:perm).save(flush:true)
+		def logit=new ChatLogs()
+		logit.username=username
+		logit.loggedIn=true
+		logit.loggedOut=false
+		logit.save(flush:true)
+		return user.permissions.name as String
 	}
 	
 	private Boolean dbSupport() {

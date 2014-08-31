@@ -22,6 +22,11 @@
    <title>${chatTitle }</title>
 </head>
 <body>
+
+<g:if test="${flash.message}">
+	<div class="message" role="status">${flash.message}</div>
+</g:if>
+			
 <div class="container" >
 <div id="pageHeader" class="page-header2">
 	<h2>${chatHeader }</h2>
