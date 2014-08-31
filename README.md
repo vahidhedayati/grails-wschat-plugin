@@ -228,6 +228,7 @@ Admin commands
 		functions to interact with users logged in. i.e. to create links to pm etc..
 
 0.2	- 	Tidy up of javascript - additional checks enter auto submit - 	
+```
 
 
 # Issues:
