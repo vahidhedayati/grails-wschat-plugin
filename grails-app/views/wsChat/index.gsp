@@ -1,22 +1,23 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 
-<g:if test="${enduser?.verifyAppVersion().equals('resources')}">
-	<g:if test="${!request.xhr }">
-    	<meta name='layout' content="chat"/>
-    </g:if>
-    <g:else>
-   		<g:render template="/resources"/>
-   	 </g:else>
-</g:if>
-<g:else>
+<g:if test="${enduser?.verifyAppVersion().equals('assets')}">
 	<g:if test="${!request.xhr }">
     	<meta name='layout' content="achat"/>
     </g:if>
     <g:else>
     	<g:render template="/assets"/>
     </g:else>
+</g:if>
+<g:else>
+	<g:if test="${!request.xhr }">
+    	<meta name='layout' content="chat"/>
+    </g:if>
+    <g:else>
+   		<g:render template="/resources"/>
+   	 </g:else>
 </g:else>    
     
    <title>${chatTitle }</title>
@@ -26,7 +27,6 @@
 <g:if test="${flash.message}">
 	<div class="message" role="status">${flash.message}</div>
 </g:if>
-			
 <div class="container" >
 <div id="pageHeader" class="page-header2">
 	<h2>${chatHeader }</h2>

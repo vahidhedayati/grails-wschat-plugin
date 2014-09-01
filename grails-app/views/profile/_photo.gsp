@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-<g:if test="${enduser?.verifyAppVersion().equals('resources')}">
-	<meta name='layout' content="chat"/>
+<g:if test="${enduser?.verifyAppVersion().equals('assets')}">
+	<meta name='layout' content="achat"/>
 </g:if>
 <g:else>
-   	<meta name='layout' content="achat"/>
+	<meta name='layout' content="chat"/>
 </g:else>	
+
+
 </head>
 <body>
 	<div class="modal-body">
