@@ -1,4 +1,4 @@
-wschat 0.16
+wschat 0.17
 =========
 
 Grails websocket chat Plugin based on existing examples, provides  websocket chat that can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
@@ -8,7 +8,7 @@ Plugin will work with tomcat 7.0.54 + (8 as well) running java 1.7 +
 
 Dependency :
 
-	compile ":wschat:0.16" 
+	compile ":wschat:0.17" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -165,6 +165,9 @@ Admin commands
 	
 # Version info
 ```
+0.17 - 	Issue with profiles/birthDate fixed (tested under mysql). pluginbuddy ver updated.
+		dbsupport check added around all DB calls in endpoint.
+
 0.16 - 	Appears to be issues with pluginbuddy returning resources - returns assets fine..
 
 0.15 -	Changed session.user to session.wschatuser - to stop any conflicts with 	

@@ -17,15 +17,14 @@ grails.project.dependency.resolution = {
 	}
 
 	plugins {
-
 		compile ":hibernate4:4.3.5.4", {
 			export = false
 		}
 		
-		build ':release:2.2.1', ':rest-client-builder:1.0.3',  ':pluginbuddy:0.2', {
+		runtime ":pluginbuddy:0.3"
+		
+		build ':release:2.2.1', ':rest-client-builder:1.0.3', {
 			export = false
 		}
-		
 	}
 }
-//grails.plugin.location.'pluginbuddy' = "../grails-pluginbuddy-plugin"

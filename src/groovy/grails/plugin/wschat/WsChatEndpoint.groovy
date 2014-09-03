@@ -26,50 +26,50 @@ import javax.websocket.server.ServerEndpoint
 class WsChatEndpoint implements ServletContextListener {
 	private static List users = Collections.synchronizedList(new ArrayList())
 	static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>())
-	
+
 	@Override
-    public void contextInitialized(ServletContextEvent servletContextEvent) {
-   		final ServerContainer serverContainer =	org.codehaus.groovy.grails.web.context.ServletContextHolder.getServletContext().getAttribute("javax.websocket.server.ServerContainer")
-	    try {
-            serverContainer?.addEndpoint(WsChatEndpoint.class)
+	public void contextInitialized(ServletContextEvent servletContextEvent) {
+		final ServerContainer serverContainer =	org.codehaus.groovy.grails.web.context.ServletContextHolder.getServletContext().getAttribute("javax.websocket.server.ServerContainer")
+		try {
+			serverContainer?.addEndpoint(WsChatEndpoint.class)
 			// Keep chat sessions open for ever
 			def config=Holders.config
 			int DefaultMaxSessionIdleTimeout=config.wschat.timeout  ?: 0
 			serverContainer.setDefaultMaxSessionIdleTimeout(DefaultMaxSessionIdleTimeout as int)
-        } catch (DeploymentException e) {
-            e.printStackTrace()
-        }
-    }
+		} catch (DeploymentException e) {
+			e.printStackTrace()
+		}
+	}
 
 	@Override
-    public void contextDestroyed(ServletContextEvent servletContextEvent) {
-    }
-	
-    @OnOpen
-    //public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) { 
+	public void contextDestroyed(ServletContextEvent servletContextEvent) {
+	}
+
+	@OnOpen
+	//public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) {
 	public void handleOpen(Session userSession) {
 		chatroomUsers.add(userSession)
-    }	
-	
-    @OnMessage
-    public String handleMessage(String message,Session userSession) throws IOException {
+	}
+
+	@OnMessage
+	public String handleMessage(String message,Session userSession) throws IOException {
 		verifyAction(userSession,message)
-    }
-	
-    @OnClose
-    public void handeClose(Session userSession) {
+	}
+
+	@OnClose
+	public void handeClose(Session userSession) {
 		String username=userSession?.getUserProperties()?.get("username")
 		if (dbSupport()&&username) {
 			validateLogOut(username as String)
 		}
-        //chatroomUsers.remove(userSession)
-    }
-	
-    @OnError
-    public void handleError(Throwable t) {
-        t.printStackTrace()
-    }
-	
+		//chatroomUsers.remove(userSession)
+	}
+
+	@OnError
+	public void handleError(Throwable t) {
+		t.printStackTrace()
+	}
+
 	private void sendUserList(String iuser,Map msg) {
 		def myMsgj=msg as JSON
 		Iterator<Session> iterator=chatroomUsers?.iterator()
@@ -83,10 +83,10 @@ class WsChatEndpoint implements ServletContextListener {
 			}
 		}
 	}
-	
+
 	private void removeUser(String username) {
 		Iterator<Session> iterator=chatroomUsers?.iterator()
-	
+
 		while (iterator?.hasNext())  {
 			def crec=iterator?.next()
 			if (crec) {
@@ -97,7 +97,7 @@ class WsChatEndpoint implements ServletContextListener {
 			}
 		}
 	}
-	
+
 	private void sendUsers(String username) {
 		Iterator<Session> iterator=chatroomUsers?.iterator()
 		while (iterator?.hasNext())  {
@@ -116,12 +116,12 @@ class WsChatEndpoint implements ServletContextListener {
 					def myUser=[:]
 					if (cuser.equals(it)) {
 						myUser.put("owner", it)
-						uList.add(myUser)				
+						uList.add(myUser)
 					}else{
 						if ((blocklist)&&(blocklist.username.contains(it))) {
 							myUser.put("blocked", it)
 							uList.add(myUser)
-							
+
 						}else if  ((friendslist)&&(friendslist.username.contains(it))) {
 							myUser.put("friends", it)
 							uList.add(myUser)
@@ -129,11 +129,11 @@ class WsChatEndpoint implements ServletContextListener {
 							myUser.put("user", it)
 							uList.add(myUser)
 						}
-					}	
+					}
 				}
 				finalList.put("users", uList)
 				sendUserList(cuser,finalList)
-			}	
+			}
 		}
 	}
 
@@ -145,25 +145,25 @@ class WsChatEndpoint implements ServletContextListener {
 			if (crec) {
 				crec.getBasicRemote()?.sendText(myMsgj as String)
 			}
-		}	 
+		}
 	}
-	
 
-	private void messageUser(Session userSession,Map msg) { 
+
+	private void messageUser(Session userSession,Map msg) {
 		def myMsgj=msg as JSON
 		userSession.getBasicRemote().sendText(myMsgj as String)
 	}
-	
+
 	public static List getCurrentUserNames() {
 		return Collections.unmodifiableList(users);
 	}
-	
+
 	private void verifyAction(Session userSession,String message) {
 		def myMsg=[:]
-		
+
 		String username=userSession.getUserProperties().get("username") as String
 		String connector="CONN:-"
-		Boolean isuBanned=false		
+		Boolean isuBanned=false
 		if (!username)  {
 			if (message.startsWith(connector)) {
 				username=message.substring(message.indexOf(connector)+connector.length(),message.length()).trim().replace(' ', '_').replace('.', '_')
@@ -177,21 +177,21 @@ class WsChatEndpoint implements ServletContextListener {
 						def myMsg1=[:]
 						myMsg1.put("isAdmin", useris.toString())
 						messageUser(userSession,myMsg1)
-				
+
 					}
 					if (!users.contains(username)){
 						users.add(username)
 					}
 					sendUsers(username)
 					myMsg.put("message", "${username} has joined")
-			
+
 				}else{
-				
+
 					def myMsg1=[:]
 					myMsg1.put("isBanned", "user ${username} is banned being disconnected")
 					messageUser(userSession,myMsg1)
 					//chatroomUsers.remove(userSession)
-				}	
+				}
 			}
 
 			if ((myMsg)&&(!isuBanned)) {
@@ -208,7 +208,7 @@ class WsChatEndpoint implements ServletContextListener {
 					myMsg.put("message", "${username} has left")
 					broadcast(myMsg)
 				}
-	
+
 			}else if (message.startsWith("/pm")) {
 				def values=parseInput("/pm ",message)
 				def user=values.user
@@ -221,7 +221,7 @@ class WsChatEndpoint implements ServletContextListener {
 				}else{
 					myMsg.put("message","Private message self?")
 					messageUser(userSession,myMsg)
-				}	
+				}
 			}else if (message.startsWith("/block")) {
 				def values=parseInput("/block ",message)
 				def user=values.user
@@ -256,16 +256,16 @@ class WsChatEndpoint implements ServletContextListener {
 				def person=values.msg
 				removeUser(user,person)
 				sendUsers(user)
-			// Usual chat messages bound for all	
+				// Usual chat messages bound for all
 			}else{
 				myMsg.put("message", "${username}: ${message}")
 				broadcast(myMsg)
 			}
 		}
-		
+
 	}
 
-	
+
 	private void privateMessage(String user,Map msg,Session userSession) {
 		def myMsg=[:]
 		def myMsgj=msg as JSON
@@ -296,21 +296,26 @@ class WsChatEndpoint implements ServletContextListener {
 			messageUser(userSession,myMsg)
 		}
 	}
-	
-	
+
+
 	private String validateLogin(String username) {
-		def config=Holders.config
-		String defaultPermission=config.wschat.defaultperm  ?: 'user'
-		def perm=ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
-		def user=ChatUser.findOrSaveWhere(username:username, permissions:perm).save(flush:true)
-		def logit=new ChatLogs()
-		logit.username=username
-		logit.loggedIn=true
-		logit.loggedOut=false
-		logit.save(flush:true)
-		return user.permissions.name as String
+		def defaultPerm='user'
+		if (dbSupport()) {
+			def config=Holders.config
+			String defaultPermission=config.wschat.defaultperm  ?: defaultPerm
+			def perm=ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
+			def user=ChatUser.findOrSaveWhere(username:username, permissions:perm).save(flush:true)
+			def logit=new ChatLogs()
+			logit.username=username
+			logit.loggedIn=true
+			logit.loggedOut=false
+			logit.save(flush:true)
+			return user.permissions.name as String
+		}else{
+			return defaultPerm
+		}
 	}
-	
+
 	private Boolean dbSupport() {
 		def config=Holders.config
 		Boolean dbsupport=false
@@ -320,23 +325,28 @@ class WsChatEndpoint implements ServletContextListener {
 		}
 		return dbsupport
 	}
-	
+
 	private void validateLogOut(String username) {
-		def logit=new ChatLogs()
-		logit.username=username
-		logit.loggedIn=false
-		logit.loggedOut=true
-		logit.save(flush:true)
-	}
-	
-	private Boolean checkPM(String username, String urecord) {
-		def found=ChatBlockList.findByChatuserAndUsername(currentUser(username),urecord)
-		if (found) {
-			return false
+		if (dbSupport()) {
+			def logit=new ChatLogs()
+			logit.username=username
+			logit.loggedIn=false
+			logit.loggedOut=true
+			logit.save(flush:true)
 		}
-		return true			
 	}
-	
+
+	private Boolean checkPM(String username, String urecord) {
+		Boolean result=true
+		if (dbSupport()) {
+			def found=ChatBlockList.findByChatuserAndUsername(currentUser(username),urecord)
+			if (found) {
+				result=false
+			}
+		}
+		return result
+	}
+
 	private Boolean isAdmin(Session userSession) {
 		Boolean useris=false
 		String userLevel=userSession.getUserProperties().get("userLevel") as String
@@ -345,14 +355,14 @@ class WsChatEndpoint implements ServletContextListener {
 		}
 		return useris
 	}
-	
+
 	private void kickUser(Session userSession,String username) {
 		Boolean useris=isAdmin(userSession)
 		if (useris) {
 			logoutUser(username)
 		}
 	}
-	
+
 	private void banUser(Session userSession,String username,String duration,String period) {
 		Boolean useris=isAdmin(userSession)
 		if (useris) {
@@ -360,7 +370,7 @@ class WsChatEndpoint implements ServletContextListener {
 			logoutUser(username)
 		}
 	}
-	
+
 	private void logoutUser(String username) {
 		def myMsg=[:]
 		myMsg.put("message", "${username} about to be kicked off")
@@ -378,78 +388,91 @@ class WsChatEndpoint implements ServletContextListener {
 					messageUser(crec,myMsg1)
 				}
 			}
-		}	
-	}		
-	
-	private void unblockUser(String username,String urecord) {
-		def cuser=currentUser(username)
-		def found=ChatBlockList.findByChatuserAndUsername(cuser,urecord)
-		found.delete(flush: true)
+		}
 	}
-	
+
+	private void unblockUser(String username,String urecord) {
+		if (dbSupport()) {
+			def cuser=currentUser(username)
+			def found=ChatBlockList.findByChatuserAndUsername(cuser,urecord)
+			found.delete(flush: true)
+		}
+	}
+
 	private Boolean isBanned(String username) {
 		Boolean yesis=false
-		def now=new Date()
-		def current = new SimpleDateFormat('EEE, d MMM yyyy HH:mm:ss').format(now)
-		def found=ChatBanList.findAllByUsernameAndPeriodGreaterThan(username,current)
-		def dd=ChatBanList.findAllByUsername(username)
-		if (found) {
-			yesis=true
+		if (dbSupport()) {
+
+			def now=new Date()
+			def current = new SimpleDateFormat('EEE, d MMM yyyy HH:mm:ss').format(now)
+			def found=ChatBanList.findAllByUsernameAndPeriodGreaterThan(username,current)
+			def dd=ChatBanList.findAllByUsername(username)
+			if (found) {
+				yesis=true
+			}
 		}
 		return yesis
 	}
-	
+
 	private void banthisUser(String username,String duration, String period) {
 		def cc
 		use(TimeCategory) {
-			 cc=new Date() +(duration as int)."${period}"
+			cc=new Date() +(duration as int)."${period}"
 		}
 		def current = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss").format(cc)
 		def found=ChatBanList.findByUsername(username)
 		if (!found) {
-				def newEntry=new ChatBanList()
-				newEntry.username=username
-				newEntry.period=current
-				newEntry.save(flush:true)
+			def newEntry=new ChatBanList()
+			newEntry.username=username
+			newEntry.period=current
+			newEntry.save(flush:true)
 		}else{
 			found.period=current
 			found.save(flush:true)
 		}
-		
+
 	}
-	
+
 	private void blockUser(String username,String urecord) {
-		def cuser=currentUser(username)
-		def found=ChatBlockList.findByChatuserAndUsername(cuser,urecord)
-		if (!found) {
-			def newEntry=new ChatBlockList()
-			newEntry.chatuser=cuser
-			newEntry.username=urecord
-			newEntry.save(flush:true)
+		if (dbSupport()) {
+			def cuser=currentUser(username)
+			def found=ChatBlockList.findByChatuserAndUsername(cuser,urecord)
+			if (!found) {
+				def newEntry=new ChatBlockList()
+				newEntry.chatuser=cuser
+				newEntry.username=urecord
+				newEntry.save(flush:true)
+			}
 		}
 	}
-	
+
 	private void addUser(String username,String urecord) {
-		def cuser=currentUser(username)
-		def found=ChatFriendList.findByChatuserAndUsername(cuser,urecord)
-		if (!found) {
-			def newEntry=new ChatFriendList()
-			newEntry.chatuser=cuser
-			newEntry.username=urecord
-			newEntry.save(flush:true)
+		if (dbSupport()) {
+			def cuser=currentUser(username)
+			def found=ChatFriendList.findByChatuserAndUsername(cuser,urecord)
+			if (!found) {
+				def newEntry=new ChatFriendList()
+				newEntry.chatuser=cuser
+				newEntry.username=urecord
+				newEntry.save(flush:true)
+			}
 		}
 	}
-	
+
 	private void removeUser(String username,String urecord) {
-		def cuser=currentUser(username)
-		def found=ChatFriendList.findByChatuserAndUsername(cuser,urecord)
-		found.delete(flush: true)
+		if (dbSupport()) {
+			def cuser=currentUser(username)
+			def found=ChatFriendList.findByChatuserAndUsername(cuser,urecord)
+			found.delete(flush: true)
+		}
 	}
-	
+
 	def currentUser(String username) {
-		return ChatUser.findByUsername(username)
+		if (dbSupport()) {
+			return ChatUser.findByUsername(username)
+		}
 	}
-	
+
 	private String getCurrentUserName(Session userSession) {
 		def myMsg=[:]
 		String username=userSession.getUserProperties().get("username") as String
@@ -461,7 +484,7 @@ class WsChatEndpoint implements ServletContextListener {
 			return username
 		}
 	}
-	
+
 	private Map<String, String> parseInput(String mtype,String message){
 		def p1=mtype
 		def mu=message.substring(p1.length(),message.length())
@@ -475,14 +498,14 @@ class WsChatEndpoint implements ServletContextListener {
 			user=mu.substring(0,mu.indexOf(" "))
 			msg=mu.substring(user.length()+1,mu.length())
 		}
-		
+
 		Map<String, String> values = new HashMap<String, Double>();
 		values.put("user", user);
 		values.put("msg", msg);
 		return values
 	}
-	
-	
+
+
 	private Map<String, String> parseBan(String mtype,String message){
 		def p1=mtype
 		def mu=message.substring(p1.length(),message.length())
