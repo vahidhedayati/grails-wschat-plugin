@@ -130,12 +130,40 @@ class BootStrap {
 ```
 	
 
-# 0.10+ & resources based apps:
+# 0.10+ & resources based apps (pre  2.4) :
 Under Resources based application you can still use the latest code base, but you need to exclude hibernate. Something like this:
 
-```
+```groovy
 compile (":wschat:XXX") { excludes 'hibernate' }
+```
+
+Or you could do something like this:
+
+```groovy
+compile ":wschat:0.17", {
+			transitive = false
+		}
+		
  ```
+
+Now you will need to also upgrade hibernate, on a test project I was able to include hibernate:
+```groovy
+runtime ":hibernate4:4.3.5.4"
+```
+
+
+But on my current 2.3.7 app doing such a thing caused a lot of issues and I backed down back to original :
+```groovy
+runtime ":hibernate:3.6.10.10"
+```
+
+With this enabled there is one more thing that needs to be done, in your config.groovy you need to disable DB support for wschat, it sucks ye I know but at least basic chat works. The proper solution is to ensure you are running grails 2.4+:
+
+```groovy
+wschat.dbsupport="no"
+```
+
+
 
 # Commands:
 
