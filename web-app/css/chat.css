@@ -308,8 +308,20 @@
     font-weight: normal;
 }
 
-
-
+.inline-right {
+	display:inline-block;
+	*display:inline;
+	*zoom:1;
+	float:right;
+	
+}
+.inline-left {
+	display:inline-block;
+	*display:inline;
+	*zoom:1;
+	float:left;
+	
+}
 .sendbtn { 
 	display:inline-block;
 	*display:inline;
@@ -357,3 +369,6 @@
 .sidebar{float:right;margin-right:1px;}
 
 
+#chatRooms{
+	
+}

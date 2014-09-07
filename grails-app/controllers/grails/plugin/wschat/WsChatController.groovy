@@ -9,16 +9,29 @@ class WsChatController {
 	def grailsApplication
 
 	def index() {
+		
+		def dbSupport=grailsApplication.config.wschat.dbsupport ?: 'yes'
+		def dbrooms
+		if (dbSupport.toString().toLowerCase().equals('yes')) {
+			dbrooms=ChatRoomList?.findAll()*.room.unique()
+		}	
 		def process=grailsApplication.config.wschat.disable.login ?: 'no'
 		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
 		def chatHeader=grailsApplication.config.wschat.heading ?: 'Grails websocket chat'
+		def room=grailsApplication.config.wschat.rooms
+		if (!room && dbrooms) {
+			room=dbrooms
+		} else if (!room && !dbrooms) {
+			room=['wschat']
+		}	    
+		
 		if (process.toLowerCase().equals('yes')) {
 			render "Default sign in page disabled"
 		}
-		[chatTitle:chatTitle,chatHeader:chatHeader]
+		[chatTitle:chatTitle,chatHeader:chatHeader,room:room]
 	}
 
-	def login(String username) {
+	def login(String username,String room) {
 		def errors
 		def process=grailsApplication.config.wschat.disable.login ?: 'no'
 		if (process.toLowerCase().equals('yes')) {
@@ -30,18 +43,37 @@ class WsChatController {
 			redirect(action: "index")
 		}else{
 			session.wschatuser=username
+			session.wschatroom=room
 			redirect(action: "chat")
 		}
 		//redirect (uri : "/wsChat/chat/${room}")
 	}
+	
 
+	def camsend(String user) {
+		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
+		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
+		//def dbsupport=grailsApplication.config.wschat.dbsupport ?: 'yes'
+		[user:user,chatTitle:chatTitle,hostname:hostname]
+	}
+
+	
+	def camrec(String user) {
+		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
+		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
+		def chatuser=session.wschatuser
+		//def dbsupport=grailsApplication.config.wschat.dbsupport ?: 'yes'
+		[user:user,hostname:hostname,chatuser:chatuser,chatTitle:chatTitle]
+	}
+	
 	def chat() {
 		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
 		def chatHeader=grailsApplication.config.wschat.heading ?: 'Grails websocket chat'
 		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
 		def dbsupport=grailsApplication.config.wschat.dbsupport ?: 'yes'
 		def chatuser=session.wschatuser
-		[dbsupport:dbsupport.toLowerCase() , chatuser:chatuser, chatTitle:chatTitle,chatHeader:chatHeader, now:new Date(),hostname:hostname]
+		def room=session.wschatroom
+		[dbsupport:dbsupport.toLowerCase() , room:room, chatuser:chatuser, chatTitle:chatTitle,chatHeader:chatHeader, now:new Date(),hostname:hostname]
 	}
 
 	def verifyprofile(String username) {
@@ -91,6 +123,39 @@ class WsChatController {
 		}
 	}
 
+	def addaRoom() {
+		
+		render template : '/room/addaRoom' 
+	}
+
+	def delaRoom() {
+		def roomList=ChatRoomList?.findAll()*.room.unique()
+		render template : '/room/delaRoom' , model:[ roomList:roomList ]
+	}
+
+	def addRoom(String room) { 
+		def record=ChatRoomList.findByRoom(room)
+		if (!record) {
+			record=new ChatRoomList()
+			record.room=room
+			if (!record.save(flush:true)) {
+				render "Issue saving new room"
+			}
+			render "New room has been added"
+		}
+		render "Room ${room} already added"
+	}
+	
+	def delRoom(String room) {
+		def record=ChatRoomList.findByRoom(room)
+		if (!record) {
+			render "Room ${room} not found"
+		}else{
+			record.delete(flush:true)
+			render "Room has been deleted"
+		}
+	}
+	
 	def photo(String username) {
 		render template : '/profile/photo' , model:[ username:username ]
 	}

@@ -12,7 +12,7 @@
 	class="form-horizontal" 
 	url="[controller:'wsChat', action:'updateProfile']" 
 	update="profileconfirmation"  
-	onComplete="closeModal()"
+	onComplete="closeEditModal()"
 	>
 
 	<div class="modal-body">
@@ -130,13 +130,20 @@
 		
 		</div>	
 		<div class="modal-footer">
-			<g:submitToRemote class="btn btn-primary" url="[controller:'wsChat',action:'updateProfile']"	update="profileconfirmation"  onComplete="closeModal()" value="Update profile" />
+			<g:submitToRemote class="btn btn-primary" url="[controller:'wsChat',action:'updateProfile']"	update="profileconfirmation"  onComplete="closeEditModal()" value="Update profile" />
 		</div>	
 		</g:formRemote>
 					
 
 	
-	
+	<g:javascript>
+
+	function closeEditModal() {
+		$('#userprofile1').modal('hide');
+		$('body').removeClass('modal-open');
+		$('.modal-backdrop').remove();
+	}
+</g:javascript>
 	
 	
 	

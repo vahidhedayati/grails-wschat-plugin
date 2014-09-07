@@ -38,7 +38,9 @@
 	 	<div class="form-group">
 		<div class="nickname">Nickname: </div>
 			<input type="text" name="username">
+				<g:select name="room" from="${room}" /> 
 			<input type="submit" value="login" >
+		
 		</div>
 	</form>
 	</div>

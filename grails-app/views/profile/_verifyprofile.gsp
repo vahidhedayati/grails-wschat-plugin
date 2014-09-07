@@ -2,7 +2,7 @@
 		<button type="button" class="close" data-dismiss="modal">x</button>
 		<h3 id="prompt">
 <g:if test="${actualuser}">
-	Welcome to your profile ${username } 
+	 ${username } 
 	<button class="btn btn-success btn-xs" onclick="editProfile(getApp(),'${username}')">Edit profile</button>
 	<button class="btn btn-warning btn-xs" onclick="uploadPhoto(getApp(),'${username}')">Upload Photo</button>
 </g:if>

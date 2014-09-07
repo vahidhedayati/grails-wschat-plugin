@@ -11,20 +11,22 @@ import javax.servlet.ServletContextEvent
 import javax.servlet.ServletContextListener
 import javax.servlet.annotation.WebListener
 import javax.websocket.DeploymentException
+import javax.websocket.EndpointConfig
 import javax.websocket.OnClose
 import javax.websocket.OnError
 import javax.websocket.OnMessage
 import javax.websocket.OnOpen
 import javax.websocket.Session
+import javax.websocket.server.PathParam
 import javax.websocket.server.ServerContainer
 import javax.websocket.server.ServerEndpoint
 
 
 @WebListener
-//@ServerEndpoint("/WsChatEndpoint/{room}")
-@ServerEndpoint("/WsChatEndpoint")
+@ServerEndpoint("/WsChatEndpoint/{room}")
 class WsChatEndpoint implements ServletContextListener {
 	private static List users = Collections.synchronizedList(new ArrayList())
+	//private static List camusers = Collections.synchronizedList(new ArrayList())
 	static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>())
 
 	@Override
@@ -46,9 +48,10 @@ class WsChatEndpoint implements ServletContextListener {
 	}
 
 	@OnOpen
-	//public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) {
-	public void handleOpen(Session userSession) {
+	public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) {
+		//userSession.setMaxBinaryMessageBufferSize(1024*512)
 		chatroomUsers.add(userSession)
+		userSession.getUserProperties().put("room", room)
 	}
 
 	@OnMessage
@@ -70,98 +73,11 @@ class WsChatEndpoint implements ServletContextListener {
 		t.printStackTrace()
 	}
 
-	private void sendUserList(String iuser,Map msg) {
-		def myMsgj=msg as JSON
-		Iterator<Session> iterator=chatroomUsers?.iterator()
-		while (iterator?.hasNext())  {
-			def crec=iterator?.next()
-			if (crec) {
-				def cuser=crec.getUserProperties().get("username").toString()
-				if (cuser.equals(iuser)) {
-					crec.getBasicRemote().sendText(myMsgj as String)
-				}
-			}
-		}
-	}
-
-	private void removeUser(String username) {
-		Iterator<Session> iterator=chatroomUsers?.iterator()
-
-		while (iterator?.hasNext())  {
-			def crec=iterator?.next()
-			if (crec) {
-				def cuser=crec.getUserProperties().get("username").toString()
-				if (cuser.equals(username)) {
-					iterator.remove()
-				}
-			}
-		}
-	}
-
-	private void sendUsers(String username) {
-		Iterator<Session> iterator=chatroomUsers?.iterator()
-		while (iterator?.hasNext())  {
-			def uList=[]
-			def finalList=[:]
-			def crec=iterator?.next()
-			if (crec) {
-				def cuser=crec.getUserProperties().get("username").toString()
-				def blocklist
-				def friendslist
-				if (dbSupport()) {
-					blocklist=ChatBlockList.findAllByChatuser(currentUser(cuser))
-					friendslist=ChatFriendList.findAllByChatuser(currentUser(cuser))
-				}
-				getCurrentUserNames().each {
-					def myUser=[:]
-					if (cuser.equals(it)) {
-						myUser.put("owner", it)
-						uList.add(myUser)
-					}else{
-						if ((blocklist)&&(blocklist.username.contains(it))) {
-							myUser.put("blocked", it)
-							uList.add(myUser)
-
-						}else if  ((friendslist)&&(friendslist.username.contains(it))) {
-							myUser.put("friends", it)
-							uList.add(myUser)
-						}else{
-							myUser.put("user", it)
-							uList.add(myUser)
-						}
-					}
-				}
-				finalList.put("users", uList)
-				sendUserList(cuser,finalList)
-			}
-		}
-	}
-
-	private void broadcast(Map msg) {
-		def myMsgj=msg as JSON
-		Iterator<Session> iterator=chatroomUsers?.iterator()
-		while (iterator?.hasNext()) {
-			def crec=iterator?.next()
-			if (crec) {
-				crec.getBasicRemote()?.sendText(myMsgj as String)
-			}
-		}
-	}
-
-
-	private void messageUser(Session userSession,Map msg) {
-		def myMsgj=msg as JSON
-		userSession.getBasicRemote().sendText(myMsgj as String)
-	}
-
-	public static List getCurrentUserNames() {
-		return Collections.unmodifiableList(users);
-	}
-
 	private void verifyAction(Session userSession,String message) {
 		def myMsg=[:]
 
 		String username=userSession.getUserProperties().get("username") as String
+		String room = userSession.getUserProperties().get("room") as String
 		String connector="CONN:-"
 		Boolean isuBanned=false
 		if (!username)  {
@@ -182,9 +98,13 @@ class WsChatEndpoint implements ServletContextListener {
 					if (!users.contains(username)){
 						users.add(username)
 					}
-					sendUsers(username)
-					myMsg.put("message", "${username} has joined")
-
+					def myMsg2=[:]
+					myMsg2.put("currentRoom", "${room}")
+					messageUser(userSession,myMsg2)
+					sendUsers(userSession,username)
+					myMsg.put("message", "${username} has joined ${room}")
+					sendRooms(userSession)
+					
 				}else{
 
 					def myMsg1=[:]
@@ -195,18 +115,18 @@ class WsChatEndpoint implements ServletContextListener {
 			}
 
 			if ((myMsg)&&(!isuBanned)) {
-				broadcast(myMsg)
+				broadcast(userSession,myMsg)
 			}
 		}else{
 			if (message.startsWith("DISCO:-")) {
 				users.remove(username)
 				removeUser(username)
 				//chatroomUsers.remove(userSession)
-				sendUsers(null)
+				sendUsers(userSession,null)
 				isuBanned=isBanned(username)
 				if (!isuBanned){
-					myMsg.put("message", "${username} has left")
-					broadcast(myMsg)
+					myMsg.put("message", "${username} has left ${room}")
+					broadcast(userSession,myMsg)
 				}
 
 			}else if (message.startsWith("/pm")) {
@@ -227,7 +147,7 @@ class WsChatEndpoint implements ServletContextListener {
 				def user=values.user
 				def person=values.msg
 				blockUser(user,person)
-				sendUsers(user)
+				sendUsers(userSession,user)
 			}else if (message.startsWith("/kickuser")) {
 				def p1="/kickuser "
 				def user=message.substring(p1.length(),message.length())
@@ -243,29 +163,281 @@ class WsChatEndpoint implements ServletContextListener {
 				def user=values.user
 				def person=values.msg
 				unblockUser(user,person)
-				sendUsers(user)
+				sendUsers(userSession,user)
 			}else if (message.startsWith("/add")) {
 				def values=parseInput("/add ",message)
 				def user=values.user
 				def person=values.msg
 				addUser(user,person)
-				sendUsers(user)
+				sendUsers(userSession,user)
 			}else if (message.startsWith("/removefriend")) {
 				def values=parseInput("/removefriend ",message)
 				def user=values.user
 				def person=values.msg
 				removeUser(user,person)
-				sendUsers(user)
-				// Usual chat messages bound for all
+				sendUsers(userSession,user)
+			}else if (message.startsWith("/joinRoom")) {
+				def values=parseInput("/joinRoom ",message)
+				def user=values.user
+				def rroom=values.msg
+				if (roomList().toMapString().contains(rroom)) {
+					userSession.getUserProperties().put("room", rroom)
+					room=rroom;
+					myMsg.put("currentRoom", "${room}")
+					messageUser(userSession,myMsg)
+					myMsg=[:]
+					sendUsers(userSession,user)
+					myMsg.put("message", "${user} has joined ${room}")
+					broadcast(userSession,myMsg)
+					sendRooms(userSession)
+				}
+			}else if (message.startsWith("/listRooms")) {
+				ListRooms()
+			}else if (message.startsWith("/addRoom")) {
+				def p1="/addRoom "
+				def nroom=message.substring(p1.length(),message.length())
+				addRoom(userSession,nroom)
+			}else if (message.startsWith("/delRoom")) { 
+				def p1="/delRoom "
+				def nroom=message.substring(p1.length(),message.length())
+				delRoom(userSession,nroom)
+			}else if (message.startsWith("/camenabled")) { 
+				def p1="/camenabled "
+				def camuser=message.substring(p1.length(),message.length())
+				//addCamUser(userSession,camuser)
+				userSession.getUserProperties().put("av", "on")
+				myMsg.put("message", "${camuser} has enabled A/V")
+				broadcast(userSession,myMsg)
+				sendUsers(userSession,camuser)
+		
+			// Usual chat messages bound for all
 			}else{
 				myMsg.put("message", "${username}: ${message}")
-				broadcast(myMsg)
+				broadcast(userSession,myMsg)
 			}
 		}
 
 	}
 
+	/*}else if (message.startsWith("/streamCam")) {
+	 JSONObject json = new JSONObject(message);
+	 JSONObject data = json.getJSONObject("data");
+	 String to = data.getString("sendto");
+	 String base64 = data.getString("url");
+	 if (base64  != null) {
+	 // Send the buffer to all subscibers
+	 //for (Session subscriber : sessions) {
+	 //	subscriber.getBasicRemote().sendText(base64);
+	 //}
+	 //sendCam(to,base64)
+	 //}
+	 */
 
+
+	private String validateLogin(String username) {
+		def defaultPerm='user'
+		if (dbSupport()) {
+			def config=Holders.config
+			String defaultPermission=config.wschat.defaultperm  ?: defaultPerm
+			def perm=ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
+			def user=ChatUser.findOrSaveWhere(username:username, permissions:perm).save(flush:true)
+			def logit=new ChatLogs()
+			logit.username=username
+			logit.loggedIn=true
+			logit.loggedOut=false
+			logit.save(flush:true)
+			return user.permissions.name as String
+		}else{
+			return defaultPerm
+		}
+	}
+
+	private void validateLogOut(String username) {
+		if (dbSupport()) {
+			def logit=new ChatLogs()
+			logit.username=username
+			logit.loggedIn=false
+			logit.loggedOut=true
+			logit.save(flush:true)
+		}
+	}
+	
+	
+	private void addRoom(Session userSession,String roomName) { 
+		if ((dbSupport()) && (isAdmin(userSession)) ) {
+			def nr=new ChatRoomList()
+			nr.room=roomName
+			if (!nr.save(flush:true)) {
+				log.info "Error saving ${roomName}"
+			}
+			ListRooms()
+		}
+	}
+	private void delRoom(Session userSession,String roomName) {
+		if ((dbSupport()) && (isAdmin(userSession)) ) {
+			Iterator<Session> iterator=chatroomUsers?.iterator()
+			while (iterator?.hasNext())  {
+				def crec=iterator?.next()
+				if (crec.isOpen() && roomName.equals(crec.getUserProperties().get("room"))) {
+					def cuser=crec.getUserProperties().get("username").toString()
+					//String croom = crec.getUserProperties().get("room") as String
+					kickUser(userSession,cuser)
+					
+				}
+			}	
+			
+			def nr=ChatRoomList.findByRoom(roomName)
+			if (nr) {
+				nr.delete(flush: true)
+				
+			}
+			ListRooms()
+		}
+	}
+	
+	private void sendUserList(String iuser,Map msg) {
+		def myMsgj=msg as JSON
+		Iterator<Session> iterator=chatroomUsers?.iterator()
+		while (iterator?.hasNext())  {
+			def crec=iterator?.next()
+			if (crec.isOpen()) {
+				def cuser=crec.getUserProperties().get("username").toString()
+				if (cuser.equals(iuser)) {
+					crec.getBasicRemote().sendText(myMsgj as String)
+				}
+			}
+		}
+	}
+/*
+	private void removeCamUser(Session userSession,String username) {
+		String ruser = userSession.getUserProperties().get("username") as String
+		if (camusers.contains(username)&&(ruser.equals(username))){
+			camusers.remove(username)
+		}
+	}
+	
+	private void addCamUser(Session userSession,String username) {
+		String ruser = userSession.getUserProperties().get("username") as String
+		if (!camusers.contains(username)&&(ruser.equals(username))){
+			camusers.add(username)
+		}
+	}
+	*/
+	private void removeUser(String username) {
+		Iterator<Session> iterator=chatroomUsers?.iterator()
+		while (iterator?.hasNext())  {
+			def crec=iterator?.next()
+			if (crec.isOpen()) {
+				def cuser=crec.getUserProperties().get("username").toString()
+				if (cuser.equals(username)) {
+					iterator.remove()
+				}
+			}
+		}
+	}
+
+	private void sendUsers(Session userSession,String username) {
+		String room = userSession.getUserProperties().get("room") as String
+		try {
+		Iterator<Session> iterator2=chatroomUsers?.iterator()
+		while (iterator2?.hasNext())  {
+			def crec2=iterator2?.next()
+			if (crec2.isOpen()) {
+				def uiterator=crec2.getUserProperties().get("username").toString()
+				
+		
+			def uList=[]
+			def finalList=[:]
+			def blocklist
+			def friendslist
+			if (dbSupport()) {
+				blocklist=ChatBlockList.findAllByChatuser(currentUser(uiterator))
+				friendslist=ChatFriendList.findAllByChatuser(currentUser(uiterator))
+			}
+			
+				Iterator<Session> iterator=chatroomUsers?.iterator()
+				while (iterator?.hasNext())  {
+					def myUser=[:]
+					def crec=iterator?.next()
+					if (crec.isOpen() && room.equals(crec.getUserProperties().get("room"))) {
+						def cuser=crec.getUserProperties().get("username").toString()
+						def av=crec.getUserProperties().get("av").toString()
+						def addav=""
+						if (av.equals("on")) {
+							addav="_av"
+						}
+						if (cuser.equals(uiterator)) {
+							myUser.put("owner${addav}", cuser)
+							uList.add(myUser)
+						}else{
+							if ((blocklist)&&(blocklist.username.contains(cuser))) {
+								myUser.put("blocked", cuser)
+								uList.add(myUser)
+
+							}else if  ((friendslist)&&(friendslist.username.contains(cuser))) {
+								myUser.put("friends${addav}", cuser)
+								uList.add(myUser)
+							}else{
+								myUser.put("user${addav}", cuser)
+								uList.add(myUser)
+							}
+						}
+					}
+				}
+				finalList.put("users", uList)
+				sendUserList(uiterator,finalList)
+			
+			}
+		
+		}	
+			} catch (IOException e) {
+				log.info ("onMessage failed", e)
+			}
+		
+	}
+
+	private void broadcast2all(Map msg) {
+		def myMsgj=msg as JSON
+		
+		try {
+			Iterator<Session> iterator=chatroomUsers?.iterator()
+			while (iterator?.hasNext()) {
+				def crec=iterator?.next()
+				if (crec.isOpen())  {
+					crec.getBasicRemote().sendText(myMsgj as String);
+				}
+			}
+		} catch (IOException e) {
+			log.info ("onMessage failed", e)
+		}
+	}
+	
+	private void broadcast(Session userSession,Map msg) {
+		def myMsgj=msg as JSON
+		String room = userSession.getUserProperties().get("room") as String
+		try {
+			Iterator<Session> iterator=chatroomUsers?.iterator()
+			while (iterator?.hasNext()) {
+				def crec=iterator?.next()
+				if (crec.isOpen() && room.equals(crec.getUserProperties().get("room"))) {
+					crec.getBasicRemote().sendText(myMsgj as String);
+				}
+			}
+		} catch (IOException e) {
+			log.info ("onMessage failed", e)
+		}
+	}
+
+	private void messageUser(Session userSession,Map msg) {
+		def myMsgj=msg as JSON
+		userSession.getBasicRemote().sendText(myMsgj as String)
+	}
+
+	public static List getCurrentUserNames() {
+		return Collections.unmodifiableList(users);
+	}
+
+	
 	private void privateMessage(String user,Map msg,Session userSession) {
 		def myMsg=[:]
 		def myMsgj=msg as JSON
@@ -298,24 +470,7 @@ class WsChatEndpoint implements ServletContextListener {
 	}
 
 
-	private String validateLogin(String username) {
-		def defaultPerm='user'
-		if (dbSupport()) {
-			def config=Holders.config
-			String defaultPermission=config.wschat.defaultperm  ?: defaultPerm
-			def perm=ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
-			def user=ChatUser.findOrSaveWhere(username:username, permissions:perm).save(flush:true)
-			def logit=new ChatLogs()
-			logit.username=username
-			logit.loggedIn=true
-			logit.loggedOut=false
-			logit.save(flush:true)
-			return user.permissions.name as String
-		}else{
-			return defaultPerm
-		}
-	}
-
+	
 	private Boolean dbSupport() {
 		def config=Holders.config
 		Boolean dbsupport=false
@@ -326,15 +481,7 @@ class WsChatEndpoint implements ServletContextListener {
 		return dbsupport
 	}
 
-	private void validateLogOut(String username) {
-		if (dbSupport()) {
-			def logit=new ChatLogs()
-			logit.username=username
-			logit.loggedIn=false
-			logit.loggedOut=true
-			logit.save(flush:true)
-		}
-	}
+	
 
 	private Boolean checkPM(String username, String urecord) {
 		Boolean result=true
@@ -359,7 +506,7 @@ class WsChatEndpoint implements ServletContextListener {
 	private void kickUser(Session userSession,String username) {
 		Boolean useris=isAdmin(userSession)
 		if (useris) {
-			logoutUser(username)
+			logoutUser(userSession,username)
 		}
 	}
 
@@ -367,14 +514,14 @@ class WsChatEndpoint implements ServletContextListener {
 		Boolean useris=isAdmin(userSession)
 		if (useris) {
 			banthisUser(username,duration,period)
-			logoutUser(username)
+			logoutUser(userSession,username)
 		}
 	}
 
-	private void logoutUser(String username) {
+	private void logoutUser(Session userSession,String username) {
 		def myMsg=[:]
 		myMsg.put("message", "${username} about to be kicked off")
-		broadcast(myMsg)
+		broadcast(userSession,myMsg)
 		Iterator<Session> iterator=chatroomUsers.iterator()
 		while (iterator.hasNext())  {
 			def crec=iterator?.next()
@@ -484,7 +631,52 @@ class WsChatEndpoint implements ServletContextListener {
 			return username
 		}
 	}
+	
+	private void sendRooms(Session userSession) {
+		messageUser(userSession,roomList())
+	}
+	
+	private void ListRooms() {
+		broadcast2all(roomList())
+	}
+	
+	private Map roomList() {
+		def uList=[]
+		def config=Holders.config
+		def room=config.wschat.rooms
+		if (room) {
+			uList=[]
+			room.each {
+				def myMsg=[:]
+				myMsg.put("room",it)
+				uList.add(myMsg)
+			}
+		}
+		def dbrooms
+		def finalList=[:]
+		if (dbSupport()) {
+			dbrooms=ChatRoomList?.findAll()*.room.unique()
+			if (dbrooms) {
+				//uList=[]
+				dbrooms.each {
+					def myMsg=[:]
+					myMsg.put("room",it)
+					uList.add(myMsg)
+				}
+			}
+		}
+		if (!room && !dbrooms) {
+			room='wschat'
+			def myMsg=[:]
+			myMsg.put("room",room)
+			uList.add(myMsg)
+		}
 
+		finalList.put("rooms", uList)
+		return finalList as Map
+	}
+	
+	
 	private Map<String, String> parseInput(String mtype,String message){
 		def p1=mtype
 		def mu=message.substring(p1.length(),message.length())

@@ -11,6 +11,13 @@ eventWebXmlEnd = {String tmpfile ->
 		   )
         }
     }
+	root.appendNode {
+		'listener' {
+			'listener-class' (
+				'grails.plugin.wschat.WsCamEndpoint'
+			)
+		 }
+	 }
     webXmlFile.text = new StreamingMarkupBuilder().bind {
         mkp.declareNamespace(
                 "": "http://java.sun.com/xml/ns/javaee")

@@ -22,6 +22,7 @@
    <title>${chatTitle }</title>
 </head>
 <body>
+<div class="container">
 	<div  class="page-header">
 	<h2>${chatHeader }</h2>
 	<small>  
@@ -52,8 +53,31 @@
 	<div id="userphoto" style="display:none;">
 		<g:render template="/profile/photomb" />
 	</div>
+	<div id="roomcontainer" style="display:none;">
+		<g:render template="/room/room" />
+	</div>
+	
+
 	
 	<div id="chatterBox">
+		
+			
+		<div class="container navbar nav navbar-inverse">
+	
+				<ul class="nav-pills pull-left">
+				<li class="btn">
+					<a  class="btn btn-success glyphicon glyphicon-hand-right" title="Chatrooms" alt="choose a different room"></a>
+				</li>
+				</ul>
+				<div id="chatRooms" >
+				</div>
+				
+			
+			
+				<div id="adminRooms"></div>
+			
+		</div>
+		
 		<div class="message-container">
 
 
@@ -87,7 +111,7 @@
 	</div>						
 </div>
 	
-
+</div>
 <g:javascript>
 	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
@@ -95,7 +119,7 @@
 		$("#chatterBox").html('');
 	}
 	
-    var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint");
+    var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint/${room}");
      
     var chatMessages=document.getElementById("chatMessages");
     var onlineUsers=document.getElementById("onlineUsers");

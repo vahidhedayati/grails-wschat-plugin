@@ -10,7 +10,11 @@
     
     
     $(".modal").css('position','absolute');
-    $(".modal").css('left','0');
+	$(".modal").css('left','0');
+	$(".modal").css('margin-left','auto');
+	$(".modal").css('margin-right','auto');    
+$(".modal-body").css('margin-left','auto');
+	$(".modal-body").css('margin-right','auto');    
 
 	$(document).keyup(function(e) {
   		if (e.keyCode == 27) { closeModal(); }   
