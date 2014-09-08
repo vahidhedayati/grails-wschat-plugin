@@ -1,9 +1,22 @@
 wschat 0.19
 =========
 
-Grails websocket chat Plugin based on existing examples, provides  websocket chat that can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
+Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
+
+
+### wschat supports:
+
+##### User roles (Admin/regular user)
+##### Admin can:  kick/Ban (for specified time period)
+##### Users can create profiles define details and upload photos.
+##### Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
+##### 0.19+ supports webcam + audio tested on chrome/firefox.  
+
+
+ Websocket chat can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
 
 Plugin will work with tomcat 7.0.54 + (8 as well) running java 1.7 +
+
 
 
 Dependency :
@@ -208,9 +221,16 @@ Admin commands
 	
 # Version info
 ```
-0.18 - 	Rooms added, configurable via Config.groovy +/or Database - which admin can do via front end.
-		Webcam support added - using websockets and html5 getUserMedia. Although very flakey - 
-		seems to send/receive on chrome. Can send on firefox and be recieved on Chrom clients. 
+0.19 - 	Webcam fixed working/tested in firefox/chrome. Both show camera from either 
+		broadcasting. stopped user logging on twice into chat.
+		Webcam supports both audio/video
+		
+0.18 - 	Rooms added, configurable via Config.groovy +/or Database - which admin 
+		can do via front end.
+		Webcam support added - using websockets and html5 getUserMedia. 
+		Although very flakey - 
+		seems to send/receive on chrome. Can send on firefox and be recieved on 
+		Chrome clients. 
 		
 0.17 - 	Issue with profiles/birthDate fixed (tested under mysql). pluginbuddy ver updated.
 		dbsupport check added around all DB calls in endpoint.

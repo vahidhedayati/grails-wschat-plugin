@@ -11,21 +11,23 @@
    <title>${chatTitle }</title>
 </head>
 <body>
- <div>
+
+ <div id="pageHeader">
      <video id="live" width="320" height="240" autoplay="autoplay"  style="display: inline;"></video>
          <canvas width="320" id="canvas" height="240" style="display: inline;"></canvas>
        </div>
-<input type=hidden id="streamtype" value="stream">
+
 <g:javascript>
 $(document).ready(function() {
 
 	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
 		$("#pageHeader").html(msg);
-		$("#chatterBox").html('');
 	}
-	var	ws = new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${user}");
 	
+	var	webSocket = new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${user}");
+	 webSocket.onclose=function(message) {processClose(message);};
+	 //webSocket.onmessage=function(message) {processChatMessage(message);	};
 	var video = $("#live").get()[0];
 	var canvas = $("#canvas");
 	var ctx = canvas.get()[0].getContext('2d');
@@ -34,13 +36,6 @@ $(document).ready(function() {
 			audio:true
 	};
 
-	function recordStream() {
-		//send(video, ctx, 320, 240);
-		timer = setInterval(
-				function() {
-					send(video, ctx, 320, 240);
-				}, 15);
-	}
 
 	function convertToBinary (dataURI) {
 		// convert base64 to raw binary data held in a string
@@ -66,68 +61,9 @@ $(document).ready(function() {
 				navigator.mozGetUserMedia || navigator.msGetUserMedia);
 	}
 
-	function streamVideo() {
-		// Open websocket
-	
 
-		timer = setInterval(
-				function () {
-					ctx.drawImage(video, 0, 0, 320, 240);
-					var data = canvas.get()[0].toDataURL('image/jpeg', 1.0);
-					newblob = convertToBinary(data);
-					ws.send(newblob);
-				}, 250);
-
-		/*
-		ws.onopen = StreamMethod;
-
-        ws.onmessage = function(msg) {
-            var data = msg.data;
-            canvas = $('#canvas');
-            ctx = canvas[0].getContext('2d');
-
-            var image = new Image();
-            image.src = data;
-            ctx.drawImage(image, 0, 0);
-        }
-		 */
-
-		ws.onclose = function() {
-			console.log("closed the connection");
-		}
-	}
-
-	function send(stream, ctx, w, h) {
-		ctx.drawImage(video, 0, 0,320, 240);
-		var data = canvas.get()[0].toDataURL('image/jpeg', 1.0);
-		newblob = convertToBinary(data);
-		ws.send(newblob);
-
-		/*  
-		ctx.drawImage(stream, 0, 0, w, h);
-        var el = $("canvas").get(0);
-        var d = el.toDataURL();
-        var msg = {
-            event: "Onstream",
-            data: {
-                url: d
-
-            }
-        };
-        ws.send(JSON.stringify(msg));
-		 */
-	}
-
-	var streamType = $('#streamtype').val();
-	if (streamType === "stream") {
-		$('canvas').hide();
 		if (hasGetUserMedia()) {
-			canvas = $('#canvas');
-			ctx = canvas[0].getContext('2d');
 
-			video = $("#live").get()[0];
-
-			var streamRecorder;
 
 			if (typeof video !== 'undefined') {
 				window.URL = window.URL || window.webkitURL;
@@ -136,19 +72,15 @@ $(document).ready(function() {
 						navigator.mozGetUserMedia ||
 						navigator.msGetUserMedia);
 
-				if (navigator.webkitGetUserMedia) {                
+				              
 					// use the chrome specific GetUserMedia function
-					navigator.webkitGetUserMedia(options, function(stream) {
-						video.src = webkitURL.createObjectURL(stream);
-						webcamstream = stream;
-
-						StreamMethod = recordStream();
-						streamVideo();
+					navigator.getUserMedia(options, function(stream) {
+						video.src = window.URL.createObjectURL(stream);
+						
 					}, function(err) {
 						console.log("Unable to get video stream!")
 					});
-					//var ws = new WebSocket("ws://localhost:8080/${meta(name:'app.name')}/WsCamEndpoint/${user}");
-					ws.onopen = function () {
+					webSocket.onopen = function () {
 						console.log("Openened connection to websocket");
 					}
 
@@ -157,48 +89,16 @@ $(document).ready(function() {
 								ctx.drawImage(video, 0, 0, 320, 240);
 								var data = canvas.get()[0].toDataURL('image/jpeg', 1.0);
 								newblob = convertToBinary(data);
-								ws.send(newblob);
+								webSocket.send(newblob);
 							}, 250);
-				}else{     
-
-
-					if (navigator.getUserMedia) {
-						navigator.getUserMedia(
-								{
-									video:true,
-									audio:true
-								},        
-								function(stream) { 
-									video.src = window.URL.createObjectURL(stream);
-									webcamstream = stream;
-
-									StreamMethod = recordStream();
-									streamVideo();
-								},
-								function(error) { /* do something */ }
-						);
-					}
-					else {
-						alert('Sorry, the browser you are using doesn\'t support getUserMedia');
-						return;
-					}
-
-				}
 			}
 		}
-	} else {
-		video = $("#videostream").get()[0];
-		if (typeof video !== 'undefined') {
-			$('videostream').hide();
-			StreamMethod = null;
-			streamVideo();
-		}
-	}
+	
 	
 	  window.onbeforeunload = function() {
-       	ws.send("DISCO:-"+user);
-       	ws.onclose = function() { }
-       	ws.close();
+       	webSocket.send("DISCO:-"+user);
+       	webSocket.onclose = function() { }
+       	webSocket.close();
      }
 });
 </g:javascript>
