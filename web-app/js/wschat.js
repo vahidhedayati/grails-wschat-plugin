@@ -115,7 +115,7 @@ function processMessage(message) {
 				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile(getApp(),'+wrapIt(entry.owner_av)+');">'+entry.owner_av+'\'s profile</a>\n');
 				sb.push('</li>\n');
 				sb.push('<li class="btn-xs">\n');
-				sb.push('<a  onclick="javascript:enableAV(getApp(),'+wrapIt(entry.owner_av)+');">Enable Audio/Video</a>\n');
+				sb.push('<a  onclick="javascript:disableAV(getApp(),'+wrapIt(entry.owner)+');">Disable Audio/Video</a>\n');
 				sb.push('</li>\n');
 				
 				sb.push('</ul>\n</li>\n\n\n');
@@ -128,7 +128,7 @@ function processMessage(message) {
 				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile(getApp(),'+wrapIt(entry.owner)+');">'+entry.owner+'\'s profile</a>\n');
 				sb.push('</li>\n');
 				sb.push('<li class="btn-xs">\n');
-				sb.push('<a  onclick="javascript:disableAV(getApp(),'+wrapIt(entry.owner)+');">Disable Audio/Video</a>\n');
+				sb.push('<a  onclick="javascript:enableAV(getApp(),'+wrapIt(entry.owner_av)+');">Enable Audio/Video</a>\n');
 				sb.push('</li>\n');
 				
 				sb.push('</ul>\n</li>\n\n\n');
