@@ -3,6 +3,7 @@ package grails.plugin.wschat
 
 import grails.util.Holders
 
+import java.io.IOException;
 import java.nio.ByteBuffer
 
 import javax.servlet.ServletContextEvent
@@ -24,7 +25,8 @@ import javax.websocket.server.ServerEndpoint
 @ServerEndpoint("/WsCamEndpoint/{user}/{viewer}")
 
 class WsCamEndpoint implements ServletContextListener {
-	private static final Set<Session> sessions = Collections.synchronizedSet(new HashSet<Session>())
+	
+	private static final Set<Session> camsessions = Collections.synchronizedSet(new HashSet<Session>())
 
 	@Override
 	public void contextInitialized(ServletContextEvent servletContextEvent) {
@@ -48,13 +50,20 @@ class WsCamEndpoint implements ServletContextListener {
 	@OnOpen
 	public void whenOpening(Session userSession,EndpointConfig c,@PathParam("user") String user,@PathParam("viewer") String viewer) {
 		userSession.setMaxBinaryMessageBufferSize(1024*512)
-		sessions.add(userSession)
+		camsessions.add(userSession)
+		
 		if (viewer.equals(user)) {
 			userSession.getUserProperties().put("camuser", user);
-			userSession.getUserProperties().put("user", user);
+			
+			if (notLoggedIn(user)) {
+				userSession.getUserProperties().put("username", user);
+			}
 		}else{
 			userSession.getUserProperties().put("camuser", user);
-			userSession.getUserProperties().put("user", viewer);
+			
+			if (notLoggedIn(viewer)) {
+				userSession.getUserProperties().put("username", viewer);
+			}
 		}
 	}
 
@@ -63,7 +72,7 @@ class WsCamEndpoint implements ServletContextListener {
 		String user = userSession.getUserProperties().get("camuser") as String
 		try {
 			ByteBuffer buf = ByteBuffer.wrap(imageData)
-			Iterator<Session> iterator=sessions?.iterator()
+			Iterator<Session> iterator=camsessions?.iterator()
 			while (iterator?.hasNext())  {
 				def crec=iterator?.next()
 				if (crec.isOpen() && user.equals(crec.getUserProperties().get("camuser"))) {
@@ -74,11 +83,43 @@ class WsCamEndpoint implements ServletContextListener {
 			log.info "Error sending message " + ioe.getMessage()
 		}
 	}
-
-	@OnClose
-	public void whenClosing(Session session) {
-		sessions.remove(session)
+	
+	@OnMessage
+	public String handleMessage(String message,Session userSession) throws IOException {
+		verifyAction(userSession,message)
 	}
-
-
+	
+	@OnClose
+	public void whenClosing(Session userSession) {
+		camsessions.remove(userSession)
+	}
+	
+	private void verifyAction(Session userSession,String message) {
+		def myMsg=[:]
+		String username=userSession.getUserProperties().get("username") as String
+		Boolean isuBanned=false
+		if (!username)  {
+			if (message.startsWith("DISCO:-")) {
+				camsessions.remove(userSession)
+					//myMsg.put("message", "${username} has left ${room}")
+					//broadcast(userSession,myMsg)
+				println "--- Camsession ${username} disconnected"
+			}	
+		}
+	}	
+			
+	private Boolean notLoggedIn(String user) {
+		Boolean notloggedin=true
+		Iterator<Session> iterator=camsessions?.iterator()
+		while (iterator?.hasNext())  {
+			def crec=iterator?.next()
+			if (crec.isOpen()) {
+				def cuser=crec.getUserProperties().get("username").toString()
+				if (cuser.equals(user)) {
+					notloggedin=false
+				}
+			}
+		}
+		return notloggedin
+	}
 }

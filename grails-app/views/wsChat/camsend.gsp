@@ -18,6 +18,14 @@
 <input type=hidden id="streamtype" value="stream">
 <g:javascript>
 $(document).ready(function() {
+
+	if (!window.WebSocket) {
+		var msg = "Your browser does not have WebSocket support";
+		$("#pageHeader").html(msg);
+		$("#chatterBox").html('');
+	}
+	var	ws = new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${user}");
+	
 	var video = $("#live").get()[0];
 	var canvas = $("#canvas");
 	var ctx = canvas.get()[0].getContext('2d');
@@ -60,7 +68,7 @@ $(document).ready(function() {
 
 	function streamVideo() {
 		// Open websocket
-		ws = new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${user}");
+	
 
 		timer = setInterval(
 				function () {
@@ -132,10 +140,14 @@ $(document).ready(function() {
 					// use the chrome specific GetUserMedia function
 					navigator.webkitGetUserMedia(options, function(stream) {
 						video.src = webkitURL.createObjectURL(stream);
+						webcamstream = stream;
+
+						StreamMethod = recordStream();
+						streamVideo();
 					}, function(err) {
 						console.log("Unable to get video stream!")
 					});
-					var ws = new WebSocket("ws://localhost:8080/${meta(name:'app.name')}/WsCamEndpoint/${user}");
+					//var ws = new WebSocket("ws://localhost:8080/${meta(name:'app.name')}/WsCamEndpoint/${user}");
 					ws.onopen = function () {
 						console.log("Openened connection to websocket");
 					}
@@ -182,6 +194,12 @@ $(document).ready(function() {
 			streamVideo();
 		}
 	}
+	
+	  window.onbeforeunload = function() {
+       	ws.send("DISCO:-"+user);
+       	ws.onclose = function() { }
+       	ws.close();
+     }
 });
 </g:javascript>
 </body>

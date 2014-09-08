@@ -1,4 +1,4 @@
-wschat 0.18
+wschat 0.19
 =========
 
 Grails websocket chat Plugin based on existing examples, provides  websocket chat that can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
@@ -8,7 +8,7 @@ Plugin will work with tomcat 7.0.54 + (8 as well) running java 1.7 +
 
 Dependency :
 
-	compile ":wschat:0.18" 
+	compile ":wschat:0.19" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -149,7 +149,7 @@ compile (":wschat:XXX") { excludes 'hibernate' }
 Or you could do something like this:
 
 ```groovy
-compile ":wschat:0.17", {
+compile ":wschat:X.XXX", {
 			transitive = false
 		}
 		
@@ -182,16 +182,22 @@ Pm methods: either will send a private message to user defined.. comma for users
 
 ```
 /disco  		-- to disconnect or leave the page which will auto disconnect you
+/joinRoom {roomname}
+/camenabled {yourusername}
+/camdisabled {yourusername}
 /pm {username} {message}
 /pm {username},{message}
 
 ```
+
 
 Admin commands
 
 ```	
 // Admin commands now supported in modalbox popups 
 // no need to manually define any admin commands
+/addRoom {roomName}
+/delRoom {roomName}  --- This will also kick off all users in that room
 /kickuser {username}
 /banuser {username},1:minutes
 /banuser {username},10:hours

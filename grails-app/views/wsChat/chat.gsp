@@ -36,6 +36,8 @@
     <div id="userList">
     </div>
 
+	<div id="camcom">
+	</div>
 	<div id="bannedconfirmation">
 	</div>
 	

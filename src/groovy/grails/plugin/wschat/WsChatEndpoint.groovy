@@ -25,7 +25,7 @@ import javax.websocket.server.ServerEndpoint
 @WebListener
 @ServerEndpoint("/WsChatEndpoint/{room}")
 class WsChatEndpoint implements ServletContextListener {
-	private static List users = Collections.synchronizedList(new ArrayList())
+	//private static List users = Collections.synchronizedList(new ArrayList())
 	//private static List camusers = Collections.synchronizedList(new ArrayList())
 	static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>())
 
@@ -75,7 +75,6 @@ class WsChatEndpoint implements ServletContextListener {
 
 	private void verifyAction(Session userSession,String message) {
 		def myMsg=[:]
-
 		String username=userSession.getUserProperties().get("username") as String
 		String room = userSession.getUserProperties().get("room") as String
 		String connector="CONN:-"
@@ -83,43 +82,44 @@ class WsChatEndpoint implements ServletContextListener {
 		if (!username)  {
 			if (message.startsWith(connector)) {
 				username=message.substring(message.indexOf(connector)+connector.length(),message.length()).trim().replace(' ', '_').replace('.', '_')
-				userSession.getUserProperties().put("username", username)
-				isuBanned=isBanned(username)
-				if (!isuBanned){
-					if (dbSupport()) {
-						def userLevel=validateLogin(username)
-						userSession.getUserProperties().put("userLevel", userLevel)
-						Boolean useris=isAdmin(userSession)
+				if (notLoggedIn(username)) {
+					userSession.getUserProperties().put("username", username)
+					isuBanned=isBanned(username)
+					if (!isuBanned){
+						if (dbSupport()) {
+							def userLevel=validateLogin(username)
+							userSession.getUserProperties().put("userLevel", userLevel)
+							Boolean useris=isAdmin(userSession)
+							def myMsg1=[:]
+							myMsg1.put("isAdmin", useris.toString())
+							messageUser(userSession,myMsg1)
+	
+						}
+						//if (!users.contains(username)){
+						//	users.add(username)
+						//}
+						def myMsg2=[:]
+						myMsg2.put("currentRoom", "${room}")
+						messageUser(userSession,myMsg2)
+						sendUsers(userSession,username)
+						myMsg.put("message", "${username} has joined ${room}")
+						sendRooms(userSession)
+						
+					}else{
+	
 						def myMsg1=[:]
-						myMsg1.put("isAdmin", useris.toString())
+						myMsg1.put("isBanned", "user ${username} is banned being disconnected")
 						messageUser(userSession,myMsg1)
-
+						//chatroomUsers.remove(userSession)
 					}
-					if (!users.contains(username)){
-						users.add(username)
-					}
-					def myMsg2=[:]
-					myMsg2.put("currentRoom", "${room}")
-					messageUser(userSession,myMsg2)
-					sendUsers(userSession,username)
-					myMsg.put("message", "${username} has joined ${room}")
-					sendRooms(userSession)
-					
-				}else{
-
-					def myMsg1=[:]
-					myMsg1.put("isBanned", "user ${username} is banned being disconnected")
-					messageUser(userSession,myMsg1)
-					//chatroomUsers.remove(userSession)
 				}
 			}
-
 			if ((myMsg)&&(!isuBanned)) {
 				broadcast(userSession,myMsg)
 			}
 		}else{
 			if (message.startsWith("DISCO:-")) {
-				users.remove(username)
+				//users.remove(username)
 				removeUser(username)
 				//chatroomUsers.remove(userSession)
 				sendUsers(userSession,null)
@@ -209,7 +209,14 @@ class WsChatEndpoint implements ServletContextListener {
 				myMsg.put("message", "${camuser} has enabled A/V")
 				broadcast(userSession,myMsg)
 				sendUsers(userSession,camuser)
-		
+			}else if (message.startsWith("/camdisabled")) {
+				def p1="/camdisabled "
+				def camuser=message.substring(p1.length(),message.length())
+				//addCamUser(userSession,camuser)
+				userSession.getUserProperties().put("av", "off")
+				myMsg.put("message", "${camuser} has disabled A/V")
+				broadcast(userSession,myMsg)
+				sendUsers(userSession,camuser)
 			// Usual chat messages bound for all
 			}else{
 				myMsg.put("message", "${username}: ${message}")
@@ -293,6 +300,21 @@ class WsChatEndpoint implements ServletContextListener {
 			}
 			ListRooms()
 		}
+	}
+	
+	private Boolean notLoggedIn(String user) {
+		Boolean notloggedin=true
+		Iterator<Session> iterator=chatroomUsers?.iterator()
+		while (iterator?.hasNext())  {
+			def crec=iterator?.next()
+			if (crec.isOpen()) {
+				def cuser=crec.getUserProperties().get("username").toString()
+				if (cuser.equals(user)) {
+					notloggedin=false
+				}
+			}
+		}
+		return notloggedin
 	}
 	
 	private void sendUserList(String iuser,Map msg) {
@@ -433,9 +455,9 @@ class WsChatEndpoint implements ServletContextListener {
 		userSession.getBasicRemote().sendText(myMsgj as String)
 	}
 
-	public static List getCurrentUserNames() {
-		return Collections.unmodifiableList(users);
-	}
+//	public static List getCurrentUserNames() {
+//		return Collections.unmodifiableList(users);
+//	}
 
 	
 	private void privateMessage(String user,Map msg,Session userSession) {

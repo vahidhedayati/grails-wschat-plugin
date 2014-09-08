@@ -65,7 +65,7 @@ class WsChatController {
 		//def dbsupport=grailsApplication.config.wschat.dbsupport ?: 'yes'
 		[user:user,hostname:hostname,chatuser:chatuser,chatTitle:chatTitle]
 	}
-	
+
 	def chat() {
 		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
 		def chatHeader=grailsApplication.config.wschat.heading ?: 'Grails websocket chat'

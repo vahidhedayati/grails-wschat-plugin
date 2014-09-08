@@ -128,7 +128,7 @@ function processMessage(message) {
 				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile(getApp(),'+wrapIt(entry.owner)+');">'+entry.owner+'\'s profile</a>\n');
 				sb.push('</li>\n');
 				sb.push('<li class="btn-xs">\n');
-				sb.push('<a  onclick="javascript:enableAV(getApp(),'+wrapIt(entry.owner)+');">Enable Audio/Video</a>\n');
+				sb.push('<a  onclick="javascript:disableAV(getApp(),'+wrapIt(entry.owner)+');">Disable Audio/Video</a>\n');
 				sb.push('</li>\n');
 				
 				sb.push('</ul>\n</li>\n\n\n');
@@ -167,9 +167,6 @@ function processMessage(message) {
 				sb1.push('<a onclick="javascript:pmuser('+wrapIt(entry.friends)+', '+wrapIt(user)+');">PM  '+entry.friends+'</a>\n');
 				sb1.push('\n</li> \n');
 				
-				sb1.push('<li class="btn-xs">\n');
-				sb1.push('<a onclick="javascript:viewcam(getApp(),'+wrapIt(entry.friends_av)+', '+wrapIt(user)+');">View Camera</a>\n');
-				sb1.push('</li>\n');
 
 				sb1.push('<li class="btn-xs"><a onclick="javascript:removefriend('+wrapIt(entry.friends)+', '+wrapIt(user)+');">Remove  '+entry.friends+' from friends list</a>\n');
 				sb1.push('\n</li> ');
@@ -219,17 +216,10 @@ function processMessage(message) {
 				sb2.push('<li class="btn-xs">\n');
 				sb2.push('<a onclick="javascript:blockuser('+wrapIt(entry.user)+', '+wrapIt(user)+');">Block  '+entry.user+'</a>\n');
 				sb2.push('</li>\n');
-				sb2.push('<li class="btn-xs">\n');
-				sb2.push('<a onclick="javascript:viewcam(getApp(),'+wrapIt(entry.user_av)+', '+wrapIt(user)+');">View Camera</a>\n');
-				sb2.push('</li>\n');
 				var admintool=adminOptions(isAdmin,entry.user)
 				sb2.push(admintool);
 				sb2.push('</ul>\n</li>\n\n\n');
-
 			}
-
-
-			
 			
 			if (entry.blocked!=null) {
 				sb3.push('\n<li class="dropdown-submenu btn-danger btn-xs"><a tabindex="-1" class="user-title" href="#">'+entry.blocked+'</a>\n');
@@ -364,9 +354,21 @@ function delaRoom(baseapp,user) {
 
 function enableAV(baseapp,user) {
 	var link = "/"+baseapp+"/wsChat/camsend?user=" + user;
-	window.open(link, '', 'width=320,height=240');
+	popup_window =window.open(link, '', 'width=320,height=240');
 	webSocket.send("/camenabled "+user);
 }
+
+function disableAV(baseapp,user) {
+	//var link = "/"+baseapp+"/wsChat/camsend?user=" + user;
+	//window.open(link, '', 'width=320,height=240');
+	//$.get("/"+baseapp+"/wsChat/stopCam?user="+user,function(data){
+	//	$('#camcom').hide().html(data).fadeIn('slow');
+	//});
+	popup_window.close ();
+	webSocket.send("/camdisabled "+user);
+}
+
+
 function viewcam(baseapp,camuser,user) {
 	var link = "/"+baseapp+"/wsChat/camrec?user=" + camuser;
 	window.open(link, '', 'width=320,height=240');

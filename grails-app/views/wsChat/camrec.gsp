@@ -22,6 +22,11 @@
                      };
                      target.src = url;
               }
+            window.onbeforeunload = function() {
+       			ws.send("DISCO:-"+user);
+       			ws.onclose = function() { }
+       			ws.close();
+     		}
        </g:javascript>
        <div style="visibility: hidden; width: 0; height: 0;">
               <canvas width="320" id="canvas" height="240"></canvas>
