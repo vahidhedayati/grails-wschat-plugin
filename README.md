@@ -10,7 +10,8 @@ Grails websocket chat Plugin provides a multi-chat room facilty to an existing g
 ##### Admin can:  kick/Ban (for specified time period)
 ##### Users can create profiles define details and upload photos.
 ##### Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
-##### 0.19+ supports webcam tested (Audio not tested) on chrome/firefox.  
+##### 0.19+ supports webcam tested  on chrome/firefox.  
+##### Audio not working as yet - future releases will contain audio too
 
 
  Websocket chat can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
@@ -223,7 +224,7 @@ Admin commands
 ```
 0.19 - 	Webcam fixed working/tested in firefox/chrome. Both show camera from either 
 		broadcasting. stopped user logging on twice into chat.
-		Webcam supports both audio/video
+		Webcam support functional
 		
 0.18 - 	Rooms added, configurable via Config.groovy +/or Database - which admin 
 		can do via front end.
