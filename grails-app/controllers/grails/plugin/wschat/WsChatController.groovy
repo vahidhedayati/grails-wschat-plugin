@@ -71,9 +71,11 @@ class WsChatController {
 		def chatHeader=grailsApplication.config.wschat.heading ?: 'Grails websocket chat'
 		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
 		def dbsupport=grailsApplication.config.wschat.dbsupport ?: 'yes'
+		def showtitle=grailsApplication.config.wschat.showtitle ?: 'yes'
+				
 		def chatuser=session.wschatuser
 		def room=session.wschatroom
-		[dbsupport:dbsupport.toLowerCase() , room:room, chatuser:chatuser, chatTitle:chatTitle,chatHeader:chatHeader, now:new Date(),hostname:hostname]
+		[ashowtitle:showtitle.toLowerCase(), dbsupport:dbsupport.toLowerCase() , room:room, chatuser:chatuser, chatTitle:chatTitle,chatHeader:chatHeader, now:new Date(),hostname:hostname]
 	}
 
 	def verifyprofile(String username) {

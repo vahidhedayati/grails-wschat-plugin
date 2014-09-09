@@ -23,13 +23,15 @@
 </head>
 <body>
 <div class="container">
+
+<g:if test="${showtitle.equals('yes') }">
 	<div  class="page-header">
 	<h2>${chatHeader }</h2>
 	<small>  
 		${now}
 	</small>
 	</div>
-
+</g:if>
     <div id="chat_div">
     </div>
     
