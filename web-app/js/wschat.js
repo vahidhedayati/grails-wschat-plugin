@@ -75,7 +75,7 @@ function processChatMessage(message) {
 		if (jsonData.system=="disconnect") { 
 			view_cam_window.close ();
 			//ws.send("DISCO:-"+user);
-			ws.close();
+			webSocket.close();
 		}	
 	}
 }	
@@ -105,8 +105,15 @@ function processMessage(message) {
 			$('#onlineUsers').html("");
 			messageBox.value="";
 			webSocket.close();
-		}	
+		}
+		if (jsonData.system=="closecam") { 
+			popup_window.close ();
+			webSocket.send("/camdisabled "+user);
+		}
+
+		
 	}
+	
 	
 	if (jsonData.users!=null) {
 

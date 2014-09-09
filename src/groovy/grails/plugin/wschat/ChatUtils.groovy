@@ -259,13 +259,32 @@ class ChatUtils {
 			}
 		}
 	}
-
+	private void sendCamClose(String user) {
+		try {
+			Iterator<Session> iterator=chatroomUsers?.iterator()
+			while (iterator?.hasNext())  {
+				def crec=iterator?.next()
+				if (crec.isOpen()) {
+					def cuser=crec.getUserProperties().get("username").toString()
+					if (cuser.equals(user)) {
+						def myMsg=[:]
+						myMsg.put("system","closecam")
+						messageUser(crec,myMsg)
+					}
+				}
+			}
+		} catch (IOException e) {
+			log.info ("onMessage failed", e)
+		}
+		
+	}
 	private void discoCam(Session userSession) {
 		String user = userSession.getUserProperties().get("camusername") as String
 		String camuser = userSession.getUserProperties().get("camuser") as String
 		if (user && camuser) {
 		String ru=camuser.substring(0,camuser.indexOf(':'))
 		String cu=camuser.substring(camuser.indexOf(':')+1,camuser.length())
+		sendCamClose(user)
 		if (ru.equals(cu)) {
 			try {
 				Iterator<Session> iterator=camsessions?.iterator()
@@ -275,8 +294,8 @@ class ChatUtils {
 						String chuser=crec?.getUserProperties().get("camuser") as String
 						if (chuser && chuser.startsWith(user)) {
 						def myMsg1=[:]
-						//myMsg1.put("system","disconnect")
-						//messageUser(crec,myMsg1)
+						myMsg1.put("system","disconnect")
+						messageUser(crec,myMsg1)
 						camsessions.remove(crec)
 					}
 					}
@@ -487,12 +506,13 @@ class ChatUtils {
 		def myMsg=[:]
 		def myMsgj=msg as JSON
 		String urecord=userSession.getUserProperties().get("username") as String
+		Boolean found=false
 		try {
 			Iterator<Session> iterator=chatroomUsers?.iterator()
-			Boolean found=false
+			
 			while (iterator?.hasNext())  {
 				def crec=iterator?.next()
-				if (crec) {
+				if (crec.isOpen()) {
 					def cuser=crec.getUserProperties().get("username").toString()
 					if (cuser.equals(user)) {
 						Boolean sendIt=checkPM(urecord,user)

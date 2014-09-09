@@ -1,4 +1,4 @@
-wschat 0.19
+wschat 0.20
 =========
 
 Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
@@ -22,7 +22,7 @@ Plugin will work with tomcat 7.0.54 + (8 as well) running java 1.7 +
 
 Dependency :
 
-	compile ":wschat:0.19" 
+	compile ":wschat:0.20" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -130,6 +130,12 @@ wschat.defaultperm='user'
 
 wschat.rooms = ['room1','room2']
 
+
+/*
+* show room heading or not by default it will
+*/
+wschat.showtitle="NO"
+
 ```
 
 
@@ -222,6 +228,8 @@ Admin commands
 	
 # Version info
 ```
+0.20 -	Issues with PM introduced in 0.19 tidy up - now fixed.
+
 0.19 - 	Webcam fixed working/tested in firefox/chrome. Both show camera from either 
 		broadcasting. stopped user logging on twice into chat.
 		Webcam support functional

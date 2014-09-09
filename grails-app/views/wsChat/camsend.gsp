@@ -13,8 +13,11 @@
 <body>
 
  <div id="pageHeader">
+
      <video id="live" width="320" height="240" autoplay="autoplay"  style="display: inline;"></video>
+
          <canvas width="320" id="canvas" height="240" style="display: inline;"></canvas>
+         
        </div>
 
 <g:javascript>
@@ -27,7 +30,7 @@ $(document).ready(function() {
 	
 	var	webSocket = new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${user}");
 	 webSocket.onclose=function(message) {processClose(message);};
-	 //webSocket.onmessage=function(message) {processChatMessage(message);	};
+	 webSocket.onmessage=function(message) {processChatMessage(message);	};
 	var video = $("#live").get()[0];
 	var canvas = $("#canvas");
 	var ctx = canvas.get()[0].getContext('2d');
@@ -96,9 +99,10 @@ $(document).ready(function() {
 	
 	
 	  window.onbeforeunload = function() {
-       	webSocket.send("DISCO:-"+user);
+    	webSocket.send("DISCO:-");
        	webSocket.onclose = function() { }
        	webSocket.close();
+       	popup_window.close ();
      }
 });
 </g:javascript>

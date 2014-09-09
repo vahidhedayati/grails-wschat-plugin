@@ -1,5 +1,5 @@
 class WschatGrailsPlugin {
-    def version = "0.19"
+    def version = "0.20"
     def grailsVersion = "2.0 > *"
     def title = "Websocket Chat Plugin"
     def description = 'Default WebSocket Multi-chat room plugin, supports Admin privilages, kicking banning users. Camera/Audio support for chrome/firefox. '
