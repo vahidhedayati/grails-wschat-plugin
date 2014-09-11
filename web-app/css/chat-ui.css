@@ -58,12 +58,13 @@ clear: both;
 .ui-chatbox-log {
 border: none;
 }
-/* video window style */
+/* video window style 
 div.ui-videobox{
 height: 0px;
 border-bottom: 1px solid $separation-color;
 max-width: 230px;
 }
+*/
 div.ui-videobox-icon{
 }
 div.ui-videobox-icon-change{

@@ -3,20 +3,10 @@
 <head>
 
 <g:if test="${enduser?.verifyAppVersion().equals('assets')}">
-	<g:if test="${!request.xhr }">
-    	<meta name='layout' content="achat"/>
-    </g:if>
-    <g:else>
-    	<g:render template="/assets"/>
-    </g:else>
+   	<g:render template="/assets"/>
 </g:if>
 <g:else>
-	<g:if test="${!request.xhr }">
-    	<meta name='layout' content="chat"/>
-    </g:if>
-    <g:else>
-   		<g:render template="/resources"/>
-   	 </g:else>
+	<g:render template="/resources"/>
 </g:else>    
     
    <title>${chatTitle }</title>
@@ -116,30 +106,19 @@
 </div>
 	
 </div>
-<script>
-
+<g:javascript>
 	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
 		$("#pageHeader").html(msg);
 		$("#chatterBox").html('');
 	}
-	var video = $("#live").get()[0];
-var canvas = $("#canvas");
-var ctx
-if (!canvas) {
-ctx = canvas.get()[0].getContext('2d');
-}
-var options = {
-		"video" : true,
-		audio:true
-};
+	
     var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint/${room}");
      
     var chatMessages=document.getElementById("chatMessages");
     var onlineUsers=document.getElementById("onlineUsers");
     var messageBox=document.getElementById("messageBox");
     var user="${chatuser}";
-    var hostname="${hostname}";
     
     webSocket.onopen=function(message) {processOpen(message);};
     webSocket.onclose=function(message) {processClose(message);};
@@ -157,14 +136,11 @@ var options = {
            	scrollToBottom();
        </g:else>
  	}
-	
-	
 
 	function getApp() {
 		var baseapp="${meta(name:'app.name')}";
 		return baseapp;
 	}
-	
 	
 	$('#messageBox').keypress(function(e){
 	if (e.keyCode == 13 && !e.shiftKey) {
@@ -179,16 +155,13 @@ var options = {
 		}
 	}
 	});
-	
 
      window.onbeforeunload = function() {
        	webSocket.send("DISCO:-"+user);
        	webSocket.onclose = function() { }
        	webSocket.close();
      }
-
- 
-</script>
+</g:javascript>
 
 
 </body>

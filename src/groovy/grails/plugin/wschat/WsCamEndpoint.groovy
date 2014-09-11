@@ -11,6 +11,7 @@ import javax.servlet.annotation.WebListener
 import javax.websocket.DeploymentException
 import javax.websocket.EndpointConfig
 import javax.websocket.OnClose
+import javax.websocket.OnError
 import javax.websocket.OnMessage
 import javax.websocket.OnOpen
 import javax.websocket.Session
@@ -55,14 +56,14 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 			if (notLoggedIn(user)) {
 				userSession.getUserProperties().put("camusername", user);
 			}
-			
+
 		}else{
-		
+
 			userSession.getUserProperties().put("camuser", user+":"+viewer);
 			if (notLoggedIn(viewer)) {
 				userSession.getUserProperties().put("camusername", viewer);
 			}
-			
+
 			/*def combo=user+":"+viewer
 			 if (!camusers.contains(combo)){
 			 camusers.add(combo)
@@ -74,35 +75,47 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 	@OnMessage
 	public void processVideo(byte[] imageData, Session userSession) {
 		String camuser = userSession.getUserProperties().get("camuser") as String
-		String realCamUser=camuser.substring(0,camuser.indexOf(':'))
-		
+		String realCamUser
+		if (camuser) {
+			realCamUser=camuser.substring(0,camuser.indexOf(':'))
+		}
 		try {
 			ByteBuffer buf = ByteBuffer.wrap(imageData)
 			Iterator<Session> iterator=camsessions?.iterator()
-			
 			while (iterator?.hasNext())  {
 				def crec=iterator?.next()
-				
-				if (crec.isOpen()) {
-					String chuser=crec.getUserProperties().get("camuser") as String
+
+				if (crec?.isOpen()) {
+					String chuser=crec?.getUserProperties().get("camuser") as String
 					if (chuser && chuser.startsWith(realCamUser)) {
 						crec.getBasicRemote().sendBinary(buf)
 					}
 				}
 			}
 		} catch (Throwable ioe) {
-			log.info "Error sending message " + ioe.getMessage()
+			log.debug "Error sending message " + ioe.getMessage()
 		}
 	}
 
 	@OnMessage
 	public String handleMessage(String message,Session userSession) throws IOException {
+
 		verifyCamAction(userSession,message)
 	}
 
 	@OnClose
-	public void whenClosing(Session userSession) {
-		discoCam(userSession)
+	public void whenClosing(Session userSession) throws SocketException {
+		try {
+			discoCam(userSession)
+		} catch(SocketException e) {
+			log.debug "Error $e"
+		}
 	}
+
+	@OnError
+	public void handleError(Throwable t) {
+		t.printStackTrace()
+	}
+
 
 }

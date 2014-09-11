@@ -5,7 +5,7 @@
      	<link rel="stylesheet" href="${resource(dir: 'css', file: 'jquery.ui.chatbox.css')}" type="text/css" >
 
     	<script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.chatbox.js')}"></script>
-    	 
+    	 <script type="text/javascript" src="${resource(dir: 'js', file: 'jquery.ui.videobox.js')}"></script>
     	<script type="text/javascript" src="${resource(dir: 'js', file: 'wschat.js')}"></script>
    		<link rel="stylesheet" href="${resource(dir: 'css', file: 'chat.css')}" type="text/css">
    		<link rel="stylesheet" href="${resource(dir: 'css', file: 'chat-ui.css')}" type="text/css">

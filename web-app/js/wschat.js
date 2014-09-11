@@ -21,6 +21,30 @@ function verifyAdded(uid) {
 	return added;
 }		
 
+function convertToBinary (dataURI) {
+	// convert base64 to raw binary data held in a string
+	// doesn't handle URLEncoded DataURIs
+	var byteString = atob(dataURI.split(',')[1]);
+	// separate out the mime component
+	var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+	// write the bytes of the string to an ArrayBuffer
+	var ab = new ArrayBuffer(byteString.length);
+	var ia = new Uint8Array(ab);
+	for (var i = 0; i < byteString.length; i++) {
+		ia[i] = byteString.charCodeAt(i);
+	}
+
+	// write the ArrayBuffer to a blob, and you're done
+	var bb = new Blob([ab]);
+	return bb;
+}   
+
+function hasGetUserMedia() {
+	// Note: Opera is unprefixed.
+	return !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
+			navigator.mozGetUserMedia || navigator.msGetUserMedia);
+}
+
 
 function verifyPosition(uid) {
 	var idx = idList.indexOf(uid);
@@ -44,8 +68,9 @@ function htmlEncode(value){
 	return $('<div/>').text(value).html();
 }
 
+
 function adminOptions(isAdmin,user) {
-	
+
 	var sb = [];
 	if (isAdmin=="true") {
 		sb.push('<li class="btn-xs">\n');
@@ -75,7 +100,7 @@ function processChatMessage(message) {
 		if (jsonData.system=="disconnect") { 
 			view_cam_window.close ();
 			//ws.send("DISCO:-"+user);
-			webSocket.close();
+			webSocketCam.close();
 		}	
 	}
 }	
@@ -88,7 +113,7 @@ function processMessage(message) {
 	if (jsonData.isAdmin!=null) {
 		isAdmin=jsonData.isAdmin
 	}
-	
+
 	if (jsonData.isBanned!=null) {
 		$('#chatMessages').append(htmlEncode(jsonData.isBanned)+"\n");
 		webSocket.send("DISCO:-"+user);
@@ -97,7 +122,7 @@ function processMessage(message) {
 		messageBox.value="";
 		webSocket.close();
 	}
-	
+
 	if (jsonData.system!=null) {
 		if (jsonData.system=="disconnect") { 
 			webSocket.send("DISCO:-"+user);
@@ -111,10 +136,10 @@ function processMessage(message) {
 			webSocket.send("/camdisabled "+user);
 		}
 
-		
+
 	}
-	
-	
+
+
 	if (jsonData.users!=null) {
 
 		$('#onlineUsers').html("");
@@ -123,7 +148,7 @@ function processMessage(message) {
 		var sb2 = [];
 		var sb3 = [];
 		jsonData.users.forEach(function(entry) {
-			
+
 			if (entry.owner_av!=null) {
 				sb.push('\n<li class="dropdown-submenu active btn-xs">\n<a tabindex="-1" class="user-title glyphicon glyphicon-facetime-video" href="#">'+entry.owner_av+'</a>\n');
 				sb.push('<ul class="dropdown-menu">\n');
@@ -131,12 +156,12 @@ function processMessage(message) {
 				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile(getApp(),'+wrapIt(entry.owner_av)+');">'+entry.owner_av+'\'s profile</a>\n');
 				sb.push('</li>\n');
 				sb.push('<li class="btn-xs">\n');
-				sb.push('<a  onclick="javascript:disableAV(getApp(),'+wrapIt(entry.owner_av)+');">Disable Audio/Video</a>\n');
+				sb.push('<a  onclick="javascript:disableAV();">Disable Webcam</a>\n');
 				sb.push('</li>\n');
-				
+
 				sb.push('</ul>\n</li>\n\n\n');
 			}
-			
+
 			if (entry.owner!=null) {
 				sb.push('\n<li class="dropdown-submenu active btn-xs">\n<a tabindex="-1" class="user-title" href="#">'+entry.owner+'</a>\n');
 				sb.push('<ul class="dropdown-menu">\n');
@@ -144,9 +169,10 @@ function processMessage(message) {
 				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile(getApp(),'+wrapIt(entry.owner)+');">'+entry.owner+'\'s profile</a>\n');
 				sb.push('</li>\n');
 				sb.push('<li class="btn-xs">\n');
-				sb.push('<a  onclick="javascript:enableAV(getApp(),'+wrapIt(entry.owner)+');">Enable Audio/Video</a>\n');
+				//sb.push('<a  onclick="javascript:enableAV(getApp(),'+wrapIt(entry.owner)+');">Enable Audio/Video</a>\n');
+				sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry.owner)+','+wrapIt('send')+');">Enable Webcam</a>\n');
 				sb.push('</li>\n');
-				
+
 				sb.push('</ul>\n</li>\n\n\n');
 			}
 
@@ -164,7 +190,8 @@ function processMessage(message) {
 				sb1.push('\n</li> ');
 
 				sb1.push('<li class="btn-xs">\n');
-				sb1.push('<a onclick="javascript:viewcam(getApp(),'+wrapIt(entry.friends_av)+', '+wrapIt(user)+');">View Camera</a>\n');
+				//sb1.push('<a onclick="javascript:viewcam(getApp(),'+wrapIt(entry.friends_av)+', '+wrapIt(user)+');">View Camera</a>\n');
+				sb1.push('<a onclick="javascript:enableCam('+wrapIt(entry.friends_av)+','+wrapIt('view')+');">View Camera</a>\n');
 				sb1.push('</li>\n');
 
 				var admintool=adminOptions(isAdmin,entry.friend)
@@ -172,7 +199,7 @@ function processMessage(message) {
 				sb1.push('</ul>\n</li>\n\n\n');
 			}
 
-			
+
 			if (entry.friends!=null) {
 				sb1.push('\n<li class="dropdown-submenu btn-warning btn-xs"><a tabindex="-1" class="user-title" href="#">'+entry.friends+'</a>\n');
 				sb1.push('<ul class="dropdown-menu">\n');
@@ -182,7 +209,7 @@ function processMessage(message) {
 				sb1.push('<li class="btn-xs">\n');
 				sb1.push('<a onclick="javascript:pmuser('+wrapIt(entry.friends)+', '+wrapIt(user)+');">PM  '+entry.friends+'</a>\n');
 				sb1.push('\n</li> \n');
-				
+
 
 				sb1.push('<li class="btn-xs"><a onclick="javascript:removefriend('+wrapIt(entry.friends)+', '+wrapIt(user)+');">Remove  '+entry.friends+' from friends list</a>\n');
 				sb1.push('\n</li> ');
@@ -208,7 +235,8 @@ function processMessage(message) {
 				sb2.push('<a onclick="javascript:blockuser('+wrapIt(entry.user_av)+', '+wrapIt(user)+');">Block  '+entry.user_av+'</a>\n');
 				sb2.push('</li>\n');
 				sb2.push('<li class="btn-xs">\n');
-				sb2.push('<a onclick="javascript:viewcam(getApp(),'+wrapIt(entry.user_av)+', '+wrapIt(user)+');">View Camera</a>\n');
+				//sb2.push('<a onclick="javascript:viewcam(getApp(),'+wrapIt(entry.user_av)+', '+wrapIt(user)+');">View Camera</a>\n');
+				sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_av)+','+wrapIt('view')+');">View Camera</a>\n');
 				sb2.push('</li>\n');
 
 				var admintool=adminOptions(isAdmin,entry.user_av)
@@ -216,7 +244,7 @@ function processMessage(message) {
 				sb2.push('</ul>\n</li>\n\n\n');
 
 			}
-			
+
 			if (entry.user!=null) {
 				sb2.push('\n<li class="dropdown-submenu btn-xs"><a tabindex="-1" class="user-title" href="#">'+entry.user+'</a>\n');
 				sb2.push('<ul class="dropdown-menu">\n');
@@ -236,7 +264,7 @@ function processMessage(message) {
 				sb2.push(admintool);
 				sb2.push('</ul>\n</li>\n\n\n');
 			}
-			
+
 			if (entry.blocked!=null) {
 				sb3.push('\n<li class="dropdown-submenu btn-danger btn-xs"><a tabindex="-1" class="user-title" href="#">'+entry.blocked+'</a>\n');
 				sb3.push('<ul class="dropdown-menu">\n');
@@ -249,7 +277,7 @@ function processMessage(message) {
 				var admintool=adminOptions(isAdmin,entry.blocked)
 				sb3.push(admintool);
 				sb3.push('</ul>\n</li>\n\n\n');
-				
+
 
 			}
 
@@ -269,7 +297,7 @@ function processMessage(message) {
 				}else{
 					rms.push('<li class="btn btn-default dropdown"><a onclick="javascript:joinRoom('+wrapIt(user)+','+wrapIt(entry.room)+');">'+entry.room+'</a></li>\n');
 				}
-				
+
 			}
 			rms.push('</ul>\n');
 		});
@@ -352,19 +380,19 @@ function banuser(user) {
 
 function addaRoom(baseapp,user) {
 	if (isAdmin=="true") {
-	$.get("/"+baseapp+"/wsChat/addaRoom",function(data){
-		$('#roomsContainer').hide().html(data).fadeIn('slow');
-	});
-	$('#roomcontainer').show();
+		$.get("/"+baseapp+"/wsChat/addaRoom",function(data){
+			$('#roomsContainer').hide().html(data).fadeIn('slow');
+		});
+		$('#roomcontainer').show();
 	}
 }
 
 function delaRoom(baseapp,user) {
 	if (isAdmin=="true") {
-	$.get("/"+baseapp+"/wsChat/delaRoom",function(data){
-		$('#roomsContainer').hide().html(data).fadeIn('slow');
-	});
-	$('#roomcontainer').show();
+		$.get("/"+baseapp+"/wsChat/delaRoom",function(data){
+			$('#roomsContainer').hide().html(data).fadeIn('slow');
+		});
+		$('#roomcontainer').show();
 	}
 }
 
@@ -374,17 +402,28 @@ function enableAV(baseapp,user) {
 	webSocket.send("/camenabled "+user);
 }
 
-function disableAV(baseapp,user) {
+function disableAV() {
 	//var link = "/"+baseapp+"/wsChat/camsend?user=" + user;
 	//window.open(link, '', 'width=320,height=240');
 	//$.get("/"+baseapp+"/wsChat/stopCam?user="+user,function(data){
 	//	$('#camcom').hide().html(data).fadeIn('slow');
 	//});
-	popup_window.close ();
-	
+	//popup_window.close ();
+	//processChatClose('');
 	webSocket.send("/camdisabled "+user);
 }
 
+function getCam(user) {
+	$.get("/"+getApp()+"/wsChat/camrec?user="+user,function(data){
+		$('#cam'+user+'ViewContainer').html(data);
+	});
+}
+function sendCam() {
+	$.get("/"+getApp()+"/wsChat/camsend?user="+user,function(data){
+		$('#cam'+user+'Container').html(data);
+	});
+	webSocket.send("/camenabled "+user);
+}
 
 function viewcam(baseapp,camuser,user) {
 	var link = "/"+baseapp+"/wsChat/camrec?user=" + camuser;
@@ -402,7 +441,7 @@ function uploadPhoto(baseapp,user) {
 	$.get("/"+baseapp+"/wsChat/uploadPhoto?username="+user,function(data){
 		$('#profileContainer').hide().html(data).fadeIn('slow');
 	});
-	
+
 }
 
 function editProfile(baseapp,username) {
@@ -437,6 +476,33 @@ function removefriend(addid,user) {
 	$('#chatMessages').append(addid+" has been removed to "+user+"'s friends list\n");
 }
 
+function enableCam(camuser, camaction){
+	$(function(event, ui) {
+		var box = null;
+		if(box) {
+			box.videobox("option", "boxManager").toggleBox();
+		}else {
+			var added=verifyAdded(camuser+'_video');
+			var el="#"+camuser
+			if (added=="false") {
+				var el = document.createElement('div');
+				el.setAttribute('id', camuser+'_video');
+			}	
+			box = $(el).videobox({id:camuser+'_video', 
+				user:{key : "value"},
+				title : "Webcam: "+camuser,
+				sender: camuser,
+				camaction: camaction,
+				messageSent : function(id, user, msg) {
+					verifyPosition(camuser);
+					$("#"+camuser).videobox("option", "boxManager").addMsg(user, msg);
+					//webSocket.send("/pm "+suser+","+msg);
+				}
+			});
+			box.videobox("option", "show",1); 
+		}
+	});
+}
 
 function pmuser(suser,sender) {
 	$(function(event, ui) {
@@ -455,7 +521,7 @@ function pmuser(suser,sender) {
 				title : "PM: "+suser,
 				messageSent : function(id, user, msg) {
 					verifyPosition(suser);
-					$("#"+suser).chatbox("option", "boxManager").addMsg(id, msg);
+					$("#"+suser).chatbox("option", "boxManager").addMsg(suser,id, msg);
 					webSocket.send("/pm "+suser+","+msg);
 				}
 			});
@@ -487,8 +553,8 @@ function processClose(message) {
 }
 
 function processChatClose(message) {
-	webSocket.send("DISCO:-");
-	webSocket.close();
+	webSocketCam.send("DISCO:-");
+	webSocketCam.close();
 }
 function processError(message) {
 	$('#chatMessages').append("Error.... <br/>");

@@ -58,3 +58,65 @@
     white-space: -o-pre-wrap;   /* Opera 7 */
     word-wrap: break-word;      /* IE */
 }
+
+/* style sheets */
+.ui-videobox {
+   position: absolute;
+bottom: 330px;
+
+    padding: 2px;
+    background:  #CCCCCC;
+}
+
+.ui-videobox-titlebar {
+    padding: 3px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.ui-videobox-content {
+    padding: 0px;
+    margin: 0px;
+    border: 0px;
+}
+
+.ui-videobox-log {
+    padding: 3px;
+    height: 250px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #FFFFFF;
+}
+
+.ui-videobox-input {
+    padding: 3px;
+    border-top: 1px solid grey;
+    overflow: hidden;
+}
+
+.ui-videobox-input-box {
+    margin: 5px;
+    border: 2px solid lightgrey;/* #6699FF */
+    padding: 2px;
+    height: 50px;
+}
+
+.ui-videobox-icon {
+    float: right;
+}
+
+.ui-videobox-input-focus {
+    border-color: #6699FF;
+}
+
+.ui-videobox-msg {
+    margin-top: 10px;
+    float: left;
+    clear: both;
+    /* Source: http://snipplr.com/view/10979/css-cross-browser-word-wrap */
+    white-space: pre-wrap;      /* CSS3 */
+    white-space: -moz-pre-wrap; /* Firefox */
+    white-space: -pre-wrap;     /* Opera <7 */
+    white-space: -o-pre-wrap;   /* Opera 7 */
+    word-wrap: break-word;      /* IE */
+}

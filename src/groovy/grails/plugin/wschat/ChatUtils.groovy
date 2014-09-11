@@ -50,7 +50,7 @@ class ChatUtils {
 			def nr=new ChatRoomList()
 			nr.room=roomName
 			if (!nr.save(flush:true)) {
-				log.info "Error saving ${roomName}"
+				log.debug "Error saving ${roomName}"
 			}
 			ListRooms()
 		}
@@ -76,7 +76,7 @@ class ChatUtils {
 				}
 				ListRooms()
 			} catch (IOException e) {
-				log.info ("onMessage failed", e)
+				log.debug ("onMessage failed", e)
 			}
 		}
 
@@ -259,56 +259,60 @@ class ChatUtils {
 			}
 		}
 	}
-	private void sendCamClose(String user) {
-		try {
-			Iterator<Session> iterator=chatroomUsers?.iterator()
-			while (iterator?.hasNext())  {
-				def crec=iterator?.next()
-				if (crec.isOpen()) {
-					def cuser=crec.getUserProperties().get("username").toString()
-					if (cuser.equals(user)) {
-						def myMsg=[:]
-						myMsg.put("system","closecam")
-						messageUser(crec,myMsg)
-					}
-				}
-			}
-		} catch (IOException e) {
-			log.info ("onMessage failed", e)
-		}
-		
-	}
+	/*
+	 private void sendCamClose(String user) {
+	 try {
+	 Iterator<Session> iterator=chatroomUsers?.iterator()
+	 while (iterator?.hasNext())  {
+	 def crec=iterator?.next()
+	 if (crec.isOpen()) {
+	 def cuser=crec.getUserProperties().get("username").toString()
+	 if (cuser.equals(user)) {
+	 def myMsg=[:]
+	 myMsg.put("system","closecam")
+	 messageUser(crec,myMsg)
+	 }
+	 }
+	 }
+	 } catch (IOException e) {
+	 log.debug ("onMessage failed", e)
+	 }
+	 }
+	 */
+
 	private void discoCam(Session userSession) {
+
 		String user = userSession.getUserProperties().get("camusername") as String
 		String camuser = userSession.getUserProperties().get("camuser") as String
 		if (user && camuser) {
-		String ru=camuser.substring(0,camuser.indexOf(':'))
-		String cu=camuser.substring(camuser.indexOf(':')+1,camuser.length())
-		sendCamClose(user)
-		if (ru.equals(cu)) {
-			try {
-				Iterator<Session> iterator=camsessions?.iterator()
-				while (iterator?.hasNext())  {
-					def crec=iterator?.next()
-					if (crec?.isOpen()) { 
-						String chuser=crec?.getUserProperties().get("camuser") as String
-						if (chuser && chuser.startsWith(user)) {
-						def myMsg1=[:]
-						myMsg1.put("system","disconnect")
-						messageUser(crec,myMsg1)
-						camsessions.remove(crec)
+			String ru=camuser.substring(0,camuser.indexOf(':'))
+			String cu=camuser.substring(camuser.indexOf(':')+1,camuser.length())
+			//sendCamClose(user)
+			if (ru.equals(cu)) {
+				try {
+					Iterator<Session> iterator=camsessions?.iterator()
+					while (iterator?.hasNext())  {
+						def crec=iterator?.next()
+						if (crec?.isOpen()) {
+							String chuser=crec?.getUserProperties().get("camuser") as String
+							if (chuser && chuser.startsWith(user)) {
+								def myMsg1=[:]
+								//myMsg1.put("system","disconnect")
+								//messageUser(crec,myMsg1)
+								camsessions.remove(crec)
+							}
+						}
 					}
-					}
+					camsessions.remove(userSession)
+				} catch (IOException e) {
+					log.debug ("onMessage failed", e)
 				}
-			} catch (IOException e) {
-				log.info ("onMessage failed", e)
-			}
 
+			}
 		}
-		}
-		camsessions.remove(userSession)
+
 		//getCurrentUserNames()?.each { uiterator ->
-		
+
 		//}
 	}
 	/*
@@ -332,7 +336,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.info ("onMessage failed", e)
+			log.debug ("onMessage failed", e)
 		}
 		return notloggedin
 	}
@@ -352,7 +356,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.info ("onMessage failed", e)
+			log.debug ("onMessage failed", e)
 		}
 		return notloggedin
 	}
@@ -371,7 +375,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.info ("onMessage failed", e)
+			log.debug ("onMessage failed", e)
 		}
 	}
 	/*
@@ -401,7 +405,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.info ("onMessage failed", e)
+			log.debug ("onMessage failed", e)
 		}
 	}
 
@@ -460,7 +464,7 @@ class ChatUtils {
 
 			}
 		} catch (IOException e) {
-			log.info ("onMessage failed", e)
+			log.debug ("onMessage failed", e)
 		}
 
 	}
@@ -477,7 +481,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.info ("onMessage failed", e)
+			log.debug ("onMessage failed", e)
 		}
 	}
 
@@ -493,7 +497,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.info ("onMessage failed", e)
+			log.debug ("onMessage failed", e)
 		}
 	}
 
@@ -509,7 +513,7 @@ class ChatUtils {
 		Boolean found=false
 		try {
 			Iterator<Session> iterator=chatroomUsers?.iterator()
-			
+
 			while (iterator?.hasNext())  {
 				def crec=iterator?.next()
 				if (crec.isOpen()) {
@@ -530,7 +534,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.info ("onMessage failed", e)
+			log.debug ("onMessage failed", e)
 		}
 		if (found==false) {
 			myMsg.put("message","Error: ${user} not found - unable to send PM")
@@ -607,7 +611,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.info ("onMessage failed", e)
+			log.debug ("onMessage failed", e)
 		}
 	}
 

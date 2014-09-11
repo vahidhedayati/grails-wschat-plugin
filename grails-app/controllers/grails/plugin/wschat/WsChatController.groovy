@@ -40,11 +40,11 @@ class WsChatController {
 		username=username.trim().replace(' ', '_').replace('.', '_')
 		if (errors) {
 			flash.message=errors
-			redirect(action: "index")
+			redirect(controller: "wsChat",action: "index")
 		}else{
 			session.wschatuser=username
 			session.wschatroom=room
-			redirect(action: "chat")
+			redirect(controller: "wsChat", action: "chat")
 		}
 		//redirect (uri : "/wsChat/chat/${room}")
 	}

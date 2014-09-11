@@ -1,4 +1,4 @@
-wschat 0.20
+wschat 0.21
 =========
 
 Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
@@ -22,7 +22,7 @@ Plugin will work with tomcat 7.0.54 + (8 as well) running java 1.7 +
 
 Dependency :
 
-	compile ":wschat:0.20" 
+	compile ":wschat:0.21" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -47,8 +47,29 @@ http://localhost:8080/yourapp/wsChat/chat
 
 If your user details are provided by your own login mechanism. In this example the userId is passed to a service that tries to match a name from what is on DB if not strip email address of AD account and show before @ (this part of code is not provided but is what the service is doing)
 
-[custom calls from authenticated user to chat plugin](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Merging-plugin-with-your-own-custom-calls)
- 
+
+## Custom calls
+
+1. [custom calls from authenticated user to chat plugin](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Merging-plugin-with-your-own-custom-calls)
+
+2. Simpler method using taglib:
+```gsp
+<div id="homeBox">
+<g:if test="${!session.user }">
+	<g:render template="/auth/loginForm" model="[did: 'homeBox']"/>
+</g:if>
+<g:else>
+	<chat:connect chatuser="${chatuser}" room="${room }"/>
+</g:else>
+</div>
+```
+
+If you wanted you could just call :
+```gsp
+ 	<chat:connect chatuser="${chatuser}"/>
+```
+Above would go through your logics and assign default room to the user.
+
 
  
 # Video:
@@ -105,6 +126,7 @@ wschat.hostname=System.getProperty('SERVERURL')+":8080"
 * If you wish to get user to be timed out if inactive set this to a millisecond value
 */
 wschat.timeout=0
+wschat.camtimeout=0
 
 /*dbsupport
 * 0.10 +
@@ -228,6 +250,11 @@ Admin commands
 	
 # Version info
 ```
+0.21 -	Got a bit messy - need a clean up soon. Changes are:
+		Webcam view/send now moved within page so ui.chatbox extended and ui.videobox created.
+		ui.chatbox changed now includes play button - this needs a tidy up should not show when no cam.
+		new taglib call added documented above.
+		calls to controller from index page was not working in production - tidy up of gsp/calls.
 0.20 -	Issues with PM introduced in 0.19 tidy up - now fixed.
 
 0.19 - 	Webcam fixed working/tested in firefox/chrome. Both show camera from either 

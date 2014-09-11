@@ -13,14 +13,14 @@
 </head>
 <body>
 
-  <script>
+  <script type="text/javascript">
   	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
 		$("#pageHeader").html(msg);
 	}
-	var	webSocket = new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${chatuser}");
+	var	webSocketCam = new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${chatuser}");
 	
-	webSocket.onmessage = function(msg) {
+	webSocketCam.onmessage = function(msg) {
     	var target = document.getElementById("target");
     
 
@@ -32,11 +32,11 @@
      	
    }
 
-    webSocket.onclose=function(message) {processChatClose(message);};
+    webSocketCam.onclose=function(message) {processChatClose(message);};
    window.onbeforeunload = function() {
-   		webSocket.send("DISCO:-");
-       	webSocket.onclose = function() { }
-       	webSocket.close();
+   		webSocketCam.send("DISCO:-");
+       	webSocketCam.onclose = function() { }
+       	webSocketCam.close();
    }
 
  </script>

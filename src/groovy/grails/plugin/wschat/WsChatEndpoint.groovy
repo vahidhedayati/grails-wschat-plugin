@@ -1,6 +1,8 @@
 package grails.plugin.wschat
 
 
+import java.io.IOException;
+
 import grails.util.Holders
 
 import javax.servlet.ServletContextEvent
@@ -48,14 +50,22 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnMessage
 	public String handleMessage(String message,Session userSession) throws IOException {
-		verifyAction(userSession,message)
+		try {
+			verifyAction(userSession,message)
+		} catch(IOException e) {
+			log.debug "Error $e"
+		}
 	}
 
 	@OnClose
-	public void handeClose(Session userSession) {
-		String username=userSession?.getUserProperties()?.get("username")
-		if (dbSupport()&&username) {
-			validateLogOut(username as String)
+	public void handeClose(Session userSession) throws SocketException {
+		try {
+			String username=userSession?.getUserProperties()?.get("username")
+			if (dbSupport()&&username) {
+				validateLogOut(username as String)
+			}
+		} catch(SocketException e) {
+			log.debug "Error $e"
 		}
 	}
 

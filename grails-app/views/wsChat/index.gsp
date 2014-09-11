@@ -34,7 +34,7 @@
 		${now}
 	</small>
 	</div>
-		<form id="form1" method="post" action="login">
+		<g:form id="form1" method="post" controller="wsChat" action="login">
 	 	<div class="form-group">
 		<div class="nickname">Nickname: </div>
 			<input type="text" name="username">
@@ -42,7 +42,7 @@
 			<input type="submit" value="login" >
 		
 		</div>
-	</form>
+	</g:form>
 	</div>
 
 </body>
