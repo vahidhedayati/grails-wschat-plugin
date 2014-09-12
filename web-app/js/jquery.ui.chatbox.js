@@ -32,7 +32,7 @@
 					this.elem = elem;
 				},
 
-				addMsg: function(sender, peer, msg) {
+				addMsg: function(peer, msg) {
 					var self = this;
 					var box = self.elem.uiChatboxLog;
 					var e = document.createElement('div');
@@ -328,9 +328,9 @@
 	var toggleVideoBox = function(uiElement){
 		var slug = $(uiElement.element).attr("id");
 		$(function(event, ui) {
-			var box = null;
-			if(box) {
-				box.videobox("option", "boxManager").toggleBox();
+			var vbox = null;
+			if(vbox) {
+				vbox.videobox("option", "vidManager").toggleBox();
 			}else {
 				var added=verifyAdded(slug+'_video');
 				var el="#"+slug
@@ -338,17 +338,18 @@
 					var el = document.createElement('div');
 					el.setAttribute('id', slug+'_video');
 				}	
-				box = $(el).videobox({id:slug+'_video', 
-					user:{key : "value"},
+				vbox = $(el).videobox({id:slug+'_video', 
+					//user:{key : "value"},
+					user:user,
 					title : "Webcam: "+slug,
 					sender: slug,
 					camaction: 'view',
 					messageSent : function(id, user, msg) {
 						verifyPosition(slug);
-						$("#"+slug).videobox("option", "boxManager").addMsg(user, msg);
+						$("#"+slug).videobox("option", "vidManager").addVid(user, msg);
 					}
 				});
-				box.videobox("option", "show",1); 
+				//vbox.videobox("option", "show",1); 
 			}
 		});
 	}

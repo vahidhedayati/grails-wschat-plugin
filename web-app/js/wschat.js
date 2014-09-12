@@ -9,8 +9,9 @@ var config = {
 };
 var currentRoom;
 var idList = new Array();
-
+var camList = new Array();
 var isAdmin="false";
+
 
 function verifyAdded(uid) {
 	var added="false";
@@ -19,6 +20,16 @@ function verifyAdded(uid) {
 		added="true";
 	}
 	return added;
+}		
+
+
+function verifyCam(uid) {
+	var camadded="false";
+	var idx = camList.indexOf(uid);
+	if (idx != -1) {
+		camadded="true";
+	}
+	return camadded;
 }		
 
 function convertToBinary (dataURI) {
@@ -455,32 +466,44 @@ function removefriend(addid,user) {
 	$('#chatMessages').append(addid+" has been removed to "+user+"'s friends list\n");
 }
 
+
+
 function enableCam(camuser, camaction){
-	$(function(event, ui) {
-		var box = null;
-		if(box) {
-			box.videobox("option", "boxManager").toggleBox();
-		}else {
-			var added=verifyAdded(camuser+'_video');
-			var el="#"+camuser
-			if (added=="false") {
-				var el = document.createElement('div');
-				el.setAttribute('id', camuser+'_video');
-			}	
-			box = $(el).videobox({id:camuser+'_video', 
-				user:{key : "value"},
-				title : "Webcam: "+camuser,
-				sender: camuser,
-				camaction: camaction,
-				messageSent : function(id, user, msg) {
-					verifyPosition(camuser);
-					$("#"+camuser).videobox("option", "boxManager").addMsg(user, msg);
-					//webSocket.send("/pm "+suser+","+msg);
-				}
-			});
-			box.videobox("option", "show",1); 
-		}
-	});
+	var goahead=false
+	//if (camaction=="view") {
+	var camon=verifyCam(camuser)
+	if (camon=="false") {
+		goahead=true
+	}
+	//}
+	
+	if (goahead==true) { 
+		$(function(event, ui) {
+			var vbox = null;
+			if(vbox) {
+				vbox.videobox("option", "vidManager").toggleBox();
+			}else {
+				var added=verifyAdded(camuser+'_video');
+				var el="#"+camuser
+				if (added=="false") {
+					var el = document.createElement('div');
+					el.setAttribute('id', camuser+'_video');
+				}	
+				vbox = $(el).videobox({id:camuser+'_video', 
+					user:{key : "value"},
+					title : "Webcam: "+camuser,
+					sender: camuser,
+					camaction: camaction,
+					messageSent : function(id, user, msg) {
+						verifyPosition(camuser);
+						$("#"+camuser).videobox("option", "vidManager").vidMsg(user, msg);
+						//webSocket.send("/pm "+suser+","+msg);
+					}
+				});
+				//vbox.videobox("option", "show",1); 
+			}
+		});
+	}
 }
 
 function pmuser(suser,sender) {

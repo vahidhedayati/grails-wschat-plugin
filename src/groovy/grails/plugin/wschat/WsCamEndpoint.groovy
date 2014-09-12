@@ -49,26 +49,17 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 	@OnOpen
 	public void whenOpening(Session userSession,EndpointConfig c,@PathParam("user") String user,@PathParam("viewer") String viewer) {
 		userSession.setMaxBinaryMessageBufferSize(1024*512)
-		camsessions.add(userSession)
-
 		if (viewer.equals(user)) {
-			userSession.getUserProperties().put("camuser", user+":"+user);
 			if (notLoggedIn(user)) {
+				camsessions.add(userSession)
+				userSession.getUserProperties().put("camuser", user+":"+user);
 				userSession.getUserProperties().put("camusername", user);
 			}
-
 		}else{
-
 			userSession.getUserProperties().put("camuser", user+":"+viewer);
 			if (notLoggedIn(viewer)) {
 				userSession.getUserProperties().put("camusername", viewer);
 			}
-
-			/*def combo=user+":"+viewer
-			 if (!camusers.contains(combo)){
-			 camusers.add(combo)
-			 }
-			 */
 		}
 	}
 
