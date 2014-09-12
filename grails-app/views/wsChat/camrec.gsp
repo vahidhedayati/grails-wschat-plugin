@@ -13,32 +13,27 @@
 </head>
 <body>
 
-  <script type="text/javascript">
-  	if (!window.WebSocket) {
+ <script type="text/javascript">
+  if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
 		$("#pageHeader").html(msg);
 	}
 	var	webSocketCam = new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${chatuser}");
-	
+
 	webSocketCam.onmessage = function(msg) {
-    	var target = document.getElementById("target");
-    
-
-        url = window.URL.createObjectURL(msg.data);
-        target.onload = function() {
-        	window.URL.revokeObjectURL(url);
-        };
-     	target.src = url;
-     	
-   }
-
-    webSocketCam.onclose=function(message) {processChatClose(message);};
-   window.onbeforeunload = function() {
-   		webSocketCam.send("DISCO:-");
-       	webSocketCam.onclose = function() { }
-       	webSocketCam.close();
-   }
-
+		var target = document.getElementById("target");
+		url = window.URL.createObjectURL(msg.data);
+		target.onload = function() {
+			window.URL.revokeObjectURL(url);
+		};
+		target.src = url;
+	}
+	webSocketCam.onclose=function(message) {processCamClose(message);};
+	window.onbeforeunload = function() {
+		webSocketCam.send("DISCO:-");
+		webSocketCam.onclose = function() { }
+		webSocketCam.close();
+	}
  </script>
        <div  style="visibility: hidden; width: 0; height: 0;">
               <canvas width="320" id="canvas" height="240"></canvas>

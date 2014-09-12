@@ -87,8 +87,8 @@ function adminRooms(isAdmin) {
 	var sb = [];
 	if (isAdmin=="true") {
 		sb.push('<ul class="nav-pills pull-right">');
-		sb.push('<li class="btn-success btn"><a data-toggle="modal" href="#roomcontainer1" class="glyphicon glyphicon-plus" onclick="javascript:addaRoom(getApp(), '+wrapIt(user)+');" title="Add a Room"></a></li>');
-		sb.push('<li class="btn-danger btn"><a data-toggle="modal" href="#roomcontainer1" class="glyphicon glyphicon-minus" onclick="javascript:delaRoom(getApp(), '+wrapIt(user)+');" title="Remove a Room"></a></li>');
+		sb.push('<li class="btn-success btn"><a data-toggle="modal" href="#roomcontainer1" class="glyphicon glyphicon-plus" onclick="javascript:addaRoom('+wrapIt(user)+');" title="Add a Room"></a></li>');
+		sb.push('<li class="btn-danger btn"><a data-toggle="modal" href="#roomcontainer1" class="glyphicon glyphicon-minus" onclick="javascript:delaRoom('+wrapIt(user)+');" title="Remove a Room"></a></li>');
 		sb.push('</ul>');
 	}
 	return sb.join("")
@@ -153,7 +153,7 @@ function processMessage(message) {
 				sb.push('\n<li class="dropdown-submenu active btn-xs">\n<a tabindex="-1" class="user-title glyphicon glyphicon-facetime-video" href="#">'+entry.owner_av+'</a>\n');
 				sb.push('<ul class="dropdown-menu">\n');
 				sb.push('<li class="btn-xs">\n');
-				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile(getApp(),'+wrapIt(entry.owner_av)+');">'+entry.owner_av+'\'s profile</a>\n');
+				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.owner_av)+');">'+entry.owner_av+'\'s profile</a>\n');
 				sb.push('</li>\n');
 				sb.push('<li class="btn-xs">\n');
 				sb.push('<a  onclick="javascript:disableAV();">Disable Webcam</a>\n');
@@ -166,10 +166,9 @@ function processMessage(message) {
 				sb.push('\n<li class="dropdown-submenu active btn-xs">\n<a tabindex="-1" class="user-title" href="#">'+entry.owner+'</a>\n');
 				sb.push('<ul class="dropdown-menu">\n');
 				sb.push('<li class="btn-xs">\n');
-				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile(getApp(),'+wrapIt(entry.owner)+');">'+entry.owner+'\'s profile</a>\n');
+				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.owner)+');">'+entry.owner+'\'s profile</a>\n');
 				sb.push('</li>\n');
 				sb.push('<li class="btn-xs">\n');
-				//sb.push('<a  onclick="javascript:enableAV(getApp(),'+wrapIt(entry.owner)+');">Enable Audio/Video</a>\n');
 				sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry.owner)+','+wrapIt('send')+');">Enable Webcam</a>\n');
 				sb.push('</li>\n');
 
@@ -180,7 +179,7 @@ function processMessage(message) {
 				sb1.push('\n<li class="dropdown-submenu btn-warning btn-xs"><a tabindex="-1" class="user-title glyphicon glyphicon-facetime-video" href="#">'+entry.friends_av+'</a>\n');
 				sb1.push('<ul class="dropdown-menu">\n');
 				sb1.push('<li class="btn-xs">\n');
-				sb1.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile(getApp(),'+wrapIt(entry.friends_av)+');">'+entry.friends_av+'\'s profile</a>\n');
+				sb1.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.friends_av)+');">'+entry.friends_av+'\'s profile</a>\n');
 				sb1.push('</li>\n');
 				sb1.push('<li class="btn-xs">\n');
 				sb1.push('<a onclick="javascript:pmuser('+wrapIt(entry.friends_av)+', '+wrapIt(user)+');">PM  '+entry.friends_av+'</a>\n');
@@ -190,7 +189,6 @@ function processMessage(message) {
 				sb1.push('\n</li> ');
 
 				sb1.push('<li class="btn-xs">\n');
-				//sb1.push('<a onclick="javascript:viewcam(getApp(),'+wrapIt(entry.friends_av)+', '+wrapIt(user)+');">View Camera</a>\n');
 				sb1.push('<a onclick="javascript:enableCam('+wrapIt(entry.friends_av)+','+wrapIt('view')+');">View Camera</a>\n');
 				sb1.push('</li>\n');
 
@@ -204,7 +202,7 @@ function processMessage(message) {
 				sb1.push('\n<li class="dropdown-submenu btn-warning btn-xs"><a tabindex="-1" class="user-title" href="#">'+entry.friends+'</a>\n');
 				sb1.push('<ul class="dropdown-menu">\n');
 				sb1.push('<li class="btn-xs">\n');
-				sb1.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile(getApp(),'+wrapIt(entry.friends)+');">'+entry.friends+'\'s profile</a>\n');
+				sb1.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.friends)+');">'+entry.friends+'\'s profile</a>\n');
 				sb1.push('</li>\n');
 				sb1.push('<li class="btn-xs">\n');
 				sb1.push('<a onclick="javascript:pmuser('+wrapIt(entry.friends)+', '+wrapIt(user)+');">PM  '+entry.friends+'</a>\n');
@@ -223,7 +221,7 @@ function processMessage(message) {
 				sb2.push('\n<li class="dropdown-submenu btn-xs"><a tabindex="-1" class="user-title glyphicon glyphicon-facetime-video" href="#">'+entry.user_av+'</a>\n');
 				sb2.push('<ul class="dropdown-menu">\n');
 				sb2.push('<li class="btn-xs">\n');
-				sb2.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile(getApp(),'+wrapIt(entry.user_av)+');">'+entry.user_av+'\'s profile</a>\n');
+				sb2.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.user_av)+');">'+entry.user_av+'\'s profile</a>\n');
 				sb2.push('</li>\n');
 				sb2.push('<li class="btn-xs">\n');
 				sb2.push('<a onclick="javascript:pmuser('+wrapIt(entry.user_av)+', '+wrapIt(user)+');">PM  '+entry.user_av+'</a>\n');
@@ -235,7 +233,6 @@ function processMessage(message) {
 				sb2.push('<a onclick="javascript:blockuser('+wrapIt(entry.user_av)+', '+wrapIt(user)+');">Block  '+entry.user_av+'</a>\n');
 				sb2.push('</li>\n');
 				sb2.push('<li class="btn-xs">\n');
-				//sb2.push('<a onclick="javascript:viewcam(getApp(),'+wrapIt(entry.user_av)+', '+wrapIt(user)+');">View Camera</a>\n');
 				sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_av)+','+wrapIt('view')+');">View Camera</a>\n');
 				sb2.push('</li>\n');
 
@@ -249,7 +246,7 @@ function processMessage(message) {
 				sb2.push('\n<li class="dropdown-submenu btn-xs"><a tabindex="-1" class="user-title" href="#">'+entry.user+'</a>\n');
 				sb2.push('<ul class="dropdown-menu">\n');
 				sb2.push('<li class="btn-xs">\n');
-				sb2.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile(getApp(),'+wrapIt(entry.user)+');">'+entry.user+'\'s profile</a>\n');
+				sb2.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.user)+');">'+entry.user+'\'s profile</a>\n');
 				sb2.push('</li>\n');
 				sb2.push('<li class="btn-xs">\n');
 				sb2.push('<a onclick="javascript:pmuser('+wrapIt(entry.user)+', '+wrapIt(user)+');">PM  '+entry.user+'</a>\n');
@@ -269,7 +266,7 @@ function processMessage(message) {
 				sb3.push('\n<li class="dropdown-submenu btn-danger btn-xs"><a tabindex="-1" class="user-title" href="#">'+entry.blocked+'</a>\n');
 				sb3.push('<ul class="dropdown-menu">\n');
 				sb3.push('<li class="btn-xs">\n');
-				sb3.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile(getApp(),'+wrapIt(entry.blocked)+');">'+entry.blocked+'\'s profile</a>\n');
+				sb3.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.blocked)+');">'+entry.blocked+'\'s profile</a>\n');
 				sb3.push('</li>\n');
 				sb3.push('<li class="btn-xs">\n');
 				sb3.push('<a onclick="javascript:unblockuser('+wrapIt(entry.blocked)+', '+wrapIt(user)+');">UNBLOCK  '+entry.blocked+'</a>\n');
@@ -349,7 +346,6 @@ function sendPM(receiver,sender,pm) {
 			});
 		}                 
 	});
-
 	verifyPosition(sender);
 	$("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);         
 }
@@ -378,38 +374,25 @@ function banuser(user) {
 	$('#banuser').show();
 }
 
-function addaRoom(baseapp,user) {
+function addaRoom(user) {
 	if (isAdmin=="true") {
-		$.get("/"+baseapp+"/wsChat/addaRoom",function(data){
+		$.get("/"+getApp()+"/wsChat/addaRoom",function(data){
 			$('#roomsContainer').hide().html(data).fadeIn('slow');
 		});
 		$('#roomcontainer').show();
 	}
 }
 
-function delaRoom(baseapp,user) {
+function delaRoom(user) {
 	if (isAdmin=="true") {
-		$.get("/"+baseapp+"/wsChat/delaRoom",function(data){
+		$.get("/"+getApp()+"/wsChat/delaRoom",function(data){
 			$('#roomsContainer').hide().html(data).fadeIn('slow');
 		});
 		$('#roomcontainer').show();
 	}
-}
-
-function enableAV(baseapp,user) {
-	var link = "/"+baseapp+"/wsChat/camsend?user=" + user;
-	popup_window =window.open(link, '', 'width=320,height=240');
-	webSocket.send("/camenabled "+user);
 }
 
 function disableAV() {
-	//var link = "/"+baseapp+"/wsChat/camsend?user=" + user;
-	//window.open(link, '', 'width=320,height=240');
-	//$.get("/"+baseapp+"/wsChat/stopCam?user="+user,function(data){
-	//	$('#camcom').hide().html(data).fadeIn('slow');
-	//});
-	//popup_window.close ();
-	//processChatClose('');
 	webSocket.send("/camdisabled "+user);
 }
 
@@ -425,33 +408,29 @@ function sendCam() {
 	webSocket.send("/camenabled "+user);
 }
 
-function viewcam(baseapp,camuser,user) {
-	var link = "/"+baseapp+"/wsChat/camrec?user=" + camuser;
-	view_cam_window = window.open(link, '', 'width=320,height=240');
-	//webSocket.send("/camenabled "+camuser);
-}
-function userprofile(baseapp,user) {
-	$.get("/"+baseapp+"/wsChat/verifyprofile?username="+user,function(data){
+
+function userprofile(user) {
+	$.get("/"+getApp()+"/wsChat/verifyprofile?username="+user,function(data){
 		$('#profileContainer').hide().html(data).fadeIn('slow');
 	});
 	$('#userprofile').show();
 }
 
-function uploadPhoto(baseapp,user) {
-	$.get("/"+baseapp+"/wsChat/uploadPhoto?username="+user,function(data){
+function uploadPhoto(user) {
+	$.get("/"+getApp()+"/wsChat/uploadPhoto?username="+user,function(data){
 		$('#profileContainer').hide().html(data).fadeIn('slow');
 	});
 
 }
 
-function editProfile(baseapp,username) {
-	$.get("/"+baseapp+"/wsChat/editprofile?username="+user,function(data){
+function editProfile(username) {
+	$.get("/"+getApp()+"/wsChat/editprofile?username="+user,function(data){
 		$('#profileContainer').hide().html(data).fadeIn('slow');
 	});
 }
 
-function fullPhoto(baseapp,photoId) {
-	$.get("/"+baseapp+"/wsChat/realPhoto?photoId="+photoId,function(data){
+function fullPhoto(photoId) {
+	$.get("/"+getApp()+"/wsChat/realPhoto?photoId="+photoId,function(data){
 		$('#photoContainer').hide().html(data).fadeIn('slow');
 	});
 	$('#userphoto').show();
@@ -552,7 +531,7 @@ function processClose(message) {
 	webSocket.close();
 }
 
-function processChatClose(message) {
+function processCamClose(message) {
 	webSocketCam.send("DISCO:-");
 	webSocketCam.close();
 }

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -44,6 +43,5 @@
 		</div>
 	</g:form>
 	</div>
-
 </body>
 </html>

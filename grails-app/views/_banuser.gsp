@@ -16,10 +16,7 @@
 	>
   	
 	<div class="modal-body">
-	
-			
 			<div id="contact-area">
-				
 				<div class="required">
 				<label for="duration">
 				<g:message code="wschat.username.label" default="Username" />

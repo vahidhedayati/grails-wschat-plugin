@@ -3,7 +3,7 @@
  * Dual licensed under the MIT or GPL Version 2 licenses.
  * http://jquery.org/license
  *
- * Check out http://www.cs.illinois.edu/homes/wenpu1/videobox.html for document
+ * Check out http://www.cs.illinois.edu/homes/wenpu1/chatbox.html  for document
  *
  * Depends on jquery.ui.core, jquery.ui.widiget, jquery.ui.effect
  *

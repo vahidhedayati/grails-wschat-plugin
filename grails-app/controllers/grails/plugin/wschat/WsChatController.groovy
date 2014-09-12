@@ -53,7 +53,6 @@ class WsChatController {
 	def camsend(String user) {
 		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
 		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
-		//def dbsupport=grailsApplication.config.wschat.dbsupport ?: 'yes'
 		[user:user,chatTitle:chatTitle,hostname:hostname]
 	}
 
@@ -62,7 +61,6 @@ class WsChatController {
 		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
 		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
 		def chatuser=session.wschatuser
-		//def dbsupport=grailsApplication.config.wschat.dbsupport ?: 'yes'
 		[user:user,hostname:hostname,chatuser:chatuser,chatTitle:chatTitle]
 	}
 

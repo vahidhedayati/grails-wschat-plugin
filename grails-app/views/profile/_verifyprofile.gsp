@@ -3,8 +3,8 @@
 		<h3 id="prompt">
 <g:if test="${actualuser}">
 	 ${username } 
-	<button class="btn btn-success btn-xs" onclick="editProfile(getApp(),'${username}')">Edit profile</button>
-	<button class="btn btn-warning btn-xs" onclick="uploadPhoto(getApp(),'${username}')">Upload Photo</button>
+	<button class="btn btn-success btn-xs" onclick="editProfile('${username}')">Edit profile</button>
+	<button class="btn btn-warning btn-xs" onclick="uploadPhoto('${username}')">Upload Photo</button>
 </g:if>
 <g:else>
 	Viewing ${username }'s profile
@@ -105,7 +105,7 @@
 	<div class="pull-right col-sm-2">
 	<g:if test="${photos}">
 		<g:each in="${photos }" var="ph">
-			<a  data-toggle="modal" href="#photobox1" onclick="javascript:fullPhoto(getApp(),${ph.id})"><img class="Photo" width="75px" height="100px" src="${createLink(controller:'wsChat', action:'viewPic', id:''+ph.id+'')}" /></a><br/>
+			<a  data-toggle="modal" href="#photobox1" onclick="javascript:fullPhoto(${ph.id})"><img class="Photo" width="75px" height="100px" src="${createLink(controller:'wsChat', action:'viewPic', id:''+ph.id+'')}" /></a><br/>
 		</g:each>
 	</g:if>
 	</div>
