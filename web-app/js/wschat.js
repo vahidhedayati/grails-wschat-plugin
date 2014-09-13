@@ -171,7 +171,8 @@ function processMessage(message) {
 				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.owner_av)+');">'+entry.owner_av+'\'s profile</a>\n');
 				sb.push('</li>\n');
 				sb.push('<li class="btn-xs">\n');
-				sb.push('<a  onclick="javascript:disableAV();">Disable Webcam</a>\n');
+				//sb.push('<a  onclick="javascript:disableAV();">Disable Webcam</a>\n');
+				sb.push('<a  onclick="enableCam('+wrapIt(entry.owner)+','+wrapIt('disable')+');">Disable Webcam</a>\n');
 				sb.push('</li>\n');
 				camon(entry.owner_av);
 				sb.push('</ul>\n</li>\n\n\n');
@@ -535,18 +536,25 @@ function verifyCamPosition(uid) {
 
 function enableCam(camuser, camaction){
 	var goahead=false;
-	//if (camaction=="view") {
+
+	if (camaction!="disable") {
+	
 	var camon=verifyCam(camuser);
 	if (camon=="false") {
 		goahead=true;
 	}
-	//}
+	}
 	
 	if (goahead==true) { 
 		$(function(event, ui) {
 			var vbox = null;
 			if(vbox) {
+				if (camaction=="disable") {
+					vbox.videobox("option", "vidManager").closeBox();
+				}else{
 				vbox.videobox("option", "vidManager").toggleBox();
+				}
+				
 			}else {
 				var added=verifyCam(camuser);
 				verifyCamPosition(camuser);
@@ -557,6 +565,7 @@ function enableCam(camuser, camaction){
 				}	
 				vbox = $(el).videobox({id:camuser, 
 					//user:{key : "value"},
+					user:user,
 					title : "Webcam: "+camuser,
 					sender: camuser,
 					camaction: camaction,

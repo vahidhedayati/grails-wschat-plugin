@@ -18,7 +18,7 @@
 		options: {
 			id: null, //id for the DOM element
 			title: null, // title of the videobox
-			//user: null, // can be anything associated with this videobox
+			user: null, // can be anything associated with this videobox
 			sender: null,
 			camaction: null,
 			hidden: false,
@@ -57,6 +57,12 @@
 						self._scrollToBottom();
 					});
 				},
+				closeBox: function() {
+					this.elem.uiVidbox.hide();
+					this.elem.uiVidbox.remove();
+					var cuser = $(self.element).attr("id");
+					delCamList(cuser);
+				},
 				toggleBox: function() {
 					this.elem.uiVidbox.toggle();
 				},
@@ -79,10 +85,17 @@
 			var self = this,
 			options = self.options,
 			title = options.title || "No Title",
+			user = options.user,
 			sender = options.sender,
 			camaction = options.camaction
+			
 			// videobox
+			var uividContent
 			if (camaction=="view") {
+				uiVidContent='<div id="camViewContainer"></div>'+getCam(sender)
+			}else{
+				uiVidContent='<div id="myCamContainer"></div>'+sendCam()
+			}
 			
 				uiVidbox = (self.uiVidbox = $('<div></div>'))
 				.appendTo(document.body)
@@ -123,10 +136,14 @@
 					function() { uiVidboxTitlebarClose.removeClass('ui-state-hover'); }
 				)
 				.click(function(event) {
-					var slug = $(self.element).attr("id");
-					delCamList(slug);
+					var cuser = $(self.element).attr("id");
+					if (cuser==user) {
+						disableAV();
+					}
+					delCamList(cuser);
 					uiVidbox.hide();
 					uiVidbox.remove();
+					
 					self.options.boxClosed(self.options.id);
 					return false;
 				})
@@ -155,7 +172,9 @@
 					.appendTo(uiVidboxTitlebarMinimize),
 					// content
 					//uiVidboxContent = (self.uiVidboxContent = $('<video id="live" width="320" height="240" autoplay="autoplay"  style="display: inline;"></video>\n<canvas width="320" id="canvas" height="240" style="display: inline;"></canvas>'+getCam2()))
-					uiVidboxContent = (self.uiVidboxContent = $('<div id="camViewContainer"></div>'+getCam(sender)))
+					uiVidboxContent = (
+							self.uiVidboxContent = $(uiVidContent)
+					)
 					.addClass('ui-widget-content ' +
 						'ui-videobox-content '
 					)
@@ -173,99 +192,7 @@
 					.focusout(function() {
 						uiVidboxInputBox.removeClass('ui-videobox-input-focus');
 					});
-			}else{
-				uiVidbox = (self.uiVidbox = $('<div></div>'))
-				.appendTo(document.body)
-				.addClass('ui-widget ' +
-						'ui-corner-top ' +
-						'ui-videobox'
-				)
-				.attr('outline', 0)
-				.focusin(function() {
-					// ui-state-highlight is not really helpful here
-					//self.uiVidbox.removeClass('ui-state-highlight');
-					self.uiVidboxTitlebar.addClass('ui-state-focus');
-				})
-				.focusout(function() {
-					self.uiVidboxTitlebar.removeClass('ui-state-focus');
-				}),
-				// titlebar
-				uiVidboxTitlebar = (self.uiVidboxTitlebar = $('<div></div>'))
-				.addClass('ui-widget-header ' +
-						'ui-corner-top ' +
-						'ui-videobox-titlebar ' +
-						'ui-dialog-header' // take advantage of dialog header style
-				)
-				.click(function(event) {
-					self.toggleContent(event);
-				})
-				.appendTo(uiVidbox),
-				uiVidboxTitle = (self.uiVidboxTitle = $('<span></span>'))
-				.html(title)
-				.appendTo(uiVidboxTitlebar),
-				uiVidboxTitlebarClose = (self.uiVidboxTitlebarClose = $('<a href="#"></a>'))
-				.addClass('ui-corner-all ' +
-						'ui-videobox-icon '
-				)
-				.attr('role', 'button')
-				.hover(function() { uiVidboxTitlebarClose.addClass('ui-state-hover'); },
-						function() { uiVidboxTitlebarClose.removeClass('ui-state-hover'); })
-						.click(function(event) {
-							var slug = $(self.element).attr("id");
-							delCamList(slug);
-							uiVidbox.hide();
-							uiVidbox.remove();
-							disableAV();
-							self.options.boxClosed(self.options.id);
-							return false;
-						})
-						.appendTo(uiVidboxTitlebar),
-						uiVidboxTitlebarCloseText = $('<span></span>')
-						.addClass('ui-icon ' +
-								'ui-icon-closethick')
-								.text('close')
-								.appendTo(uiVidboxTitlebarClose),
-								uiVidboxTitlebarMinimize = (self.uiVidboxTitlebarMinimize = $('<a href="#"></a>'))
-								.addClass('ui-corner-all ' +
-										'ui-videobox-icon'
-								)
-								.attr('role', 'button')
-								.hover(function() { uiVidboxTitlebarMinimize.addClass('ui-state-hover'); },
-										function() { uiVidboxTitlebarMinimize.removeClass('ui-state-hover'); })
-										.click(function(event) {
-											self.toggleContent(event);
-											return false;
-										})
-										.appendTo(uiVidboxTitlebar),
-
-										uiVidboxTitlebarMinimizeText = $('<span></span>')
-										.addClass('ui-icon ' +
-										'ui-icon-minusthick')
-										.text('minimize')
-										.appendTo(uiVidboxTitlebarMinimize),
-										// content
-										//uiVidboxContent = (self.uiVidboxContent = $('<video id="live" width="320" height="240" autoplay="autoplay"  style="display: inline;"></video>\n<canvas width="320" id="canvas" height="240" style="display: inline;"></canvas>'+getCam2()))
-
-										uiVidboxContent = (self.uiVidboxContent = $('<div id="myCamContainer"></div>'+sendCam()))
-										.addClass('ui-widget-content ' +
-												'ui-videobox-content '
-										)
-										.appendTo(uiVidbox),
-										uiVidboxLog = (self.uiVidboxLog = self.element)
-										.addClass('ui-widget-content ' +
-												'ui-videobox-log'
-										)
-										.appendTo(uiVidboxContent)
-
-										.focusin(function() {
-											uiVidboxInputBox.addClass('ui-videobox-input-focus');
-											var vidbox = $(this).parent().prev();
-											vidbox.scrollTop(vidbox.get(0).scrollHeight);
-										})
-										.focusout(function() {
-											uiVidboxInputBox.removeClass('ui-videobox-input-focus');
-										});
-			}
+			
 			// disable selection
 			uiVidboxTitlebar.find('*').add(uiVidboxTitlebar).disableSelection();
 			self._setWidth(self.options.width);
