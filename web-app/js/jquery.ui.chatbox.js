@@ -91,6 +91,7 @@
 			title = options.title || "No Title"
 			var other = $(self.element).attr("id");
 			var isOn=isCamOn(other);
+			
 			uiChatbox = (self.uiChatbox = $('<div></div>'))
 			.appendTo(document.body)
 			.addClass('ui-widget ' +
@@ -105,6 +106,7 @@
 			.focusout(function(){
 				self.uiChatboxTitlebar.removeClass('ui-state-focus');
 			}),
+			
 			uiChatboxTitlebar = (self.uiChatboxTitlebar = $('<div></div>'))
 			.addClass('ui-widget-header ' +
 					'ui-corner-top ' +
@@ -118,136 +120,140 @@
 			uiChatboxTitle = (self.uiChatboxTitle = $('<span></span>'))
 			.html(title)
 			.appendTo(uiChatboxTitlebar),
+			
 			uiChatboxTitlebarClose = (self.uiChatboxTitlebarClose = $('<a href="#"></a>'))
 			.addClass('ui-corner-all ' +
 					'ui-chatbox-icon '
 			)
 			.attr('role', 'button')
 			.hover(function() {uiChatboxTitlebarClose.addClass('ui-state-hover');},
-					function() {uiChatboxTitlebarClose.removeClass('ui-state-hover');})
-					.click(function(event) {
-						var cuser = $(self.element).attr("id");
-						deluList(cuser);
-						uiChatbox.hide();
-						uiChatbox.remove();
-						self.options.boxClosed(self.options.id);
-						return false;
-					})
-					.appendTo(uiChatboxTitlebar),
-					uiChatboxTitlebarCloseText = $('<span></span>')
-					.addClass('ui-icon-closethick ' + 'chat-thick ' + 'chat-closethick')
-					.text('close')
-					.appendTo(uiChatboxTitlebarClose),
-					uiChatboxTitlebarMinimize = (self.uiChatboxTitlebarMinimize = $('<a href="#"></a>'))
-					.addClass('ui-corner-all ' +
-							'ui-chatbox-icon'
-					)
-					.attr('role', 'button')
-					.hover(function() {uiChatboxTitlebarMinimize.addClass('ui-state-hover');},
-							function() {uiChatboxTitlebarMinimize.removeClass('ui-state-hover');})
-							.click(function(event) {
-								self.toggleContent(event);
-								return false;
-							})
-							.appendTo(uiChatboxTitlebar),
-							uiChatboxTitlebarMinimizeText = $('<span></span>')
-							.addClass('ui-icon-minusthick ' + 'chat-thick ' + ' chat-minusthick')
-							.text('minimize')
-							.appendTo(uiChatboxTitlebarMinimize),
+					function() {uiChatboxTitlebarClose.removeClass('ui-state-hover');}
+			)
+			.click(function(event) {
+				var cuser = $(self.element).attr("id");
+				deluList(cuser);
+				uiChatbox.hide();
+				uiChatbox.remove();
+				self.options.boxClosed(self.options.id);
+				return false;
+			})
+			.appendTo(uiChatboxTitlebar),
+			
+			uiChatboxTitlebarCloseText = $('<span></span>')
+			.addClass('ui-icon-closethick ' + 'chat-thick ' + 'chat-closethick')
+			.text('close')
+			.appendTo(uiChatboxTitlebarClose),
+			
+			uiChatboxTitlebarMinimize = (self.uiChatboxTitlebarMinimize = $('<a href="#"></a>'))
+			.addClass('ui-corner-all ' +'ui-chatbox-icon')
+			.attr('role', 'button')
+			.hover(
+				function() {uiChatboxTitlebarMinimize.addClass('ui-state-hover');},
+				function() {uiChatboxTitlebarMinimize.removeClass('ui-state-hover');}
+			)
+			.click(function(event) {
+				self.toggleContent(event);
+				return false;
+			})
+			.appendTo(uiChatboxTitlebar),
+			uiChatboxTitlebarMinimizeText = $('<span></span>')
+			.addClass('ui-icon-minusthick ' + 'chat-thick ' + ' chat-minusthick')
+			.text('minimize')
+			.appendTo(uiChatboxTitlebarMinimize),
 							
-							toggleCamButton(self,isOn)
-							
-									uiChatboxTitlebarVideoChange = (self.uiChatboxTitlebarVideoChange = $('<a href="#"></a>'))
-									.addClass('ui-corner-all ' +
-											'ui-chatbox-icon' + ' ui-videobox-icon-change'
-									)
-									.attr('role', 'button')
-									.hover(function() {uiChatboxTitlebarVideoChange.addClass('ui-state-hover');},
-											function() {uiChatboxTitlebarVideoChange.removeClass('ui-state-hover');})
-											.click(function(event) {
-												//toggleVideoBoxChange(self)
-												return false;
-											})
-											.appendTo(uiChatboxTitlebar),
-											uiChatboxTitlebarVideoText = $('<span></span>')
-											.addClass('ui-icon-newwin ' + 'chat-thick ' + ' chat-videoPublisherthick' )
-											.text('')
-											.appendTo(uiChatboxTitlebarVideoChange),
-											uiChatboxTitlebarGames = (self.uiChatboxTitlebarGames = $('<a href="#"></a>'))
-											.addClass('ui-corner-all ' +
-													'ui-chatbox-icon' + ' ui-games-icon'
-											)
-											.attr('role', 'button')
-											.hover(function() {uiChatboxTitlebarGames.addClass('ui-state-hover');},
-													function() {uiChatboxTitlebarGames.removeClass('ui-state-hover');})
-													.click(function(event) {
-														pickGamesButton(self)
-														return false;
-													})
-													.appendTo(uiChatboxTitlebar),
-													uiChatboxTitlebarGamesText = $('<span></span>')
-													.addClass('ui-icon-star ' + 'chat-thick ' + ' chat-gamesthick' )
-													.text('')
-													.appendTo(uiChatboxTitlebarGames),
-													uiChatboxContent = (self.uiChatboxContent = $('<div></div>'))
-													.addClass('ui-widget-content ' +
-															'ui-chatbox-content '
-													)
-													.appendTo(uiChatbox),
-													uiChatboxNotify = (self.uiChatboxNotify = $('<div></div>'))
-													.addClass('ui-widget-content ' +
-															'ui-chatbox-notify'
-													)
-													.click(function(event) {
-														onClickChatNotification(self.uiChatboxNotify)
-													})
-													.appendTo(uiChatboxContent),
-													uiVideobox = (self.uiVideobox = $('<div></div>'))
-													.addClass('ui-widget-content ' +
-															'ui-videobox'
-													)
-													.click(function(event) {
-													})
-													.appendTo(uiChatboxContent),
-													uiChatboxLog = (self.uiChatboxLog = self.element)
-													.addClass('ui-widget-content '+
-															'ui-chatbox-log'
-													)
-													.appendTo(uiChatboxContent),
-													uiChatboxInput = (self.uiChatboxInput = $('<div></div>'))
-													.addClass('ui-widget-content ' +
-															'ui-chatbox-input'
-													)
-													.click(function(event) {
-													})
-													.appendTo(uiChatboxContent),
-													uiChatboxInputBox = (self.uiChatboxInputBox = $('<textarea></textarea>'))
-													.addClass('ui-widget-content ' +
-															'ui-chatbox-input-box ' +
-															'ui-corner-all'
-													)
-													.appendTo(uiChatboxInput)
-													.keydown(function(event) {
-														if(event.keyCode && event.keyCode == $.ui.keyCode.ENTER) {
-															var userChatDataInputControlBoolean = (((typeof userChatDataInputControl == 'function')&&(userChatDataInputControl()))||((typeof userChatDataInputControl != 'function')));
-															if (userChatDataInputControlBoolean) {
-																msg = $.trim($(this).val());
-																if (msg.length > 0) {
-																	self.options.messageSent(self.options.id, self.options.user, msg);
-																}
-																$(this).val('');
-															}
-															return false;
-														}
-													})
-													.focusin(function() {
-														uiChatboxInputBox.addClass('ui-chatbox-input-focus');
-														var box = $(this).parent().prev();
-														box.scrollTop(box.get(0).scrollHeight);
-													})
-													.focusout(function() {
-														uiChatboxInputBox.removeClass('ui-chatbox-input-focus');
-													});
+			toggleCamButton(self,isOn)
+						
+			uiChatboxTitlebarVideoChange = (self.uiChatboxTitlebarVideoChange = $('<a href="#"></a>'))
+			.addClass('ui-corner-all ' +'ui-chatbox-icon' + ' ui-videobox-icon-change')
+			.attr('role', 'button')
+			.hover(
+				function() {uiChatboxTitlebarVideoChange.addClass('ui-state-hover');},
+				function() {uiChatboxTitlebarVideoChange.removeClass('ui-state-hover');}
+			)
+			.click(function(event) {
+				//toggleVideoBoxChange(self)
+				return false;
+			})
+			.appendTo(uiChatboxTitlebar),
+			
+			uiChatboxTitlebarVideoText = $('<span></span>')
+			.addClass('ui-icon-newwin ' + 'chat-thick ' + ' chat-videoPublisherthick' )
+			.text('')
+			.appendTo(uiChatboxTitlebarVideoChange),
+			
+			uiChatboxTitlebarGames = (self.uiChatboxTitlebarGames = $('<a href="#"></a>'))
+			.addClass('ui-corner-all ' +'ui-chatbox-icon' + ' ui-games-icon')
+			.attr('role', 'button')
+			.hover(
+				function() {uiChatboxTitlebarGames.addClass('ui-state-hover');},
+				function() {uiChatboxTitlebarGames.removeClass('ui-state-hover');}
+			)
+			.click(function(event) {
+				pickGamesButton(self)
+				return false;
+			})
+			.appendTo(uiChatboxTitlebar),
+					
+			uiChatboxTitlebarGamesText = $('<span></span>')
+			.addClass('ui-icon-star ' + 'chat-thick ' + ' chat-gamesthick' )
+			.text('')
+			.appendTo(uiChatboxTitlebarGames),
+			
+			uiChatboxContent = (self.uiChatboxContent = $('<div></div>'))
+			.addClass('ui-widget-content ' +'ui-chatbox-content ')
+			.appendTo(uiChatbox),
+			
+			uiChatboxNotify = (self.uiChatboxNotify = $('<div></div>'))
+			.addClass('ui-widget-content ' +'ui-chatbox-notify')
+			.click(function(event) {
+				onClickChatNotification(self.uiChatboxNotify)
+			})
+			.appendTo(uiChatboxContent),
+					
+			uiVideobox = (self.uiVideobox = $('<div></div>'))
+			.addClass('ui-widget-content ' +'ui-videobox')
+			.click(function(event) {
+			})
+			.appendTo(uiChatboxContent),
+			
+			uiChatboxLog = (self.uiChatboxLog = self.element)
+			.addClass('ui-widget-content '+'ui-chatbox-log')
+			.appendTo(uiChatboxContent),
+			
+			uiChatboxInput = (self.uiChatboxInput = $('<div></div>'))
+			.addClass('ui-widget-content ' +'ui-chatbox-input')
+			.click(function(event) {
+			})
+			.appendTo(uiChatboxContent),
+			
+			uiChatboxInputBox = (self.uiChatboxInputBox = $('<textarea></textarea>'))
+			.addClass('ui-widget-content ' +'ui-chatbox-input-box ' +'ui-corner-all')
+			.appendTo(uiChatboxInput)
+			
+			.keydown(function(event) {
+				if(event.keyCode && event.keyCode == $.ui.keyCode.ENTER) {
+					var userChatDataInputControlBoolean = (((typeof userChatDataInputControl == 'function')&&(userChatDataInputControl()))||((typeof userChatDataInputControl != 'function')));
+					if (userChatDataInputControlBoolean) {
+						msg = $.trim($(this).val());
+						if (msg.length > 0) {
+							self.options.messageSent(self.options.id, self.options.user, msg);
+						}
+						$(this).val('');
+					}
+					return false;
+				}
+			})
+			
+			.focusin(function() {
+				uiChatboxInputBox.addClass('ui-chatbox-input-focus');
+				var box = $(this).parent().prev();
+				box.scrollTop(box.get(0).scrollHeight);
+			})
+			
+			.focusout(function() {
+				uiChatboxInputBox.removeClass('ui-chatbox-input-focus');
+			});
+			
 			uiChatboxTitlebar.find('*').add(uiChatboxTitlebar).disableSelection();
 			uiChatboxContent.children().click(function(){
 				self.uiChatboxInputBox.focus();
@@ -321,29 +327,27 @@
 	
 	function toggleCamButton(self,isOn) {
 		if (isOn=="true") {
-		uiChatboxTitlebarVideo = (self.uiChatboxTitlebarVideo = $('<a href="#"></a>'))
-		.addClass('ui-corner-all ' +
-				'ui-chatbox-icon' + ' ui-videobox-icon'
-		)
-		.attr('role', 'button')
-		.hover(function() {uiChatboxTitlebarVideo.addClass('ui-state-hover');},
-				function() {uiChatboxTitlebarVideo.removeClass('ui-state-hover');})
-				.click(function(event) {
-					var slug = $(self.element).attr("id");
-					enableCam(slug,'view');
-					uiChatbox.hide();
-					deluList(slug);
-					uiChatbox.remove();
-					//toggleVideoBox(self)
-					return false;
-				})
-				.appendTo(uiChatboxTitlebar),
-				uiChatboxTitlebarVideoText = $('<span></span>')
-				.addClass('ui-icon-circle-triangle-e ' + 'chat-thick ' + ' chat-videothick' )
-				.text('video')
-				.appendTo(uiChatboxTitlebarVideo)
+			uiChatboxTitlebarVideo = (self.uiChatboxTitlebarVideo = $('<a href="#"></a>'))
+			.addClass('ui-corner-all ' +'ui-chatbox-icon' + ' ui-videobox-icon')
+			.attr('role', 'button')
+			.hover(
+				function() {uiChatboxTitlebarVideo.addClass('ui-state-hover');},
+				function() {uiChatboxTitlebarVideo.removeClass('ui-state-hover');}
+			)
+			.click(function(event) {
+				var slug = $(self.element).attr("id");
+				enableCam(slug,'view');
+				uiChatbox.hide();
+				deluList(slug);
+				uiChatbox.remove();
+				//toggleVideoBox(self)
+				return false;
+			})
+			.appendTo(uiChatboxTitlebar),
+			uiChatboxTitlebarVideoText = $('<span></span>')
+			.addClass('ui-icon-circle-triangle-e ' + 'chat-thick ' + ' chat-videothick' )
+			.text('video')
+			.appendTo(uiChatboxTitlebarVideo)
 		}	
 	}
-	
-	
 }(jQuery));
