@@ -7,12 +7,6 @@ var config = {
 			$("#" + dest).chatbox("option", "boxManager").addMsg(dest, msg);
 		}
 };
-var currentRoom;
-var idList = new Array();
-var camList = new Array();
-var isAdmin="false";
-
-
 function verifyAdded(uid) {
 	var added="false";
 	var idx = idList.indexOf(uid);
@@ -23,15 +17,24 @@ function verifyAdded(uid) {
 }		
 
 
-function verifyCam(uid) {
-	var camadded="false";
-	var idx = camList.indexOf(uid);
-	if (idx != -1) {
-		camadded="true";
-	}
-	return camadded;
-}		
+function adduList(uid) { 
+	var idx = idList.indexOf(uid);
+	if(idx == -1) {
+		idList.push(uid);
+	}	
+}
 
+function deluList(uid) {
+	var i = idList.indexOf(uid);
+	if(i != -1) {
+		idList.splice(i, 1);
+	}
+}
+
+
+
+
+	
 function convertToBinary (dataURI) {
 	// convert base64 to raw binary data held in a string
 	// doesn't handle URLEncoded DataURIs
@@ -61,15 +64,16 @@ function verifyPosition(uid) {
 	var idx = idList.indexOf(uid);
 	if(idx == -1) {
 		idList.push(uid);
-		if (idList.length>1) { 
-			var getNextOffset = function() {
-				return (config.width + config.gap) * idList.length;
-			};	
-			$("#"+uid).chatbox("option", "offset", getNextOffset());
+	}	
+	if (idList.length>1) { 
+		var getNextOffset = function() {
+			return (config.width + config.gap) * idList.length;
+		};	
+		$("#"+uid).chatbox("option", "offset", getNextOffset());
+	}
+}
 
-		}
-	} 		
-} 		 			
+
 
 function wrapIt(value) {
 	return "'"+value+"'"
@@ -169,7 +173,7 @@ function processMessage(message) {
 				sb.push('<li class="btn-xs">\n');
 				sb.push('<a  onclick="javascript:disableAV();">Disable Webcam</a>\n');
 				sb.push('</li>\n');
-
+				camon(entry.owner_av);
 				sb.push('</ul>\n</li>\n\n\n');
 			}
 
@@ -182,7 +186,7 @@ function processMessage(message) {
 				sb.push('<li class="btn-xs">\n');
 				sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry.owner)+','+wrapIt('send')+');">Enable Webcam</a>\n');
 				sb.push('</li>\n');
-
+				camon(entry.owner);
 				sb.push('</ul>\n</li>\n\n\n');
 			}
 
@@ -198,10 +202,10 @@ function processMessage(message) {
 
 				sb1.push('<li class="btn-xs"><a onclick="javascript:removefriend('+wrapIt(entry.friends_av)+', '+wrapIt(user)+');">Remove  '+entry.friends_av+' from friends list</a>\n');
 				sb1.push('\n</li> ');
-
-				sb1.push('<li class="btn-xs">\n');
-				sb1.push('<a onclick="javascript:enableCam('+wrapIt(entry.friends_av)+','+wrapIt('view')+');">View Camera</a>\n');
-				sb1.push('</li>\n');
+				camon(entry.friends_av);
+				//sb1.push('<li class="btn-xs">\n');
+				//sb1.push('<a onclick="javascript:enableCam('+wrapIt(entry.friends_av)+','+wrapIt('view')+');">View Camera</a>\n');
+				//sb1.push('</li>\n');
 
 				var admintool=adminOptions(isAdmin,entry.friend)
 				sb1.push(admintool);
@@ -222,7 +226,7 @@ function processMessage(message) {
 
 				sb1.push('<li class="btn-xs"><a onclick="javascript:removefriend('+wrapIt(entry.friends)+', '+wrapIt(user)+');">Remove  '+entry.friends+' from friends list</a>\n');
 				sb1.push('\n</li> ');
-
+				camoff(entry.friends);
 				var admintool=adminOptions(isAdmin,entry.friend)
 				sb1.push(admintool);
 				sb1.push('</ul>\n</li>\n\n\n');
@@ -243,10 +247,10 @@ function processMessage(message) {
 				sb2.push('<li class="btn-xs">\n');
 				sb2.push('<a onclick="javascript:blockuser('+wrapIt(entry.user_av)+', '+wrapIt(user)+');">Block  '+entry.user_av+'</a>\n');
 				sb2.push('</li>\n');
-				sb2.push('<li class="btn-xs">\n');
-				sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_av)+','+wrapIt('view')+');">View Camera</a>\n');
-				sb2.push('</li>\n');
-
+				//sb2.push('<li class="btn-xs">\n');
+				//sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_av)+','+wrapIt('view')+');">View Camera</a>\n');
+				//sb2.push('</li>\n');
+				camon(entry.user_av);
 				var admintool=adminOptions(isAdmin,entry.user_av)
 				sb2.push(admintool);
 				sb2.push('</ul>\n</li>\n\n\n');
@@ -268,6 +272,7 @@ function processMessage(message) {
 				sb2.push('<li class="btn-xs">\n');
 				sb2.push('<a onclick="javascript:blockuser('+wrapIt(entry.user)+', '+wrapIt(user)+');">Block  '+entry.user+'</a>\n');
 				sb2.push('</li>\n');
+				camoff(entry.user);
 				var admintool=adminOptions(isAdmin,entry.user)
 				sb2.push(admintool);
 				sb2.push('</ul>\n</li>\n\n\n');
@@ -285,8 +290,6 @@ function processMessage(message) {
 				var admintool=adminOptions(isAdmin,entry.blocked)
 				sb3.push(admintool);
 				sb3.push('</ul>\n</li>\n\n\n');
-
-
 			}
 
 		});
@@ -403,21 +406,6 @@ function delaRoom(user) {
 	}
 }
 
-function disableAV() {
-	webSocket.send("/camdisabled "+user);
-}
-
-function getCam(user) {
-	$.get("/"+getApp()+"/wsChat/camrec?user="+user,function(data){
-		$('#cam'+user+'ViewContainer').html(data);
-	});
-}
-function sendCam() {
-	$.get("/"+getApp()+"/wsChat/camsend?user="+user,function(data){
-		$('#cam'+user+'Container').html(data);
-	});
-	webSocket.send("/camenabled "+user);
-}
 
 
 function userprofile(user) {
@@ -467,13 +455,90 @@ function removefriend(addid,user) {
 }
 
 
+function verifyCam(uid) {
+	var camadded="false";
+	var idx = camList.indexOf(uid);
+	if (idx != -1) {
+		camadded="true";
+	}
+	return camadded;
+}		
+
+function addcamList(uid) { 
+	var idx = camList.indexOf(uid);
+	if(idx == -1) {
+		camList.push(uid);
+	}	
+}
+
+function delCamList(uid) {
+	var i = camList.indexOf(uid);
+	if(i != -1) {
+		camList.splice(i, 1);
+	}
+}
+
+function camon(uid) {
+	var idx = camOn.indexOf(uid);
+	if(idx == -1) {
+		camOn.push(uid);
+	}	
+}
+
+function camoff(uid) {
+	var i = camOn.indexOf(uid);
+	if(i != -1) {
+		camOn.splice(i, 1);
+	}
+}
+
+function isCamOn(uid) {
+	var camadded="false";
+	var idx = camOn.indexOf(uid);
+	if (idx != -1) {
+		camadded="true";
+	}
+	return camadded;
+}	
+
+function disableAV() {
+	delCamList(user);
+	webSocket.send("/camdisabled "+user);
+}
+
+function getCam(user) {
+	$.get("/"+getApp()+"/wsChat/camrec?user="+user,function(data){
+		$('#camViewContainer').html(data);
+	});
+}
+function sendCam() {
+	$.get("/"+getApp()+"/wsChat/camsend?user="+user,function(data){
+		$('#myCamContainer').html(data);
+	});
+	webSocket.send("/camenabled "+user);
+}
+
+function verifyCamPosition(uid) {
+	/*
+	var idx = camList.indexOf(uid);
+	if(idx == -1) {
+		camList.push(uid);
+	}	
+	*/
+	if (camList.length>1) { 
+		var getNextOffset = function() {
+			return (config.width + config.gap) * camList.length;
+		};	
+		$("#"+uid).chatbox("option", "offset", getNextOffset());
+	} 		
+}
 
 function enableCam(camuser, camaction){
-	var goahead=false
+	var goahead=false;
 	//if (camaction=="view") {
-	var camon=verifyCam(camuser)
+	var camon=verifyCam(camuser);
 	if (camon=="false") {
-		goahead=true
+		goahead=true;
 	}
 	//}
 	
@@ -483,26 +548,29 @@ function enableCam(camuser, camaction){
 			if(vbox) {
 				vbox.videobox("option", "vidManager").toggleBox();
 			}else {
-				var added=verifyAdded(camuser+'_video');
+				var added=verifyCam(camuser);
+				verifyCamPosition(camuser);
 				var el="#"+camuser
 				if (added=="false") {
 					var el = document.createElement('div');
-					el.setAttribute('id', camuser+'_video');
+					el.setAttribute('id', camuser);
 				}	
-				vbox = $(el).videobox({id:camuser+'_video', 
-					user:{key : "value"},
+				vbox = $(el).videobox({id:camuser, 
+					//user:{key : "value"},
 					title : "Webcam: "+camuser,
 					sender: camuser,
 					camaction: camaction,
-					messageSent : function(id, user, msg) {
-						verifyPosition(camuser);
-						$("#"+camuser).videobox("option", "vidManager").vidMsg(user, msg);
+					vidSent : function(id, camuser) {
+						
+						$("#"+camuser).videobox("vidoption", "vidManager").vidMsg(camuser);
 						//webSocket.send("/pm "+suser+","+msg);
 					}
+				
 				});
 				//vbox.videobox("option", "show",1); 
 			}
 		});
+		
 	}
 }
 
@@ -523,7 +591,7 @@ function pmuser(suser,sender) {
 				title : "PM: "+suser,
 				messageSent : function(id, user, msg) {
 					verifyPosition(suser);
-					$("#"+suser).chatbox("option", "boxManager").addMsg(suser,id, msg);
+					$("#"+suser).chatbox("option", "boxManager").addMsg(id, msg);
 					webSocket.send("/pm "+suser+","+msg);
 				}
 			});

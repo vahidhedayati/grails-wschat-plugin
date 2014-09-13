@@ -93,7 +93,7 @@ class ChatUtils {
 		if (!username)  {
 			if (message.startsWith(connector)) {
 				username=message.substring(message.indexOf(connector)+connector.length(),message.length()).trim().replace(' ', '_').replace('.', '_')
-				if (notLoggedIn(username)) {
+				if (loggedIn(username)==false) {
 					userSession.getUserProperties().put("username", username)
 					isuBanned=isBanned(username)
 					if (!isuBanned){
@@ -255,40 +255,14 @@ class ChatUtils {
 		if (!username)  {
 			if (message.startsWith("DISCO:-")) {
 				camsessions.remove(userSession)
-				//println "--- Camsession ${username} disconnected"
 			}
 		}
 	}
-	/*
-	 private void sendCamClose(String user) {
-	 try {
-	 Iterator<Session> iterator=chatroomUsers?.iterator()
-	 while (iterator?.hasNext())  {
-	 def crec=iterator?.next()
-	 if (crec.isOpen()) {
-	 def cuser=crec.getUserProperties().get("username").toString()
-	 if (cuser.equals(user)) {
-	 def myMsg=[:]
-	 myMsg.put("system","closecam")
-	 messageUser(crec,myMsg)
-	 }
-	 }
-	 }
-	 } catch (IOException e) {
-	 log.debug ("onMessage failed", e)
-	 }
-	 }
-	 */
 
 	private void discoCam(Session userSession) {
-
 		String user = userSession.getUserProperties().get("camusername") as String
 		String camuser = userSession.getUserProperties().get("camuser") as String
-		if (user && camuser) {
-			String ru=camuser.substring(0,camuser.indexOf(':'))
-			String cu=camuser.substring(camuser.indexOf(':')+1,camuser.length())
-			//sendCamClose(user)
-			if (ru.equals(cu)) {
+		if (user && camuser && camuser.endsWith(':'+user)) {
 				try {
 					Iterator<Session> iterator=camsessions?.iterator()
 					while (iterator?.hasNext())  {
@@ -303,24 +277,14 @@ class ChatUtils {
 							}
 						}
 					}
-					camsessions.remove(userSession)
+					
 				} catch (IOException e) {
 					log.debug ("onMessage failed", e)
 				}
-
-			}
 		}
-
-		//getCurrentUserNames()?.each { uiterator ->
-
-		//}
+		camsessions.remove(userSession)
 	}
-	/*
-	 public static List getCurrentUserNames() {
-	 return Collections.unmodifiableList(camusers);
-	 }
-	 */
-
+	
 	private Boolean camLoggedIn(String user) {
 		Boolean notloggedin=true
 		try {
@@ -342,8 +306,8 @@ class ChatUtils {
 	}
 
 
-	private Boolean notLoggedIn(String user) {
-		Boolean notloggedin=true
+	private Boolean loggedIn(String user) {
+		Boolean loggedin=false
 		try {
 			Iterator<Session> iterator=chatroomUsers?.iterator()
 			while (iterator?.hasNext())  {
@@ -351,14 +315,14 @@ class ChatUtils {
 				if (crec.isOpen()) {
 					def cuser=crec.getUserProperties().get("username").toString()
 					if (cuser.equals(user)) {
-						notloggedin=false
+						loggedin=true
 					}
 				}
 			}
 		} catch (IOException e) {
 			log.debug ("onMessage failed", e)
 		}
-		return notloggedin
+		return loggedin
 	}
 
 	private void sendUserList(String iuser,Map msg) {

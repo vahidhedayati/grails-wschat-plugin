@@ -11,8 +11,10 @@
 </head>
 <body>
  <div id="pageHeader">
-     <video id="live" width="300" height="240" autoplay="autoplay"  style="display: none;"></video>
+     <video id="live" width="300" height="240" autoplay="autoplay"  style="display: inline;"></video>
+      <div  style="visibility: hidden; width: 0; height: 0;">
       <canvas width="300" id="canvas" height="240" style="display: inline;"></canvas>
+      </div>
  </div>
 
   <script type="text/javascript">

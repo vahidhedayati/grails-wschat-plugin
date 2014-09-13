@@ -1,6 +1,5 @@
 grails.project.work.dir = 'target'
 
-//grails.project.dependency.resolver = 'maven'
 grails.project.dependency.resolution = {
 
 	inherits 'global'
@@ -10,14 +9,10 @@ grails.project.dependency.resolution = {
 		grailsCentral()
 		mavenLocal()
 		mavenCentral()
-		//mavenRepo "http://bytedeco.org/javacv/"
 	}
 
 	dependencies {
 		build ('javax.websocket:javax.websocket-api:1.0') { export = false }
-		// Facial recognition
-		//compile 'com.github.hoary.ffmpeg:JavaAV-FFmpeg:1.0'
-		//build ('org.bytedeco:javacv:0.8') { export = false }
 	}
 
 	plugins {

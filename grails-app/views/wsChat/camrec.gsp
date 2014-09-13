@@ -13,7 +13,7 @@
 </head>
 <body>
 
- <script type="text/javascript">
+<g:javascript>
   if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
 		$("#pageHeader").html(msg);
@@ -28,13 +28,17 @@
 		};
 		target.src = url;
 	}
-	webSocketCam.onclose=function(message) {processCamClose(message);};
+	
 	window.onbeforeunload = function() {
 		webSocketCam.send("DISCO:-");
 		webSocketCam.onclose = function() { }
 		webSocketCam.close();
 	}
- </script>
+	
+	
+</g:javascript>
+
+ <div id="pageHeader"></div>
        <div  style="visibility: hidden; width: 0; height: 0;">
               <canvas width="320" id="canvas" height="240"></canvas>
        </div>

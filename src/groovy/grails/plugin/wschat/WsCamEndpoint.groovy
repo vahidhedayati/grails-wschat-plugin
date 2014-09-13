@@ -50,17 +50,19 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 	public void whenOpening(Session userSession,EndpointConfig c,@PathParam("user") String user,@PathParam("viewer") String viewer) {
 		userSession.setMaxBinaryMessageBufferSize(1024*512)
 		if (viewer.equals(user)) {
-			if (notLoggedIn(user)) {
-				camsessions.add(userSession)
+			if (loggedIn(user)) {
 				userSession.getUserProperties().put("camuser", user+":"+user);
 				userSession.getUserProperties().put("camusername", user);
+				camsessions.add(userSession)
 			}
 		}else{
 			userSession.getUserProperties().put("camuser", user+":"+viewer);
-			if (notLoggedIn(viewer)) {
+			if (loggedIn(viewer)) {
 				userSession.getUserProperties().put("camusername", viewer);
+				camsessions.add(userSession)
 			}
 		}
+		
 	}
 
 	@OnMessage
@@ -75,7 +77,6 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 			Iterator<Session> iterator=camsessions?.iterator()
 			while (iterator?.hasNext())  {
 				def crec=iterator?.next()
-
 				if (crec?.isOpen()) {
 					String chuser=crec?.getUserProperties().get("camuser") as String
 					if (chuser && chuser.startsWith(realCamUser)) {
@@ -90,7 +91,6 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnMessage
 	public String handleMessage(String message,Session userSession) throws IOException {
-
 		verifyCamAction(userSession,message)
 	}
 

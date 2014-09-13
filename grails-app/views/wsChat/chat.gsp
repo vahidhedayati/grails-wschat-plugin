@@ -123,6 +123,13 @@
 		$("#pageHeader").html(msg);
 		$("#chatterBox").html('');
 	}
+
+	var currentRoom;
+	var idList = new Array();
+	var camList = new Array();
+	var camOn = new Array();
+	var isAdmin="false";
+	
 	var video = $("#live").get()[0];
 var canvas = $("#canvas");
 var ctx

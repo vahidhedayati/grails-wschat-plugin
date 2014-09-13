@@ -1,4 +1,4 @@
-wschat 0.21
+wschat 0.22
 =========
 
 Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
@@ -22,7 +22,7 @@ Plugin will work with tomcat 7.0.54 + (8 as well) running java 1.7 +
 
 Dependency :
 
-	compile ":wschat:0.21" 
+	compile ":wschat:0.22" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -79,7 +79,11 @@ It is quite a straight forward plugin but if you must :
 
 [youtube example grails app running wschat 0.14 part2](https://www.youtube.com/watch?v=xPxV_iEYYm0)
 
-
+# Known issues/work arounds:
+Since 0.20+ ui.videobox has been added, It is something quite likely to improve as I work more and more with it, at the moment the ui.chatbox and ui.videobox cause a conflict. If you had been in pm mode and clicked cam, the chatbox would no longer send messages.
+Since 0.22 the work around is to close/remove ui.chatbox and open video box. Upon next call to PM user a new chatbox is created and gets rid of the clash.
+So it now is working properly but means when play button is clicked the pm box disappears.
+ 
 	 	
 # Config.groovy variables required:
 
@@ -250,6 +254,15 @@ Admin commands
 	
 # Version info
 ```
+0.22 -	Issue with send pm on user sending pm. It send pm but displayed username as msg -fixed.
+		Lots of issues around viewing webcam - clashing with ui.chatbox - a hack has been put in,
+		read known issues above.
+		Video play button now only appears in the pm box if remote user has cam enabled.
+		This loads up two types of chat boxes one with the new style buttons if the user has a cam,
+		standard chatbox if no cam - this needs more work really a big mess.
+		Multiple requests to view the same cam should no longer happen. 
+		I think pm/video is now functioning without issues, can start to focus on audio for 0.23.
+		
 0.21 -	Got a bit messy - need a clean up soon. Changes are:
 		Webcam view/send now moved within page so ui.chatbox extended and ui.videobox created.
 		ui.chatbox changed now includes play button - this needs a tidy up should not show when no cam.
@@ -339,7 +352,7 @@ Admin commands
 ```
 
 
-# Issues:
+# whilst running in PROD:
 
 Whilst running this plugin on a tomcat server from an application that calls plugin, I have seen:
 ```

@@ -18,15 +18,15 @@
 		options: {
 			id: null, //id for the DOM element
 			title: null, // title of the videobox
-			user: null, // can be anything associated with this videobox
+			//user: null, // can be anything associated with this videobox
 			sender: null,
 			camaction: null,
 			hidden: false,
 			offset: 0, // relative to right edge of the browser window
 			width: 300, // width of the videobox
-			messageSent: function(id, user, msg) {
+			vidSent: function(id, sender) {
 				// override this
-				this.boxManager.vidMsg(user.first_name, msg);
+				this.vidManager.vidMsg(sender);
 			},
 			boxClosed: function(id) {
 			}, // called when the close icon is clicked
@@ -36,32 +36,13 @@
 				init: function(elem) {
 					this.elem = elem;
 				},
-				vidMsg: function(peer, msg) {
+				vidMsg: function(peer) {
 					var self = this;
-					var box = self.elem.uiVidboxLog;
+					var vidbox = self.elem.uiVidboxLog;
 					var e = document.createElement('div');
-					box.append(e);
+					vidbox.append(e);
 					$(e).hide();
-					/*
-					var systemMessage = false;
 
-					if (peer) {
-						var peerName = document.createElement("b");
-						$(peerName).text(peer + ": ");
-						e.appendChild(peerName);
-					} else {
-						systemMessage = true;
-					}
-					
-					var msgElement = document.createElement(
-							systemMessage ? "i" : "span");
-					$(msgElement).text(msg);
-					e.appendChild(msgElement);
-					$(e).addClass("ui-videobox-msg");
-					$(e).css("maxWidth", $(box).width());
-					$(e).fadeIn();
-					self._scrollToBottom();
-					*/
 					if (!self.elem.uiVidboxTitlebar.hasClass("ui-state-focus")
 							&& !self.highlightLock) {
 						self.highlightLock = true;
@@ -80,8 +61,8 @@
 					this.elem.uiVidbox.toggle();
 				},
 				_scrollToBottom: function() {
-					var box = this.elem.uiVidboxLog;
-					box.scrollTop(box.get(0).scrollHeight);
+					var vidbox = this.elem.uiVidboxLog;
+					vidbox.scrollTop(vidbox.get(0).scrollHeight);
 				}
 			}
 		},
@@ -102,7 +83,7 @@
 			camaction = options.camaction
 			// videobox
 			if (camaction=="view") {
-
+			
 				uiVidbox = (self.uiVidbox = $('<div></div>'))
 				.appendTo(document.body)
 				.addClass('ui-widget ' +
@@ -137,59 +118,61 @@
 						'ui-videobox-icon '
 				)
 				.attr('role', 'button')
-				.hover(function() { uiVidboxTitlebarClose.addClass('ui-state-hover'); },
-						function() { uiVidboxTitlebarClose.removeClass('ui-state-hover'); })
-						.click(function(event) {
-							uiVidbox.hide();
-							self.options.boxClosed(self.options.id);
-							return false;
-						})
-						.appendTo(uiVidboxTitlebar),
-						uiVidboxTitlebarCloseText = $('<span></span>')
-						.addClass('ui-icon ' +
-						'ui-icon-closethick')
-						.text('close')
-						.appendTo(uiVidboxTitlebarClose),
-						uiVidboxTitlebarMinimize = (self.uiVidboxTitlebarMinimize = $('<a href="#"></a>'))
-						.addClass('ui-corner-all ' +
-								'ui-videobox-icon'
-						)
-						.attr('role', 'button')
-						.hover(function() { uiVidboxTitlebarMinimize.addClass('ui-state-hover'); },
-								function() { uiVidboxTitlebarMinimize.removeClass('ui-state-hover'); })
-								.click(function(event) {
-									self.toggleContent(event);
-									return false;
-								})
-								.appendTo(uiVidboxTitlebar),
-
-								uiVidboxTitlebarMinimizeText = $('<span></span>')
-								.addClass('ui-icon ' +
-								'ui-icon-minusthick')
-								.text('minimize')
-								.appendTo(uiVidboxTitlebarMinimize),
-								// content
-								//uiVidboxContent = (self.uiVidboxContent = $('<video id="live" width="320" height="240" autoplay="autoplay"  style="display: inline;"></video>\n<canvas width="320" id="canvas" height="240" style="display: inline;"></canvas>'+getCam2()))
-
-								uiVidboxContent = (self.uiVidboxContent = $('<div id="cam'+sender+'ViewContainer"></div>'+getCam(sender)))
-								.addClass('ui-widget-content ' +
-										'ui-videobox-content '
-								)
-								.appendTo(uiVidbox),
-								uiVidboxLog = (self.uiVidboxLog = self.element)
-								.addClass('ui-widget-content ' +
-										'ui-videobox-log'
-								)
-								.appendTo(uiVidboxContent)
-
-								.focusin(function() {
-									uiVidboxInputBox.addClass('ui-videobox-input-focus');
-									var box = $(this).parent().prev();
-									box.scrollTop(box.get(0).scrollHeight);
-								})
-								.focusout(function() {
-									uiVidboxInputBox.removeClass('ui-videobox-input-focus');
-								});
+				.hover(
+					function() { uiVidboxTitlebarClose.addClass('ui-state-hover'); },
+					function() { uiVidboxTitlebarClose.removeClass('ui-state-hover'); }
+				)
+				.click(function(event) {
+					var slug = $(self.element).attr("id");
+					delCamList(slug);
+					uiVidbox.hide();
+					uiVidbox.remove();
+					self.options.boxClosed(self.options.id);
+					return false;
+				})
+				.appendTo(uiVidboxTitlebar),
+				uiVidboxTitlebarCloseText = $('<span></span>')
+				.addClass('ui-icon ' +
+				'ui-icon-closethick')
+				.text('close')
+				.appendTo(uiVidboxTitlebarClose),
+					uiVidboxTitlebarMinimize = (self.uiVidboxTitlebarMinimize = $('<a href="#"></a>'))
+					.addClass('ui-corner-all ' +
+					'ui-videobox-icon'
+				)
+				.attr('role', 'button')
+				.hover(function() { uiVidboxTitlebarMinimize.addClass('ui-state-hover'); },
+						function() { uiVidboxTitlebarMinimize.removeClass('ui-state-hover'); })
+					.click(function(event) {
+						self.toggleContent(event);
+						return false;
+					})
+					.appendTo(uiVidboxTitlebar),
+					uiVidboxTitlebarMinimizeText = $('<span></span>')
+					.addClass('ui-icon ' +
+					'ui-icon-minusthick')
+					.text('minimize')
+					.appendTo(uiVidboxTitlebarMinimize),
+					// content
+					//uiVidboxContent = (self.uiVidboxContent = $('<video id="live" width="320" height="240" autoplay="autoplay"  style="display: inline;"></video>\n<canvas width="320" id="canvas" height="240" style="display: inline;"></canvas>'+getCam2()))
+					uiVidboxContent = (self.uiVidboxContent = $('<div id="camViewContainer"></div>'+getCam(sender)))
+					.addClass('ui-widget-content ' +
+						'ui-videobox-content '
+					)
+					.appendTo(uiVidbox),
+					uiVidboxLog = (self.uiVidboxLog = self.element)
+					.addClass('ui-widget-content ' +
+					'ui-videobox-log'
+					)
+					.appendTo(uiVidboxContent)
+					.focusin(function() {
+						uiVidboxInputBox.addClass('ui-videobox-input-focus');
+						var vidbox = $(this).parent().prev();
+						vidbox.scrollTop(vidbox.get(0).scrollHeight);
+					})
+					.focusout(function() {
+						uiVidboxInputBox.removeClass('ui-videobox-input-focus');
+					});
 			}else{
 				uiVidbox = (self.uiVidbox = $('<div></div>'))
 				.appendTo(document.body)
@@ -228,7 +211,10 @@
 				.hover(function() { uiVidboxTitlebarClose.addClass('ui-state-hover'); },
 						function() { uiVidboxTitlebarClose.removeClass('ui-state-hover'); })
 						.click(function(event) {
+							var slug = $(self.element).attr("id");
+							delCamList(slug);
 							uiVidbox.hide();
+							uiVidbox.remove();
 							disableAV();
 							self.options.boxClosed(self.options.id);
 							return false;
@@ -260,7 +246,7 @@
 										// content
 										//uiVidboxContent = (self.uiVidboxContent = $('<video id="live" width="320" height="240" autoplay="autoplay"  style="display: inline;"></video>\n<canvas width="320" id="canvas" height="240" style="display: inline;"></canvas>'+getCam2()))
 
-										uiVidboxContent = (self.uiVidboxContent = $('<div id="cam'+user+'Container"></div>'+sendCam())                 )
+										uiVidboxContent = (self.uiVidboxContent = $('<div id="myCamContainer"></div>'+sendCam()))
 										.addClass('ui-widget-content ' +
 												'ui-videobox-content '
 										)
@@ -273,8 +259,8 @@
 
 										.focusin(function() {
 											uiVidboxInputBox.addClass('ui-videobox-input-focus');
-											var box = $(this).parent().prev();
-											box.scrollTop(box.get(0).scrollHeight);
+											var vidbox = $(this).parent().prev();
+											vidbox.scrollTop(vidbox.get(0).scrollHeight);
 										})
 										.focusout(function() {
 											uiVidboxInputBox.removeClass('ui-videobox-input-focus');
@@ -282,27 +268,16 @@
 			}
 			// disable selection
 			uiVidboxTitlebar.find('*').add(uiVidboxTitlebar).disableSelection();
-
-			/*
-            // switch focus to input box when whatever clicked
-            uiVidboxContent.children().click(function() {
-                // click on any children, set focus on input box
-                self.uiVidboxInputBox.focus();
-            });
-			 */
-
 			self._setWidth(self.options.width);
 			self._position(self.options.offset);
-
-			self.options.boxManager.init(self);
-
+			//self.options.boxManager.init(self);
 			if (!self.options.hidden) {
 				uiVidbox.show();
 			}
 		},
-		_setOption: function(option, value) {
+		_setOption: function(vidoption, value) {
 			if (value != null) {
-				switch (option) {
+				switch (vidoption) {
 				case "hidden":
 					if (value)
 						this.uiVidbox.hide();
