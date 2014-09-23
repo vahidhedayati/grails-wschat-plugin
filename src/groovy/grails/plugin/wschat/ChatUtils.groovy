@@ -11,11 +11,10 @@ import javax.websocket.Session
 
 class ChatUtils {
 	//private static List camusers = Collections.synchronizedList(new ArrayList())
-	static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>())
-
-	static final Set<Session> camsessions = Collections.synchronizedSet(new HashSet<Session>())
 	//private static List camusers = Collections.synchronizedList(new ArrayList())
-
+	static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>())
+	static final Set<Session> camsessions = Collections.synchronizedSet(new HashSet<Session>())
+	
 	private String validateLogin(String username) {
 		def defaultPerm='user'
 		if (dbSupport()) {
@@ -44,7 +43,6 @@ class ChatUtils {
 		}
 	}
 
-
 	private void addRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			def nr=new ChatRoomList()
@@ -55,34 +53,34 @@ class ChatUtils {
 			ListRooms()
 		}
 	}
+	
 	private void delRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			try {
 				Iterator<Session> iterator=chatroomUsers?.iterator()
-				while (iterator?.hasNext())  {
-					def crec=iterator?.next()
-					if (crec.isOpen() && roomName.equals(crec.getUserProperties().get("room"))) {
-						def cuser=crec.getUserProperties().get("username").toString()
-						//String croom = crec.getUserProperties().get("room") as String
-						kickUser(userSession,cuser)
+				if (iterator) {
+					while (iterator?.hasNext())  {
+						def crec=iterator?.next()
+						if (crec.isOpen() && roomName.equals(crec.getUserProperties().get("room"))) {
+							def cuser=crec.getUserProperties().get("username").toString()
+							//String croom = crec.getUserProperties().get("room") as String
+							kickUser(userSession,cuser)
+
+						}
+					}
+
+					def nr=ChatRoomList.findByRoom(roomName)
+					if (nr) {
+						nr.delete(flush: true)
 
 					}
+					ListRooms()
 				}
-
-				def nr=ChatRoomList.findByRoom(roomName)
-				if (nr) {
-					nr.delete(flush: true)
-
-				}
-				ListRooms()
 			} catch (IOException e) {
 				log.debug ("onMessage failed", e)
 			}
 		}
-
 	}
-
-
 
 	private void verifyAction(Session userSession,String message) {
 		def myMsg=[:]
@@ -104,7 +102,6 @@ class ChatUtils {
 							def myMsg1=[:]
 							myMsg1.put("isAdmin", useris.toString())
 							messageUser(userSession,myMsg1)
-
 						}
 						def myMsg2=[:]
 						myMsg2.put("currentRoom", "${room}")
@@ -112,7 +109,6 @@ class ChatUtils {
 						sendUsers(userSession,username)
 						myMsg.put("message", "${username} has joined ${room}")
 						sendRooms(userSession)
-
 					}else{
 
 						def myMsg1=[:]
@@ -231,7 +227,6 @@ class ChatUtils {
 				broadcast(userSession,myMsg)
 			}
 		}
-
 	}
 
 	/*}else if (message.startsWith("/streamCam")) {
@@ -263,8 +258,9 @@ class ChatUtils {
 		String user = userSession.getUserProperties().get("camusername") as String
 		String camuser = userSession.getUserProperties().get("camuser") as String
 		if (user && camuser && camuser.endsWith(':'+user)) {
-				try {
-					Iterator<Session> iterator=camsessions?.iterator()
+			try {
+				Iterator<Session> iterator=camsessions?.iterator()
+				if (iterator) {
 					while (iterator?.hasNext())  {
 						def crec=iterator?.next()
 						if (crec?.isOpen()) {
@@ -277,24 +273,28 @@ class ChatUtils {
 							}
 						}
 					}
-					
-				} catch (IOException e) {
-					log.debug ("onMessage failed", e)
 				}
+			} catch (Throwable e) {
+				log.debug ("onMessage failed", e)
+			}
 		}
-		camsessions.remove(userSession)
+		try {
+			camsessions.remove(userSession)
+		} catch (Throwable e) {	}
 	}
-	
+
 	private Boolean loggedIn(String user) {
 		Boolean loggedin=false
 		try {
 			Iterator<Session> iterator=chatroomUsers?.iterator()
-			while (iterator?.hasNext())  {
-				def crec=iterator?.next()
-				if (crec.isOpen()) {
-					def cuser=crec.getUserProperties().get("username").toString()
-					if (cuser.equals(user)) {
-						loggedin=true
+			if (iterator) {
+				while (iterator?.hasNext())  {
+					def crec=iterator?.next()
+					if (crec.isOpen()) {
+						def cuser=crec.getUserProperties().get("username").toString()
+						if (cuser.equals(user)) {
+							loggedin=true
+						}
 					}
 				}
 			}
@@ -303,18 +303,19 @@ class ChatUtils {
 		}
 		return loggedin
 	}
-	
+
 	private Boolean camLoggedIn(String user) {
 		Boolean loggedin=false
 		try {
 			Iterator<Session> iterator=camsessions?.iterator()
-
-			while (iterator?.hasNext())  {
-				def crec=iterator?.next()
-				if (crec.isOpen()) {
-					def cuser=crec.getUserProperties().get("username").toString()
-					if (cuser.equals(user)) {
-						loggedin=true
+			if (iterator) {
+				while (iterator?.hasNext())  {
+					def crec=iterator?.next()
+					if (crec.isOpen()) {
+						def cuser=crec.getUserProperties().get("username").toString()
+						if (cuser.equals(user)) {
+							loggedin=true
+						}
 					}
 				}
 			}
@@ -323,17 +324,19 @@ class ChatUtils {
 		}
 		return loggedin
 	}
-	
+
 	private void sendUserList(String iuser,Map msg) {
 		def myMsgj=msg as JSON
 		try {
 			Iterator<Session> iterator=chatroomUsers?.iterator()
-			while (iterator?.hasNext())  {
-				def crec=iterator?.next()
-				if (crec.isOpen()) {
-					def cuser=crec.getUserProperties().get("username").toString()
-					if (cuser.equals(iuser)) {
-						crec.getBasicRemote().sendText(myMsgj as String)
+			if (iterator) {
+				while (iterator?.hasNext())  {
+					def crec=iterator?.next()
+					if (crec.isOpen()) {
+						def cuser=crec.getUserProperties().get("username").toString()
+						if (cuser.equals(iuser)) {
+							crec.getBasicRemote().sendText(myMsgj as String)
+						}
 					}
 				}
 			}
@@ -341,6 +344,7 @@ class ChatUtils {
 			log.debug ("onMessage failed", e)
 		}
 	}
+	
 	/*
 	 private void removeCamUser(Session userSession,String username) {
 	 String ruser = userSession.getUserProperties().get("username") as String
@@ -355,15 +359,18 @@ class ChatUtils {
 	 }
 	 }
 	 */
+	
 	private void removeUser(String username) {
 		try {
 			Iterator<Session> iterator=chatroomUsers?.iterator()
-			while (iterator?.hasNext())  {
-				def crec=iterator?.next()
-				if (crec.isOpen()) {
-					def cuser=crec.getUserProperties().get("username").toString()
-					if (cuser.equals(username)) {
-						iterator.remove()
+			if (iterator) {
+				while (iterator?.hasNext())  {
+					def crec=iterator?.next()
+					if (crec.isOpen()) {
+						def cuser=crec.getUserProperties().get("username").toString()
+						if (cuser.equals(username)) {
+							iterator.remove()
+						}
 					}
 				}
 			}
@@ -376,55 +383,54 @@ class ChatUtils {
 		String room = userSession.getUserProperties().get("room") as String
 		try {
 			Iterator<Session> iterator2=chatroomUsers?.iterator()
-			while (iterator2?.hasNext())  {
-				def crec2=iterator2?.next()
-				if (crec2.isOpen()) {
-					def uiterator=crec2.getUserProperties().get("username").toString()
+			if (iterator2) {
+				while (iterator2?.hasNext())  {
+					def crec2=iterator2?.next()
+					if (crec2.isOpen()) {
+						def uiterator=crec2.getUserProperties().get("username").toString()
+						def uList=[]
+						def finalList=[:]
+						def blocklist
+						def friendslist
+						if (dbSupport()) {
+							blocklist=ChatBlockList.findAllByChatuser(currentUser(uiterator))
+							friendslist=ChatFriendList.findAllByChatuser(currentUser(uiterator))
+						}
+						Iterator<Session> iterator=chatroomUsers?.iterator()
+						if (iterator) {
+							while (iterator?.hasNext())  {
+								def myUser=[:]
+								def crec=iterator?.next()
+								if (crec.isOpen() && room.equals(crec.getUserProperties().get("room"))) {
+									def cuser=crec.getUserProperties().get("username").toString()
+									def av=crec.getUserProperties().get("av").toString()
+									def addav=""
+									if (av.equals("on")) {
+										addav="_av"
+									}
+									if (cuser.equals(uiterator)) {
+										myUser.put("owner${addav}", cuser)
+										uList.add(myUser)
+									}else{
+										if ((blocklist)&&(blocklist.username.contains(cuser))) {
+											myUser.put("blocked", cuser)
+											uList.add(myUser)
 
-
-					def uList=[]
-					def finalList=[:]
-					def blocklist
-					def friendslist
-					if (dbSupport()) {
-						blocklist=ChatBlockList.findAllByChatuser(currentUser(uiterator))
-						friendslist=ChatFriendList.findAllByChatuser(currentUser(uiterator))
-					}
-
-					Iterator<Session> iterator=chatroomUsers?.iterator()
-					while (iterator?.hasNext())  {
-						def myUser=[:]
-						def crec=iterator?.next()
-						if (crec.isOpen() && room.equals(crec.getUserProperties().get("room"))) {
-							def cuser=crec.getUserProperties().get("username").toString()
-							def av=crec.getUserProperties().get("av").toString()
-							def addav=""
-							if (av.equals("on")) {
-								addav="_av"
-							}
-							if (cuser.equals(uiterator)) {
-								myUser.put("owner${addav}", cuser)
-								uList.add(myUser)
-							}else{
-								if ((blocklist)&&(blocklist.username.contains(cuser))) {
-									myUser.put("blocked", cuser)
-									uList.add(myUser)
-
-								}else if  ((friendslist)&&(friendslist.username.contains(cuser))) {
-									myUser.put("friends${addav}", cuser)
-									uList.add(myUser)
-								}else{
-									myUser.put("user${addav}", cuser)
-									uList.add(myUser)
+										}else if  ((friendslist)&&(friendslist.username.contains(cuser))) {
+											myUser.put("friends${addav}", cuser)
+											uList.add(myUser)
+										}else{
+											myUser.put("user${addav}", cuser)
+											uList.add(myUser)
+										}
+									}
 								}
 							}
 						}
+						finalList.put("users", uList)
+						sendUserList(uiterator,finalList)
 					}
-					finalList.put("users", uList)
-					sendUserList(uiterator,finalList)
-
 				}
-
 			}
 		} catch (IOException e) {
 			log.debug ("onMessage failed", e)
@@ -434,13 +440,14 @@ class ChatUtils {
 
 	private void broadcast2all(Map msg) {
 		def myMsgj=msg as JSON
-
 		try {
 			Iterator<Session> iterator=chatroomUsers?.iterator()
-			while (iterator?.hasNext()) {
-				def crec=iterator?.next()
-				if (crec.isOpen())  {
-					crec.getBasicRemote().sendText(myMsgj as String);
+			if (iterator) {
+				while (iterator?.hasNext()) {
+					def crec=iterator?.next()
+					if (crec.isOpen())  {
+						crec.getBasicRemote().sendText(myMsgj as String);
+					}
 				}
 			}
 		} catch (IOException e) {
@@ -453,10 +460,12 @@ class ChatUtils {
 		String room = userSession.getUserProperties().get("room") as String
 		try {
 			Iterator<Session> iterator=chatroomUsers?.iterator()
-			while (iterator?.hasNext()) {
-				def crec=iterator?.next()
-				if (crec.isOpen() && room.equals(crec.getUserProperties().get("room"))) {
-					crec.getBasicRemote().sendText(myMsgj as String);
+			if (iterator) {
+				while (iterator?.hasNext()) {
+					def crec=iterator?.next()
+					if (crec.isOpen() && room.equals(crec.getUserProperties().get("room"))) {
+						crec.getBasicRemote().sendText(myMsgj as String);
+					}
 				}
 			}
 		} catch (IOException e) {
@@ -476,22 +485,23 @@ class ChatUtils {
 		Boolean found=false
 		try {
 			Iterator<Session> iterator=chatroomUsers?.iterator()
-
-			while (iterator?.hasNext())  {
-				def crec=iterator?.next()
-				if (crec.isOpen()) {
-					def cuser=crec.getUserProperties().get("username").toString()
-					if (cuser.equals(user)) {
-						Boolean sendIt=checkPM(urecord,user)
-						Boolean sendIt2=checkPM(user,urecord)
-						found=true
-						if (sendIt&&sendIt2) {
-							crec.getBasicRemote().sendText(myMsgj as String)
-							myMsg.put("message","--> PM sent to ${user}")
-							messageUser(userSession,myMsg)
-						}else{
-							myMsg.put("message","--> PM NOT sent to ${user}, you have been blocked !")
-							messageUser(userSession,myMsg)
+			if (iterator) {
+				while (iterator?.hasNext())  {
+					def crec=iterator?.next()
+					if (crec.isOpen()) {
+						def cuser=crec.getUserProperties().get("username").toString()
+						if (cuser.equals(user)) {
+							Boolean sendIt=checkPM(urecord,user)
+							Boolean sendIt2=checkPM(user,urecord)
+							found=true
+							if (sendIt&&sendIt2) {
+								crec.getBasicRemote().sendText(myMsgj as String)
+								myMsg.put("message","--> PM sent to ${user}")
+								messageUser(userSession,myMsg)
+							}else{
+								myMsg.put("message","--> PM NOT sent to ${user}, you have been blocked !")
+								messageUser(userSession,myMsg)
+							}
 						}
 					}
 				}
@@ -505,8 +515,6 @@ class ChatUtils {
 		}
 	}
 
-
-
 	private Boolean dbSupport() {
 		def config=Holders.config
 		Boolean dbsupport=false
@@ -516,8 +524,6 @@ class ChatUtils {
 		}
 		return dbsupport
 	}
-
-
 
 	private Boolean checkPM(String username, String urecord) {
 		Boolean result=true
@@ -560,16 +566,18 @@ class ChatUtils {
 		broadcast(userSession,myMsg)
 		try {
 			Iterator<Session> iterator=chatroomUsers.iterator()
-			while (iterator.hasNext())  {
-				def crec=iterator?.next()
-				if (crec) {
-					def uList=[]
-					def finalList=[:]
-					def cuser=crec.getUserProperties().get("username").toString()
-					if (cuser.equals(username)) {
-						def myMsg1=[:]
-						myMsg1.put("system","disconnect")
-						messageUser(crec,myMsg1)
+			if (iterator) {
+				while (iterator.hasNext())  {
+					def crec=iterator?.next()
+					if (crec) {
+						def uList=[]
+						def finalList=[:]
+						def cuser=crec.getUserProperties().get("username").toString()
+						if (cuser.equals(username)) {
+							def myMsg1=[:]
+							myMsg1.put("system","disconnect")
+							messageUser(crec,myMsg1)
+						}
 					}
 				}
 			}

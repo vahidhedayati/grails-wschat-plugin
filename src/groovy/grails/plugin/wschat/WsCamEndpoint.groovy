@@ -47,7 +47,6 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnOpen
 	public void whenOpening(Session userSession,EndpointConfig c,@PathParam("user") String user,@PathParam("viewer") String viewer) {
-		userSession.setMaxBinaryMessageBufferSize(1024*512)
 		if (loggedIn(user)) {
 			userSession.setMaxBinaryMessageBufferSize(1024*512)
 			if (viewer.equals(user)) {
