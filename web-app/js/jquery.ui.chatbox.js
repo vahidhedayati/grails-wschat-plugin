@@ -350,4 +350,6 @@
 			.appendTo(uiChatboxTitlebarVideo)
 		}	
 	}
+	//var contentLoaders = [];
+	//contentLoaders.push(contentLoader1);
 }(jQuery));

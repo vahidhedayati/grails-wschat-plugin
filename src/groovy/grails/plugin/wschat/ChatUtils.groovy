@@ -285,27 +285,6 @@ class ChatUtils {
 		camsessions.remove(userSession)
 	}
 	
-	private Boolean camLoggedIn(String user) {
-		Boolean notloggedin=true
-		try {
-			Iterator<Session> iterator=camsessions?.iterator()
-
-			while (iterator?.hasNext())  {
-				def crec=iterator?.next()
-				if (crec.isOpen()) {
-					def cuser=crec.getUserProperties().get("username").toString()
-					if (cuser.equals(user)) {
-						notloggedin=false
-					}
-				}
-			}
-		} catch (IOException e) {
-			log.debug ("onMessage failed", e)
-		}
-		return notloggedin
-	}
-
-
 	private Boolean loggedIn(String user) {
 		Boolean loggedin=false
 		try {
@@ -324,7 +303,27 @@ class ChatUtils {
 		}
 		return loggedin
 	}
+	
+	private Boolean camLoggedIn(String user) {
+		Boolean loggedin=false
+		try {
+			Iterator<Session> iterator=camsessions?.iterator()
 
+			while (iterator?.hasNext())  {
+				def crec=iterator?.next()
+				if (crec.isOpen()) {
+					def cuser=crec.getUserProperties().get("username").toString()
+					if (cuser.equals(user)) {
+						loggedin=true
+					}
+				}
+			}
+		} catch (IOException e) {
+			log.debug ("onMessage failed", e)
+		}
+		return loggedin
+	}
+	
 	private void sendUserList(String iuser,Map msg) {
 		def myMsgj=msg as JSON
 		try {

@@ -26,7 +26,6 @@ import javax.websocket.server.ServerEndpoint
 
 class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 
-
 	@Override
 	public void contextInitialized(ServletContextEvent servletContextEvent) {
 		final ServerContainer serverContainer =	org.codehaus.groovy.grails.web.context.ServletContextHolder.getServletContext().getAttribute("javax.websocket.server.ServerContainer")
@@ -49,20 +48,18 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 	@OnOpen
 	public void whenOpening(Session userSession,EndpointConfig c,@PathParam("user") String user,@PathParam("viewer") String viewer) {
 		userSession.setMaxBinaryMessageBufferSize(1024*512)
-		if (viewer.equals(user)) {
-			if (loggedIn(user)) {
+		if (loggedIn(user)) {
+			userSession.setMaxBinaryMessageBufferSize(1024*512)
+			if (viewer.equals(user)) {
 				userSession.getUserProperties().put("camuser", user+":"+user);
-				userSession.getUserProperties().put("camusername", user);
-				camsessions.add(userSession)
+			}else{
+				userSession.getUserProperties().put("camuser", user+":"+viewer);
 			}
-		}else{
-			userSession.getUserProperties().put("camuser", user+":"+viewer);
-			if (loggedIn(viewer)) {
-				userSession.getUserProperties().put("camusername", viewer);
+			if (!camLoggedIn(user)) {
 				camsessions.add(userSession)
+				userSession.getUserProperties().put("camusername", user);
 			}
 		}
-		
 	}
 
 	@OnMessage

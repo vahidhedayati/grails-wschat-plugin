@@ -11,11 +11,11 @@
  *
  */
 
-
 //TODO: implement destroy()
 (function($) {
-	$.widget("ui.videobox", {
-		options: {
+	//contentLoaders2 =
+		$.widget("ui.videobox", {
+		vidoptions: {
 			id: null, //id for the DOM element
 			title: null, // title of the videobox
 			user: null, // can be anything associated with this videobox
@@ -43,19 +43,11 @@
 					vidbox.append(e);
 					$(e).hide();
 
-					if (!self.elem.uiVidboxTitlebar.hasClass("ui-state-focus")
-							&& !self.highlightLock) {
-						self.highlightLock = true;
-						self.highlightBox();
+					if (!self.elem.uiVidboxTitlebar.hasClass("ui-state-focus")) { 
+						//	&& !self.highlightLock) {
+						//self.highlightLock = true;
+						//self.highlightBox();
 					}
-				},
-				highlightBox: function() {
-					var self = this;
-					self.elem.uiVidboxTitlebar.effect("highlight", {}, 300);
-					self.elem.uiVidbox.effect("bounce", {times: 3}, 300, function() {
-						self.highlightLock = false;
-						self._scrollToBottom();
-					});
 				},
 				closeBox: function() {
 					this.elem.uiVidbox.hide();
@@ -65,10 +57,6 @@
 				},
 				toggleBox: function() {
 					this.elem.uiVidbox.toggle();
-				},
-				_scrollToBottom: function() {
-					var vidbox = this.elem.uiVidboxLog;
-					vidbox.scrollTop(vidbox.get(0).scrollHeight);
 				}
 			}
 		},
@@ -83,11 +71,11 @@
 		},
 		_create: function() {
 			var self = this,
-			options = self.options,
-			title = options.title || "No Title",
-			user = options.user,
-			sender = options.sender,
-			camaction = options.camaction
+			vidoptions = self.vidoptions,
+			title = vidoptions.title || "No Title",
+			user = vidoptions.user,
+			sender = vidoptions.sender,
+			camaction = vidoptions.camaction
 			
 			// videobox
 			var uividContent
@@ -139,7 +127,7 @@
 				delCamList(cuser);
 				uiVidbox.hide();
 				uiVidbox.remove();
-				self.options.boxClosed(self.options.id);
+				self.vidoptions.boxClosed(self.vidoptions.id);
 				return false;
 			})
 			.appendTo(uiVidboxTitlebar),
@@ -180,25 +168,25 @@
 			.addClass('ui-widget-content ' +'ui-videobox-log')
 			.appendTo(uiVidboxContent)
 			.focusin(function() {
-				uiVidboxInputBox.addClass('ui-videobox-input-focus');
-				var vidbox = $(this).parent().prev();
-				vidbox.scrollTop(vidbox.get(0).scrollHeight);
+				//uiVidboxInputBox.addClass('ui-videobox-input-focus');
+				//var vidbox = $(this).parent().prev();
+				//vidbox.scrollTop(vidbox.get(0).scrollHeight);
 			})
 			.focusout(function() {
 				uiVidboxInputBox.removeClass('ui-videobox-input-focus');
 			});			
 			// disable selection
 			uiVidboxTitlebar.find('*').add(uiVidboxTitlebar).disableSelection();
-			self._setWidth(self.options.width);
-			self._position(self.options.offset);
-			//self.options.boxManager.init(self);
-			if (!self.options.hidden) {
+			self._setWidth(self.vidoptions.width);
+			self._position(self.vidoptions.offset);
+			//self.vidoptions.boxManager.init(self);
+			if (!self.vidoptions.hidden) {
 				uiVidbox.show();
 			}
 		},
-		_setOption: function(vidoption, value) {
+		_setOption: function(option, value) {
 			if (value != null) {
-				switch (vidoption) {
+				switch (option) {
 				case "hidden":
 					if (value)
 						this.uiVidbox.hide();
@@ -227,4 +215,7 @@
 			this.uiVidbox.css("right", offset);
 		}
 	});
+	//var contentLoaders = [];
+	//contentLoaders.push(contentLoader2);
 }(jQuery));
+

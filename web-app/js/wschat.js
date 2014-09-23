@@ -339,6 +339,7 @@ function joinRoom(user,room) {
 }
 
 function sendPM(receiver,sender,pm) {
+	//alert('--'+receiever+"--"+sender+"---"+pm);
 	$(function(event, ui) {
 		var box = null;
 		if(box) {
@@ -347,6 +348,7 @@ function sendPM(receiver,sender,pm) {
 			var added=verifyAdded(sender);
 			var el="#"+sender
 			if (added=="false") {
+				//alert('none found');
 				var el = document.createElement('div');
 				el.setAttribute('id', sender);
 			}	
@@ -530,16 +532,16 @@ function verifyCamPosition(uid) {
 		var getNextOffset = function() {
 			return (config.width + config.gap) * camList.length;
 		};	
-		$("#"+uid).chatbox("option", "offset", getNextOffset());
+		$("#"+uid).videobox("option", "offset", getNextOffset());
 	} 		
 }
 
 function enableCam(camuser, camaction){
 	var goahead=false;
-
+	var cmuser=camuser+'_webcam'
 	if (camaction!="disable") {
 	
-	var camon=verifyCam(camuser);
+	var camon=verifyCam(cmuser);
 	if (camon=="false") {
 		goahead=true;
 	}
@@ -550,20 +552,20 @@ function enableCam(camuser, camaction){
 			var vbox = null;
 			if(vbox) {
 				if (camaction=="disable") {
-					vbox.videobox("option", "vidManager").closeBox();
+					vbox.videobox("vidoptions", "vidManager").closeBox();
 				}else{
-				vbox.videobox("option", "vidManager").toggleBox();
+					vbox.videobox("vidoptions", "vidManager").toggleBox();
 				}
 				
 			}else {
-				var added=verifyCam(camuser);
-				verifyCamPosition(camuser);
-				var el="#"+camuser
+				var added=verifyCam(cmuser);
+				verifyCamPosition(cmuser);
+				var ell="#"+cmuser
 				if (added=="false") {
-					var el = document.createElement('div');
-					el.setAttribute('id', camuser);
+					var ell = document.createElement('div');
+					ell.setAttribute('id', cmuser);
 				}	
-				vbox = $(el).videobox({id:camuser, 
+				vbox = $(ell).videobox({id:camuser, 
 					//user:{key : "value"},
 					user:user,
 					title : "Webcam: "+camuser,
@@ -571,12 +573,17 @@ function enableCam(camuser, camaction){
 					camaction: camaction,
 					vidSent : function(id, camuser) {
 						
-						$("#"+camuser).videobox("vidoption", "vidManager").vidMsg(camuser);
-						//webSocket.send("/pm "+suser+","+msg);
+						$("#"+cmuser).videobox("vidoptions", "vidManager").vidMsg(camuser);
+						if (camaction=="view") {
+							webSocket.send("/pm "+camuser+", "+user+"is now viewing your cam");
+						}else{
+							webSocket.send("/pm "+user+", "+user+" you cam is now active");
+						}
+								
 					}
 				
 				});
-				//vbox.videobox("option", "show",1); 
+				vbox.videobox("option", "show",1); 
 			}
 		});
 		
@@ -584,6 +591,7 @@ function enableCam(camuser, camaction){
 }
 
 function pmuser(suser,sender) {
+	//alert(''+suser+"===="+sender);
 	$(function(event, ui) {
 		var box = null;
 		if(box) {
@@ -592,6 +600,7 @@ function pmuser(suser,sender) {
 			var added=verifyAdded(suser);
 			var el="#"+suser
 			if (added=="false") {
+			//	alert ('suser '+suser+' not found div ');
 				var el = document.createElement('div');
 				el.setAttribute('id', suser);
 			}	
