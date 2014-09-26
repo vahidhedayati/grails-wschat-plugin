@@ -3,10 +3,20 @@
 <head>
 
 <g:if test="${enduser?.verifyAppVersion().equals('assets')}">
-   	<g:render template="/assets"/>
+	<g:if test="${!request.xhr }">
+    	<meta name='layout' content="achat"/>
+    </g:if>
+    <g:else>
+    	<g:render template="/assets"/>
+    </g:else>
 </g:if>
 <g:else>
-	<g:render template="/resources"/>
+	<g:if test="${!request.xhr }">
+    	<meta name='layout' content="chat"/>
+    </g:if>
+    <g:else>
+   		<g:render template="/resources"/>
+   	 </g:else>
 </g:else>    
     
    <title>${chatTitle }</title>
@@ -72,53 +82,70 @@
 			
 		</div>
 		
-		<div class="message-container">
-
-
-		
-			<div class="message-north" >
-      			<div class="message-user-list" >
-      	 			<div id="fixyflow"><div id="fixflow">
-						<ul class="nav nav-tabs nav-stacked"  >
-		 				<ul class="dropdown-menu" id='onlineUsers' style="display: block; position: static; margin-bottom: 5px; *">
-						<span  id="onlineUsers" />
-						</ul>
-						</ul>
-					</div></div>
-				</div>
+		<div class='row'>
 				
-				<div class="message-thread" >
+		<div class='col-sm-2'>
+		
+			<div id="fixyflow"><div id="fixflow">
+			<ul class="nav nav-tabs nav-stacked"  >
+				<ul class="dropdown-menu" id='onlineUsers' style="display: block; position: static; margin-bottom: 5px; *">
+					<span  id="onlineUsers" />
+				</ul>
+			</ul>
+			</div></div>
+			
+		</div>
+			
+		<div class='col-sm-10' >
+		
+		<div id="cmessage">
+				<div id="fixyflow"><div id="fixflow">
+					<div  id="chatMessages" ></div>
+					
+				</div>	</div>	</div>
+			
+			<div class="message-thread" >
 				<div id="sendMessage" >
 				<textarea cols="20" rows="1" id="messageBox"  name="message"></textarea>
 				<input type="button" id="sendBtn" value="send" class="btn btn-danger btn-lg" onClick="sendMessage();">
 		</div></div>
-	
-				<div id="cmessage">
-				<div id="fixyflow"><div id="fixflow">
-					<div  id="chatMessages" ></div>
-					
-				</div>
-			</div>
-			</div>
-			</div>
-			
-	</div>						
-</div>
+		</div>
+				
+	</div>
+	</div>
 	
 </div>
-<g:javascript>
+<script>
+
 	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
 		$("#pageHeader").html(msg);
 		$("#chatterBox").html('');
 	}
+
+	var currentRoom;
+	var idList = new Array();
+	var camList = new Array();
+	var camOn = new Array();
+	var isAdmin="false";
 	
+	var video = $("#live").get()[0];
+var canvas = $("#canvas");
+var ctx
+if (!canvas) {
+ctx = canvas.get()[0].getContext('2d');
+}
+var options = {
+		"video" : true,
+		audio:true
+};
     var webSocket=new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint/${room}");
      
     var chatMessages=document.getElementById("chatMessages");
     var onlineUsers=document.getElementById("onlineUsers");
     var messageBox=document.getElementById("messageBox");
     var user="${chatuser}";
+    var hostname="${hostname}";
     
     webSocket.onopen=function(message) {processOpen(message);};
     webSocket.onclose=function(message) {processClose(message);};
@@ -136,11 +163,14 @@
            	scrollToBottom();
        </g:else>
  	}
+	
+	
 
 	function getApp() {
 		var baseapp="${meta(name:'app.name')}";
 		return baseapp;
 	}
+	
 	
 	$('#messageBox').keypress(function(e){
 	if (e.keyCode == 13 && !e.shiftKey) {
@@ -155,13 +185,16 @@
 		}
 	}
 	});
+	
 
      window.onbeforeunload = function() {
        	webSocket.send("DISCO:-"+user);
        	webSocket.onclose = function() { }
        	webSocket.close();
      }
-</g:javascript>
+
+ 
+</script>
 
 
 </body>

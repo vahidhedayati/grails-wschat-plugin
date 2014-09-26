@@ -1,4 +1,4 @@
-wschat 0.22
+wschat 0.23
 =========
 
 Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
@@ -22,7 +22,7 @@ Plugin will work with tomcat 7.0.54 + (8 as well) running java 1.7 +
 
 Dependency :
 
-	compile ":wschat:0.22" 
+	compile ":wschat:0.23" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -254,6 +254,7 @@ Admin commands
 	
 # Version info
 ```
+0.23 -  Tidy up - hope nothing breaks.
 0.22 -	Issue with send pm on user sending pm. It send pm but displayed username as msg -fixed.
 		Lots of issues around viewing webcam - clashing with ui.chatbox - a hack has been put in,
 		read known issues above.
