@@ -44,21 +44,29 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 	public void contextDestroyed(ServletContextEvent servletContextEvent) {
 	}
 
-
 	@OnOpen
 	public void whenOpening(Session userSession,EndpointConfig c,@PathParam("user") String user,@PathParam("viewer") String viewer) {
 		if (loggedIn(user)) {
 			userSession.setMaxBinaryMessageBufferSize(1024*512)
+			userSession.setMaxTextMessageBufferSize(1000000)
+			//userSession.setmaxMessageSize(-1L)
 			if (viewer.equals(user)) {
 				userSession.getUserProperties().put("camuser", user+":"+user);
 			}else{
 				userSession.getUserProperties().put("camuser", user+":"+viewer);
 			}
 			if (!camLoggedIn(user)) {
-				camsessions.add(userSession)
 				userSession.getUserProperties().put("camusername", user);
+				camsessions.add(userSession)
 			}
+		}else{
+			log.info "could not find chat user ! ${user}"
 		}
+	}
+
+	@OnMessage
+	public String handleMessage(String message,Session userSession) throws IOException {
+		verifyCamAction(userSession,message)
 	}
 
 	@OnMessage
@@ -71,23 +79,20 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 		try {
 			ByteBuffer buf = ByteBuffer.wrap(imageData)
 			Iterator<Session> iterator=camsessions?.iterator()
-			while (iterator?.hasNext())  {
-				def crec=iterator?.next()
-				if (crec?.isOpen()) {
-					String chuser=crec?.getUserProperties().get("camuser") as String
-					if (chuser && chuser.startsWith(realCamUser)) {
-						crec.getBasicRemote().sendBinary(buf)
+			if (iterator) {
+				while (iterator?.hasNext())  {
+					def crec=iterator?.next()
+					if (crec?.isOpen()) {
+						String chuser=crec?.getUserProperties().get("camuser") as String
+						if (chuser && chuser.startsWith(realCamUser)) {
+							crec.getBasicRemote().sendBinary(buf)
+						}
 					}
 				}
 			}
 		} catch (Throwable ioe) {
 			log.debug "Error sending message " + ioe.getMessage()
 		}
-	}
-
-	@OnMessage
-	public String handleMessage(String message,Session userSession) throws IOException {
-		verifyCamAction(userSession,message)
 	}
 
 	@OnClose

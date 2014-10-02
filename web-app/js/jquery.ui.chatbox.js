@@ -132,8 +132,12 @@
 			.click(function(event) {
 				var cuser = $(self.element).attr("id");
 				deluList(cuser);
-				uiChatbox.hide();
-				uiChatbox.remove();
+
+				// this closes entire jquery.chatbox
+				// replaced with toggle for video cam
+				//  in wschat.js
+				//uiChatbox.hide();
+				//uiChatbox.remove();
 				self.options.boxClosed(self.options.id);
 				return false;
 			})
@@ -336,11 +340,11 @@
 			)
 			.click(function(event) {
 				var slug = $(self.element).attr("id");
-				enableCam(slug,'view');
-				uiChatbox.hide();
+				enableCam(slug,'view');				
 				deluList(slug);
-				uiChatbox.remove();
-				//toggleVideoBox(self)
+				//uiChatbox.hide();
+				//uiChatbox.remove();
+				//\\toggleVideoBox(self)
 				return false;
 			})
 			.appendTo(uiChatboxTitlebar),

@@ -56,6 +56,19 @@ class WsChatController {
 		[user:user,chatTitle:chatTitle,hostname:hostname]
 	}
 
+	def webrtcsend(String user) {
+		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
+		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
+		[user:user,chatTitle:chatTitle,hostname:hostname]
+	}
+	
+	def webrtcrec(String user) {
+		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
+		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
+		def chatuser=session.wschatuser
+		[user:user,hostname:hostname,chatuser:chatuser,chatTitle:chatTitle]
+	}
+	
 	
 	def camrec(String user) {
 		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'

@@ -2,12 +2,13 @@ package grails.plugin.wschat
 
 import grails.converters.JSON
 import grails.util.Holders
+import groovy.json.JsonBuilder
 import groovy.time.TimeCategory
 
 import java.text.SimpleDateFormat
-import java.util.Set;
 
 import javax.websocket.Session
+
 
 class ChatUtils {
 	//private static List camusers = Collections.synchronizedList(new ArrayList())
@@ -65,14 +66,11 @@ class ChatUtils {
 							def cuser=crec.getUserProperties().get("username").toString()
 							//String croom = crec.getUserProperties().get("room") as String
 							kickUser(userSession,cuser)
-
 						}
 					}
-
 					def nr=ChatRoomList.findByRoom(roomName)
 					if (nr) {
 						nr.delete(flush: true)
-
 					}
 					ListRooms()
 				}
@@ -110,7 +108,6 @@ class ChatUtils {
 						myMsg.put("message", "${username} has joined ${room}")
 						sendRooms(userSession)
 					}else{
-
 						def myMsg1=[:]
 						myMsg1.put("isBanned", "user ${username} is banned being disconnected")
 						messageUser(userSession,myMsg1)
@@ -210,7 +207,7 @@ class ChatUtils {
 				def camuser=message.substring(p1.length(),message.length())
 				//addCamUser(userSession,camuser)
 				userSession.getUserProperties().put("av", "on")
-				myMsg.put("message", "${camuser} has enabled A/V")
+				myMsg.put("message", "${camuser} has enabled webcam")
 				broadcast(userSession,myMsg)
 				sendUsers(userSession,camuser)
 			}else if (message.startsWith("/camdisabled")) {
@@ -218,13 +215,31 @@ class ChatUtils {
 				def camuser=message.substring(p1.length(),message.length())
 				//addCamUser(userSession,camuser)
 				userSession.getUserProperties().put("av", "off")
-				myMsg.put("message", "${camuser} has disabled A/V")
+				myMsg.put("message", "${camuser} has disabled webcam")
+				broadcast(userSession,myMsg)
+				sendUsers(userSession,camuser)
+				// Usual chat messages bound for all
+			}else if (message.startsWith("/webrtcenabled")) {
+				def p1="/webrtcenabled "
+				def camuser=message.substring(p1.length(),message.length())
+				//addCamUser(userSession,camuser)
+				userSession.getUserProperties().put("rtc", "on")
+				myMsg.put("message", "${camuser} has enabled WebrRTC")
+				broadcast(userSession,myMsg)
+				sendUsers(userSession,camuser)
+			}else if (message.startsWith("/webrtcdisabled")) {
+				def p1="/webrtcdisabled "
+				def camuser=message.substring(p1.length(),message.length())
+				//addCamUser(userSession,camuser)
+				userSession.getUserProperties().put("rtc", "off")
+				myMsg.put("message", "${camuser} has disabled WebrRTC")
 				broadcast(userSession,myMsg)
 				sendUsers(userSession,camuser)
 				// Usual chat messages bound for all
 			}else{
 				myMsg.put("message", "${username}: ${message}")
 				broadcast(userSession,myMsg)
+				messageUser(userSession,myMsg)
 			}
 		}
 	}
@@ -246,10 +261,38 @@ class ChatUtils {
 	private void verifyCamAction(Session userSession,String message) {
 		def myMsg=[:]
 		String username=userSession.getUserProperties().get("camusername") as String
+		String camuser=userSession.getUserProperties().get("camuser") as String
+		def payload
+		def cmessage
+		def croom
 		Boolean isuBanned=false
-		if (!username)  {
-			if (message.startsWith("DISCO:-")) {
+		if (username)  {
+			def data=JSON.parse(message)
+			// authentication stuff - system calls
+			if (data) {
+				cmessage=data.type
+				croom=data.roomId
+				payload=data.payload
+			}else{
+				cmessage=message
+			}	
+			if (cmessage.startsWith("DISCO:-")) {
 				camsessions.remove(userSession)
+			}else if (cmessage.startsWith("createRoom")) {
+				def json = new JsonBuilder()
+				json {
+					delegate.type "roomCreated"
+					delegate.payload "${username}"
+				}
+				jsonmessageUser(userSession,json.toString())
+			} else if (cmessage.startsWith("offer")) {
+				jsonmessageOwner(userSession,message)
+			}else{
+				if (!camuser.equals(username+":"+username)) {
+					jsonmessageOwner(userSession,message)
+				}else{
+					jsonmessageOther(userSession,message)
+				}
 			}
 		}
 	}
@@ -299,7 +342,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.debug ("onMessage failed", e)
+			log.info ("onMessage failed", e)
 		}
 		return loggedin
 	}
@@ -404,9 +447,13 @@ class ChatUtils {
 								if (crec.isOpen() && room.equals(crec.getUserProperties().get("room"))) {
 									def cuser=crec.getUserProperties().get("username").toString()
 									def av=crec.getUserProperties().get("av").toString()
+									def rtc=crec.getUserProperties().get("rtc").toString()
 									def addav=""
 									if (av.equals("on")) {
 										addav="_av"
+									}
+									if (rtc.equals("on")) {
+										addav="_rtc"
 									}
 									if (cuser.equals(uiterator)) {
 										myUser.put("owner${addav}", cuser)
@@ -473,6 +520,43 @@ class ChatUtils {
 		}
 	}
 
+	private void jsonmessageUser(Session userSession,String msg) {
+		userSession.getBasicRemote().sendText(msg as String)
+	}
+	
+	private void jsonmessageOther(Session userSession,String msg) {
+		Iterator<Session> iterator=camsessions?.iterator()
+		if (iterator) {
+			while (iterator?.hasNext())  {
+				def crec=iterator?.next()
+				if (crec.isOpen()) {
+					def cuser=crec.getUserProperties().get("camuser").toString()
+					def cmuser=crec.getUserProperties().get("camusername").toString()
+					if (!cuser.toString().endsWith(cmuser)) {
+						crec.getBasicRemote().sendText(msg as String)
+					}
+				}
+			}
+		}
+	}
+		
+		
+	private void jsonmessageOwner(Session userSession,String msg) {
+		Iterator<Session> iterator=camsessions?.iterator()
+		if (iterator) {
+			while (iterator?.hasNext())  {
+				def crec=iterator?.next()
+				if (crec.isOpen()) {
+					def cuser=crec.getUserProperties().get("camuser").toString()
+					def cmuser=crec.getUserProperties().get("camusername").toString()
+					if (cuser.toString().endsWith(cmuser)) {
+						crec.getBasicRemote().sendText(msg as String)
+					}
+				}
+			}
+		}
+	}
+	
 	private void messageUser(Session userSession,Map msg) {
 		def myMsgj=msg as JSON
 		userSession.getBasicRemote().sendText(myMsgj as String)
@@ -719,7 +803,6 @@ class ChatUtils {
 			myMsg.put("room",room)
 			uList.add(myMsg)
 		}
-
 		finalList.put("rooms", uList)
 		return finalList as Map
 	}
@@ -738,7 +821,6 @@ class ChatUtils {
 			user=mu.substring(0,mu.indexOf(" "))
 			msg=mu.substring(user.length()+1,mu.length())
 		}
-
 		Map<String, String> values = new HashMap<String, Double>();
 		values.put("user", user);
 		values.put("msg", msg);

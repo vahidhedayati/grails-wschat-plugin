@@ -1,8 +1,6 @@
 package grails.plugin.wschat
 
 
-import java.io.IOException;
-
 import grails.util.Holders
 
 import javax.servlet.ServletContextEvent

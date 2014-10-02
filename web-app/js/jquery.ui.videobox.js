@@ -15,18 +15,19 @@
 (function($) {
 	//contentLoaders2 =
 		$.widget("ui.videobox", {
-		vidoptions: {
+		options: {
 			id: null, //id for the DOM element
 			title: null, // title of the videobox
 			user: null, // can be anything associated with this videobox
 			sender: null,
 			camaction: null,
+			viewtype: null,
 			hidden: false,
 			offset: 0, // relative to right edge of the browser window
 			width: 300, // width of the videobox
-			vidSent: function(id, sender) {
+			vidSent: function(id, sender,camaction,viewtype) {
 				// override this
-				this.vidManager.vidMsg(sender);
+				this.vidManager.vidMsg(sender,camaction,viewtype);
 			},
 			boxClosed: function(id) {
 			}, // called when the close icon is clicked
@@ -36,13 +37,13 @@
 				init: function(elem) {
 					this.elem = elem;
 				},
-				vidMsg: function(peer) {
+				vidMsg: function(peer,camaction,viewtype) {
 					var self = this;
 					var vidbox = self.elem.uiVidboxLog;
 					var e = document.createElement('div');
 					vidbox.append(e);
 					$(e).hide();
-
+					console.log('--------------->'+viewtype+"---"+camaction)
 					if (!self.elem.uiVidboxTitlebar.hasClass("ui-state-focus")) { 
 						//	&& !self.highlightLock) {
 						//self.highlightLock = true;
@@ -71,18 +72,30 @@
 		},
 		_create: function() {
 			var self = this,
-			vidoptions = self.vidoptions,
-			title = vidoptions.title || "No Title",
-			user = vidoptions.user,
-			sender = vidoptions.sender,
-			camaction = vidoptions.camaction
-			
+			options = self.options,
+			title = options.title || "No Title",
+			user = options.user,
+			sender = options.sender,
+			camaction = options.camaction,
+			viewtype = options.viewtype
 			// videobox
 			var uividContent
-			if (camaction=="view") {
-				uiVidContent='<div id="camViewContainer"></div>'+getCam(sender)
+			
+			// Webcam old method
+			console.log('---'+viewtype+"---"+camaction+"--------"+self.options.title)
+			if (viewtype==="webcam") { 
+				if (camaction==="view") {
+					uiVidContent='<div id="camViewContainer"></div>'+getCam(sender)
+				}else{
+					uiVidContent='<div id="myCamContainer"></div>'+sendCam()
+				}
+			//webrtc new method
 			}else{
-				uiVidContent='<div id="myCamContainer"></div>'+sendCam()
+				if (camaction==="view") {
+					uiVidContent='<div id="camViewContainer"></div>'+getWebrtc(sender)
+				}else{
+					uiVidContent='<div id="myCamContainer"></div>'+sendWebrtc()
+				}		
 			}
 			
 			uiVidbox = (self.uiVidbox = $('<div></div>'))
@@ -127,7 +140,7 @@
 				delCamList(cuser);
 				uiVidbox.hide();
 				uiVidbox.remove();
-				self.vidoptions.boxClosed(self.vidoptions.id);
+				self.options.boxClosed(self.options.id);
 				return false;
 			})
 			.appendTo(uiVidboxTitlebar),
@@ -177,10 +190,10 @@
 			});			
 			// disable selection
 			uiVidboxTitlebar.find('*').add(uiVidboxTitlebar).disableSelection();
-			self._setWidth(self.vidoptions.width);
-			self._position(self.vidoptions.offset);
-			//self.vidoptions.boxManager.init(self);
-			if (!self.vidoptions.hidden) {
+			self._setWidth(self.options.width);
+			self._position(self.options.offset);
+			//self.options.boxManager.init(self);
+			if (!self.options.hidden) {
 				uiVidbox.show();
 			}
 		},
