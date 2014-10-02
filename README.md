@@ -11,7 +11,7 @@ Grails websocket chat Plugin provides a multi-chat room facilty to an existing g
 ##### Users can create profiles define details and upload photos.
 ##### Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 ##### 0.19+ supports webcam tested  on chrome/firefox.  
-##### 0.24+ supports WebRTC which is audio/video streaming.
+##### 0.24+ supports WebRTC which is audio/video streaming. (only in Chrome)
 
 
 
