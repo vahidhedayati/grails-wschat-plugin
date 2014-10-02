@@ -1,4 +1,4 @@
-wschat 0.24
+wschat 1.0
 =========
 
 Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
@@ -11,7 +11,7 @@ Grails websocket chat Plugin provides a multi-chat room facilty to an existing g
 ##### Users can create profiles define details and upload photos.
 ##### Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 ##### 0.19+ supports webcam tested  on chrome/firefox.  
-##### 0.24+ supports WebRTC which is audio/video streaming. (only in Chrome)
+##### 1.0+ supports WebRTC which is audio/video streaming. (only in Chrome)
 
 
 
@@ -255,7 +255,7 @@ Admin commands
 	
 # Version info
 ```
-0.24 -	Managed to get webrtc now working. User can enable older webcam method or
+1.0 -	Managed to get webrtc now working. User can enable older webcam method or
 		enable webrtc where audio/video streaming happens using html5 webrtc via 
 		websockets to exchange SDP information.
 		On this specific release the stun server will be defaulted 
