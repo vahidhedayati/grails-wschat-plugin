@@ -55,6 +55,8 @@ function hasGetUserMedia() {
 			navigator.mozGetUserMedia || navigator.msGetUserMedia);
 }
 
+
+
 function verifyPosition(uid) {
 	var idx = idList.indexOf(uid);
 	if(idx == -1) {
@@ -153,9 +155,12 @@ function processMessage(message) {
 		var sb1 = [];
 		var sb2 = [];
 		var sb3 = [];
+		
+		// for games use glyphicon-tower
+		
 		jsonData.users.forEach(function(entry) {
 			if (entry.owner_rtc!=null) {
-				sb.push('\n<li class="dropdown-submenu active btn-xs">\n<a tabindex="-1" class="user-title glyphicon glyphicon-facetime-video glyphicon .glyphicon-earphone">'+entry.owner_rtc+'</a>\n');
+				sb.push('\n<li class="dropdown-submenu active btn-xs">\n<a tabindex="-1" class="user-title glyphicon glyphicon-facetime-video glyphicon-volume-up">'+entry.owner_rtc+'</a>\n');
 				sb.push('<ul class="dropdown-menu">\n');
 				sb.push('<li class="btn-xs">\n');
 				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.owner_rtc)+');">'+entry.owner_rtc+'\'s profile</a>\n');
@@ -163,7 +168,8 @@ function processMessage(message) {
 				sb.push('<li class="btn-xs">\n');
 				sb.push('<a  onclick="enableCam('+wrapIt(entry.owner)+','+wrapIt('disable')+','+wrapIt('webrtc')+');">Disable WebRTC</a>\n');
 				sb.push('</li>\n');
-				camon(entry.owner_rtc);
+				camoff(entry.owner_rtc);
+				rtcon(entry.owner_rtc);
 				sb.push('</ul>\n</li>\n\n\n');
 			}	
 			if (entry.owner_av!=null) {
@@ -176,6 +182,7 @@ function processMessage(message) {
 				sb.push('<a  onclick="enableCam('+wrapIt(entry.owner)+','+wrapIt('disable')+','+wrapIt('webcam')+');">Disable Webcam</a>\n');
 				sb.push('</li>\n');
 				camon(entry.owner_av);
+				rtcoff(entry.owner_av);
 				sb.push('</ul>\n</li>\n\n\n');
 			}
 			if (entry.owner!=null) {
@@ -190,11 +197,14 @@ function processMessage(message) {
 				sb.push('<li class="btn-xs">\n');
 				sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry.owner)+','+wrapIt('send')+','+wrapIt('webrtc')+');">Enable WebRTC</a>\n');
 				sb.push('</li>\n');
-				camon(entry.owner);
+	
+				
+				camoff(entry.owner);
+				rtcoff(entry.owner);
 				sb.push('</ul>\n</li>\n\n\n');
 			}
 			if (entry.friends_rtc!=null) {
-				sb1.push('\n<li class="dropdown-submenu btn-warning btn-xs"><a tabindex="-1" class="user-title glyphicon glyphicon-facetime-video glyphicon glyphicon-earphone" >'+entry.friends_rtc+'</a>\n');
+				sb1.push('\n<li class="dropdown-submenu btn-warning btn-xs"><a tabindex="-1" class="user-title glyphicon glyphicon-facetime-video glyphicon-volume-up" >'+entry.friends_rtc+'</a>\n');
 				sb1.push('<ul class="dropdown-menu">\n');
 				sb1.push('<li class="btn-xs">\n');
 				sb1.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.friends_rtc)+');">'+entry.friends_rtc+'\'s profile</a>\n');
@@ -205,7 +215,8 @@ function processMessage(message) {
 
 				sb1.push('<li class="btn-xs"><a onclick="javascript:removefriend('+wrapIt(entry.friends_rtc)+', '+wrapIt(user)+');">Remove  '+entry.friends_rtc+' from friends list</a>\n');
 				sb1.push('\n</li> ');
-				camon(entry.friends_rtc);
+				camoff(entry.friends_rtc);
+				rtcon(entry.friends_rtc);
 				sb1.push('<li class="btn-xs">\n');
 				sb1.push('<a onclick="javascript:enableCam('+wrapIt(entry.friends_rtc)+','+wrapIt('view')+','+wrapIt('webrtc')+');">WebRTC</a>\n');
 				sb1.push('</li>\n');
@@ -227,6 +238,7 @@ function processMessage(message) {
 				sb1.push('<li class="btn-xs"><a onclick="javascript:removefriend('+wrapIt(entry.friends_av)+', '+wrapIt(user)+');">Remove  '+entry.friends_av+' from friends list</a>\n');
 				sb1.push('\n</li> ');
 				camon(entry.friends_av);
+				rtcoff(entry.friends_av);
 				sb1.push('<li class="btn-xs">\n');
 				sb1.push('<a onclick="javascript:enableCam('+wrapIt(entry.friends_av)+','+wrapIt('view')+','+wrapIt('webcam')+');">View Camera</a>\n');
 				sb1.push('</li>\n');
@@ -248,12 +260,13 @@ function processMessage(message) {
 				sb1.push('<li class="btn-xs"><a onclick="javascript:removefriend('+wrapIt(entry.friends)+', '+wrapIt(user)+');">Remove  '+entry.friends+' from friends list</a>\n');
 				sb1.push('\n</li> ');
 				camoff(entry.friends);
+				rtcoff(entry.friends);
 				var admintool=adminOptions(isAdmin,entry.friend)
 				sb1.push(admintool);
 				sb1.push('</ul>\n</li>\n\n\n');
 			}
 			if (entry.user_rtc!=null) {
-				sb2.push('\n<li class="dropdown-submenu btn-xs"><a tabindex="-1" class="user-title glyphicon glyphicon-facetime-video glyphicon-earphone">'+entry.user_rtc+'</a>\n');
+				sb2.push('\n<li class="dropdown-submenu btn-xs"><a tabindex="-1" class="user-title glyphicon glyphicon-facetime-video glyphicon-volume-up">'+entry.user_rtc+'</a>\n');
 				sb2.push('<ul class="dropdown-menu">\n');
 				sb2.push('<li class="btn-xs">\n');
 				sb2.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.user_rtc)+');">'+entry.user_rtc+'\'s profile</a>\n');
@@ -270,7 +283,8 @@ function processMessage(message) {
 				sb2.push('<li class="btn-xs">\n');
 				sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_rtc)+','+wrapIt('view')+','+wrapIt('webrtc')+');">WebRTC</a>\n');
 				sb2.push('</li>\n');	
-				camon(entry.user_rtc);
+				camoff(entry.user_rtc);
+				rtcon(entry.user_rtc);
 				var admintool=adminOptions(isAdmin,entry.user_rtc)
 				sb2.push(admintool);
 				sb2.push('</ul>\n</li>\n\n\n');
@@ -294,10 +308,8 @@ function processMessage(message) {
 				sb2.push('<li class="btn-xs">\n');
 				sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_av)+','+wrapIt('view')+','+wrapIt('webcam')+');">View Camera</a>\n');
 				sb2.push('</li>\n');
-				sb2.push('<li class="btn-xs">\n');
-				sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_av)+','+wrapIt('view')+','+wrapIt('webrtc')+');">WebRTC</a>\n');
-				sb2.push('</li>\n');	
 				camon(entry.user_av);
+				rtcoff(entry.user_av);
 				var admintool=adminOptions(isAdmin,entry.user_av)
 				sb2.push(admintool);
 				sb2.push('</ul>\n</li>\n\n\n');
@@ -319,6 +331,7 @@ function processMessage(message) {
 				sb2.push('<a onclick="javascript:blockuser('+wrapIt(entry.user)+', '+wrapIt(user)+');">Block  '+entry.user+'</a>\n');
 				sb2.push('</li>\n');
 				camoff(entry.user);
+				rtcoff(entry.user);
 				var admintool=adminOptions(isAdmin,entry.user)
 				sb2.push(admintool);
 				sb2.push('</ul>\n</li>\n\n\n');
@@ -518,6 +531,31 @@ function delCamList(uid) {
 	}
 }
 
+function rtcon(uid) {
+	var idx = rtcOn.indexOf(uid);
+	if(idx == -1) {
+		camOn.push(uid);
+	}	
+}
+
+function rtcoff(uid) {
+	var i = rtcOn.indexOf(uid);
+	if(i != -1) {
+		camOn.splice(i, 1);
+	}
+}
+
+
+function isrtcOn(uid) {
+	var camadded="false";
+	var idx = rtcOn.indexOf(uid);
+	if (idx != -1) {
+		camadded="true";
+	}
+	return camadded;
+}	
+
+
 function camon(uid) {
 	var idx = camOn.indexOf(uid);
 	if(idx == -1) {
@@ -531,6 +569,7 @@ function camoff(uid) {
 		camOn.splice(i, 1);
 	}
 }
+
 
 function isCamOn(uid) {
 	var camadded="false";
@@ -569,7 +608,12 @@ function sendWebrtc() {
 	$.get("/"+getApp()+"/wsChat/webrtcsend?user="+user,function(data){
 		$('#myCamContainer').html(data);
 	});
-	webSocket.send("/camenabled "+user);
+	webSocket.send("/webrtcenabled "+user);
+}
+
+function disablertc() {
+	delCamList(user);
+	webSocket.send("/webrtcdisabled "+user);
 }
 
 function verifyCamPosition(uid) {
@@ -613,7 +657,7 @@ function enableCam(camuser, camaction,viewtype){
 					var ell = document.createElement('div');
 					ell.setAttribute('id', cmuser);
 				}	
-				console.log('-=---------'+viewtype);
+				
 				vbox = $(ell).videobox({id:camuser, 
 					//user:{key : "value"},
 					user:user,
@@ -633,12 +677,20 @@ function enableCam(camuser, camaction,viewtype){
 				});
 				vbox.videobox("option", "show",1); 
 			}
-			// This hides all chat windows, ready to reopen - fixes issue with 
-			// cannot call methods on dialog prior to initialization
+			
+			/* jquery.ui.chatbox VS jquery.ui.videobox nasty hack
+			* This should attempt to toggle status of any open chat boxes upon user calling 
+			* video box. Content not lost when user opens pm content returns and all is well. 
+			 
+			* This hides all chat windows, ready to reopen - fixes issue with 
+			* cannot call methods on dialog prior to initialization
+			* 
+			*/
 			for	(index = 0; index < idList.length; index++) {
 				$("#"+idList[index]).chatbox("option", "boxManager").toggleBox();
 
 			} 
+			
 		});
 	}
 }

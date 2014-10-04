@@ -31,7 +31,7 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 		final ServerContainer serverContainer =	org.codehaus.groovy.grails.web.context.ServletContextHolder.getServletContext().getAttribute("javax.websocket.server.ServerContainer")
 		try {
 			serverContainer?.addEndpoint(WsCamEndpoint.class)
-			// Keep chat sessions open for ever
+			// Keep cam sessions open for ever
 			def config=Holders.config
 			int DefaultMaxSessionIdleTimeout=config.wschat.camtimeout  ?: 0
 			serverContainer.setDefaultMaxSessionIdleTimeout(DefaultMaxSessionIdleTimeout as int)
@@ -46,7 +46,7 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnOpen
 	public void whenOpening(Session userSession,EndpointConfig c,@PathParam("user") String user,@PathParam("viewer") String viewer) {
-		if (loggedIn(user)) {
+		if (loggedIn(viewer)) {
 			userSession.setMaxBinaryMessageBufferSize(1024*512)
 			userSession.setMaxTextMessageBufferSize(1000000)
 			//userSession.setmaxMessageSize(-1L)
@@ -55,12 +55,12 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 			}else{
 				userSession.getUserProperties().put("camuser", user+":"+viewer);
 			}
-			if (!camLoggedIn(user)) {
-				userSession.getUserProperties().put("camusername", user);
+			if (!camLoggedIn(viewer)) {
+				userSession.getUserProperties().put("camusername", viewer);
 				camsessions.add(userSession)
 			}
 		}else{
-			log.info "could not find chat user ! ${user}"
+			log.info "could not find chat user ! ${viewer}"
 		}
 	}
 
@@ -72,10 +72,7 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 	@OnMessage
 	public void processVideo(byte[] imageData, Session userSession) {
 		String camuser = userSession.getUserProperties().get("camuser") as String
-		String realCamUser
-		if (camuser) {
-			realCamUser=camuser.substring(0,camuser.indexOf(':'))
-		}
+		String realCamUser=realCamUser(camuser)
 		try {
 			ByteBuffer buf = ByteBuffer.wrap(imageData)
 			Iterator<Session> iterator=camsessions?.iterator()

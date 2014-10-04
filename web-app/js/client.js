@@ -5,21 +5,33 @@
  * https://github.com/felixhagspiel/webrtc-tutorial/tree/development
  * http://blog.felixhagspiel.de/index.php/posts/create-your-own-videochat-application-with-html-and-javascript
  * Amazing work dude.
- * Only change to this was to add firefox calls.
+ * Only change to this was to add firefox calls which are currently still not working under firefox.
  */
 function WebRTC() {
 
 	/*
 	* 	Private Attributes
 	*/
+	
 	var that = this;
 	var connection = false;
 	var roomId = false; // here is the room-ID stored
 	var myStream= false; // my media-stream
 	var otherStream= false; // other guy`s media-stream
 	var peerConnection = false; // RTCPeerconnection
-    var peerConfig =   {iceServers: [{url: 'stun:stun.l.google.com:19302'}] };  // set Google Stunserver
-    var peerConstraints = {"optional": [{"DtlsSrtpKeyAgreement": true}]}; // set DTLS encrpytion
+	//var peerConfig= JSON.stringify(getIcServers());
+	
+	// VH: Hack to call getIceServers function exists in webrtc gsps.
+	var peerConfig=JSON.parse(getIceServers().replace(/&quot;/g,'"'));
+	//console.log(peerConfig);
+	// if nothing found default to googles stun server
+	//console.log(peerConfig);
+	if (!peerConfig.iceServers) {
+		peerConfig =   {iceServers: [{url: 'stun:stun.l.google.com:19302'}] };  // set Google Stunserver
+		//console.log(peerConfig);
+	}	
+	
+	var peerConstraints = {"optional": [{"DtlsSrtpKeyAgreement": true}]}; // set DTLS encrpytion
     var otherSDP = false;
     var othersCandidates = []; // other guy's icecandidates
 
@@ -300,6 +312,9 @@ function WebRTC() {
 		roomId = id;
 		createOffer();
 	};
+	
+	
+	
 	// get the video & audio-stream
 	this.getMedia = function(constraints,success) {
 		// set default constraints if none passed

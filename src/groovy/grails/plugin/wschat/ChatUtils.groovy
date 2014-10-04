@@ -15,7 +15,7 @@ class ChatUtils {
 	//private static List camusers = Collections.synchronizedList(new ArrayList())
 	static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>())
 	static final Set<Session> camsessions = Collections.synchronizedSet(new HashSet<Session>())
-	
+
 	private String validateLogin(String username) {
 		def defaultPerm='user'
 		if (dbSupport()) {
@@ -54,7 +54,7 @@ class ChatUtils {
 			ListRooms()
 		}
 	}
-	
+
 	private void delRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			try {
@@ -265,6 +265,7 @@ class ChatUtils {
 		def payload
 		def cmessage
 		def croom
+		String realCamUser=realCamUser(camuser)
 		Boolean isuBanned=false
 		if (username)  {
 			def data=JSON.parse(message)
@@ -275,7 +276,8 @@ class ChatUtils {
 				payload=data.payload
 			}else{
 				cmessage=message
-			}	
+			}
+
 			if (cmessage.startsWith("DISCO:-")) {
 				camsessions.remove(userSession)
 			}else if (cmessage.startsWith("createRoom")) {
@@ -286,12 +288,14 @@ class ChatUtils {
 				}
 				jsonmessageUser(userSession,json.toString())
 			} else if (cmessage.startsWith("offer")) {
-				jsonmessageOwner(userSession,message)
+				// Offer is coming from client so direct it to owner
+				jsonmessageOwner(userSession,message,realCamUser)
 			}else{
-				if (!camuser.equals(username+":"+username)) {
-					jsonmessageOwner(userSession,message)
+				// Message all others related to a msg coming from owner
+				if (camuser.equals(realCamUser+":"+realCamUser)) {
+					jsonmessageOther(userSession,message,realCamUser)
 				}else{
-					jsonmessageOther(userSession,message)
+					jsonmessageOwner(userSession,message,realCamUser)
 				}
 			}
 		}
@@ -355,7 +359,7 @@ class ChatUtils {
 				while (iterator?.hasNext())  {
 					def crec=iterator?.next()
 					if (crec.isOpen()) {
-						def cuser=crec.getUserProperties().get("username").toString()
+						def cuser=crec.getUserProperties().get("camusername").toString()
 						if (cuser.equals(user)) {
 							loggedin=true
 						}
@@ -387,7 +391,7 @@ class ChatUtils {
 			log.debug ("onMessage failed", e)
 		}
 	}
-	
+
 	/*
 	 private void removeCamUser(Session userSession,String username) {
 	 String ruser = userSession.getUserProperties().get("username") as String
@@ -402,7 +406,7 @@ class ChatUtils {
 	 }
 	 }
 	 */
-	
+
 	private void removeUser(String username) {
 		try {
 			Iterator<Session> iterator=chatroomUsers?.iterator()
@@ -524,39 +528,56 @@ class ChatUtils {
 		userSession.getBasicRemote().sendText(msg as String)
 	}
 	
-	private void jsonmessageOther(Session userSession,String msg) {
-		Iterator<Session> iterator=camsessions?.iterator()
-		if (iterator) {
-			while (iterator?.hasNext())  {
-				def crec=iterator?.next()
-				if (crec.isOpen()) {
-					def cuser=crec.getUserProperties().get("camuser").toString()
-					def cmuser=crec.getUserProperties().get("camusername").toString()
-					if (!cuser.toString().endsWith(cmuser)) {
-						crec.getBasicRemote().sendText(msg as String)
+	private void jsonmessageOther(Session userSession,String msg,String realCamUser) {
+		println "Message other ${realCamUser}"
+		try {
+			Iterator<Session> iterator=camsessions?.iterator()
+			if (iterator) {
+				while (iterator?.hasNext())  {
+					def crec=iterator?.next()
+					if (crec.isOpen()) {
+						def cuser=crec.getUserProperties().get("camuser").toString()
+						def cmuser=crec.getUserProperties().get("camusername").toString()
+						if ((cuser.startsWith(realCamUser+":"))&&(!cuser.toString().endsWith(realCamUser))) {
+							crec.getBasicRemote().sendText(msg as String)
+						}
 					}
 				}
 			}
+		} catch (IOException e) {
+			log.debug ("onMessage failed", e)
 		}
 	}
-		
-		
-	private void jsonmessageOwner(Session userSession,String msg) {
-		Iterator<Session> iterator=camsessions?.iterator()
-		if (iterator) {
-			while (iterator?.hasNext())  {
-				def crec=iterator?.next()
-				if (crec.isOpen()) {
-					def cuser=crec.getUserProperties().get("camuser").toString()
-					def cmuser=crec.getUserProperties().get("camusername").toString()
-					if (cuser.toString().endsWith(cmuser)) {
-						crec.getBasicRemote().sendText(msg as String)
+
+	private void jsonmessageOwner(Session userSession,String msg,String realCamUser) {
+		try {
+			Iterator<Session> iterator=camsessions?.iterator()
+			if (iterator) {
+				while (iterator?.hasNext())  {
+					def crec=iterator?.next()
+					if (crec.isOpen()) {
+						def cuser=crec.getUserProperties().get("camuser").toString()
+						def cmuser=crec.getUserProperties().get("camusername").toString()
+						if ((cuser.startsWith(realCamUser+":"))&&(cuser.toString().endsWith(realCamUser))) {
+							crec.getBasicRemote().sendText(msg as String)
+						}
 					}
 				}
 			}
+		} catch (IOException e) {
+			log.debug ("onMessage failed", e)
 		}
 	}
-	
+
+	private String realCamUser(String camuser) {
+		String realCamUser
+		if (camuser) {
+			if (camuser.indexOf(':')>-1) {
+				realCamUser=camuser.substring(0,camuser.indexOf(':'))
+			}
+		}
+		return realCamUser
+	}
 	private void messageUser(Session userSession,Map msg) {
 		def myMsgj=msg as JSON
 		userSession.getBasicRemote().sendText(myMsgj as String)

@@ -1,5 +1,6 @@
 package grails.plugin.wschat
 
+import grails.converters.JSON
 import groovy.time.TimeCategory
 
 import java.text.SimpleDateFormat
@@ -57,16 +58,18 @@ class WsChatController {
 	}
 
 	def webrtcsend(String user) {
+		def iceservers=grailsApplication.config.stunServers as JSON
 		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
 		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
-		[user:user,chatTitle:chatTitle,hostname:hostname]
+		[user:user,chatTitle:chatTitle,hostname:hostname,iceservers:iceservers]
 	}
 	
 	def webrtcrec(String user) {
+		def iceservers=grailsApplication.config.stunServers as JSON
 		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
 		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
 		def chatuser=session.wschatuser
-		[user:user,hostname:hostname,chatuser:chatuser,chatTitle:chatTitle]
+		[user:user,hostname:hostname,chatuser:chatuser,chatTitle:chatTitle,iceservers:iceservers]
 	}
 	
 	

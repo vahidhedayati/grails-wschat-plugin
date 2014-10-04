@@ -127,6 +127,7 @@
 	var idList = new Array();
 	var camList = new Array();
 	var camOn = new Array();
+	var rtcOn = new Array();
 	var isAdmin="false";
 	
 	var video = $("#live").get()[0];

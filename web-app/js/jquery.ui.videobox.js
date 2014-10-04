@@ -8,6 +8,15 @@
  * Depends on jquery.ui.core, jquery.ui.widiget, jquery.ui.effect
  *
  * Also uses some styles for jquery.ui.dialog
+ * 
+ * 
+ * This is a slightly modified version of chatbox 
+ * Vahid Hedayati  September 2014.
+ * This allows additional video call within a webpage that currently
+ * has chatbox widgets.
+ * There are overlapping issues and for now a 
+ * hack exists in wschat.js around like 679.
+ * labelled as: jquery.ui.chatbox VS jquery.ui.videobox nasty hack
  *
  */
 
@@ -43,7 +52,8 @@
 					var e = document.createElement('div');
 					vidbox.append(e);
 					$(e).hide();
-					console.log('--------------->'+viewtype+"---"+camaction)
+					
+					
 					if (!self.elem.uiVidboxTitlebar.hasClass("ui-state-focus")) { 
 						//	&& !self.highlightLock) {
 						//self.highlightLock = true;
@@ -82,19 +92,18 @@
 			var uividContent
 			
 			// Webcam old method
-			console.log('---'+viewtype+"---"+camaction+"--------"+self.options.title)
-			if (viewtype==="webcam") { 
-				if (camaction==="view") {
-					uiVidContent='<div id="camViewContainer"></div>'+getCam(sender)
+			if (viewtype=="webcam") { 
+				if (camaction=="view") {
+					uiVidContent='<div id="camViewContainer"></div>'+getCam(sender);
 				}else{
-					uiVidContent='<div id="myCamContainer"></div>'+sendCam()
+					uiVidContent='<div id="myCamContainer"></div>'+sendCam();
 				}
 			//webrtc new method
 			}else{
-				if (camaction==="view") {
-					uiVidContent='<div id="camViewContainer"></div>'+getWebrtc(sender)
+				if (camaction=="view") {
+					uiVidContent='<div id="camViewContainer"></div>'+getWebrtc(sender);
 				}else{
-					uiVidContent='<div id="myCamContainer"></div>'+sendWebrtc()
+					uiVidContent='<div id="myCamContainer"></div>'+sendWebrtc();
 				}		
 			}
 			

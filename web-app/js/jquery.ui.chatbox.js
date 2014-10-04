@@ -91,7 +91,7 @@
 			title = options.title || "No Title"
 			var other = $(self.element).attr("id");
 			var isOn=isCamOn(other);
-			
+			var isrtcOn=isrtcOn(other);
 			uiChatbox = (self.uiChatbox = $('<div></div>'))
 			.appendTo(document.body)
 			.addClass('ui-widget ' +
@@ -165,7 +165,7 @@
 			.text('minimize')
 			.appendTo(uiChatboxTitlebarMinimize),
 							
-			toggleCamButton(self,isOn)
+			toggleCamButton(self,isOn,isrtcOn)
 						
 			uiChatboxTitlebarVideoChange = (self.uiChatboxTitlebarVideoChange = $('<a href="#"></a>'))
 			.addClass('ui-corner-all ' +'ui-chatbox-icon' + ' ui-videobox-icon-change')
@@ -329,7 +329,7 @@
 		}
 	});
 	
-	function toggleCamButton(self,isOn) {
+	function toggleCamButton(self,isOn,isrtcOn) {
 		if (isOn=="true") {
 			uiChatboxTitlebarVideo = (self.uiChatboxTitlebarVideo = $('<a href="#"></a>'))
 			.addClass('ui-corner-all ' +'ui-chatbox-icon' + ' ui-videobox-icon')
@@ -340,8 +340,31 @@
 			)
 			.click(function(event) {
 				var slug = $(self.element).attr("id");
-				enableCam(slug,'view');				
-				deluList(slug);
+				enableCam(slug,'view','webcam');				
+				//deluList(slug);
+				//uiChatbox.hide();
+				//uiChatbox.remove();
+				//\\toggleVideoBox(self)
+				return false;
+			})
+			.appendTo(uiChatboxTitlebar),
+			uiChatboxTitlebarVideoText = $('<span></span>')
+			.addClass('ui-icon-circle-triangle-e ' + 'chat-thick ' + ' chat-videothick' )
+			.text('video')
+			.appendTo(uiChatboxTitlebarVideo)
+		}	
+		if (isrtcOn=="true") {
+			uiChatboxTitlebarVideo = (self.uiChatboxTitlebarVideo = $('<a href="#"></a>'))
+			.addClass('ui-corner-all ' +'ui-chatbox-icon' + ' ui-videobox-icon')
+			.attr('role', 'button')
+			.hover(
+				function() {uiChatboxTitlebarVideo.addClass('ui-state-hover');},
+				function() {uiChatboxTitlebarVideo.removeClass('ui-state-hover');}
+			)
+			.click(function(event) {
+				var slug = $(self.element).attr("id");
+				enableCam(slug,'view','webrtc');				
+				//deluList(slug);
 				//uiChatbox.hide();
 				//uiChatbox.remove();
 				//\\toggleVideoBox(self)

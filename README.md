@@ -1,4 +1,4 @@
-wschat 1.0
+wschat 1.1
 =========
 
 Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
@@ -11,19 +11,16 @@ Grails websocket chat Plugin provides a multi-chat room facilty to an existing g
 ##### Users can create profiles define details and upload photos.
 ##### Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 ##### 0.19+ supports webcam tested  on chrome/firefox.  
-##### 1.0+ supports WebRTC which is audio/video streaming. (only in Chrome)
-
-
+##### 1.0+ supports WebRTC (HD: Video/Audio streaming using cam/mic) currently only on Chrome Canary.
 
  Websocket chat can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
 
-Plugin will work with tomcat 7.0.54 + (8 as well) running java 1.7 +
+###### Plugin will work with tomcat 7.0.54 + (inc. 8) running java 1.7+
 
 
+##### Dependency :
 
-Dependency :
-
-	compile ":wschat:0.24" 
+	compile ":wschat:1.1" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -31,7 +28,7 @@ http://localhost:8080/yourapp/wsChat/
 ```
 		
 
-# Custom calling plugin disabled login
+#### Custom calling plugin disabled login
 
 If you have disabled login as per configuration below, you must set
  
@@ -49,7 +46,7 @@ http://localhost:8080/yourapp/wsChat/chat
 If your user details are provided by your own login mechanism. In this example the userId is passed to a service that tries to match a name from what is on DB if not strip email address of AD account and show before @ (this part of code is not provided but is what the service is doing)
 
 
-## Custom calls
+#### Custom calls
 
 1. [custom calls from authenticated user to chat plugin](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Merging-plugin-with-your-own-custom-calls)
 
@@ -73,14 +70,14 @@ Above would go through your logics and assign default room to the user.
 
 
  
-# Video:
+### Video:
 It is quite a straight forward plugin but if you must :
 
 [youtube example grails app running wschat 0.14 part1](https://www.youtube.com/watch?v=E-NmbDZg9G4)
 
 [youtube example grails app running wschat 0.14 part2](https://www.youtube.com/watch?v=xPxV_iEYYm0)
 
-# Known issues/work arounds:
+### Known issues/work arounds:
 Since 0.20+ ui.videobox has been added, It is something quite likely to improve as I work more and more with it, at the moment the ui.chatbox and ui.videobox cause a conflict. If you had been in pm mode and clicked cam, the chatbox would no longer send messages.
 Since 0.22 the work around is to close/remove ui.chatbox and open video box. Upon next call to PM user a new chatbox is created and gets rid of the clash.
 So it now is working properly but means when play button is clicked the pm box disappears.
@@ -91,6 +88,8 @@ So it now is working properly but means when play button is clicked the pm box d
 Configure properties by adding following to grails-app/conf/Config.groovy under the "wschat" key:
 
 ```groovy
+
+
 /*
 * To disable default login page set following
 * session.wschatuser must be set and now simply
@@ -163,6 +162,23 @@ wschat.rooms = ['room1','room2']
 */
 wschat.showtitle="NO"
 
+
+
+
+/*
+* 1.1+ WEBRTC :
+* STUN SERVER CONFIGURATION
+* Please add a block like this below to your Config.groovy
+*/
+
+stunServers {
+	iceServers=[
+		[url: 'stun:stun.l.google.com:19302']
+	]
+}
+
+
+
 ```
 
 
@@ -186,7 +202,7 @@ class BootStrap {
 ```
 	
 
-# 0.10+ & resources based apps (pre  2.4) :
+#### 0.10+ & resources based apps (pre  2.4) :
 Under Resources based application you can still use the latest code base, but you need to exclude hibernate. Something like this:
 
 ```groovy
@@ -255,6 +271,11 @@ Admin commands
 	
 # Version info
 ```
+1.1 - 	Tidy up of rushed out 1.0 release - stun server introduced as config override.
+		Fixed up enable rtc/webcam to broadcast correct type.
+		Friend/user can now choose correct mode as per broadcast method webcam/webrtc.
+		Issues with camuser/camusername logic fixed.
+		
 1.0 -	Managed to get webrtc now working. User can enable older webcam method or
 		enable webrtc where audio/video streaming happens using html5 webrtc via 
 		websockets to exchange SDP information.
@@ -373,3 +394,15 @@ javax.websocket.DeploymentException: Multiple Endpoints may not be deployed to t
 ```	
 This does appear to be a warning and endpoint still works fine, and happens in tomcat... 7 + 8
 
+
+# Thanks to:
+ 
+ Tutorial from : http://www.zaneacademy.com |  WebSocket endpoint Java Server + JavaScript client tutoral
+ 
+ jquery.ui.chatbox from  http://www.cs.illinois.edu/homes/wenpu1/chatbox.html
+ 
+ Felix Hagspiel for making webrtc possible and easy to port over http://blog.felixhagspiel.de/index.php/posts/create-your-own-videochat-application-with-html-and-javascript
+ 
+ Muaz Khan https://www.webrtc-experiment.com/
+
+All I can think of so far.

@@ -31,7 +31,7 @@
 		var ctx = canvas.get()[0].getContext('2d');
 		var options = {
 				"video" : true,
-				"audio":true
+				"audio":false
 		};
 		if (hasGetUserMedia()) {
 			if (typeof video !== 'undefined') {
