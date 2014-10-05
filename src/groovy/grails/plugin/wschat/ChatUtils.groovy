@@ -279,7 +279,6 @@ class ChatUtils {
 			}
 
 			if (cmessage.startsWith("DISCO:-")) {
-				println "- Cam user being removed ${cmessage}"
 				camsessions.remove(userSession)
 			}else if (cmessage.startsWith("createRoom")) {
 				def json = new JsonBuilder()
@@ -530,7 +529,6 @@ class ChatUtils {
 	}
 	
 	private void jsonmessageOther(Session userSession,String msg,String realCamUser) {
-		println "Message other ${realCamUser}"
 		try {
 			Iterator<Session> iterator=camsessions?.iterator()
 			if (iterator) {
