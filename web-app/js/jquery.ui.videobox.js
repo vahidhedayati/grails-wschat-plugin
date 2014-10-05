@@ -23,6 +23,9 @@
 //TODO: implement destroy()
 (function($) {
 	//contentLoaders2 =
+	
+
+	
 	$.widget("ui.videobox", {
 		options: {
 			id: null, //id for the DOM element
@@ -112,15 +115,15 @@
 			.addClass('ui-widget ' +'ui-corner-top ' +'ui-videobox')
 			.attr('outline', 0)
 
-			.focusin(function() {
+			////.focusin(function() {
 				// ui-state-highlight is not really helpful here
 				//self.uiVidbox.removeClass('ui-state-highlight');
-				self.uiVidboxTitlebar.addClass('ui-state-focus');
-			})
+			////	self.uiVidboxTitlebar.addClass('ui-state-focus');
+			////})
 
-			.focusout(function() {
-				self.uiVidboxTitlebar.removeClass('ui-state-focus');
-			}),
+			////.focusout(function() {
+			////	self.uiVidboxTitlebar.removeClass('ui-state-focus');
+			///}),
 
 			// titlebar
 			uiVidboxTitlebar = (self.uiVidboxTitlebar = $('<div></div>'))
@@ -146,21 +149,15 @@
 				if (cuser==user+'_webcam') {
 					if (viewtype=="webcam") {
 						disableAV();
-
+						WebCam.close();
 					}else{
 						disablertc();
+						WebRTC.close();
 					}
 				}
-
 				delCamList(cuser);
 				uiVidbox.hide();
 				uiVidbox.remove();
-				
-				// Nasty Nasty hack 
-				// Reload the page to disconnect any 
-				// user getUserMedia (webcam/webrtc) sessions
-				window.location.reload();
-				
 				self.options.boxClosed(self.options.id);
 				return false;
 			})
@@ -201,22 +198,22 @@
 			uiVidboxLog = (self.uiVidboxLog = self.element)
 			.addClass('ui-widget-content ' +'ui-videobox-log')
 			.appendTo(uiVidboxContent)
-			.focusin(function() {
+			////.focusin(function() {
 				//uiVidboxInputBox.addClass('ui-videobox-input-focus');
 				//var vidbox = $(this).parent().prev();
 				//vidbox.scrollTop(vidbox.get(0).scrollHeight);
-			})
-			.focusout(function() {
-				uiVidboxInputBox.removeClass('ui-videobox-input-focus');
-			});			
-			// disable selection
+			////})
+			////.focusout(function() {
+			////	uiVidboxInputBox.removeClass('ui-videobox-input-focus');
+			////});			
+			//// disable selection
 			uiVidboxTitlebar.find('*').add(uiVidboxTitlebar).disableSelection();
 			self._setWidth(self.options.width);
 			self._position(self.options.offset);
-			//self.options.boxManager.init(self);
-			if (!self.options.hidden) {
-				uiVidbox.show();
-			}
+			self.options.vidManager.init(self);
+			//if (!self.options.hidden) {
+			//	uiVidbox.show();
+			//}
 		},
 		_setOption: function(option, value) {
 			if (value != null) {

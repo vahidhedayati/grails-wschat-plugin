@@ -1,4 +1,4 @@
-wschat 1.2
+wschat 1.3
 =========
 
 Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
@@ -20,7 +20,7 @@ Grails websocket chat Plugin provides a multi-chat room facilty to an existing g
 
 ##### Dependency :
 
-	compile ":wschat:1.2" 
+	compile ":wschat:1.3" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -271,6 +271,10 @@ Admin commands
 	
 # Version info
 ```
+1.3	-	uivideobox issues in 1.2 with reload page - fixed. Media disconnects upon user pressing X.
+		So potential other streams should continue to work.
+		Tidy up of various JS methods/calls.
+		
 1.2 -	Issues in 1.1 with private messaging - fixed
 		2 close buttons added to PM boxes.
 		Dark black or first X will hide PM.

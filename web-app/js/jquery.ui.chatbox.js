@@ -24,7 +24,7 @@
 			groupBox: false, //if a group Chatbox?
 			video: 0, // height of the videoBox
 			messageSent: function(id, user, msg){
-				this.boxManager.addMsg(user.first_name, msg);
+				this.boxManager.addMsg(id, msg);
 			},
 			boxClosed: function(id) {}, 
 			boxManager: {
@@ -138,7 +138,7 @@
 				// this closes entire jquery.chatbox
 				// replaced with toggle for video cam
 				//  in wschat.js
-				//uiChatbox.hide();
+				uiChatbox.hide();
 				uiChatbox.remove();
 				self.options.boxClosed(self.options.id);
 				return false;
@@ -367,7 +367,9 @@
 		}
 	});
 	
+	
 	function toggleCamButton(self,isOn,isrtc) {
+		console.log('Toggling cam button WEBCAM '+isOn+' RTC: '+isrtc);
 		if (isOn=="true") {
 			uiChatboxTitlebarVideo = (self.uiChatboxTitlebarVideo = $('<a href="#"></a>'))
 			.addClass('ui-corner-all ' +'ui-chatbox-icon' + ' ui-videobox-icon')
@@ -377,11 +379,11 @@
 				function() {uiChatboxTitlebarVideo.removeClass('ui-state-hover');}
 			)
 			.click(function(event) {
+				closeChatPMs();
 				var slug = $(self.element).attr("id");
-				enableCam(slug,'view','webcam');				
+				enableCam(slug,'view','webcam');	
 				//deluList(slug);
 				//uiChatbox.hide();
-				closeChatPMs();
 				//uiChatbox.remove();
 				//\\toggleVideoBox(self)
 				return false;
@@ -401,11 +403,12 @@
 				function() {uiChatboxTitlebarVideo.removeClass('ui-state-hover');}
 			)
 			.click(function(event) {
+				closeChatPMs();
 				var slug = $(self.element).attr("id");
 				enableCam(slug,'view','webrtc');				
 				//deluList(slug);
 				//uiChatbox.hide();
-				closeChatPMs();
+				
 				//uiChatbox.remove();
 				//\\toggleVideoBox(self)
 				return false;

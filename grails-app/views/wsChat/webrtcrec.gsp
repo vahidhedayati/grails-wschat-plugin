@@ -4,12 +4,9 @@
 
 <g:if test="${enduser?.verifyAppVersion().equals('assets')}">
 	<g:render template="/assets"/>
-	<asset:javascript src="client.js"/>
 </g:if>
 <g:else>
 	<g:render template="/resources"/>
-	 <script type="text/javascript" src="${resource(dir: 'js', file: 'client.js')}"></script>
-	
 </g:else>
    <title>${chatTitle }</title>
 </head>

@@ -39,10 +39,19 @@ function WebRTC() {
 	var socketEvent = document.createEvent('Event');
     	socketEvent.initEvent('socketEvent',true,true);
 
+    // VH Hack to disable webrtc	
+    this.close=function() {
+    	myStream.stop();
+    	connection.close();
+    }	
+    	
+    	
 	/*
 	* 	Private Methods
 	*/
 
+    	
+    	
 	// encode to JSON and send data to server
 	var sendToServer = function(data) {
 		try {

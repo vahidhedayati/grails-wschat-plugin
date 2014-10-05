@@ -123,6 +123,20 @@
 		$("#chatterBox").html('');
 	}
 
+	// Convert grails variable values to javascript format
+	var user="${chatuser}";
+	var hostname="${hostname}";
+	var baseapp="${meta(name:'app.name')}";
+	function getApp() {
+		return baseapp;
+	}
+	function getHostName() {
+		return hostname;
+	}
+	function getUser() {
+		return user;
+	}
+
 	
 	var currentRoom;
 	var idList = new Array();
@@ -146,9 +160,7 @@ var options = {
     var chatMessages=document.getElementById("chatMessages");
     var onlineUsers=document.getElementById("onlineUsers");
     var messageBox=document.getElementById("messageBox");
-    var user="${chatuser}";
-    var hostname="${hostname}";
-    
+   
     webSocket.onopen=function(message) {processOpen(message);};
     webSocket.onclose=function(message) {processClose(message);};
     webSocket.onerror=function(message) {processError(message);};
@@ -168,10 +180,6 @@ var options = {
 	
 	
 
-	function getApp() {
-		var baseapp="${meta(name:'app.name')}";
-		return baseapp;
-	}
 	
 	
 	$('#messageBox').keypress(function(e){

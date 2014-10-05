@@ -314,8 +314,8 @@ class ChatUtils {
 							String chuser=crec?.getUserProperties().get("camuser") as String
 							if (chuser && chuser.startsWith(user)) {
 								def myMsg1=[:]
-								//myMsg1.put("system","disconnect")
-								//messageUser(crec,myMsg1)
+								myMsg1.put("system","disconnect")
+								messageUser(crec,myMsg1)
 								camsessions.remove(crec)
 							}
 						}

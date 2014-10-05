@@ -110,7 +110,7 @@ function processChatMessage(message) {
 		if (jsonData.system=="disconnect") { 
 			view_cam_window.close ();
 			//ws.send("DISCO:-"+user);
-			webSocketCam.close();
+			WebCam.close();
 		}	
 	}
 }	
@@ -237,8 +237,8 @@ function processMessage(message) {
 
 				sb1.push('<li class="btn-xs"><a onclick="javascript:removefriend('+wrapIt(entry.friends_av)+', '+wrapIt(user)+');">Remove  '+entry.friends_av+' from friends list</a>\n');
 				sb1.push('\n</li> ');
-				//camon(entry.friends_av);
-				//rtcoff(entry.friends_av);
+				camon(entry.friends_av);
+				rtcoff(entry.friends_av);
 				sb1.push('<li class="btn-xs">\n');
 				sb1.push('<a onclick="javascript:enableCam('+wrapIt(entry.friends_av)+','+wrapIt('view')+','+wrapIt('webcam')+');">View Camera</a>\n');
 				sb1.push('</li>\n');
@@ -259,8 +259,8 @@ function processMessage(message) {
 
 				sb1.push('<li class="btn-xs"><a onclick="javascript:removefriend('+wrapIt(entry.friends)+', '+wrapIt(user)+');">Remove  '+entry.friends+' from friends list</a>\n');
 				sb1.push('\n</li> ');
-				//camoff(entry.friends);
-				//rtcoff(entry.friends);
+				camoff(entry.friends);
+				rtcoff(entry.friends);
 				var admintool=adminOptions(isAdmin,entry.friend)
 				sb1.push(admintool);
 				sb1.push('</ul>\n</li>\n\n\n');
@@ -283,8 +283,8 @@ function processMessage(message) {
 				sb2.push('<li class="btn-xs">\n');
 				sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_rtc)+','+wrapIt('view')+','+wrapIt('webrtc')+');">WebRTC</a>\n');
 				sb2.push('</li>\n');	
-				//camoff(entry.user_rtc);
-				//rtcon(entry.user_rtc);
+				camoff(entry.user_rtc);
+				rtcon(entry.user_rtc);
 				var admintool=adminOptions(isAdmin,entry.user_rtc)
 				sb2.push(admintool);
 				sb2.push('</ul>\n</li>\n\n\n');
@@ -308,8 +308,8 @@ function processMessage(message) {
 				sb2.push('<li class="btn-xs">\n');
 				sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_av)+','+wrapIt('view')+','+wrapIt('webcam')+');">View Camera</a>\n');
 				sb2.push('</li>\n');
-				//camon(entry.user_av);
-				//rtcoff(entry.user_av);
+				camon(entry.user_av);
+				rtcoff(entry.user_av);
 				var admintool=adminOptions(isAdmin,entry.user_av)
 				sb2.push(admintool);
 				sb2.push('</ul>\n</li>\n\n\n');
@@ -330,8 +330,8 @@ function processMessage(message) {
 				sb2.push('<li class="btn-xs">\n');
 				sb2.push('<a onclick="javascript:blockuser('+wrapIt(entry.user)+', '+wrapIt(user)+');">Block  '+entry.user+'</a>\n');
 				sb2.push('</li>\n');
-				//camoff(entry.user);
-				//rtcoff(entry.user);
+				camoff(entry.user);
+				rtcoff(entry.user);
 				var admintool=adminOptions(isAdmin,entry.user)
 				sb2.push(admintool);
 				sb2.push('</ul>\n</li>\n\n\n');
@@ -534,7 +534,7 @@ function delCamList(uid) {
 function rtcon(uid) {
 	var idx = rtcOn.indexOf(uid);
 	if(idx == -1) {
-		camOn.push(uid);
+		rtcOn.push(uid);
 	}	
 }
 
@@ -583,9 +583,9 @@ function isCamOn(uid) {
 function disableAV() {
 	delCamList(user);
 	webSocket.send("/camdisabled "+user);
-	//webSocketCam.send("DISCO:-");
-	//webSocketCam.onclose = function() { }
-	//webSocketCam.close();
+	//WebCam.send("DISCO:-");
+	//WebCam.onclose = function() { }
+	//WebCam.close();
 }
 
 function getCam(user) {
@@ -626,9 +626,9 @@ function sendWebrtc() {
 function disablertc() {
 	delCamList(user);
 	webSocket.send("/webrtcdisabled "+user);
-	//webSocketCam.send("DISCO:-");
-	//webSocketCam.onclose = function() { }
-	//webSocketCam.close();
+	//WebCam.send("DISCO:-");
+	//WebCam.onclose = function() { }
+	//WebCam.close();
 }
 
 function verifyCamPosition(uid) {
@@ -650,8 +650,8 @@ function enableCam(camuser, camaction,viewtype){
 	var goahead=false;
 	var cmuser=camuser+'_webcam'
 	if (camaction!="disable") {
-		var camon=verifyCam(cmuser);
-		if (camon=="false") {
+		var camonn=verifyCam(cmuser);
+		if (camonn=="false") {
 			goahead=true;
 		}
 	}else{
@@ -778,8 +778,8 @@ function processClose(message) {
 }
 
 function processCamClose(message) {
-	webSocketCam.send("DISCO:-");
-	webSocketCam.close();
+	WebCam.send("DISCO:-");
+	WebCam.close();
 }
 function processError(message) {
 	$('#chatMessages').append("Error.... <br/>");
