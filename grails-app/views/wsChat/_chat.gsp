@@ -123,6 +123,7 @@
 		$("#chatterBox").html('');
 	}
 
+	
 	var currentRoom;
 	var idList = new Array();
 	var camList = new Array();

@@ -1,4 +1,4 @@
-wschat 1.1
+wschat 1.2
 =========
 
 Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
@@ -20,7 +20,7 @@ Grails websocket chat Plugin provides a multi-chat room facilty to an existing g
 
 ##### Dependency :
 
-	compile ":wschat:1.1" 
+	compile ":wschat:1.2" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -271,6 +271,18 @@ Admin commands
 	
 # Version info
 ```
+1.2 -	Issues in 1.1 with private messaging - fixed
+		2 close buttons added to PM boxes.
+		Dark black or first X will hide PM.
+		Last on the right or white X removes PM box and its content.
+		This is useful if user enables cam, using this close method upon next
+		- PM Play button to watch cam/webrtc is shown.
+		For now given up attempts to unload getUserMedia upon closing ui.videobox
+		hack added to jquery.ui.videobox Line 162 to window reload in order to cut off
+		any user media. This now means if user cuts off own cam any cams viewed 
+		will be lost since page is reloaded.
+		
+		
 1.1 - 	Tidy up of rushed out 1.0 release - stun server introduced as config override.
 		Fixed up enable rtc/webcam to broadcast correct type.
 		Friend/user can now choose correct mode as per broadcast method webcam/webrtc.

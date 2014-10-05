@@ -18,12 +18,13 @@
  </div>
 
   <script type="text/javascript">
+
   $(document).ready(function() {
 		if (!window.WebSocket) {
 			var msg = "Your browser does not have WebSocket support";
 			$("#pageHeader").html(msg);
 		}
-		var	webSocketCam = new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${user}");
+		var webSocketCam = new WebSocket("ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${user}");
 		webSocketCam.onclose=function(message) {processCamClose(message);};
 		// webSocketCam.onmessage=function(message) {processChatMessage(message);	};
 		var video = $("#live").get()[0];
@@ -43,6 +44,7 @@
 				// use the chrome specific GetUserMedia function
 				navigator.getUserMedia(options, function(stream) {
 					video.src = window.URL.createObjectURL(stream);
+					 localMediaStream = stream;
 				}, function(err) {
 					console.log("Unable to get video stream!")
 				});
@@ -61,7 +63,7 @@
 			} 
 		}
 	});
-
+	
 	window.onbeforeunload = function() {
 		webSocketCam.send("DISCO:-");
 		webSocketCam.onclose = function() { }

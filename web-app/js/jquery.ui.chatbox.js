@@ -91,7 +91,7 @@
 			title = options.title || "No Title"
 			var other = $(self.element).attr("id");
 			var isOn=isCamOn(other);
-			var isrtcOn=isrtcOn(other);
+			var isrtc=isrtcOn(other);
 			uiChatbox = (self.uiChatbox = $('<div></div>'))
 			.appendTo(document.body)
 			.addClass('ui-widget ' +
@@ -121,6 +121,39 @@
 			.html(title)
 			.appendTo(uiChatboxTitlebar),
 			
+			
+			
+			uiChatboxTitlebarClose1 = (self.uiChatboxTitlebarClose1 = $('<a href="#"></a>'))
+			.addClass('ui-corner-all ' +
+					'ui-chatbox-icon '
+			)
+			.attr('role', 'button')
+			.hover(function() {uiChatboxTitlebarClose1.addClass('ui-state-hover');},
+					function() {uiChatboxTitlebarClose1.removeClass('ui-state-hover');}
+			)
+			.click(function(event) {
+				var cuser = $(self.element).attr("id");
+				deluList(cuser);
+
+				// this closes entire jquery.chatbox
+				// replaced with toggle for video cam
+				//  in wschat.js
+				//uiChatbox.hide();
+				uiChatbox.remove();
+				self.options.boxClosed(self.options.id);
+				return false;
+			})
+			.appendTo(uiChatboxTitlebar),
+			
+			uiChatboxTitlebarCloseText1 = $('<span></span>')
+			.addClass('ui-icon ' +
+                    'ui-icon-closethick')
+			.text('close')
+			.appendTo(uiChatboxTitlebarClose1),
+			
+			
+			
+			
 			uiChatboxTitlebarClose = (self.uiChatboxTitlebarClose = $('<a href="#"></a>'))
 			.addClass('ui-corner-all ' +
 					'ui-chatbox-icon '
@@ -131,12 +164,12 @@
 			)
 			.click(function(event) {
 				var cuser = $(self.element).attr("id");
-				deluList(cuser);
+				//deluList(cuser);
 
 				// this closes entire jquery.chatbox
 				// replaced with toggle for video cam
 				//  in wschat.js
-				//uiChatbox.hide();
+				uiChatbox.hide();
 				//uiChatbox.remove();
 				self.options.boxClosed(self.options.id);
 				return false;
@@ -147,6 +180,11 @@
 			.addClass('ui-icon-closethick ' + 'chat-thick ' + 'chat-closethick')
 			.text('close')
 			.appendTo(uiChatboxTitlebarClose),
+			
+			
+			
+		
+			
 			
 			uiChatboxTitlebarMinimize = (self.uiChatboxTitlebarMinimize = $('<a href="#"></a>'))
 			.addClass('ui-corner-all ' +'ui-chatbox-icon')
@@ -165,7 +203,7 @@
 			.text('minimize')
 			.appendTo(uiChatboxTitlebarMinimize),
 							
-			toggleCamButton(self,isOn,isrtcOn)
+			toggleCamButton(self,isOn,isrtc)
 						
 			uiChatboxTitlebarVideoChange = (self.uiChatboxTitlebarVideoChange = $('<a href="#"></a>'))
 			.addClass('ui-corner-all ' +'ui-chatbox-icon' + ' ui-videobox-icon-change')
@@ -329,7 +367,7 @@
 		}
 	});
 	
-	function toggleCamButton(self,isOn,isrtcOn) {
+	function toggleCamButton(self,isOn,isrtc) {
 		if (isOn=="true") {
 			uiChatboxTitlebarVideo = (self.uiChatboxTitlebarVideo = $('<a href="#"></a>'))
 			.addClass('ui-corner-all ' +'ui-chatbox-icon' + ' ui-videobox-icon')
@@ -343,6 +381,7 @@
 				enableCam(slug,'view','webcam');				
 				//deluList(slug);
 				//uiChatbox.hide();
+				closeChatPMs();
 				//uiChatbox.remove();
 				//\\toggleVideoBox(self)
 				return false;
@@ -353,7 +392,7 @@
 			.text('video')
 			.appendTo(uiChatboxTitlebarVideo)
 		}	
-		if (isrtcOn=="true") {
+		if (isrtc=="true") {
 			uiChatboxTitlebarVideo = (self.uiChatboxTitlebarVideo = $('<a href="#"></a>'))
 			.addClass('ui-corner-all ' +'ui-chatbox-icon' + ' ui-videobox-icon')
 			.attr('role', 'button')
@@ -366,6 +405,7 @@
 				enableCam(slug,'view','webrtc');				
 				//deluList(slug);
 				//uiChatbox.hide();
+				closeChatPMs();
 				//uiChatbox.remove();
 				//\\toggleVideoBox(self)
 				return false;

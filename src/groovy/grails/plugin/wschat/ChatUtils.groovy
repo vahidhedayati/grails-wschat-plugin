@@ -279,6 +279,7 @@ class ChatUtils {
 			}
 
 			if (cmessage.startsWith("DISCO:-")) {
+				println "- Cam user being removed ${cmessage}"
 				camsessions.remove(userSession)
 			}else if (cmessage.startsWith("createRoom")) {
 				def json = new JsonBuilder()
