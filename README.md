@@ -182,6 +182,20 @@ stunServers {
 ```
 
 
+#### STUN Server, setting up your own server:
+
+First thing to note is that you will need a machine that has two network interfaces, once this is in place:
+
+http://www.rtcquickstart.org/ICE-STUN-TURN-server-installation
+
+
+https://github.com/mozilla/stun-vm
+
+
+https://github.com/jselbie/stunserver
+
+
+
 ##### Creating admin accounts, in your bootstrap.groovy add something like this:
 
 ```groovy
