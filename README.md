@@ -133,12 +133,15 @@ If they click this, it will also ask them permissions for their audio/video.  On
 
 Technical details of how webrtc is working:
 
-As it stands by default whether you confgure the STUN server in the Config example as the same or if not at all (Which will default to the same google server). the information will be sent to google's public stun server. The information is hardware information about the two machines behind potentially two different NAT points. So its not your image/audio per say.
+As it stands by default whether you confgure the STUN server in the Config example as the same or if not at all (Which will default to the same google server). the information will be sent to google's public server.
 
-If you wanted you could enable console.log by where SendServer is sending messages within client.js - this will the log out the messages sent to websocket and you will then see really heavy payloads delivering icecandidate packets between the two devices.
+If you wanted you could enable console.log by function sendToServer is sending messages within client.js - you will the log out the messages sent to websocket.
 
-What actually happens is not a lot until a second user attempts to view person running webrtc. At this point an offer is sent which triggers a handshake, with exchange of some [SDP](http://tools.ietf.org/id/draft-nandakumar-rtcweb-sdp-01.html).  Once this is all done, it all goes very quiet on the socket connections. So really only initially to get the clogs rolling and allowing the two remote PC's to then use their inbuilt web techologies to interact.
 
+When second user attempts to view person running webrtc an offer is sent via sockets to primary candidate. 
+Which triggers a handshake followed by heavy payloads delivering icecandidate packets to the websocket server from both candidates. To understand more about it have a look here: [SDP](http://tools.ietf.org/id/draft-nandakumar-rtcweb-sdp-01.html).  
+
+Once this is all done, it all goes very quiet on the socket connections.
 
 
 # Config.groovy variables required:
