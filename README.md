@@ -77,12 +77,67 @@ It is quite a straight forward plugin but if you must :
 
 [youtube example grails app running wschat 0.14 part2](https://www.youtube.com/watch?v=xPxV_iEYYm0)
 
-### Known issues/work arounds:
-Since 0.20+ ui.videobox has been added, It is something quite likely to improve as I work more and more with it, at the moment the ui.chatbox and ui.videobox cause a conflict. If you had been in pm mode and clicked cam, the chatbox would no longer send messages.
-Since 0.22 the work around is to close/remove ui.chatbox and open video box. Upon next call to PM user a new chatbox is created and gets rid of the clash.
-So it now is working properly but means when play button is clicked the pm box disappears.
- 
-	 	
+
+
+### WebRTC/WebCam explained:
+
+If you are using 1.5+ you will notice a new feature that appears when you hover over your name: 
+
+```
+Enable WebCam 
+```
+(Works in firefox/chrome)
+
+If you click this option a popup will appear on the top of the browser asking permission to use your webcam.
+Click allow and a videobox will appear showing you on your webcam. your name status will change to show a webcam to you and others in that chat room.
+
+When another user hovers over your name they will see :
+
+```
+View WebCam 
+
+```
+
+If they click this button a pm is sent to you saying their viewing you and they will be able to view you on webcam.
+
+Alternatively if they open a PM box to you a play button should appear if they click play the same as above will happen.
+If they had been in PM previous to you opening webcam the play button will not show. If this user clicks the far right hand (white) X. This will destroy the PM box. Upon them clicking pm again the play button will now appear. Sounds like a lot of work to me since they could just hover your name and click view cam :)
+
+
+```
+Enable WebRTCE
+```
+(Works only in Chrome Canary + ) 
+WebRTC is really amazing new technology. I will be trying focus some more time into this and attempting to expand the amount of users that can interact with one another as well as extending to firefox.
+
+At the moment 1.5 - Only 2 people can interact.
+
+So if you enable this option the same as before you are asked for permission to the ip running the websocket chat server for permission.
+
+If you enable it, you will see yourself in a small video box.  Your name should have a different icon a video+phone. 
+
+If another user in the same room (on another pc) hovers over your name they will see:
+
+```
+WebRTCE
+```
+
+The same rules as above for the play button in the PM box. The play button has built in intelligence to figure out which mode you are running (Webcam/webrtc) and to attempt to call relevant method.
+
+If they click this, it will also ask them permissions for their audio/video.  Once accepted after a few seconds you will appear in a large HD video box for them, whilst they appear small in their own video box, vice versa for you. You should now be able to interact real time.
+
+
+
+Technical details of how webrtc is working:
+
+As it stands by default whether you confgure the STUN server in the Config example as the same or if not at all (Which will default to the same google server). the information will be sent to google's public stun server. The information is hardware information about the two machines behind potentially two different NAT points. So its not your image/audio per say.
+
+If you wanted you could enable console.log by where SendServer is sending messages within client.js - this will the log out the messages sent to websocket and you will then see really heavy payloads delivering icecandidate packets between the two devices.
+
+What actually happens is not a lot until a second user attempts to view person running webrtc. At this point an offer is sent which triggers a handshake, with exchange of some [SDP](http://tools.ietf.org/id/draft-nandakumar-rtcweb-sdp-01.html).  Once this is all done, it all goes very quiet on the socket connections. So really only initially to get the clogs rolling and allowing the two remote PC's to then use their inbuilt web techologies to interact.
+
+
+
 # Config.groovy variables required:
 
 Configure properties by adding following to grails-app/conf/Config.groovy under the "wschat" key:
@@ -418,7 +473,11 @@ Admin commands
 ```
 
 
-# whilst running in PROD:
+### Known issues/work arounds:
+
+Since 0.20+ ui.videobox has been added, earlier versions and even current version suffers from conflicts with jquery.ui.chatbox and does not send message. Currently the temporary fix is when you open a cam/rtc session to another user or as the initiator. If you did have pm boxes open you will find they will all close down as you open the video box. If you then go to the user and click on PM your currently pm history will reappear along with their pm box.
+
+### whilst running in PROD:
 
 Whilst running this plugin on a tomcat server from an application that calls plugin, I have seen:
 ```
@@ -430,7 +489,7 @@ javax.websocket.DeploymentException: Multiple Endpoints may not be deployed to t
 This does appear to be a warning and endpoint still works fine, and happens in tomcat... 7 + 8
 
 
-# Thanks to:
+### Thanks to:
  
  Tutorial from : http://www.zaneacademy.com |  WebSocket endpoint Java Server + JavaScript client tutoral
  
