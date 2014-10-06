@@ -239,9 +239,7 @@ class ChatUtils {
 			}else{
 				myMsg.put("message", "${username}: ${message}")
 				broadcast(userSession,myMsg)
-				println "-- BroadCast userSession "+myMsg
 				//messageUser(userSession,myMsg)
-				//println "-- messageUser userSession "+myMsg
 			}
 		}
 	}
