@@ -97,6 +97,7 @@ When another user hovers over your name they will see :
 View WebCam 
 
 ```
+(Multiple users can view your webcam)
 
 If they click this button a pm is sent to you saying their viewing you and they will be able to view you on webcam.
 
@@ -108,6 +109,7 @@ If they had been in PM previous to you opening webcam the play button will not s
 Enable WebRTCE
 ```
 (Works only in Chrome Canary + ) 
+
 WebRTC is really amazing new technology. I will be trying focus some more time into this and attempting to expand the amount of users that can interact with one another as well as extending to firefox.
 
 At the moment 1.5 - Only 2 people can interact.
@@ -121,6 +123,7 @@ If another user in the same room (on another pc) hovers over your name they will
 ```
 WebRTCE
 ```
+(Only 1 person can )
 
 The same rules as above for the play button in the PM box. The play button has built in intelligence to figure out which mode you are running (Webcam/webrtc) and to attempt to call relevant method.
 
