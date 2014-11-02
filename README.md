@@ -346,6 +346,8 @@ Admin commands
 	
 # Version info
 ```
+1.6 -	Tidy up - removal of Holders.config - removed _Events.groovy listener added to plugin descriptor.
+
 1.5 - 	Minor stuff - disabled extra dependencies, fixed 
 		chat message double echos for user sending msg.
 		
@@ -483,26 +485,3 @@ Admin commands
 
 Since 0.20+ ui.videobox has been added, earlier versions and even current version suffers from conflicts with jquery.ui.chatbox and does not send message. Currently the temporary fix is when you open a cam/rtc session to another user or as the initiator. If you did have pm boxes open you will find they will all close down as you open the video box. If you then go to the user and click on PM your currently pm history will reappear along with their pm box.
 
-### whilst running in PROD:
-
-Whilst running this plugin on a tomcat server from an application that calls plugin, I have seen:
-```
-javax.websocket.DeploymentException: Multiple Endpoints may not be deployed to the same path [/WsChatEndpoint]
-	at org.apache.tomcat.websocket.server.WsServerContainer.addEndpoint(WsServerContainer.java:209)
-	at org.apache.tomcat.websocket.server.WsServerContainer.addEndpoint(WsServerContainer.java:268)
-	at javax.websocket.server.ServerContainer$addEndpoint.call(Unknown Source)
-```	
-This does appear to be a warning and endpoint still works fine, and happens in tomcat... 7 + 8
-
-
-### Thanks to:
- 
- Tutorial from : http://www.zaneacademy.com |  WebSocket endpoint Java Server + JavaScript client tutoral
- 
- jquery.ui.chatbox from  http://www.cs.illinois.edu/homes/wenpu1/chatbox.html
- 
- Felix Hagspiel for making webrtc possible and easy to port over http://blog.felixhagspiel.de/index.php/posts/create-your-own-videochat-application-with-html-and-javascript
- 
- Muaz Khan https://www.webrtc-experiment.com/
-
-All I can think of so far.

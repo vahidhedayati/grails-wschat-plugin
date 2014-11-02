@@ -1,14 +1,12 @@
 package grails.plugin.wschat
 
 
-import grails.util.Holders
-
 import java.nio.ByteBuffer
 
+import javax.servlet.ServletContext
 import javax.servlet.ServletContextEvent
 import javax.servlet.ServletContextListener
 import javax.servlet.annotation.WebListener
-import javax.websocket.DeploymentException
 import javax.websocket.EndpointConfig
 import javax.websocket.OnClose
 import javax.websocket.OnError
@@ -19,24 +17,38 @@ import javax.websocket.server.PathParam
 import javax.websocket.server.ServerContainer
 import javax.websocket.server.ServerEndpoint
 
-
+import org.codehaus.groovy.grails.commons.GrailsApplication
+import org.codehaus.groovy.grails.web.context.ServletContextHolder as SCH
+import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes as GA
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 @WebListener
 
 @ServerEndpoint("/WsCamEndpoint/{user}/{viewer}")
 
 class WsCamEndpoint extends ChatUtils implements ServletContextListener {
+	
+	private final Logger log = LoggerFactory.getLogger(getClass().name)
+	
 
+	
 	@Override
-	public void contextInitialized(ServletContextEvent servletContextEvent) {
-		final ServerContainer serverContainer =	org.codehaus.groovy.grails.web.context.ServletContextHolder.getServletContext().getAttribute("javax.websocket.server.ServerContainer")
+	public void contextInitialized(ServletContextEvent event) {
+		ServletContext servletContext = event.servletContext
+		final ServerContainer serverContainer = servletContext.getAttribute("javax.websocket.server.ServerContainer")
 		try {
-			serverContainer?.addEndpoint(WsCamEndpoint.class)
-			// Keep cam sessions open for ever
-			def config=Holders.config
-			int DefaultMaxSessionIdleTimeout=config.wschat.camtimeout  ?: 0
-			serverContainer.setDefaultMaxSessionIdleTimeout(DefaultMaxSessionIdleTimeout as int)
-		} catch (DeploymentException e) {
-			e.printStackTrace()
+			serverContainer.addEndpoint(WsCamEndpoint)
+
+			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
+			
+			grailsApplication = ctx.grailsApplication
+
+			def config = grailsApplication.config
+			int defaultMaxSessionIdleTimeout = config.wschat.camtimeout ?: 0
+			serverContainer.defaultMaxSessionIdleTimeout = defaultMaxSessionIdleTimeout
+		}
+		catch (IOException e) {
+			log.error e.message, e
 		}
 	}
 
@@ -51,14 +63,19 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 			userSession.setMaxTextMessageBufferSize(1000000)
 			//userSession.setmaxMessageSize(-1L)
 			if (viewer.equals(user)) {
-				userSession.getUserProperties().put("camuser", user+":"+user);
+				userSession.userProperties.put("camuser", user+":"+user);
 			}else{
-				userSession.getUserProperties().put("camuser", user+":"+viewer);
+				userSession.userProperties.put("camuser", user+":"+viewer);
 			}
 			if (!camLoggedIn(viewer)) {
-				userSession.getUserProperties().put("camusername", viewer);
+				userSession.userProperties.put("camusername", viewer);
 				camsessions.add(userSession)
 			}
+			
+			def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
+			grailsApplication= ctx.grailsApplication
+			
+			
 		}else{
 			log.info "could not find chat user ! ${viewer}"
 		}
@@ -71,7 +88,7 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnMessage
 	public void processVideo(byte[] imageData, Session userSession) {
-		String camuser = userSession.getUserProperties().get("camuser") as String
+		String camuser = userSession.userProperties.get("camuser") as String
 		String realCamUser=realCamUser(camuser)
 		try {
 			ByteBuffer buf = ByteBuffer.wrap(imageData)
@@ -80,9 +97,9 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 				while (iterator?.hasNext())  {
 					def crec=iterator?.next()
 					if (crec?.isOpen()) {
-						String chuser=crec?.getUserProperties().get("camuser") as String
+						String chuser=crec?.userProperties.get("camuser") as String
 						if (chuser && chuser.startsWith(realCamUser)) {
-							crec.getBasicRemote().sendBinary(buf)
+							crec.basicRemote.sendBinary(buf)
 						}
 					}
 				}
