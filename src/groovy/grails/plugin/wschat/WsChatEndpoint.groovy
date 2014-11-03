@@ -1,6 +1,8 @@
 package grails.plugin.wschat
 
 
+import grails.util.Environment
+
 import javax.servlet.ServletContext
 import javax.servlet.ServletContextEvent
 import javax.servlet.ServletContextListener
@@ -32,9 +34,13 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 		ServletContext servletContext = event.servletContext
 		final ServerContainer serverContainer = servletContext.getAttribute("javax.websocket.server.ServerContainer")
 		try {
+			
 			// Adding this conflicts with listener added via plugin descriptor
 			// Whilst it works as run-app - in production this causes issues
-			//serverContainer.addEndpoint(WsChatEndpoint)
+			def environment=Environment.current.name
+			if (environment=='development') {
+				serverContainer.addEndpoint(WsChatEndpoint)
+			}	
 
 			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 			
