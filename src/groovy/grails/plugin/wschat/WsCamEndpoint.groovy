@@ -37,7 +37,9 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 		ServletContext servletContext = event.servletContext
 		final ServerContainer serverContainer = servletContext.getAttribute("javax.websocket.server.ServerContainer")
 		try {
-			serverContainer.addEndpoint(WsCamEndpoint)
+			// Adding this conflicts with listener added via plugin descriptor
+			// Whilst it works as run-app - in production this causes issues
+			//serverContainer.addEndpoint(WsCamEndpoint)
 
 			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 			

@@ -2,7 +2,7 @@ import grails.plugin.wschat.WsCamEndpoint
 import grails.plugin.wschat.WsChatEndpoint
 
 class WschatGrailsPlugin {
-    def version = "1.6"
+    def version = "1.7"
     def grailsVersion = "2.0 > *"
     def title = "Websocket Chat Plugin"
     def description = 'Default WebSocket Multi-chat room plugin, supports Admin privilages, kicking banning users. Webcam support for chrome/firefox. WebRTC (audio/video) support 0.24+'
@@ -15,13 +15,12 @@ class WschatGrailsPlugin {
 	def doWithWebDescriptor = { xml ->
 		def listenerNode = xml.'listener'
 		listenerNode[listenerNode.size() - 1] + {
-			'listener' {
+			listener {
 				'listener-class'(WsChatEndpoint.name)
 			}
-			'listener' {
+			listener {
 				'listener-class'(WsCamEndpoint.name)
 			}
-	
 		}
 	}
 }
