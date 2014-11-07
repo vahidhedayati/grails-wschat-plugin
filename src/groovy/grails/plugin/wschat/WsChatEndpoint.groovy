@@ -44,10 +44,10 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 
 			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 			
-			grailsApplication = ctx.grailsApplication
+			def grailsApplication = ctx.grailsApplication
 
-			def config = grailsApplication.config
-			int defaultMaxSessionIdleTimeout = config.wschat.timeout ?: 0
+			config = grailsApplication.config.wschat
+			int defaultMaxSessionIdleTimeout = config.timeout ?: 0
 			serverContainer.defaultMaxSessionIdleTimeout = defaultMaxSessionIdleTimeout
 		}
 		catch (IOException e) {
@@ -65,7 +65,9 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 		userSession.userProperties.put("room", room)
 		
 		def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
-		grailsApplication= ctx.grailsApplication
+		def grailsApplication = ctx.grailsApplication
+		
+		config = grailsApplication.config.wschat
 		
 	}
 

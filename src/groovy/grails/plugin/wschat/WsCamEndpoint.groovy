@@ -49,10 +49,10 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 
 			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 			
-			grailsApplication = ctx.grailsApplication
+			def grailsApplication = ctx.grailsApplication
 
-			def config = grailsApplication.config
-			int defaultMaxSessionIdleTimeout = config.wschat.camtimeout ?: 0
+			config = grailsApplication.config.wschat
+			int defaultMaxSessionIdleTimeout = config.camtimeout ?: 0
 			serverContainer.defaultMaxSessionIdleTimeout = defaultMaxSessionIdleTimeout
 		}
 		catch (IOException e) {
@@ -81,8 +81,8 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 			}
 			
 			def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
-			grailsApplication= ctx.grailsApplication
-			
+			def grailsApplication = ctx.grailsApplication
+			config = grailsApplication.config.wschat
 			
 		}else{
 			log.info "could not find chat user ! ${viewer}"

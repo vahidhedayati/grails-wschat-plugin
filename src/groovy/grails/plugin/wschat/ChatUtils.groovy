@@ -8,8 +8,6 @@ import java.text.SimpleDateFormat
 
 import javax.websocket.Session
 
-import org.codehaus.groovy.grails.commons.GrailsApplication
-
 
 class ChatUtils {
 	//private static List camusers = Collections.synchronizedList(new ArrayList())
@@ -20,13 +18,14 @@ class ChatUtils {
 	static final Set<Session> camsessions = ([] as Set).asSynchronized()
 	static final Set<Session> chatroomUsers = ([] as Set).asSynchronized()
 
-	GrailsApplication grailsApplication
+	//GrailsApplication grailsApplication
+	def config
+	
 	private String validateLogin(String username) {
 		def defaultPerm='user'
 		if (dbSupport()) {
-			//def config=Holders.config
-			def config = grailsApplication.config
-			String defaultPermission=config.wschat.defaultperm  ?: defaultPerm
+
+			String defaultPermission=config.defaultperm  ?: defaultPerm
 			def perm=ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
 			def user=ChatUser.findOrSaveWhere(username:username, permissions:perm).save(flush:true)
 			def logit=new ChatLogs()
@@ -626,10 +625,9 @@ class ChatUtils {
 	}
 
 	private Boolean dbSupport() {
-		//def config=Holders.config
-		def config = grailsApplication.config
+
 		Boolean dbsupport=false
-		String dbsup=config.wschat.dbsupport  ?: 'yes'
+		String dbsup=config.dbsupport  ?: 'yes'
 		if ((dbsup.toLowerCase().equals('yes'))||(dbsup.toLowerCase().equals('true'))) {
 			dbsupport=true
 		}
@@ -801,9 +799,7 @@ class ChatUtils {
 
 	private Map roomList() {
 		def uList=[]
-		//def config=Holders.config
-		def config = grailsApplication.config
-		def room=config.wschat.rooms
+		def room=config.rooms
 		if (room) {
 			uList=[]
 			room.each {
