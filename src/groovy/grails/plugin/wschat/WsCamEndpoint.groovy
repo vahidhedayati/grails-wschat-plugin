@@ -19,7 +19,6 @@ import javax.websocket.server.PathParam
 import javax.websocket.server.ServerContainer
 import javax.websocket.server.ServerEndpoint
 
-import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.web.context.ServletContextHolder as SCH
 import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes as GA
 import org.slf4j.Logger
@@ -42,11 +41,12 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 			
 			// Adding this conflicts with listener added via plugin descriptor
 			// Whilst it works as run-app - in production this causes issues
-			def environment=Environment.current.name
-			if (environment=='development') {
-				serverContainer.addEndpoint(WsCamEndpoint)
-			}	
 
+			if (Environment.current == Environment.DEVELOPMENT) {
+				serverContainer.addEndpoint(WsCamEndpoint)
+			}
+				
+			
 			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 			
 			def grailsApplication = ctx.grailsApplication
