@@ -8,31 +8,42 @@ import java.text.SimpleDateFormat
 
 import javax.websocket.Session
 
+import org.springframework.transaction.annotation.Transactional
+
+
+
 
 class ChatUtils {
 	//private static List camusers = Collections.synchronizedList(new ArrayList())
 	//private static List camusers = Collections.synchronizedList(new ArrayList())
 	//static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>())
 	//static final Set<Session> camsessions = Collections.synchronizedSet(new HashSet<Session>())
-	
+
 	static final Set<Session> camsessions = ([] as Set).asSynchronized()
 	static final Set<Session> chatroomUsers = ([] as Set).asSynchronized()
 
 	//GrailsApplication grailsApplication
 	def config
-	
+	@Transactional
 	private String validateLogin(String username) {
 		def defaultPerm='user'
 		if (dbSupport()) {
 
 			String defaultPermission=config.defaultperm  ?: defaultPerm
-			def perm=ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
-			def user=ChatUser.findOrSaveWhere(username:username, permissions:perm).save(flush:true)
-			def logit=new ChatLogs()
-			logit.username=username
-			logit.loggedIn=true
-			logit.loggedOut=false
-			logit.save(flush:true)
+			def perm,user
+			ChatPermissions.withTransaction {
+				perm=ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
+			}
+			ChatUser.withTransaction {
+				user=ChatUser.findOrSaveWhere(username:username, permissions:perm).save(flush:true)
+			}
+			ChatLogs.withTransaction {
+				def logit=new ChatLogs()
+				logit.username=username
+				logit.loggedIn=true
+				logit.loggedOut=false
+				logit.save(flush:true)
+			}
 			return user.permissions.name as String
 		}else{
 			return defaultPerm
@@ -41,25 +52,29 @@ class ChatUtils {
 
 	private void validateLogOut(String username) {
 		if (dbSupport()) {
-			def logit=new ChatLogs()
-			logit.username=username
-			logit.loggedIn=false
-			logit.loggedOut=true
-			logit.save(flush:true)
+			ChatLogs.withTransaction {
+				def logit=new ChatLogs()
+				logit.username=username
+				logit.loggedIn=false
+				logit.loggedOut=true
+				logit.save(flush:true)
+			}
 		}
 	}
-
+	@Transactional
 	private void addRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
-			def nr=new ChatRoomList()
-			nr.room=roomName
-			if (!nr.save(flush:true)) {
-				log.debug "Error saving ${roomName}"
+			ChatRoomList.withTransaction {
+				def nr=new ChatRoomList()
+				nr.room=roomName
+				if (!nr.save(flush:true)) {
+					log.debug "Error saving ${roomName}"
+				}
 			}
 			ListRooms()
 		}
 	}
-
+	@Transactional
 	private void delRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			try {
@@ -73,9 +88,11 @@ class ChatUtils {
 							kickUser(userSession,cuser)
 						}
 					}
-					def nr=ChatRoomList.findByRoom(roomName)
-					if (nr) {
-						nr.delete(flush: true)
+					ChatRoomList.withTransaction {
+						def nr=ChatRoomList.findByRoom(roomName)
+						if (nr) {
+							nr.delete(flush: true)
+						}
 					}
 					ListRooms()
 				}
@@ -430,7 +447,7 @@ class ChatUtils {
 			log.debug ("onMessage failed", e)
 		}
 	}
-
+	@Transactional
 	private void sendUsers(Session userSession,String username) {
 		String room = userSession.userProperties.get("room") as String
 		try {
@@ -445,8 +462,12 @@ class ChatUtils {
 						def blocklist
 						def friendslist
 						if (dbSupport()) {
-							blocklist=ChatBlockList.findAllByChatuser(currentUser(uiterator))
-							friendslist=ChatFriendList.findAllByChatuser(currentUser(uiterator))
+							ChatBlockList.withTransaction {
+								blocklist=ChatBlockList.findAllByChatuser(currentUser(uiterator))
+							}
+							ChatFriendList.withTransaction {
+								friendslist=ChatFriendList.findAllByChatuser(currentUser(uiterator))
+							}
 						}
 						Iterator<Session> iterator=chatroomUsers?.iterator()
 						if (iterator) {
@@ -532,7 +553,7 @@ class ChatUtils {
 	private void jsonmessageUser(Session userSession,String msg) {
 		userSession.basicRemote.sendText(msg as String)
 	}
-	
+
 	private void jsonmessageOther(Session userSession,String msg,String realCamUser) {
 		try {
 			Iterator<Session> iterator=camsessions?.iterator()
@@ -633,13 +654,15 @@ class ChatUtils {
 		}
 		return dbsupport
 	}
-
+	@Transactional
 	private Boolean checkPM(String username, String urecord) {
 		Boolean result=true
 		if (dbSupport()) {
-			def found=ChatBlockList.findByChatuserAndUsername(currentUser(username),urecord)
-			if (found) {
-				result=false
+			ChatBlockList.withTransaction {
+				def found=ChatBlockList.findByChatuserAndUsername(currentUser(username),urecord)
+				if (found) {
+					result=false
+				}
 			}
 		}
 		return result
@@ -694,49 +717,57 @@ class ChatUtils {
 			log.debug ("onMessage failed", e)
 		}
 	}
-
+	@Transactional
 	private void unblockUser(String username,String urecord) {
 		if (dbSupport()) {
 			def cuser=currentUser(username)
-			def found=ChatBlockList.findByChatuserAndUsername(cuser,urecord)
-			found.delete(flush: true)
+			ChatBlockList.withTransaction {
+				def found=ChatBlockList.findByChatuserAndUsername(cuser,urecord)
+				found.delete(flush: true)
+			}
 		}
 	}
 
+	@Transactional
 	private Boolean isBanned(String username) {
 		Boolean yesis=false
 		if (dbSupport()) {
 
 			def now=new Date()
 			def current = new SimpleDateFormat('EEE, d MMM yyyy HH:mm:ss').format(now)
-			def found=ChatBanList.findAllByUsernameAndPeriodGreaterThan(username,current)
-			def dd=ChatBanList.findAllByUsername(username)
-			if (found) {
-				yesis=true
+			ChatBanList.withTransaction {
+
+
+				def found=ChatBanList.findAllByUsernameAndPeriodGreaterThan(username,current)
+				def dd=ChatBanList.findAllByUsername(username)
+				if (found) {
+					yesis=true
+				}
 			}
 		}
 		return yesis
 	}
-
+	@Transactional
 	private void banthisUser(String username,String duration, String period) {
 		def cc
 		use(TimeCategory) {
 			cc=new Date() +(duration as int)."${period}"
 		}
 		def current = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss").format(cc)
-		def found=ChatBanList.findByUsername(username)
-		if (!found) {
-			def newEntry=new ChatBanList()
-			newEntry.username=username
-			newEntry.period=current
-			newEntry.save(flush:true)
-		}else{
-			found.period=current
-			found.save(flush:true)
+		ChatBanList.withTransaction {
+			def found=ChatBanList.findByUsername(username)
+			if (!found) {
+				def newEntry=new ChatBanList()
+				newEntry.username=username
+				newEntry.period=current
+				newEntry.save(flush:true)
+			}else{
+				found.period=current
+				found.save(flush:true)
+			}
 		}
-
 	}
-
+	@Transactional
 	private void blockUser(String username,String urecord) {
 		if (dbSupport()) {
 			def cuser=currentUser(username)
@@ -749,31 +780,37 @@ class ChatUtils {
 			}
 		}
 	}
-
+	@Transactional
 	private void addUser(String username,String urecord) {
 		if (dbSupport()) {
 			def cuser=currentUser(username)
-			def found=ChatFriendList.findByChatuserAndUsername(cuser,urecord)
-			if (!found) {
-				def newEntry=new ChatFriendList()
-				newEntry.chatuser=cuser
-				newEntry.username=urecord
-				newEntry.save(flush:true)
+			ChatFriendList.withTransaction {
+				def found=ChatFriendList.findByChatuserAndUsername(cuser,urecord)
+				if (!found) {
+					def newEntry=new ChatFriendList()
+					newEntry.chatuser=cuser
+					newEntry.username=urecord
+					newEntry.save(flush:true)
+				}
 			}
 		}
 	}
-
+	@Transactional
 	private void removeUser(String username,String urecord) {
 		if (dbSupport()) {
-			def cuser=currentUser(username)
-			def found=ChatFriendList.findByChatuserAndUsername(cuser,urecord)
-			found.delete(flush: true)
+			ChatFriendList.withTransaction {
+				def cuser=currentUser(username)
+				def found=ChatFriendList.findByChatuserAndUsername(cuser,urecord)
+				found.delete(flush: true)
+			}
 		}
 	}
-
+	@Transactional
 	def currentUser(String username) {
 		if (dbSupport()) {
-			return ChatUser.findByUsername(username)
+			ChatUser.withTransaction {
+				return ChatUser.findByUsername(username)
+			}
 		}
 	}
 
@@ -796,7 +833,7 @@ class ChatUtils {
 	private void ListRooms() {
 		broadcast2all(roomList())
 	}
-
+	@Transactional
 	private Map roomList() {
 		def uList=[]
 		def room=config.rooms
@@ -811,7 +848,10 @@ class ChatUtils {
 		def dbrooms
 		def finalList=[:]
 		if (dbSupport()) {
-			dbrooms=ChatRoomList?.findAll()*.room.unique()
+			ChatRoomList.withTransaction {
+
+				dbrooms=ChatRoomList?.findAll()*.room.unique()
+			}
 			if (dbrooms) {
 				//uList=[]
 				dbrooms.each {
