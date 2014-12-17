@@ -265,6 +265,8 @@ wschat.send.joinroom='no'
 
 First thing to note is that you will need a machine that has two network interfaces, once this is in place:
 
+http://www.stunprotocol.org/
+
 http://www.rtcquickstart.org/ICE-STUN-TURN-server-installation
 
 
@@ -273,7 +275,7 @@ https://github.com/mozilla/stun-vm
 
 https://github.com/jselbie/stunserver
 
-
+https://code.google.com/p/rfc5766-turn-server/
 
 ##### Creating admin accounts, in your bootstrap.groovy add something like this:
 
