@@ -1,4 +1,4 @@
-wschat 1.8-SNAPSHOT1
+wschat 1.8-SNAPSHOT2
 =========
 
 Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
@@ -20,7 +20,7 @@ Grails websocket chat Plugin provides a multi-chat room facilty to an existing g
 
 ##### Dependency :
 
-	compile ":wschat:1.8-SNAPSHOT1" 
+	compile ":wschat:1.8-SNAPSHOT2" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -239,6 +239,23 @@ stunServers {
 }
 
 
+/* 
+*If you do not set left/join room to a value by default
+* it will log joiners/leavers. You can set the timeout value 
+* by default to 0 to a ms value of your preference if user out/in is quick
+* This may slow down msg being sent..
+* Logleavers sets a log.error to a value of current username room to verify
+* abnormalities in the username (spaces and so forth)
+* by default this is no
+* so set a timeout if you wish which is only worthy if send.leftroom='yes'
+* 
+*/ 
+wschat.left.timeout='1000'
+wschat.send.leftroom='no'
+wschat.logleavers='yes'
+wschat.send.joinroom='no'
+
+
 
 ```
 
@@ -346,6 +363,10 @@ Admin commands
 	
 # Version info
 ```
+
+1.8-SNAPSHOT2 : Fancier method user can now enable/disable joiners/leavers in their config.groovy
+
+1.8-SNAPSHOT1 : commented out leavers send block
 1.8-SNAPSHOT : https://github.com/vahidhedayati/grails-wschat-plugin/issues/3
 1.8 -	Added withTransaction to all DB calls, to fix issue with 2.4.4 apps. 
 		Added some wrappers to enable backward compatibility for hibernate to BuildConfig/DataSource.

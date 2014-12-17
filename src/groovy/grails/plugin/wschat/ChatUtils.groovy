@@ -127,8 +127,11 @@ class ChatUtils {
 						myMsg2.put("currentRoom", "${room}")
 						messageUser(userSession,myMsg2)
 						sendUsers(userSession,username)
+						String sendjoin=config.send.joinroom  ?: 'yes'
+						if (sendjoin=='yes') {
 						myMsg.put("message", "${username} has joined ${room}")
 						sendRooms(userSession)
+						}
 					}else{
 						def myMsg1=[:]
 						myMsg1.put("isBanned", "user ${username} is banned being disconnected")
@@ -143,13 +146,19 @@ class ChatUtils {
 		}else{
 			if (message.startsWith("DISCO:-")) {
 				String croom = userSession.userProperties.get("room") as String
-				//isuBanned=isBanned(username)
-				//if (!isuBanned){
-				//	myMsg.put("message", "${username} has left ${room}")
-				//	broadcast(userSession,myMsg)
-				//}
+				String cusername=userSession.userProperties.get("username") as String
+				
+				String dbsup=config.logleavers ?: 'no'
+				
+				if (dbsup=='yes') {
+					log.error "Room: >${croom}< | User: >${username}< | Cuser: >${cusername}< "
+				}
+				
+				
 				userSession.close()
 				removeUser(username)
+				String bcasto=config.left.timeout  ?: '0'
+				sleep(bcasto as int)
 				sendUsersLoggedOut(croom,username)
 			}else if (message.startsWith("/pm")) {
 				def values=parseInput("/pm ",message)
@@ -207,11 +216,16 @@ class ChatUtils {
 					room=rroom;
 					myMsg.put("currentRoom", "${room}")
 					messageUser(userSession,myMsg)
+					
+					String sendjoin=config.send.joinroom  ?: 'yes'
+					if (sendjoin=='yes') {
 					myMsg=[:]
 					sendUsers(userSession,user)
 					myMsg.put("message", "${user} has joined ${room}")
 					broadcast(userSession,myMsg)
+					//broadcast(userSession,["message", "${user} has joined ${room}"])
 					sendRooms(userSession)
+					}
 				}
 			}else if (message.startsWith("/listRooms")) {
 				ListRooms()
@@ -452,14 +466,22 @@ class ChatUtils {
 		try {
 			Iterator<Session> iterator2=chatroomUsers?.iterator()
 			if (iterator2) {
-				//def myMsg=[:]
-				//myMsg.put("message", "${username} has left ${room}")
+				def myMsg=[:]
+				String sendleave=config.send.leftroom  ?: 'yes'
+				myMsg.put("message", "${username} has left ${room}")
 				while (iterator2?.hasNext())  {
 					def crec2=iterator2?.next()
 					if (crec2.isOpen()) {
 						def uiterator=crec2.userProperties.get("username").toString()
 						if (uiterator!=username) {
 							//broadcast(crec2,myMsg)
+							//isuBanned=isBanned(username)
+							//if (!isuBanned && (sendleave=='yes')){
+							if (sendleave=='yes') {
+								broadcast(crec2,myMsg)
+							}
+							
+							
 							def uList=[]
 							def finalList=[:]
 							def blocklist
