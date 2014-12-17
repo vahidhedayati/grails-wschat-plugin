@@ -5,7 +5,6 @@ import groovy.json.JsonBuilder
 import groovy.time.TimeCategory
 
 import java.text.SimpleDateFormat
-import java.util.concurrent.CopyOnWriteArrayList
 
 import javax.websocket.Session
 
