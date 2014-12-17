@@ -452,14 +452,14 @@ class ChatUtils {
 		try {
 			Iterator<Session> iterator2=chatroomUsers?.iterator()
 			if (iterator2) {
-				def myMsg=[:]
-				myMsg.put("message", "${username} has left ${room}")
+				//def myMsg=[:]
+				//myMsg.put("message", "${username} has left ${room}")
 				while (iterator2?.hasNext())  {
 					def crec2=iterator2?.next()
 					if (crec2.isOpen()) {
 						def uiterator=crec2.userProperties.get("username").toString()
 						if (uiterator!=username) {
-							broadcast(crec2,myMsg)
+							//broadcast(crec2,myMsg)
 							def uList=[]
 							def finalList=[:]
 							def blocklist

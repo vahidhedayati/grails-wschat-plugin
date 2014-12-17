@@ -1,4 +1,4 @@
-wschat 1.8-SNAPSHOT
+wschat 1.8-SNAPSHOT1
 =========
 
 Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
@@ -20,7 +20,7 @@ Grails websocket chat Plugin provides a multi-chat room facilty to an existing g
 
 ##### Dependency :
 
-	compile ":wschat:1.8-SNAPSHOT" 
+	compile ":wschat:1.8-SNAPSHOT1" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
