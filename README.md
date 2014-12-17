@@ -261,6 +261,7 @@ wschat.send.joinroom='no'
 
 
 #### STUN Server, setting up your own server:
+[WebRTC-terminology](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebRTC-terminology), lots of useful information to break down and further info on  STUN/TURN
 
 First thing to note is that you will need a machine that has two network interfaces, once this is in place:
 
