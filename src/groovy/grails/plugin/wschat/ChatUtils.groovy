@@ -5,12 +5,9 @@ import groovy.json.JsonBuilder
 import groovy.time.TimeCategory
 
 import java.text.SimpleDateFormat
+import java.util.concurrent.CopyOnWriteArrayList
 
 import javax.websocket.Session
-
-import org.springframework.transaction.annotation.Transactional
-
-
 
 
 class ChatUtils {
@@ -22,9 +19,13 @@ class ChatUtils {
 	static final Set<Session> camsessions = ([] as Set).asSynchronized()
 	static final Set<Session> chatroomUsers = ([] as Set).asSynchronized()
 
+	//Map<String,String> chatroomUsers = new ConcurrentHashMap<String,String>()
+	//List<String> chatroomUsers = new CopyOnWriteArrayList<String>()
+
+
 	//GrailsApplication grailsApplication
 	def config
-	@Transactional
+
 	private String validateLogin(String username) {
 		def defaultPerm='user'
 		if (dbSupport()) {
@@ -61,20 +62,20 @@ class ChatUtils {
 			}
 		}
 	}
-	@Transactional
+
 	private void addRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			ChatRoomList.withTransaction {
 				def nr=new ChatRoomList()
 				nr.room=roomName
 				if (!nr.save(flush:true)) {
-					log.debug "Error saving ${roomName}"
+					log.error "Error saving ${roomName}"
 				}
 			}
 			ListRooms()
 		}
 	}
-	@Transactional
+
 	private void delRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			try {
@@ -97,7 +98,7 @@ class ChatUtils {
 					ListRooms()
 				}
 			} catch (IOException e) {
-				log.debug ("onMessage failed", e)
+				log.error ("onMessage failed", e)
 			}
 		}
 	}
@@ -142,16 +143,15 @@ class ChatUtils {
 			}
 		}else{
 			if (message.startsWith("DISCO:-")) {
-				//users.remove(username)
+				String croom = userSession.userProperties.get("room") as String
+				//isuBanned=isBanned(username)
+				//if (!isuBanned){
+				//	myMsg.put("message", "${username} has left ${room}")
+				//	broadcast(userSession,myMsg)
+				//}
+				userSession.close()
 				removeUser(username)
-				//chatroomUsers.remove(userSession)
-				sendUsers(userSession,null)
-				isuBanned=isBanned(username)
-				if (!isuBanned){
-					myMsg.put("message", "${username} has left ${room}")
-					broadcast(userSession,myMsg)
-				}
-
+				sendUsersLoggedOut(croom,username)
 			}else if (message.startsWith("/pm")) {
 				def values=parseInput("/pm ",message)
 				def user=values.user
@@ -344,7 +344,7 @@ class ChatUtils {
 					}
 				}
 			} catch (Throwable e) {
-				log.debug ("onMessage failed", e)
+				log.error ("onMessage failed", e)
 			}
 		}
 		try {
@@ -389,7 +389,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.debug ("onMessage failed", e)
+			log.error ("onMessage failed", e)
 		}
 		return loggedin
 	}
@@ -410,7 +410,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.debug ("onMessage failed", e)
+			log.error ("onMessage failed", e)
 		}
 	}
 
@@ -444,10 +444,82 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.debug ("onMessage failed", e)
+			log.error ("onMessage failed", e)
 		}
 	}
-	@Transactional
+
+	private void sendUsersLoggedOut(String room,String username) {
+
+		try {
+			Iterator<Session> iterator2=chatroomUsers?.iterator()
+			if (iterator2) {
+				def myMsg=[:]
+				myMsg.put("message", "${username} has left ${room}")
+				while (iterator2?.hasNext())  {
+					def crec2=iterator2?.next()
+					if (crec2.isOpen()) {
+						def uiterator=crec2.userProperties.get("username").toString()
+						if (uiterator!=username) {
+							broadcast(crec2,myMsg)
+							def uList=[]
+							def finalList=[:]
+							def blocklist
+							def friendslist
+							if (dbSupport()) {
+								ChatBlockList.withTransaction {
+									blocklist=ChatBlockList.findAllByChatuser(currentUser(uiterator))
+								}
+								ChatFriendList.withTransaction {
+									friendslist=ChatFriendList.findAllByChatuser(currentUser(uiterator))
+								}
+							}
+							Iterator<Session> iterator=chatroomUsers?.iterator()
+							if (iterator) {
+								while (iterator?.hasNext())  {
+									def myUser=[:]
+									def crec=iterator?.next()
+									if (crec.isOpen() && room.equals(crec.userProperties.get("room"))) {
+										def cuser=crec.userProperties.get("username").toString()
+										def av=crec.userProperties.get("av").toString()
+										def rtc=crec.userProperties.get("rtc").toString()
+										def addav=""
+										if (av.equals("on")) {
+											addav="_av"
+										}
+										if (rtc.equals("on")) {
+											addav="_rtc"
+										}
+										if (cuser.equals(uiterator)) {
+											myUser.put("owner${addav}", cuser)
+											uList.add(myUser)
+										}else{
+											if ((blocklist)&&(blocklist.username.contains(cuser))) {
+												myUser.put("blocked", cuser)
+												uList.add(myUser)
+
+											}else if  ((friendslist)&&(friendslist.username.contains(cuser))) {
+												myUser.put("friends${addav}", cuser)
+												uList.add(myUser)
+											}else{
+												myUser.put("user${addav}", cuser)
+												uList.add(myUser)
+											}
+										}
+									}
+								}
+							}
+							finalList.put("users", uList)
+							sendUserList(uiterator,finalList)
+						}
+					}
+				}
+			}
+		} catch (IOException e) {
+			log.error ("onMessage failed", e)
+		}
+
+	}
+
 	private void sendUsers(Session userSession,String username) {
 		String room = userSession.userProperties.get("room") as String
 		try {
@@ -510,7 +582,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.debug ("onMessage failed", e)
+			log.error ("onMessage failed", e)
 		}
 
 	}
@@ -528,7 +600,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.debug ("onMessage failed", e)
+			log.error ("onMessage failed", e)
 		}
 	}
 
@@ -546,7 +618,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.debug ("onMessage failed", e)
+			log.error ("onMessage failed", e)
 		}
 	}
 
@@ -570,7 +642,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.debug ("onMessage failed", e)
+			log.error ("onMessage failed", e)
 		}
 	}
 
@@ -590,7 +662,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.debug ("onMessage failed", e)
+			log.error ("onMessage failed", e)
 		}
 	}
 
@@ -637,7 +709,7 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.debug ("onMessage failed", e)
+			log.error ("onMessage failed", e)
 		}
 		if (found==false) {
 			myMsg.put("message","Error: ${user} not found - unable to send PM")
@@ -654,7 +726,7 @@ class ChatUtils {
 		}
 		return dbsupport
 	}
-	@Transactional
+
 	private Boolean checkPM(String username, String urecord) {
 		Boolean result=true
 		if (dbSupport()) {
@@ -714,10 +786,10 @@ class ChatUtils {
 				}
 			}
 		} catch (IOException e) {
-			log.debug ("onMessage failed", e)
+			log.error ("onMessage failed", e)
 		}
 	}
-	@Transactional
+
 	private void unblockUser(String username,String urecord) {
 		if (dbSupport()) {
 			def cuser=currentUser(username)
@@ -728,16 +800,13 @@ class ChatUtils {
 		}
 	}
 
-	@Transactional
+
 	private Boolean isBanned(String username) {
 		Boolean yesis=false
 		if (dbSupport()) {
-
 			def now=new Date()
 			def current = new SimpleDateFormat('EEE, d MMM yyyy HH:mm:ss').format(now)
 			ChatBanList.withTransaction {
-
-
 				def found=ChatBanList.findAllByUsernameAndPeriodGreaterThan(username,current)
 				def dd=ChatBanList.findAllByUsername(username)
 				if (found) {
@@ -747,7 +816,7 @@ class ChatUtils {
 		}
 		return yesis
 	}
-	@Transactional
+
 	private void banthisUser(String username,String duration, String period) {
 		def cc
 		use(TimeCategory) {
@@ -767,20 +836,22 @@ class ChatUtils {
 			}
 		}
 	}
-	@Transactional
+
 	private void blockUser(String username,String urecord) {
 		if (dbSupport()) {
 			def cuser=currentUser(username)
-			def found=ChatBlockList.findByChatuserAndUsername(cuser,urecord)
-			if (!found) {
-				def newEntry=new ChatBlockList()
-				newEntry.chatuser=cuser
-				newEntry.username=urecord
-				newEntry.save(flush:true)
+			ChatBlockList.withTransaction {
+				def found=ChatBlockList.findByChatuserAndUsername(cuser,urecord)
+				if (!found) {
+					def newEntry=new ChatBlockList()
+					newEntry.chatuser=cuser
+					newEntry.username=urecord
+					newEntry.save(flush:true)
+				}
 			}
 		}
 	}
-	@Transactional
+
 	private void addUser(String username,String urecord) {
 		if (dbSupport()) {
 			def cuser=currentUser(username)
@@ -795,7 +866,7 @@ class ChatUtils {
 			}
 		}
 	}
-	@Transactional
+
 	private void removeUser(String username,String urecord) {
 		if (dbSupport()) {
 			ChatFriendList.withTransaction {
@@ -805,7 +876,7 @@ class ChatUtils {
 			}
 		}
 	}
-	@Transactional
+
 	def currentUser(String username) {
 		if (dbSupport()) {
 			ChatUser.withTransaction {
@@ -833,7 +904,7 @@ class ChatUtils {
 	private void ListRooms() {
 		broadcast2all(roomList())
 	}
-	@Transactional
+
 	private Map roomList() {
 		def uList=[]
 		def room=config.rooms
@@ -849,7 +920,6 @@ class ChatUtils {
 		def finalList=[:]
 		if (dbSupport()) {
 			ChatRoomList.withTransaction {
-
 				dbrooms=ChatRoomList?.findAll()*.room.unique()
 			}
 			if (dbrooms) {

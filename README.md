@@ -1,4 +1,4 @@
-wschat 1.8
+wschat 1.8-SNAPSHOT
 =========
 
 Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
@@ -20,7 +20,7 @@ Grails websocket chat Plugin provides a multi-chat room facilty to an existing g
 
 ##### Dependency :
 
-	compile ":wschat:1.8" 
+	compile ":wschat:1.8-SNAPSHOT" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -346,6 +346,7 @@ Admin commands
 	
 # Version info
 ```
+1.8-SNAPSHOT : https://github.com/vahidhedayati/grails-wschat-plugin/issues/3
 1.8 -	Added withTransaction to all DB calls, to fix issue with 2.4.4 apps. 
 		Added some wrappers to enable backward compatibility for hibernate to BuildConfig/DataSource.
 		

@@ -188,9 +188,9 @@ var options = {
 	
 
      window.onbeforeunload = function() {
-       	webSocket.send("DISCO:-"+user);
-       	webSocket.onclose = function() { }
-       	webSocket.close();
+    	 webSocket.send("DISCO:-"+user);
+       	//webSocket.onclose = function() { }
+       	//webSocket.close();
      }
 
  
