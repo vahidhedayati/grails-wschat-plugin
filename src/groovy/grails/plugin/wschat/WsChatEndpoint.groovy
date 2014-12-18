@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory
 @ServerEndpoint("/WsChatEndpoint/{room}")
 class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 	private final Logger log = LoggerFactory.getLogger(getClass().name)
-	
+
 	//GrailsApplication grailsApplication
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
@@ -39,7 +39,7 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 			}
 
 			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
-			
+
 			def grailsApplication = ctx.grailsApplication
 
 			config = grailsApplication.config.wschat
@@ -59,16 +59,16 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 	public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) {
 		chatroomUsers.add(userSession)
 		userSession.userProperties.put("room", room)
-		
+
 		def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 		def grailsApplication = ctx.grailsApplication
-		
+
 		wsChatAuthService = ctx.wsChatAuthService
 		wsChatUserService = ctx.wsChatUserService
 		wsChatMessagingService = ctx.wsChatMessagingService
 		wsChatRoomService = ctx.wsChatRoomService
 		config = grailsApplication.config.wschat
-		
+
 	}
 
 	@OnMessage

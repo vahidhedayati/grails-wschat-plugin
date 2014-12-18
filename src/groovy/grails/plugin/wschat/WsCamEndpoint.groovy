@@ -28,11 +28,11 @@ import org.slf4j.LoggerFactory
 @ServerEndpoint("/WsCamEndpoint/{user}/{viewer}")
 
 class WsCamEndpoint extends ChatUtils implements ServletContextListener {
-	
-	private final Logger log = LoggerFactory.getLogger(getClass().name)
-	
 
-	
+	private final Logger log = LoggerFactory.getLogger(getClass().name)
+
+
+
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
 		ServletContext servletContext = event.servletContext
@@ -42,9 +42,9 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 			if (Environment.current == Environment.DEVELOPMENT) {
 				serverContainer.addEndpoint(WsCamEndpoint)
 			}
-			
+
 			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
-			
+
 			def grailsApplication = ctx.grailsApplication
 
 			config = grailsApplication.config.wschat
@@ -66,7 +66,7 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 			userSession.setMaxBinaryMessageBufferSize(1024*512)
 			userSession.setMaxTextMessageBufferSize(1000000)
 			//userSession.setmaxMessageSize(-1L)
-			
+
 			if (viewer.equals(user)) {
 				userSession.userProperties.put("camuser", user+":"+user);
 			}else{
@@ -76,17 +76,17 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 				userSession.userProperties.put("camusername", viewer);
 				camsessions.add(userSession)
 			}
-			
+
 			def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 			def grailsApplication = ctx.grailsApplication
 			config = grailsApplication.config.wschat
-			
+
 			wsChatAuthService = ctx.wsChatAuthService
 			wsChatUserService = ctx.wsChatUserService
 			wsChatMessagingService = ctx.wsChatMessagingService
 			wsChatRoomService = ctx.wsChatRoomService
 			wsCamService = ctx.wsCamService
-			
+
 		}else{
 			log.info "could not find chat user ! ${viewer}"
 		}

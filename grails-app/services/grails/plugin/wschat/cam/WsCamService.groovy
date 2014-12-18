@@ -1,8 +1,8 @@
 package grails.plugin.wschat.cam
 
 import grails.converters.JSON
-import grails.plugin.wschat.ChatSessions
 import grails.plugin.wschat.WsChatConfService
+import grails.plugin.wschat.listeners.ChatSessions
 import groovy.json.JsonBuilder
 
 import javax.websocket.Session
@@ -70,6 +70,7 @@ class WsCamService extends WsChatConfService  implements ChatSessions {
 		String camuser = userSession.userProperties.get("camuser") as String
 		if (user && camuser && camuser.endsWith(':'+user)) {
 			try {
+				synchronized (camsessions) {
 				Iterator<Session> iterator=camsessions?.iterator()
 				if (iterator) {
 					while (iterator?.hasNext())  {
@@ -85,6 +86,7 @@ class WsCamService extends WsChatConfService  implements ChatSessions {
 						}
 					}
 				}
+				}
 			} catch (Throwable e) {
 				log.error ("onMessage failed", e)
 			}
@@ -94,24 +96,5 @@ class WsCamService extends WsChatConfService  implements ChatSessions {
 		} catch (Throwable e) {	}
 	}
 
-	Boolean camLoggedIn(String user) {
-		Boolean loggedin=false
-		try {
-			Iterator<Session> iterator=camsessions?.iterator()
-			if (iterator) {
-				while (iterator?.hasNext())  {
-					def crec=iterator?.next()
-					if (crec.isOpen()) {
-						def cuser=crec.userProperties.get("camusername").toString()
-						if (cuser.equals(user)) {
-							loggedin=true
-						}
-					}
-				}
-			}
-		} catch (IOException e) {
-			log.error ("onMessage failed", e)
-		}
-		return loggedin
-	}
+	
 }

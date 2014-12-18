@@ -2,9 +2,8 @@ package grails.plugin.wschat.messaging
 
 import grails.converters.JSON
 import grails.plugin.wschat.ChatBlockList
-import grails.plugin.wschat.ChatRoomList
-import grails.plugin.wschat.ChatSessions
 import grails.plugin.wschat.WsChatConfService
+import grails.plugin.wschat.listeners.ChatSessions
 
 import javax.websocket.Session
 
@@ -23,23 +22,25 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 		String urecord=userSession.userProperties.get("username") as String
 		Boolean found=false
 		try {
-			Iterator<Session> iterator=chatroomUsers?.iterator()
-			if (iterator) {
-				while (iterator?.hasNext())  {
-					def crec=iterator?.next()
-					if (crec.isOpen()) {
-						def cuser=crec.userProperties.get("username").toString()
-						if (cuser.equals(user)) {
-							Boolean sendIt=checkPM(urecord,user)
-							Boolean sendIt2=checkPM(user,urecord)
-							found=true
-							if (sendIt&&sendIt2) {
-								crec.basicRemote.sendText(myMsgj as String)
-								myMsg.put("message","--> PM sent to ${user}")
-								messageUser(userSession,myMsg)
-							}else{
-								myMsg.put("message","--> PM NOT sent to ${user}, you have been blocked !")
-								messageUser(userSession,myMsg)
+			synchronized (chatroomUsers) {
+				Iterator<Session> iterator=chatroomUsers?.iterator()
+				if (iterator) {
+					while (iterator?.hasNext())  {
+						def crec=iterator?.next()
+						if (crec.isOpen()) {
+							def cuser=crec.userProperties.get("username").toString()
+							if (cuser.equals(user)) {
+								Boolean sendIt=checkPM(urecord,user)
+								Boolean sendIt2=checkPM(user,urecord)
+								found=true
+								if (sendIt&&sendIt2) {
+									crec.basicRemote.sendText(myMsgj as String)
+									myMsg.put("message","--> PM sent to ${user}")
+									messageUser(userSession,myMsg)
+								}else{
+									myMsg.put("message","--> PM NOT sent to ${user}, you have been blocked !")
+									messageUser(userSession,myMsg)
+								}
 							}
 						}
 					}
@@ -54,7 +55,7 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 		}
 	}
 
-	
+
 	Boolean checkPM(String username, String urecord) {
 		Boolean result=true
 		if (dbSupport()) {
@@ -68,16 +69,18 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 		return result
 	}
 
-	
+
 	def broadcast2all(Map msg) {
 		def myMsgj=msg as JSON
 		try {
-			Iterator<Session> iterator=chatroomUsers?.iterator()
-			if (iterator) {
-				while (iterator?.hasNext()) {
-					def crec=iterator?.next()
-					if (crec.isOpen())  {
-						crec.basicRemote.sendText(myMsgj as String);
+			synchronized (chatroomUsers) {
+				Iterator<Session> iterator=chatroomUsers?.iterator()
+				if (iterator) {
+					while (iterator?.hasNext()) {
+						def crec=iterator?.next()
+						if (crec.isOpen())  {
+							crec.basicRemote.sendText(myMsgj as String);
+						}
 					}
 				}
 			}
@@ -85,17 +88,19 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 			log.error ("onMessage failed", e)
 		}
 	}
-	
+
 	def broadcast(Session userSession,Map msg) {
 		def myMsgj=msg as JSON
 		String room = userSession.userProperties.get("room") as String
 		try {
-			Iterator<Session> iterator=chatroomUsers?.iterator()
-			if (iterator) {
-				while (iterator?.hasNext()) {
-					def crec=iterator?.next()
-					if (crec.isOpen() && room.equals(crec.userProperties.get("room"))) {
-						crec.basicRemote.sendText(myMsgj as String);
+			synchronized (chatroomUsers) {
+				Iterator<Session> iterator=chatroomUsers?.iterator()
+				if (iterator) {
+					while (iterator?.hasNext()) {
+						def crec=iterator?.next()
+						if (crec.isOpen() && room.equals(crec.userProperties.get("room"))) {
+							crec.basicRemote.sendText(myMsgj as String);
+						}
 					}
 				}
 			}
@@ -109,15 +114,17 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 
 	def jsonmessageOther(Session userSession,String msg,String realCamUser) {
 		try {
-			Iterator<Session> iterator=camsessions?.iterator()
-			if (iterator) {
-				while (iterator?.hasNext())  {
-					def crec=iterator?.next()
-					if (crec.isOpen()) {
-						def cuser=crec.userProperties.get("camuser").toString()
-						def cmuser=crec.userProperties.get("camusername").toString()
-						if ((cuser.startsWith(realCamUser+":"))&&(!cuser.toString().endsWith(realCamUser))) {
-							crec.basicRemote.sendText(msg as String)
+			synchronized (camsessions) {
+				Iterator<Session> iterator=camsessions?.iterator()
+				if (iterator) {
+					while (iterator?.hasNext())  {
+						def crec=iterator?.next()
+						if (crec.isOpen()) {
+							def cuser=crec.userProperties.get("camuser").toString()
+							def cmuser=crec.userProperties.get("camusername").toString()
+							if ((cuser.startsWith(realCamUser+":"))&&(!cuser.toString().endsWith(realCamUser))) {
+								crec.basicRemote.sendText(msg as String)
+							}
 						}
 					}
 				}
@@ -129,15 +136,17 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 
 	def jsonmessageOwner(Session userSession,String msg,String realCamUser) {
 		try {
-			Iterator<Session> iterator=camsessions?.iterator()
-			if (iterator) {
-				while (iterator?.hasNext())  {
-					def crec=iterator?.next()
-					if (crec.isOpen()) {
-						def cuser=crec.userProperties.get("camuser").toString()
-						def cmuser=crec.userProperties.get("camusername").toString()
-						if ((cuser.startsWith(realCamUser+":"))&&(cuser.toString().endsWith(realCamUser))) {
-							crec.basicRemote.sendText(msg as String)
+			synchronized (camsessions) {
+				Iterator<Session> iterator=camsessions?.iterator()
+				if (iterator) {
+					while (iterator?.hasNext())  {
+						def crec=iterator?.next()
+						if (crec.isOpen()) {
+							def cuser=crec.userProperties.get("camuser").toString()
+							def cmuser=crec.userProperties.get("camusername").toString()
+							if ((cuser.startsWith(realCamUser+":"))&&(cuser.toString().endsWith(realCamUser))) {
+								crec.basicRemote.sendText(msg as String)
+							}
 						}
 					}
 				}
@@ -147,5 +156,5 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 		}
 	}
 
-	
+
 }

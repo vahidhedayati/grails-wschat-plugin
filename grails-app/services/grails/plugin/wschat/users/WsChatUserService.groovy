@@ -4,9 +4,9 @@ import grails.converters.JSON
 import grails.plugin.wschat.ChatBanList
 import grails.plugin.wschat.ChatBlockList
 import grails.plugin.wschat.ChatFriendList
-import grails.plugin.wschat.ChatSessions
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.WsChatConfService
+import grails.plugin.wschat.listeners.ChatSessions
 import grails.transaction.Transactional
 import groovy.time.TimeCategory
 
@@ -25,7 +25,7 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 			logoutUser(userSession,username)
 		}
 	}
-	
+
 	def logUserOut(Session userSession,String username) {
 		String croom = userSession.userProperties.get("room") as String
 		String cusername=userSession.userProperties.get("username") as String
@@ -49,18 +49,20 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 		myMsg.put("message", "${username} about to be kicked off")
 		wsChatMessagingService.broadcast(userSession,myMsg)
 		try {
-			Iterator<Session> iterator=chatroomUsers.iterator()
-			if (iterator) {
-				while (iterator.hasNext())  {
-					def crec=iterator?.next()
-					if (crec) {
-						def uList=[]
-						def finalList=[:]
-						def cuser=crec.userProperties.get("username").toString()
-						if (cuser.equals(username)) {
-							def myMsg1=[:]
-							myMsg1.put("system","disconnect")
-							wsChatMessagingService.messageUser(crec,myMsg1)
+			synchronized (chatroomUsers) {
+				Iterator<Session> iterator=chatroomUsers.iterator()
+				if (iterator) {
+					while (iterator.hasNext())  {
+						def crec=iterator?.next()
+						if (crec) {
+							def uList=[]
+							def finalList=[:]
+							def cuser=crec.userProperties.get("username").toString()
+							if (cuser.equals(username)) {
+								def myMsg1=[:]
+								myMsg1.put("system","disconnect")
+								wsChatMessagingService.messageUser(crec,myMsg1)
+							}
 						}
 					}
 				}
@@ -73,91 +75,13 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 	void sendUsers(Session userSession,String username) {
 		String room = userSession.userProperties.get("room") as String
 		try {
-			Iterator<Session> iterator2=chatroomUsers?.iterator()
-			if (iterator2) {
-				while (iterator2?.hasNext())  {
-					def crec2=iterator2?.next()
-					if (crec2.isOpen()) {
-						def uiterator=crec2.userProperties.get("username").toString()
-						def uList=[]
-						def finalList=[:]
-						def blocklist
-						def friendslist
-						if (dbSupport()) {
-							ChatBlockList.withTransaction {
-								blocklist=ChatBlockList.findAllByChatuser(currentUser(uiterator))
-							}
-							ChatFriendList.withTransaction {
-								friendslist=ChatFriendList.findAllByChatuser(currentUser(uiterator))
-							}
-						}
-						Iterator<Session> iterator=chatroomUsers?.iterator()
-						if (iterator) {
-							while (iterator?.hasNext())  {
-								def myUser=[:]
-								def crec=iterator?.next()
-								if (crec.isOpen() && room.equals(crec.userProperties.get("room"))) {
-									def cuser=crec.userProperties.get("username").toString()
-									def av=crec.userProperties.get("av").toString()
-									def rtc=crec.userProperties.get("rtc").toString()
-									def addav=""
-									if (av.equals("on")) {
-										addav="_av"
-									}
-									if (rtc.equals("on")) {
-										addav="_rtc"
-									}
-									if (cuser.equals(uiterator)) {
-										myUser.put("owner${addav}", cuser)
-										uList.add(myUser)
-									}else{
-										if ((blocklist)&&(blocklist.username.contains(cuser))) {
-											myUser.put("blocked", cuser)
-											uList.add(myUser)
-
-										}else if  ((friendslist)&&(friendslist.username.contains(cuser))) {
-											myUser.put("friends${addav}", cuser)
-											uList.add(myUser)
-										}else{
-											myUser.put("user${addav}", cuser)
-											uList.add(myUser)
-										}
-									}
-								}
-							}
-						}
-						finalList.put("users", uList)
-						sendUserList(uiterator,finalList)
-					}
-				}
-			}
-		} catch (IOException e) {
-			log.error ("onMessage failed", e)
-		}
-
-	}
-
-	void sendUsersLoggedOut(String room,String username) {
-
-		try {
-			Iterator<Session> iterator2=chatroomUsers?.iterator()
-			if (iterator2) {
-				def myMsg=[:]
-				String sendleave=config.send.leftroom  ?: 'yes'
-				myMsg.put("message", "${username} has left ${room}")
-				while (iterator2?.hasNext())  {
-					def crec2=iterator2?.next()
-					if (crec2.isOpen()) {
-						def uiterator=crec2.userProperties.get("username").toString()
-						if (uiterator!=username) {
-							//broadcast(crec2,myMsg)
-							//isuBanned=isBanned(username)
-							//if (!isuBanned && (sendleave=='yes')){
-							if (sendleave=='yes') {
-								wsChatMessagingService.broadcast(crec2,myMsg)
-							}
-
-
+			synchronized (chatroomUsers) {
+				Iterator<Session> iterator2=chatroomUsers?.iterator()
+				if (iterator2) {
+					while (iterator2?.hasNext())  {
+						def crec2=iterator2?.next()
+						if (crec2.isOpen()) {
+							def uiterator=crec2.userProperties.get("username").toString()
 							def uList=[]
 							def finalList=[:]
 							def blocklist
@@ -170,6 +94,7 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 									friendslist=ChatFriendList.findAllByChatuser(currentUser(uiterator))
 								}
 							}
+
 							Iterator<Session> iterator=chatroomUsers?.iterator()
 							if (iterator) {
 								while (iterator?.hasNext())  {
@@ -217,17 +142,101 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 
 	}
 
+	void sendUsersLoggedOut(String room,String username) {
+
+		try {
+			synchronized (chatroomUsers) {
+				Iterator<Session> iterator2=chatroomUsers?.iterator()
+				if (iterator2) {
+					def myMsg=[:]
+					String sendleave=config.send.leftroom  ?: 'yes'
+					myMsg.put("message", "${username} has left ${room}")
+					while (iterator2?.hasNext())  {
+						def crec2=iterator2?.next()
+						if (crec2.isOpen()) {
+							def uiterator=crec2.userProperties.get("username").toString()
+							if (uiterator!=username) {
+								//broadcast(crec2,myMsg)
+								//isuBanned=isBanned(username)
+								//if (!isuBanned && (sendleave=='yes')){
+								if (sendleave=='yes') {
+									wsChatMessagingService.broadcast(crec2,myMsg)
+								}
+
+
+								def uList=[]
+								def finalList=[:]
+								def blocklist
+								def friendslist
+								if (dbSupport()) {
+									ChatBlockList.withTransaction {
+										blocklist=ChatBlockList.findAllByChatuser(currentUser(uiterator))
+									}
+									ChatFriendList.withTransaction {
+										friendslist=ChatFriendList.findAllByChatuser(currentUser(uiterator))
+									}
+								}
+								Iterator<Session> iterator=chatroomUsers?.iterator()
+								if (iterator) {
+									while (iterator?.hasNext())  {
+										def myUser=[:]
+										def crec=iterator?.next()
+										if (crec.isOpen() && room.equals(crec.userProperties.get("room"))) {
+											def cuser=crec.userProperties.get("username").toString()
+											def av=crec.userProperties.get("av").toString()
+											def rtc=crec.userProperties.get("rtc").toString()
+											def addav=""
+											if (av.equals("on")) {
+												addav="_av"
+											}
+											if (rtc.equals("on")) {
+												addav="_rtc"
+											}
+											if (cuser.equals(uiterator)) {
+												myUser.put("owner${addav}", cuser)
+												uList.add(myUser)
+											}else{
+												if ((blocklist)&&(blocklist.username.contains(cuser))) {
+													myUser.put("blocked", cuser)
+													uList.add(myUser)
+
+												}else if  ((friendslist)&&(friendslist.username.contains(cuser))) {
+													myUser.put("friends${addav}", cuser)
+													uList.add(myUser)
+												}else{
+													myUser.put("user${addav}", cuser)
+													uList.add(myUser)
+												}
+											}
+										}
+									}
+								}
+								finalList.put("users", uList)
+								sendUserList(uiterator,finalList)
+							}
+						}
+					}
+				}
+			}
+		} catch (IOException e) {
+			log.error ("onMessage failed", e)
+		}
+
+	}
+
 	private void sendUserList(String iuser,Map msg) {
 		def myMsgj=msg as JSON
 		try {
-			Iterator<Session> iterator=chatroomUsers?.iterator()
-			if (iterator) {
-				while (iterator?.hasNext())  {
-					def crec=iterator?.next()
-					if (crec.isOpen()) {
-						def cuser=crec.userProperties.get("username").toString()
-						if (cuser.equals(iuser)) {
-							crec.basicRemote.sendText(myMsgj as String)
+			synchronized (chatroomUsers) {
+				Iterator<Session> iterator=chatroomUsers?.iterator()
+				if (iterator) {
+					while (iterator?.hasNext())  {
+						def crec=iterator?.next()
+						if (crec.isOpen()) {
+							def cuser=crec.userProperties.get("username").toString()
+							if (cuser.equals(iuser)) {
+								crec.basicRemote.sendText(myMsgj as String)
+							}
 						}
 					}
 				}
@@ -239,14 +248,16 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 
 	private void removeUser(String username) {
 		try {
-			Iterator<Session> iterator=chatroomUsers?.iterator()
-			if (iterator) {
-				while (iterator?.hasNext())  {
-					def crec=iterator?.next()
-					if (crec.isOpen()) {
-						def cuser=crec.userProperties.get("username").toString()
-						if (cuser.equals(username)) {
-							iterator.remove()
+			synchronized (chatroomUsers) {
+				Iterator<Session> iterator=chatroomUsers?.iterator()
+				if (iterator) {
+					while (iterator?.hasNext())  {
+						def crec=iterator?.next()
+						if (crec.isOpen()) {
+							def cuser=crec.userProperties.get("username").toString()
+							if (cuser.equals(username)) {
+								iterator.remove()
+							}
 						}
 					}
 				}

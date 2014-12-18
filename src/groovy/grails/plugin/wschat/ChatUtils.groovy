@@ -2,6 +2,7 @@ package grails.plugin.wschat
 
 import grails.plugin.wschat.auth.WsChatAuthService
 import grails.plugin.wschat.cam.WsCamService
+import grails.plugin.wschat.listeners.ChatSessions;
 import grails.plugin.wschat.messaging.WsChatMessagingService
 import grails.plugin.wschat.rooms.WsChatRoomService
 import grails.plugin.wschat.users.WsChatUserService
@@ -196,6 +197,27 @@ class ChatUtils extends WsChatConfService  implements ChatSessions {
 				//messageUser(userSession,myMsg)
 			}
 		}
+	}
+
+	Boolean camLoggedIn(String user) {
+		Boolean loggedin=false
+		try {
+			Iterator<Session> iterator=camsessions?.iterator()
+			if (iterator) {
+				while (iterator?.hasNext())  {
+					def crec=iterator?.next()
+					if (crec.isOpen()) {
+						def cuser=crec.userProperties.get("camusername").toString()
+						if (cuser.equals(user)) {
+							loggedin=true
+						}
+					}
+				}
+			}
+		} catch (IOException e) {
+			log.error ("onMessage failed", e)
+		}
+		return loggedin
 	}
 
 	Boolean loggedIn(String user) {

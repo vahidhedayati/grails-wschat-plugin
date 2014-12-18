@@ -1,8 +1,8 @@
 package grails.plugin.wschat.rooms
 
 import grails.plugin.wschat.ChatRoomList
-import grails.plugin.wschat.ChatSessions
 import grails.plugin.wschat.WsChatConfService
+import grails.plugin.wschat.listeners.ChatSessions
 import grails.transaction.Transactional
 
 import javax.websocket.Session
@@ -12,8 +12,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 
 	def wsChatMessagingService
 	def wsChatUserService
-	
-	
+
 	def sendRooms(Session userSession) {
 		wsChatMessagingService.messageUser(userSession,roomList())
 	}
@@ -22,8 +21,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		wsChatMessagingService.broadcast2all(roomList())
 	}
 	
-	
-	 void addRoom(Session userSession,String roomName) {
+	void addRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			ChatRoomList.withTransaction {
 				def nr=new ChatRoomList()
@@ -36,11 +34,10 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		}
 	}
 
-	
-	
-		 void delRoom(Session userSession,String roomName) {
-			if ((dbSupport()) && (isAdmin(userSession)) ) {
-				try {
+	void delRoom(Session userSession,String roomName) {
+		if ((dbSupport()) && (isAdmin(userSession)) ) {
+			try {
+				synchronized (chatroomUsers) {
 					Iterator<Session> iterator=chatroomUsers?.iterator()
 					if (iterator) {
 						while (iterator?.hasNext())  {
@@ -51,6 +48,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 								wsChatUserService.kickUser(userSession,cuser)
 							}
 						}
+
 						ChatRoomList.withTransaction {
 							def nr=ChatRoomList.findByRoom(roomName)
 							if (nr) {
@@ -59,47 +57,46 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 						}
 						ListRooms()
 					}
-				} catch (IOException e) {
-					log.error ("onMessage failed", e)
 				}
+			} catch (IOException e) {
+				log.error ("onMessage failed", e)
 			}
 		}
-		 
-		 
-		 Map roomList() {
-			def uList=[]
-			def room=config.rooms
-			if (room) {
-				uList=[]
-				room.each {
+	}
+
+	Map roomList() {
+		def uList=[]
+		def room=config.rooms
+		if (room) {
+			uList=[]
+			room.each {
+				def myMsg=[:]
+				myMsg.put("room",it)
+				uList.add(myMsg)
+			}
+		}
+		def dbrooms
+		def finalList=[:]
+		if (dbSupport()) {
+			ChatRoomList.withTransaction {
+				dbrooms=ChatRoomList?.findAll()*.room.unique()
+			}
+			if (dbrooms) {
+				//uList=[]
+				dbrooms.each {
 					def myMsg=[:]
 					myMsg.put("room",it)
 					uList.add(myMsg)
 				}
 			}
-			def dbrooms
-			def finalList=[:]
-			if (dbSupport()) {
-				ChatRoomList.withTransaction {
-					dbrooms=ChatRoomList?.findAll()*.room.unique()
-				}
-				if (dbrooms) {
-					//uList=[]
-					dbrooms.each {
-						def myMsg=[:]
-						myMsg.put("room",it)
-						uList.add(myMsg)
-					}
-				}
-			}
-			if (!room && !dbrooms) {
-				room='wschat'
-				def myMsg=[:]
-				myMsg.put("room",room)
-				uList.add(myMsg)
-			}
-			finalList.put("rooms", uList)
-			return finalList as Map
 		}
-	
+		if (!room && !dbrooms) {
+			room='wschat'
+			def myMsg=[:]
+			myMsg.put("room",room)
+			uList.add(myMsg)
+		}
+		finalList.put("rooms", uList)
+		return finalList as Map
+	}
 }

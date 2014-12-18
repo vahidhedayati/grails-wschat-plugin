@@ -2,9 +2,9 @@ package grails.plugin.wschat.auth
 
 import grails.plugin.wschat.ChatLogs
 import grails.plugin.wschat.ChatPermissions
-import grails.plugin.wschat.ChatSessions;
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.WsChatConfService
+import grails.plugin.wschat.listeners.ChatSessions
 import grails.transaction.Transactional
 
 import javax.websocket.Session
@@ -12,7 +12,7 @@ import javax.websocket.Session
 @Transactional
 class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 
-	 String validateLogin(String username) {
+	String validateLogin(String username) {
 		def defaultPerm='user'
 		if (dbSupport()) {
 
@@ -37,17 +37,18 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 		}
 	}
 
-	 Boolean loggedIn(String user) {
+	Boolean loggedIn(String user) {
 		Boolean loggedin=false
 		try {
-			Iterator<Session> iterator=chatroomUsers?.iterator()
-			if (iterator) {
-				while (iterator?.hasNext())  {
-					def crec=iterator?.next()
-					if (crec.isOpen()) {
-						def cuser=crec.userProperties.get("username").toString()
-						if (cuser.equals(user)) {
-							loggedin=true
+			synchronized (chatroomUsers) {
+				Session iterator=chatroomUsers?.iterator()
+				if (iterator) {
+					iterator.each { crec ->
+						if (crec.isOpen()) {
+							def cuser=crec.userProperties.get("username").toString()
+							if (cuser.equals(user)) {
+								loggedin=true
+							}
 						}
 					}
 				}
@@ -58,8 +59,8 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 		return loggedin
 	}
 
-	
-	 void validateLogOut(String username) {
+
+	void validateLogOut(String username) {
 		if (dbSupport()) {
 			ChatLogs.withTransaction {
 				def logit=new ChatLogs()
@@ -70,5 +71,4 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 			}
 		}
 	}
-
 }
