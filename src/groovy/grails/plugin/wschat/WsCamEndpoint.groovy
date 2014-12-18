@@ -38,14 +38,10 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 		ServletContext servletContext = event.servletContext
 		final ServerContainer serverContainer = servletContext.getAttribute("javax.websocket.server.ServerContainer")
 		try {
-			
-			// Adding this conflicts with listener added via plugin descriptor
-			// Whilst it works as run-app - in production this causes issues
 
 			if (Environment.current == Environment.DEVELOPMENT) {
 				serverContainer.addEndpoint(WsCamEndpoint)
 			}
-				
 			
 			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 			
@@ -70,6 +66,7 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 			userSession.setMaxBinaryMessageBufferSize(1024*512)
 			userSession.setMaxTextMessageBufferSize(1000000)
 			//userSession.setmaxMessageSize(-1L)
+			
 			if (viewer.equals(user)) {
 				userSession.userProperties.put("camuser", user+":"+user);
 			}else{
@@ -84,20 +81,26 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 			def grailsApplication = ctx.grailsApplication
 			config = grailsApplication.config.wschat
 			
+			wsChatAuthService = ctx.wsChatAuthService
+			wsChatUserService = ctx.wsChatUserService
+			wsChatMessagingService = ctx.wsChatMessagingService
+			wsChatRoomService = ctx.wsChatRoomService
+			wsCamService = ctx.wsCamService
+			
 		}else{
 			log.info "could not find chat user ! ${viewer}"
 		}
 	}
 
 	@OnMessage
-	public String handleMessage(String message,Session userSession) throws IOException {
-		verifyCamAction(userSession,message)
+	public void handleMessage(String message,Session userSession) throws IOException {
+		wsCamService.verifyCamAction(userSession,message)
 	}
 
 	@OnMessage
 	public void processVideo(byte[] imageData, Session userSession) {
 		String camuser = userSession.userProperties.get("camuser") as String
-		String realCamUser=realCamUser(camuser)
+		String realCamUser=wsCamService.realCamUser(camuser)
 		try {
 			ByteBuffer buf = ByteBuffer.wrap(imageData)
 			Iterator<Session> iterator=camsessions?.iterator()
@@ -120,7 +123,7 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 	@OnClose
 	public void whenClosing(Session userSession) throws SocketException {
 		try {
-			discoCam(userSession)
+			wsCamService.discoCam(userSession)
 		} catch(SocketException e) {
 			log.debug "Error $e"
 		}

@@ -17,7 +17,6 @@ import javax.websocket.server.PathParam
 import javax.websocket.server.ServerContainer
 import javax.websocket.server.ServerEndpoint
 
-import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.web.context.ServletContextHolder as SCH
 import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes as GA
 import org.slf4j.Logger
@@ -34,13 +33,10 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 		ServletContext servletContext = event.servletContext
 		final ServerContainer serverContainer = servletContext.getAttribute("javax.websocket.server.ServerContainer")
 		try {
-			
-			// Adding this conflicts with listener added via plugin descriptor
-			// Whilst it works as run-app - in production this causes issues
+
 			if (Environment.current == Environment.DEVELOPMENT) {
 				serverContainer.addEndpoint(WsChatEndpoint)
 			}
-			
 
 			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 			
@@ -67,12 +63,16 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 		def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 		def grailsApplication = ctx.grailsApplication
 		
+		wsChatAuthService = ctx.wsChatAuthService
+		wsChatUserService = ctx.wsChatUserService
+		wsChatMessagingService = ctx.wsChatMessagingService
+		wsChatRoomService = ctx.wsChatRoomService
 		config = grailsApplication.config.wschat
 		
 	}
 
 	@OnMessage
-	public String handleMessage(String message,Session userSession) throws IOException {
+	public void handleMessage(String message,Session userSession) throws IOException {
 		try {
 			verifyAction(userSession,message)
 		} catch(IOException e) {
@@ -85,7 +85,7 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 		try {
 			String username=userSession?.userProperties?.get("username")
 			if (dbSupport()&&username) {
-				validateLogOut(username as String)
+				wsChatAuthService.validateLogOut(username as String)
 			}
 		} catch(SocketException e) {
 			log.debug "Error $e"
