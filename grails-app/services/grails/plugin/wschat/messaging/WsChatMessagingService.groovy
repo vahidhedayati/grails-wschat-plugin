@@ -23,24 +23,20 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 		Boolean found=false
 		try {
 			synchronized (chatroomUsers) {
-				Iterator<Session> iterator=chatroomUsers?.iterator()
-				if (iterator) {
-					while (iterator?.hasNext())  {
-						def crec=iterator?.next()
-						if (crec.isOpen()) {
-							def cuser=crec.userProperties.get("username").toString()
-							if (cuser.equals(user)) {
-								Boolean sendIt=checkPM(urecord,user)
-								Boolean sendIt2=checkPM(user,urecord)
-								found=true
-								if (sendIt&&sendIt2) {
-									crec.basicRemote.sendText(myMsgj as String)
-									myMsg.put("message","--> PM sent to ${user}")
-									messageUser(userSession,myMsg)
-								}else{
-									myMsg.put("message","--> PM NOT sent to ${user}, you have been blocked !")
-									messageUser(userSession,myMsg)
-								}
+				chatroomUsers?.each { crec->
+					if (crec.isOpen()) {
+						def cuser=crec.userProperties.get("username").toString()
+						if (cuser.equals(user)) {
+							Boolean sendIt=checkPM(urecord,user)
+							Boolean sendIt2=checkPM(user,urecord)
+							found=true
+							if (sendIt&&sendIt2) {
+								crec.basicRemote.sendText(myMsgj as String)
+								myMsg.put("message","--> PM sent to ${user}")
+								messageUser(userSession,myMsg)
+							}else{
+								myMsg.put("message","--> PM NOT sent to ${user}, you have been blocked !")
+								messageUser(userSession,myMsg)
 							}
 						}
 					}
@@ -94,13 +90,9 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 		String room = userSession.userProperties.get("room") as String
 		try {
 			synchronized (chatroomUsers) {
-				Iterator<Session> iterator=chatroomUsers?.iterator()
-				if (iterator) {
-					while (iterator?.hasNext()) {
-						def crec=iterator?.next()
-						if (crec.isOpen() && room.equals(crec.userProperties.get("room"))) {
-							crec.basicRemote.sendText(myMsgj as String);
-						}
+				chatroomUsers?.each { crec->
+					if (crec.isOpen() && room.equals(crec.userProperties.get("room"))) {
+						crec.basicRemote.sendText(myMsgj as String);
 					}
 				}
 			}
@@ -115,16 +107,12 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 	def jsonmessageOther(Session userSession,String msg,String realCamUser) {
 		try {
 			synchronized (camsessions) {
-				Iterator<Session> iterator=camsessions?.iterator()
-				if (iterator) {
-					while (iterator?.hasNext())  {
-						def crec=iterator?.next()
-						if (crec.isOpen()) {
-							def cuser=crec.userProperties.get("camuser").toString()
-							def cmuser=crec.userProperties.get("camusername").toString()
-							if ((cuser.startsWith(realCamUser+":"))&&(!cuser.toString().endsWith(realCamUser))) {
-								crec.basicRemote.sendText(msg as String)
-							}
+				camsessions?.each { crec->
+					if (crec.isOpen()) {
+						def cuser=crec.userProperties.get("camuser").toString()
+						def cmuser=crec.userProperties.get("camusername").toString()
+						if ((cuser.startsWith(realCamUser+":"))&&(!cuser.toString().endsWith(realCamUser))) {
+							crec.basicRemote.sendText(msg as String)
 						}
 					}
 				}
@@ -137,16 +125,12 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 	def jsonmessageOwner(Session userSession,String msg,String realCamUser) {
 		try {
 			synchronized (camsessions) {
-				Iterator<Session> iterator=camsessions?.iterator()
-				if (iterator) {
-					while (iterator?.hasNext())  {
-						def crec=iterator?.next()
-						if (crec.isOpen()) {
-							def cuser=crec.userProperties.get("camuser").toString()
-							def cmuser=crec.userProperties.get("camusername").toString()
-							if ((cuser.startsWith(realCamUser+":"))&&(cuser.toString().endsWith(realCamUser))) {
-								crec.basicRemote.sendText(msg as String)
-							}
+				camsessions?.each { crec->
+					if (crec.isOpen()) {
+						def cuser=crec.userProperties.get("camuser").toString()
+						def cmuser=crec.userProperties.get("camusername").toString()
+						if ((cuser.startsWith(realCamUser+":"))&&(cuser.toString().endsWith(realCamUser))) {
+							crec.basicRemote.sendText(msg as String)
 						}
 					}
 				}

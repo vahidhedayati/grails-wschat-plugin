@@ -63,13 +63,10 @@ class ChatUtils extends WsChatConfService  implements ChatSessions {
 			}
 		}else{
 			if (message.startsWith("DISCO:-")) {
-				String croom = userSession.userProperties.get("room") as String
-				String cusername=userSession.userProperties.get("username") as String
-
 				String dbsup=config.logleavers ?: 'no'
 
 				if (dbsup=='yes') {
-					log.error "Room: >${croom}< | User: >${username}< | Cuser: >${cusername}< "
+					log.error "Room: >${room}< | User: >${username}<  "
 				}
 
 
@@ -78,7 +75,7 @@ class ChatUtils extends WsChatConfService  implements ChatSessions {
 				//String bcasto=config.left.timeout  ?: '0'
 				//sleep(bcasto as int)
 				//wsChatUserService.sendUsersLoggedOut(croom,username)
-				wsChatUserService.logUserOut(userSession,username)
+				wsChatUserService.logUserOut(userSession,username,room)
 
 			}else if (message.startsWith("/pm")) {
 				def values=parseInput("/pm ",message)

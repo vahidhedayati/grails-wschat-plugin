@@ -41,14 +41,11 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 		Boolean loggedin=false
 		try {
 			synchronized (chatroomUsers) {
-				Session iterator=chatroomUsers?.iterator()
-				if (iterator) {
-					iterator.each { crec ->
-						if (crec.isOpen()) {
-							def cuser=crec.userProperties.get("username").toString()
-							if (cuser.equals(user)) {
-								loggedin=true
-							}
+				chatroomUsers?.each { crec->
+					if (crec.isOpen()) {
+						def cuser=crec.userProperties.get("username").toString()
+						if (cuser.equals(user)) {
+							loggedin=true
 						}
 					}
 				}

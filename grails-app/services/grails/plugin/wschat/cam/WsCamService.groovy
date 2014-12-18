@@ -71,10 +71,7 @@ class WsCamService extends WsChatConfService  implements ChatSessions {
 		if (user && camuser && camuser.endsWith(':'+user)) {
 			try {
 				synchronized (camsessions) {
-				Iterator<Session> iterator=camsessions?.iterator()
-				if (iterator) {
-					while (iterator?.hasNext())  {
-						def crec=iterator?.next()
+					camsessions?.each { crec->
 						if (crec?.isOpen()) {
 							String chuser=crec?.userProperties.get("camuser") as String
 							if (chuser && chuser.startsWith(user)) {
@@ -86,7 +83,6 @@ class WsCamService extends WsChatConfService  implements ChatSessions {
 						}
 					}
 				}
-				}
 			} catch (Throwable e) {
 				log.error ("onMessage failed", e)
 			}
@@ -96,5 +92,5 @@ class WsCamService extends WsChatConfService  implements ChatSessions {
 		} catch (Throwable e) {	}
 	}
 
-	
+
 }

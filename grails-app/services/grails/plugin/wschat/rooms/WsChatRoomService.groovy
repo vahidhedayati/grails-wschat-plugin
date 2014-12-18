@@ -20,7 +20,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 	def  ListRooms() {
 		wsChatMessagingService.broadcast2all(roomList())
 	}
-	
+
 	void addRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			ChatRoomList.withTransaction {
@@ -38,25 +38,21 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			try {
 				synchronized (chatroomUsers) {
-					Iterator<Session> iterator=chatroomUsers?.iterator()
-					if (iterator) {
-						while (iterator?.hasNext())  {
-							def crec=iterator?.next()
-							if (crec.isOpen() && roomName.equals(crec.userProperties.get("room"))) {
-								def cuser=crec.userProperties.get("username").toString()
-								//String croom = crec.userProperties.get("room") as String
-								wsChatUserService.kickUser(userSession,cuser)
-							}
+					chatroomUsers?.each { crec->
+						if (crec.isOpen() && roomName.equals(crec.userProperties.get("room"))) {
+							def cuser=crec.userProperties.get("username").toString()
+							//String croom = crec.userProperties.get("room") as String
+							wsChatUserService.kickUser(userSession,cuser)
 						}
-
-						ChatRoomList.withTransaction {
-							def nr=ChatRoomList.findByRoom(roomName)
-							if (nr) {
-								nr.delete(flush: true)
-							}
-						}
-						ListRooms()
 					}
+
+					ChatRoomList.withTransaction {
+						def nr=ChatRoomList.findByRoom(roomName)
+						if (nr) {
+							nr.delete(flush: true)
+						}
+					}
+					ListRooms()
 				}
 			} catch (IOException e) {
 				log.error ("onMessage failed", e)

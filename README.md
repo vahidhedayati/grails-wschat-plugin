@@ -1,4 +1,4 @@
-wschat 1.10
+wschat 1.10-SNAPSHOT
 =========
 
 Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
@@ -20,7 +20,7 @@ Grails websocket chat Plugin provides a multi-chat room facilty to an existing g
 
 ##### Dependency :
 
-	compile ":wschat:1.10" 
+	compile ":wschat:1.10-SNAPSHOT" 
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -366,6 +366,9 @@ Admin commands
 	
 # Version info
 ```
+1.10-SNAPSHOT - Back to synchronizedSet again, removed iterator calls and called .each instead,
+				Tidy up of nested loop call of sendusers.
+				 
 1.10 - As a result of 1.9 webcam was broken, function moved to chatUtils.
 	 	chatroomUsers and camsessions change from Set to Collection.
 	 	synchronized added around all iterators.
