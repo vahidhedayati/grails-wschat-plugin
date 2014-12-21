@@ -384,6 +384,50 @@ appName="your_appname"
 autodisco="true"
 />
 ```
+
+### Overriding plugin actionMap processor:
+Within your application grails-app/conf/spring/resources.groovy:
+```
+import grails.plugin.wschat.myclient.MyChatClientService
+
+
+// Place your Spring DSL code here
+beans = {
+	wsChatClientService(MyChatClientService)
+}
+
+```
+
+Within your application grails-app/services/grails/plugin/wschat/myclient/MyChatClientService.groovy:
+```
+package grails.plugin.wschat.myclient
+
+import grails.plugin.wschat.client.WsChatClientService
+
+import javax.websocket.Session
+
+
+
+public  class MyChatClientService extends WsChatClientService {
+
+	@Override
+	public void processAct(Session userSession, boolean pm,String actionthis, String sendThis,
+		String divId, String msgFrom, boolean strictMode) {
+		if (pm) {
+			if (strictMode==false) {
+				userSession.basicRemote.sendText("|_____|>>"+sendThis)
+			}
+			userSession.basicRemote.sendText("/pm ${msgFrom},${sendThis}")
+		}else{
+			userSession.basicRemote.sendText("${sendThis}")
+		}
+	}
+}
+
+```
+
+I have overriden the processAct, this is where within plugin it has matched an action to actionMap provided within the call. I went through a lot of work to seperate this functionality from deep within messageHandler listener back into clientEndPoint and finally into a service now allowing you to expand on what you wish to really do with your defined maps. So to give an example. https://github.com/vahidhedayati/testwschat refer to this project to above path and I will get it to list some domain object from back within the actual app to the screen.
+
  
 
 # Commands:

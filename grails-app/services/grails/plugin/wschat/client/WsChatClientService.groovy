@@ -3,13 +3,13 @@ package grails.plugin.wschat.client
 import grails.converters.JSON
 import grails.plugin.wschat.WsChatClientEndpoint
 
+import javax.websocket.Session
+
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 
 
-class WsChatClientService {
-
-	//private WsChatClientEndpoint clientEndPoint
+public class WsChatClientService {
 
 	public WsChatClientEndpoint conn(String hostname, String appName, String room, String user ) {
 		WsChatClientEndpoint clientEndPoint = new WsChatClientEndpoint(new URI("ws://${hostname}/${appName}/WsChatEndpoint/${room}"))
@@ -28,8 +28,22 @@ class WsChatClientService {
 	def disco(WsChatClientEndpoint clientEndPoint, String user) {
 		clientEndPoint.disconnectClient(user)
 	}
-
-	def handMessage(WsChatClientEndpoint clientEndPoint, String user,String pmuser, Map aMap, boolean strictMode) {
+	
+	public void processAct(Session userSession, boolean pm,String actionthis, String sendThis,
+		String divId, String msgFrom, boolean strictMode) {
+		if (pm) {
+			if (strictMode==false) {
+				userSession.basicRemote.sendText(">>"+sendThis)
+			}
+			userSession.basicRemote.sendText("/pm ${msgFrom},${sendThis}")
+		}else{
+			userSession.basicRemote.sendText("${sendThis}")
+		}
+	}
+		
+	def handMessage(Session userSess, WsChatClientEndpoint clientEndPoint, String user, 
+		String pmuser, Map aMap, boolean strictMode,String divId) {
+		
 		clientEndPoint.addMessageHandler(new WsChatClientEndpoint.MessageHandler() {
 					public void handleMessage(String message) {
 						JSONObject rmesg=JSON.parse(message)
@@ -65,19 +79,13 @@ class WsChatClientService {
 						}
 
 						if (actionthis) {
+							
 							if (actionthis == 'close_connection') {
 								clientEndPoint.sendMessage("DISCO:-"+user)
 							}else{
 								if (aMap.containsKey(actionthis)) {
 									String sendThis=aMap[actionthis]
-									if (pm) {
-										clientEndPoint.sendMessage("/pm ${msgFrom},${sendThis}")
-										//if (strictMode==false) {
-										//	clientEndPoint.sendMessage("${sendThis}")
-										//}
-									}else{
-										clientEndPoint.sendMessage("${sendThis}")
-									}
+									clientEndPoint.processAction(userSess, pm, actionthis, sendThis, divId ?: '',msgFrom,strictMode)
 								}
 							}
 						}

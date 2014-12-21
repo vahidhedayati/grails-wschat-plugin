@@ -1,5 +1,7 @@
 package grails.plugin.wschat
 
+import javax.websocket.Session
+
 class WsChatTagLib  {
 
 	static namespace  =  "chat"
@@ -54,7 +56,8 @@ class WsChatTagLib  {
 		def actionMap = attrs.remove('actionMap')
 		def strictMode = attrs.remove('strictMode')?.toBoolean() ?: false
 		def autodisco = attrs.remove('autodisco')?.toBoolean() ?: false
-
+		def divId = attrs.remove('divId')?.toString() ?: ''
+		
 		def aMap=[:]
 		if (actionMap) {
 			aMap=actionMap as Map
@@ -81,7 +84,7 @@ class WsChatTagLib  {
 		WsChatClientEndpoint clientEndPoint = wsChatClientService.conn(hostname, appName, room, user)
 		if (receiver) {
 			if (strictMode==false) {
-				wsChatClientService.sendMessage(clientEndPoint, message)
+				wsChatClientService.sendMessage(clientEndPoint, ">>"+message)
 			}
 			wsChatClientService.sendPM(clientEndPoint, receiver, message)
 		} else {
@@ -91,7 +94,9 @@ class WsChatTagLib  {
 		if (autodisco) {
 			wsChatClientService.disco(clientEndPoint, user)
 		}else{
-			wsChatClientService.handMessage(clientEndPoint, user, receiver, aMap, strictMode)
+			//Session userSess = wsChatClientService.returnSession()
+			Session userSession=clientEndPoint.returnSession()
+			wsChatClientService.handMessage(userSession, clientEndPoint, user, receiver, aMap, strictMode, divId)
 		}
 
 	}
