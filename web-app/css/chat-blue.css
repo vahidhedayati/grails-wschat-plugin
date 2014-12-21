@@ -1,0 +1,36 @@
+.message-thread   {
+	background:  #000099;
+	color:#fff; 
+}
+
+#cmessage {
+	background:  #000099;
+	color:#fff; 
+}
+textarea{
+	background:  #000099;
+	color:#fff; 
+}
+
+#sendBtn { 
+	display:inline-block;
+	*display:inline;
+	*zoom:3;
+	float:right;
+	 background: #FF0000;
+	color: #FFF;
+	padding:8px 13px; 
+	font-family:'Helvetica Neue',sans-serif; 
+	font-size:17px; 
+	border-radius:4px; 
+	-moz-border-radius:4px; 
+	-webkit-border-radius:4px;
+	 border:1px solid #1A87B9 
+} 
+
+#sendMessage  textarea {
+	height: 3em;
+	width: 80%;
+	background: #880000;
+	color:#FFF; 
+}

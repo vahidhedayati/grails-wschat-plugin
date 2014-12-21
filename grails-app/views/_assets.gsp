@@ -1,4 +1,4 @@
-	<asset:stylesheet href="chat.css" />
+	<asset:stylesheet href="chat.css" id="chat_theme"/>
 	<asset:stylesheet href="chat-ui.css" />
 	<asset:javascript src="jquery.min.js"/>
     <asset:javascript src="jquery-ui.min.js"/>
@@ -11,5 +11,6 @@
  	<asset:javascript src="client.js"/>
     <asset:javascript src="jquery.ui.chatbox.js"/>
     <asset:javascript src="jquery.ui.videobox.js"/>
+
 
     

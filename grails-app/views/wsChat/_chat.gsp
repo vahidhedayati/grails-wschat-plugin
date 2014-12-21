@@ -13,7 +13,28 @@
 </head>
 <body>
 <div class="container">
+<button id="themeChanger" class="btn btn-danger btn-xs">RED</button>
+<button id="themeChanger2" class="btn btn-primary btn-xs">BLUE</button>
+<button id="themeChanger3" class="btn btn-inverse btn-xs">DARK</button>
+<button id="themeChanger4" class="btn btn-default btn-xs">DEFAULT</button>
 
+<g:javascript>
+
+document.getElementById('themeChanger2').onclick = function () { 
+    document.getElementById('chat_theme').href = '../assets/chat-blue.css';
+};
+document.getElementById('themeChanger').onclick = function () { 
+    document.getElementById('chat_theme').href = '../assets/chat-red.css';
+};
+document.getElementById('themeChanger3').onclick = function () { 
+    document.getElementById('chat_theme').href = '../assets/chat-dark.css';
+};
+document.getElementById('themeChanger4').onclick = function () { 
+    document.getElementById('chat_theme').href = '../assets/chat.css';
+};
+
+
+</g:javascript>
 <g:if test="${showtitle.equals('yes') }">
 	<div  class="page-header">
 	<h2>${chatHeader }</h2>
@@ -96,8 +117,8 @@
 			
 			<div class="message-thread" >
 				<div id="sendMessage" >
-				<textarea cols="20" rows="1" id="messageBox"  name="message"></textarea>
-				<input type="button" id="sendBtn" value="send" class="btn btn-danger btn-lg" onClick="sendMessage();">
+				<textarea  id="messageBox"  name="message"></textarea>
+				<input type="button" id="sendBtn" value="send"  onClick="sendMessage();">
 		</div></div>
 		</div>
 				
