@@ -2,14 +2,15 @@ package grails.plugin.wschat.client
 
 import grails.converters.JSON
 import grails.plugin.wschat.WsChatClientEndpoint
+import grails.plugin.wschat.interfaces.ClientSessions
 
 import javax.websocket.Session
 
 import org.codehaus.groovy.grails.web.json.JSONObject
 
+public class WsChatClientService implements ClientSessions {
 
-
-public class WsChatClientService {
+	def grailsApplication
 
 	public WsChatClientEndpoint conn(String hostname, String appName, String room, String user ) {
 		WsChatClientEndpoint clientEndPoint = new WsChatClientEndpoint(new URI("ws://${hostname}/${appName}/WsChatEndpoint/${room}"))
@@ -28,16 +29,30 @@ public class WsChatClientService {
 	def disco(WsChatClientEndpoint clientEndPoint, String user) {
 		clientEndPoint.disconnectClient(user)
 	}
-	
+
 	public void processAct(Session userSession, boolean pm,String actionthis, String sendThis,
-		String divId, String msgFrom, boolean strictMode, boolean masterNode) {
+			String divId, String msgFrom, boolean strictMode, boolean masterNode) {
+
 		String addon="[PROCESS]"
+
+		def myMap=[pm:pm, actionThis: actionthis, sendThis: sendThis, divId:divId,
+			msgFrom:msgFrom, strictMode:strictMode, masterNode:masterNode ]
+
+
 		if (masterNode) {
 			addon="[PROCESSED]"
+			if (saveClients) {
+				clientMaster.add(myMap)
+			}
+		}else{
+			if (saveClients) {
+				clientSlave.add(myMap)
+			}
 		}
+
 		if (pm) {
 			//if (strictMode==false) {
-				userSession.basicRemote.sendText("${addon}"+sendThis)
+			userSession.basicRemote.sendText("${addon}"+sendThis)
 			//}
 			userSession.basicRemote.sendText("/pm ${msgFrom},${sendThis}")
 		}else{
@@ -45,10 +60,10 @@ public class WsChatClientService {
 			userSession.basicRemote.sendText("${sendThis}")
 		}
 	}
-		
-	def handMessage(Session userSess, WsChatClientEndpoint clientEndPoint, String user, 
-		String pmuser, Map aMap, boolean strictMode,String divId, boolean masterNode) {
-		
+
+	def handMessage(Session userSess, WsChatClientEndpoint clientEndPoint, String user,
+			String pmuser, Map aMap, boolean strictMode,String divId, boolean masterNode) {
+
 		clientEndPoint.addMessageHandler(new WsChatClientEndpoint.MessageHandler() {
 					public void handleMessage(String message) {
 						JSONObject rmesg=JSON.parse(message)
@@ -84,7 +99,7 @@ public class WsChatClientService {
 						}
 
 						if (actionthis) {
-							
+
 							if (actionthis == 'close_connection') {
 								clientEndPoint.sendMessage("DISCO:-"+user)
 							}else{
@@ -97,4 +112,26 @@ public class WsChatClientService {
 					}
 				});
 	}
+
+
+	private boolean getSaveClients() {
+		return isConfigEnabled(config.storeForFrontEnd)
+	}
+
+	private getConfig() {
+		grailsApplication?.config?.wschat
+	}
+
+	private boolean isConfigEnabled(String config) {
+		return Boolean.valueOf(config ?: false)
+	}
+
+	public void truncateSlaves() {
+		clientSlave.clear()
+	}
+
+	public void truncateMasters() {
+		clientMaster.clear()
+	}
+
 }
