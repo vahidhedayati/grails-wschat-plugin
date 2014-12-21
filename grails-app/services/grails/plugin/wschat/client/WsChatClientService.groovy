@@ -30,19 +30,24 @@ public class WsChatClientService {
 	}
 	
 	public void processAct(Session userSession, boolean pm,String actionthis, String sendThis,
-		String divId, String msgFrom, boolean strictMode) {
+		String divId, String msgFrom, boolean strictMode, boolean masterNode) {
+		String addon="[PROCESS]"
+		if (masterNode) {
+			addon="[PROCESSED]"
+		}
 		if (pm) {
-			if (strictMode==false) {
-				userSession.basicRemote.sendText(">>"+sendThis)
-			}
+			//if (strictMode==false) {
+				userSession.basicRemote.sendText("${addon}"+sendThis)
+			//}
 			userSession.basicRemote.sendText("/pm ${msgFrom},${sendThis}")
 		}else{
+			userSession.basicRemote.sendText("${addon}${sendThis}")
 			userSession.basicRemote.sendText("${sendThis}")
 		}
 	}
 		
 	def handMessage(Session userSess, WsChatClientEndpoint clientEndPoint, String user, 
-		String pmuser, Map aMap, boolean strictMode,String divId) {
+		String pmuser, Map aMap, boolean strictMode,String divId, boolean masterNode) {
 		
 		clientEndPoint.addMessageHandler(new WsChatClientEndpoint.MessageHandler() {
 					public void handleMessage(String message) {
@@ -85,7 +90,7 @@ public class WsChatClientService {
 							}else{
 								if (aMap.containsKey(actionthis)) {
 									String sendThis=aMap[actionthis]
-									clientEndPoint.processAction(userSess, pm, actionthis, sendThis, divId ?: '',msgFrom,strictMode)
+									clientEndPoint.processAction(userSess, pm, actionthis, sendThis, divId ?: '',msgFrom,strictMode,masterNode)
 								}
 							}
 						}

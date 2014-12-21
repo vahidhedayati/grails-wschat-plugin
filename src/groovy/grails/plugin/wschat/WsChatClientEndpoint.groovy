@@ -115,7 +115,7 @@ public class WsChatClientEndpoint extends ChatUtils  implements ServletContextLi
 	}
 	
 	public void processAction( Session userSess, boolean pm,String actionthis, String sendThis, 
-		String divId, String msgFrom, boolean strictMode) {
+		String divId, String msgFrom, boolean strictMode, boolean masterNode) {
 		/*
 		if (pm) {
 			if (strictMode==false) {
@@ -126,7 +126,7 @@ public class WsChatClientEndpoint extends ChatUtils  implements ServletContextLi
 			sendMessage("${sendThis}")
 		}
 		*/
-		wsChatClientService.processAct(userSess ?: userSession ,pm ?: false, actionthis ?: '', sendThis ?: '', divId ?: '_', msgFrom ?: '',strictMode ?: false)
+		wsChatClientService.processAct(userSess ?: userSession ,pm ?: false, actionthis ?: '', sendThis ?: '', divId ?: '_', msgFrom ?: '',strictMode ?: false, masterNode ?: false)
 	}
 	
 	public void sendMessage(final String message) {

@@ -12,7 +12,7 @@ import javax.websocket.Session
 
 class ChatUtils extends WsChatConfService  implements ChatSessions {
 
-	Map config
+	ConfigObject config
 
 	WsChatAuthService wsChatAuthService
 	WsChatUserService wsChatUserService

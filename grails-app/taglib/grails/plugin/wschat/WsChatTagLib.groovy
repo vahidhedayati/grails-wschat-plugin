@@ -58,6 +58,7 @@ class WsChatTagLib  {
 		def autodisco = attrs.remove('autodisco')?.toBoolean() ?: false
 		def divId = attrs.remove('divId')?.toString() ?: ''
 		
+		def masterNode = attrs.remove('masterNode')?.toBoolean() ?: false
 		def aMap=[:]
 		if (actionMap) {
 			aMap=actionMap as Map
@@ -96,13 +97,13 @@ class WsChatTagLib  {
 		}else{
 			//Session userSess = wsChatClientService.returnSession()
 			Session userSession=clientEndPoint.returnSession()
-			wsChatClientService.handMessage(userSession, clientEndPoint, user, receiver, aMap, strictMode, divId)
+			wsChatClientService.handMessage(userSession, clientEndPoint, user, receiver, aMap, strictMode, divId, masterNode)
 		}
 
 	}
 
 
-	private String returnRoom(String dbSupport) {
+	private def returnRoom(String dbSupport) {
 		def dbrooms
 		def room = config.rooms[0]
 		if (dbSupport.toLowerCase().equals('yes')) {
@@ -113,7 +114,7 @@ class WsChatTagLib  {
 		} else if (!room && !dbrooms) {
 			room = 'wschat'
 		}
-		return room as String
+		return room 
 	}
 
 	private getConfig() {
