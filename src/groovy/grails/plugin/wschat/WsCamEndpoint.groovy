@@ -100,14 +100,12 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 	@OnMessage
 	public void processVideo(byte[] imageData, Session userSession) {
 		String camuser = userSession.userProperties.get("camuser") as String
-		String realCamUser=wsCamService.realCamUser(camuser)
+		String realCamUser = wsCamService.realCamUser(camuser)
 		try {
 			ByteBuffer buf = ByteBuffer.wrap(imageData)
-			Iterator<Session> iterator=camsessions?.iterator()
-			if (iterator) {
-				while (iterator?.hasNext())  {
-					def crec=iterator?.next()
-					if (crec?.isOpen()) {
+			synchronized (camsessions) {
+				chatroomUsers?.each { crec->
+					if (crec && crec.isOpen()) {
 						String chuser=crec?.userProperties.get("camuser") as String
 						if (chuser && chuser.startsWith(realCamUser)) {
 							crec.basicRemote.sendBinary(buf)
@@ -116,7 +114,7 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 				}
 			}
 		} catch (Throwable ioe) {
-			log.debug "Error sending message " + ioe.getMessage()
+			log.error "Error sending message " + ioe.getMessage()
 		}
 	}
 
@@ -125,7 +123,7 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 		try {
 			wsCamService.discoCam(userSession)
 		} catch(SocketException e) {
-			log.debug "Error $e"
+			log.error "Error $e"
 		}
 	}
 

@@ -1,4 +1,4 @@
-package grails.plugin.wschat.listeners;
+package grails.plugin.wschat.interfaces;
 
 import java.util.Collections;
 import java.util.HashSet;

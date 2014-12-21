@@ -2,7 +2,7 @@ package grails.plugin.wschat.cam
 
 import grails.converters.JSON
 import grails.plugin.wschat.WsChatConfService
-import grails.plugin.wschat.listeners.ChatSessions
+import grails.plugin.wschat.interfaces.ChatSessions
 import groovy.json.JsonBuilder
 
 import javax.websocket.Session
@@ -16,36 +16,36 @@ class WsCamService extends WsChatConfService  implements ChatSessions {
 		String realCamUser
 		if (camuser) {
 			if (camuser.indexOf(':')>-1) {
-				realCamUser=camuser.substring(0,camuser.indexOf(':'))
+				realCamUser = camuser.substring(0,camuser.indexOf(':'))
 			}
 		}
 		return realCamUser
 	}
 
 	void verifyCamAction(Session userSession,String message) {
-		def myMsg=[:]
-		String username=userSession.userProperties.get("camusername") as String
-		String camuser=userSession.userProperties.get("camuser") as String
+		def myMsg = [:]
+		String username = userSession.userProperties.get("camusername") as String
+		String camuser = userSession.userProperties.get("camuser") as String
 		def payload
 		def cmessage
 		def croom
-		String realCamUser=realCamUser(camuser)
-		Boolean isuBanned=false
+		String realCamUser = realCamUser(camuser)
+		Boolean isuBanned = false
 		if (username)  {
-			def data=JSON.parse(message)
+			def data = JSON.parse(message)
 			// authentication stuff - system calls
 			if (data) {
-				cmessage=data.type
-				croom=data.roomId
-				payload=data.payload
+				cmessage = data.type
+				croom = data.roomId
+				payload = data.payload
 			}else{
-				cmessage=message
+				cmessage = message
 			}
 
 			if (cmessage.startsWith("DISCO:-")) {
 				camsessions.remove(userSession)
 			}else if (cmessage.startsWith("createRoom")) {
-				def json = new JsonBuilder()
+				def json  =  new JsonBuilder()
 				json {
 					delegate.type "roomCreated"
 					delegate.payload "${username}"
@@ -66,16 +66,16 @@ class WsCamService extends WsChatConfService  implements ChatSessions {
 	}
 
 	void discoCam(Session userSession) {
-		String user = userSession.userProperties.get("camusername") as String
-		String camuser = userSession.userProperties.get("camuser") as String
+		String user  =  userSession.userProperties.get("camusername") as String
+		String camuser  =  userSession.userProperties.get("camuser") as String
 		if (user && camuser && camuser.endsWith(':'+user)) {
 			try {
 				synchronized (camsessions) {
 					camsessions?.each { crec->
-						if (crec?.isOpen()) {
-							String chuser=crec?.userProperties.get("camuser") as String
+						if (crec && crec?.isOpen()) {
+							String chuser = crec?.userProperties.get("camuser") as String
 							if (chuser && chuser.startsWith(user)) {
-								def myMsg1=[:]
+								def myMsg1 = [:]
 								myMsg1.put("system","disconnect")
 								wsChatMessagingService.messageUser(crec,myMsg1)
 								camsessions.remove(crec)

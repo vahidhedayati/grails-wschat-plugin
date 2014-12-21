@@ -83,7 +83,7 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 	@OnClose
 	public void handeClose(Session userSession) throws SocketException {
 		try {
-			String username=userSession?.userProperties?.get("username")
+			String username = userSession?.userProperties?.get("username")
 			if (dbSupport()&&username) {
 				wsChatAuthService.validateLogOut(username as String)
 			}

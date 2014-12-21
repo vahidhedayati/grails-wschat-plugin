@@ -2,17 +2,18 @@ package grails.plugin.wschat.rooms
 
 import grails.plugin.wschat.ChatRoomList
 import grails.plugin.wschat.WsChatConfService
-import grails.plugin.wschat.listeners.ChatSessions
+import grails.plugin.wschat.interfaces.ChatSessions
 import grails.transaction.Transactional
 
 import javax.websocket.Session
 
-@Transactional
+//@Transactional
 class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 
 	def wsChatMessagingService
 	def wsChatUserService
 
+	
 	def sendRooms(Session userSession) {
 		wsChatMessagingService.messageUser(userSession,roomList())
 	}
@@ -20,12 +21,14 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 	def  ListRooms() {
 		wsChatMessagingService.broadcast2all(roomList())
 	}
+	
 
-	void addRoom(Session userSession,String roomName) {
+	
+	public void addRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			ChatRoomList.withTransaction {
-				def nr=new ChatRoomList()
-				nr.room=roomName
+				def nr = new ChatRoomList()
+				nr.room = roomName
 				if (!nr.save(flush:true)) {
 					log.error "Error saving ${roomName}"
 				}
@@ -39,15 +42,15 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 			try {
 				synchronized (chatroomUsers) {
 					chatroomUsers?.each { crec->
-						if (crec.isOpen() && roomName.equals(crec.userProperties.get("room"))) {
-							def cuser=crec.userProperties.get("username").toString()
-							//String croom = crec.userProperties.get("room") as String
+						if (crec && crec.isOpen() && roomName.equals(crec.userProperties.get("room"))) {
+							def cuser = crec.userProperties.get("username").toString()
+							//String croom  =  crec.userProperties.get("room") as String
 							wsChatUserService.kickUser(userSession,cuser)
 						}
 					}
 
 					ChatRoomList.withTransaction {
-						def nr=ChatRoomList.findByRoom(roomName)
+						def nr = ChatRoomList.findByRoom(roomName)
 						if (nr) {
 							nr.delete(flush: true)
 						}
@@ -61,34 +64,34 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 	}
 
 	Map roomList() {
-		def uList=[]
-		def room=config.rooms
+		def uList = []
+		def room = config.rooms
 		if (room) {
-			uList=[]
+			uList = []
 			room.each {
-				def myMsg=[:]
+				def myMsg = [:]
 				myMsg.put("room",it)
 				uList.add(myMsg)
 			}
 		}
 		def dbrooms
-		def finalList=[:]
+		def finalList = [:]
 		if (dbSupport()) {
 			ChatRoomList.withTransaction {
-				dbrooms=ChatRoomList?.findAll()*.room.unique()
+				dbrooms = ChatRoomList?.findAll()*.room.unique()
 			}
 			if (dbrooms) {
-				//uList=[]
+				//uList = []
 				dbrooms.each {
-					def myMsg=[:]
+					def myMsg = [:]
 					myMsg.put("room",it)
 					uList.add(myMsg)
 				}
 			}
 		}
 		if (!room && !dbrooms) {
-			room='wschat'
-			def myMsg=[:]
+			room = 'wschat'
+			def myMsg = [:]
 			myMsg.put("room",room)
 			uList.add(myMsg)
 		}

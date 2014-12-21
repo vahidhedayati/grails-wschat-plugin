@@ -330,7 +330,61 @@ With this enabled there is one more thing that needs to be done, in your config.
 wschat.dbsupport="no"
 ```
 
+## wsChatClientEndPoint new feature since 1.11
 
+####server.gsp
+```
+<chat:clientConnect
+user="masteruser" 
+receiver="clientuser"
+strictMode="false"
+masterNode="true"
+message="hi this is an automated websocket SERVER message"
+actionMap="['do_task_1': 'performed_task_1', 'do_task_2': 'performed_task_2', 'do_task_3': 'performed_task_3', 'list_domain': 'testwschat.userbase']"
+/>
+-
+```
+
+####client.gsp
+```
+<chat:clientConnect
+user="clientuser" 
+receiver="masteruser"
+message="do_task_1"
+strictMode="false"
+actionMap="['performed_task_1': 'do_task_2', 'performed_task_2': 'do_task_3']"
+/>
+-
+```
+
+#### client connect send + auto disconnect
+```
+<chat:clientConnect
+user="randomUser" 
+message="haha I am just a random client sending a message and disconnecting"
+
+autodisco="true"
+strictMode="false"
+/>
+```
+
+#### Full clientConnect tag lib:
+```
+<chat:clientConnect
+user="clientuser" 
+message="do_task_1"
+
+//optional
+receiver="masteruser"
+actionMap="['performed_task_1': 'do_task_2', 'performed_task_2': 'do_task_3']"
+strictMode="false"
+room = "someroom"
+hostname= "wschathostname"
+appName="your_appname"
+autodisco="true"
+/>
+```
+ 
 
 # Commands:
 
@@ -366,6 +420,8 @@ Admin commands
 	
 # Version info
 ```
+1.11 -	wschatClient EndPoint/Services/taglibs added (to be released soon)
+
 1.10-SNAPSHOT - Back to synchronizedSet again, removed iterator calls and called .each instead,
 				Tidy up of nested loop call of sendusers.
 				 
