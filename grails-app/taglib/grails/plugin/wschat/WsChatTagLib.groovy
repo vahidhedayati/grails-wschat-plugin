@@ -78,20 +78,20 @@ class WsChatTagLib  {
 			message = "testing"
 		}
 
-		wsChatClientService.conn(hostname, appName, room, user)
+		WsChatClientEndpoint clientEndPoint = wsChatClientService.conn(hostname, appName, room, user)
 		if (receiver) {
 			if (strictMode==false) {
-				wsChatClientService.sendMessage(message)
+				wsChatClientService.sendMessage(clientEndPoint, message)
 			}
-			wsChatClientService.sendPM(receiver, message)
+			wsChatClientService.sendPM(clientEndPoint, receiver, message)
 		} else {
-			wsChatClientService.sendMessage(message)
+			wsChatClientService.sendMessage(clientEndPoint, message)
 		}
 
 		if (autodisco) {
-			wsChatClientService.disco(user)
+			wsChatClientService.disco(clientEndPoint, user)
 		}else{
-			wsChatClientService.handMessage(user, receiver, aMap, strictMode)
+			wsChatClientService.handMessage(clientEndPoint, user, receiver, aMap, strictMode)
 		}
 
 	}

@@ -9,26 +9,27 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 
 class WsChatClientService {
 
-	private WsChatClientEndpoint clientEndPoint
+	//private WsChatClientEndpoint clientEndPoint
 
-	def conn(String hostname, String appName, String room, String user ) {
-		clientEndPoint = new WsChatClientEndpoint(new URI("ws://${hostname}/${appName}/WsChatEndpoint/${room}"))
+	public WsChatClientEndpoint conn(String hostname, String appName, String room, String user ) {
+		WsChatClientEndpoint clientEndPoint = new WsChatClientEndpoint(new URI("ws://${hostname}/${appName}/WsChatEndpoint/${room}"))
 		clientEndPoint.connectClient(user)
+		return clientEndPoint
 	}
 
-	def sendMessage( String message) {
+	def sendMessage(WsChatClientEndpoint clientEndPoint, String message) {
 		clientEndPoint.sendMessage("${message}")
 	}
 
-	def sendPM( String pmuser, String message) {
+	def sendPM(WsChatClientEndpoint clientEndPoint, String pmuser, String message) {
 		clientEndPoint.sendMessage("/pm ${pmuser},${message}")
 	}
 
-	def disco( String user) {
+	def disco(WsChatClientEndpoint clientEndPoint, String user) {
 		clientEndPoint.disconnectClient(user)
 	}
 
-	def handMessage(String user,String pmuser, Map aMap, boolean strictMode) {
+	def handMessage(WsChatClientEndpoint clientEndPoint, String user,String pmuser, Map aMap, boolean strictMode) {
 		clientEndPoint.addMessageHandler(new WsChatClientEndpoint.MessageHandler() {
 					public void handleMessage(String message) {
 						JSONObject rmesg=JSON.parse(message)
@@ -71,9 +72,9 @@ class WsChatClientService {
 									String sendThis=aMap[actionthis]
 									if (pm) {
 										clientEndPoint.sendMessage("/pm ${msgFrom},${sendThis}")
-										if (strictMode==false) {
-											clientEndPoint.sendMessage("${sendThis}")
-										}
+										//if (strictMode==false) {
+										//	clientEndPoint.sendMessage("${sendThis}")
+										//}
 									}else{
 										clientEndPoint.sendMessage("${sendThis}")
 									}
