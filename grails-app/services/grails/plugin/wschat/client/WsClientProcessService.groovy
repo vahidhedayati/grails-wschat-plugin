@@ -51,7 +51,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  * beans = {
  * 		wsClientProcessService(MyChatClientService)
  * 	}
- * 
+ * run ctrl shift o (in eclipse based ide's ggts etc and that will import MyChatClientService)
  * 
  */
 public class WsClientProcessService  implements ClientSessions {
