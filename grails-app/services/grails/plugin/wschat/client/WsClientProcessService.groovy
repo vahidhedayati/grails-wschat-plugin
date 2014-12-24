@@ -64,10 +64,11 @@ public class WsClientProcessService  implements ClientSessions {
 	// <chat:clientWsConnect gsp call
 	public void processResponse(Session userSession, String message) {
 		JSONObject rmesg=JSON.parse(message)
-		def actionthis=''
-		def msgFrom = rmesg.msgFrom
+		String actionthis=''
+		String msgFrom = rmesg.msgFrom
 		boolean pm = false
 		String disconnect = rmesg.system
+		
 		if (disconnect && disconnect == "disconnect") {
 			chatClientListenerService.sendMessage(userSession, DISCONNECTOR)
 		}
@@ -88,7 +89,6 @@ public class WsClientProcessService  implements ClientSessions {
 		}
 
 		if (actionthis) {
-
 			if (actionthis == 'close_connection') {
 				chatClientListenerService.sendMessage(userSession, DISCONNECTOR)
 			}else{
@@ -99,7 +99,6 @@ public class WsClientProcessService  implements ClientSessions {
 					// DISCONNECTING HERE OTHERWISE WE WILL GET A LOOP OF REPEATED MESSAGES
 					chatClientListenerService.sendMessage(userSession, DISCONNECTOR)
 				}
-
 			}
 		}
 	}
@@ -110,14 +109,14 @@ public class WsClientProcessService  implements ClientSessions {
 	public void processAct(Session userSession, boolean pm,String actionthis, String sendThis,
 			String divId, String msgFrom, boolean strictMode, boolean masterNode) {
 
-		String addon="[PROCESS]"
+		String addon=">PROCESS>>"
 
 		def myMap=[pm:pm, actionThis: actionthis, sendThis: sendThis, divId:divId,
 			msgFrom:msgFrom, strictMode:strictMode, masterNode:masterNode ]
 
 
 		if (masterNode) {
-			addon="[PROCESSED]"
+			addon=">PROCESSED>>"
 			if (saveClients) {
 				clientMaster.add(myMap)
 			}
@@ -127,7 +126,17 @@ public class WsClientProcessService  implements ClientSessions {
 			}
 		}
 
-		if (pm) {
+		 if (pm) {
+			//if (strictMode==false) {
+			chatClientListenerService.sendMessage(userSession, "${addon}${sendThis}")
+			//}
+			chatClientListenerService.sendPM(userSession,msgFrom,sendThis)
+		}else{
+			chatClientListenerService.sendMessage(userSession, "${addon}${sendThis}")
+			chatClientListenerService.sendMessage(userSession, "${sendThis}")
+		}
+		 
+		/*if (pm) {
 			//if (strictMode==false) {
 			userSession.basicRemote.sendText("${addon}"+sendThis)
 			//}
@@ -136,6 +145,7 @@ public class WsClientProcessService  implements ClientSessions {
 			userSession.basicRemote.sendText("${addon}${sendThis}")
 			userSession.basicRemote.sendText("${sendThis}")
 		}
+		*/
 	}
 
 

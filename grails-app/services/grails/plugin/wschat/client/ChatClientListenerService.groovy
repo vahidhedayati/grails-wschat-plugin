@@ -10,12 +10,32 @@ public class ChatClientListenerService implements ClientSessions {
 
 	def grailsApplication
 	def wsChatRoomService
+	def wsChatUserService
 
-
-	def sendPM(Session userSession, String user,String message) {
-		userSession.basicRemote.sendText("/pm ${user},${message}")
+	def sendArrayPM(Session userSession, ArrayList user,String message) {
+		user.each { cuser ->
+			boolean found=wsChatUserService.findUser(cuser+frontend)
+			if (found) {
+				userSession.basicRemote.sendText("/pm ${cuser+frontend},${message}")
+			}
+			found=wsChatUserService.findUser(cuser)
+			if (found) {
+				userSession.basicRemote.sendText("/pm ${cuser},${message}")
+			}
+		}
 	}
-
+	
+	def sendPM(Session userSession, String user,String message) {
+		boolean found=wsChatUserService.findUser(user+frontend)
+		if (found) {
+			userSession.basicRemote.sendText("/pm ${user+frontend},${message}")
+		}
+		found=wsChatUserService.findUser(user)
+		if (found) {
+			userSession.basicRemote.sendText("/pm ${user},${message}")
+		}
+	}
+	
 	public void sendMessage(Session userSession,final String message) {
 		userSession.basicRemote.sendText(message)
 	}
@@ -101,7 +121,7 @@ public class ChatClientListenerService implements ClientSessions {
 		return _oSession
 	}
 	
-	public void alertEvent(def _oSession,  String _event, String _context, def _data, ArrayList lUsersId){
+	public void alertEvent(def _oSession,  String _event, String _context, def _data, ArrayList cusers){
 		//"data":[${JSON.toString(_data)}]
 		def oSession = _oSession ?: connect()
 		String sMessage = """{
@@ -115,7 +135,7 @@ public class ChatClientListenerService implements ClientSessions {
                                     ]
                         }
                     """
-		lUsersId.each { userId ->
+		cusers.each { userId ->
 			sendPM(oSession, getGlobalReceiverNameFromUserId(userId as String) ,sMessage.replaceAll("\t","").replaceAll("\n",""))
 		}
 		if (_oSession == null) {
@@ -132,6 +152,12 @@ public class ChatClientListenerService implements ClientSessions {
 		return userId
 	}
 
+	
+	private String getFrontend() {
+		def cuser=config.frontenduser ?: '_frontend'
+		return cuser 
+	}
+	
 	private getAppName(){
 		grailsApplication.metadata['app.name']
 	}

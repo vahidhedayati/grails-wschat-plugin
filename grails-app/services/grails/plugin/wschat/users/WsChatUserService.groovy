@@ -41,6 +41,7 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 			logoutUser(userSession,username)
 		}
 	}
+	
 	private void logoutUser(String username) {
 		def myMsg = [:]
 		myMsg.put("message", "${username} about to be kicked off")
@@ -87,6 +88,25 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 		}
 	}
 
+	boolean findUser(String username) {
+		boolean found = false
+		try {
+			synchronized (chatroomUsers) {
+				chatroomUsers?.each { crec->
+					if (crec && crec.isOpen()) {
+						def cuser = crec.userProperties.get("username").toString()
+						if (cuser.equals(username)) {
+							found = true
+						}
+					}
+				}
+			}
+		} catch (IOException e) {
+			log.error ("onMessage failed", e)
+		}
+		return found
+	}
+	
 	private ArrayList genUserMenu(ArrayList friendslist, ArrayList blocklist, String room, String uiterator ) {
 		def uList = []
 		try {

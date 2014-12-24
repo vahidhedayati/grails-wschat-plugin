@@ -1,9 +1,8 @@
 package grails.plugin.wschat.client
 
 
-import javax.servlet.ServletContext
-import javax.servlet.ServletContextEvent
-import javax.servlet.ServletContextListener
+import grails.plugin.wschat.users.WsChatUserService
+
 import javax.websocket.ClientEndpoint
 import javax.websocket.CloseReason
 import javax.websocket.ContainerProvider
@@ -15,7 +14,6 @@ import javax.websocket.OnOpen
 import javax.websocket.Session
 import javax.websocket.WebSocketContainer
 import javax.websocket.server.PathParam
-import javax.websocket.server.ServerContainer
 
 import org.codehaus.groovy.grails.web.context.ServletContextHolder as SCH
 import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes as GA
@@ -31,6 +29,7 @@ public class WsChatClientEndpoint {
 
 	private MessageHandler messageHandler
 	private WsClientProcessService  wsClientProcessService
+	private WsChatUserService  wsChatUserService
 	private ConfigObject config
 
 
@@ -50,7 +49,8 @@ public class WsChatClientEndpoint {
 		def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 		def grailsApplication = ctx.grailsApplication
 		wsClientProcessService = ctx.wsClientProcessService
-
+		wsChatUserService = ctx.wsChatUserService
+		
 		config = grailsApplication.config.wschat
 
 	}
@@ -82,8 +82,8 @@ public class WsChatClientEndpoint {
 		userSession.basicRemote.sendText(message)
 	}
 
-	public void listDomain(String sendThis,String divId) {
-
+	boolean verifyUser(String userId) {
+		return wsChatUserService.findUser(userId)
 	}
 
 	public void processAction( Session userSess, boolean pm,String actionthis, String sendThis,
@@ -96,7 +96,12 @@ public class WsChatClientEndpoint {
 	public void sendMessage(final String message) {
 		userSession.basicRemote.sendText(message)
 	}
-
+	
+	public String getFrontend() {
+		def cuser=config.frontenduser ?: '_frontend'
+		return cuser
+	}
+	
 	public Session returnSession() {
 		return userSession
 	}
@@ -107,8 +112,8 @@ public class WsChatClientEndpoint {
 
 	@OnError
 	public void handleError(Throwable t) {
-		//t.printStackTrace()
-		log.error t
+		t.printStackTrace()
+		///log.error t.printStackTrace()
 	}
 
 }
