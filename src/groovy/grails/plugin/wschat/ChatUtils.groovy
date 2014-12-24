@@ -169,6 +169,13 @@ class ChatUtils extends WsChatConfService  implements ChatSessions {
 		}
 	}
 
+	String seperator(input) {
+		if (input && !input.toString().startsWith('/')) {
+			input = '/' + input
+		}
+		return input
+	}
+	
 	Boolean camLoggedIn(String user) {
 		Boolean loggedin = false
 		try {

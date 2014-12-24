@@ -41,7 +41,28 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 			logoutUser(userSession,username)
 		}
 	}
-
+	private void logoutUser(String username) {
+		def myMsg = [:]
+		myMsg.put("message", "${username} about to be kicked off")
+		try {
+			synchronized (chatroomUsers) {
+				chatroomUsers?.each { crec->
+					if (crec && crec.isOpen()) {
+						def uList = []
+						def finalList = [:]
+						def cuser = crec.userProperties.get("username").toString()
+						if (cuser.equals(username)) {
+							def myMsg1 = [:]
+							myMsg1.put("system","disconnect")
+							wsChatMessagingService.messageUser(crec,myMsg1)
+						}
+					}
+				}
+			}
+		} catch (IOException e) {
+			log.error ("onMessage failed", e)
+		}
+	}
 	private void logoutUser(Session userSession,String username) {
 		def myMsg = [:]
 		myMsg.put("message", "${username} about to be kicked off")
@@ -192,6 +213,10 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 				chatroomUsers?.each { crec->
 					if (crec && crec.isOpen()) {
 						def cuser = crec.userProperties.get("username").toString()
+						if (cuser=='null') {
+							removeUser(cuser)
+							//logoutUser(cuser)
+						}
 						if (cuser.equals(iuser)) {
 							crec.basicRemote.sendText(myMsgj as String)
 						}

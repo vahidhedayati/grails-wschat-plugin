@@ -1,7 +1,5 @@
-package grails.plugin.wschat
+package grails.plugin.wschat.client
 
-
-import grails.plugin.wschat.client.WsChatClientService
 
 import javax.servlet.ServletContext
 import javax.servlet.ServletContextEvent
@@ -25,48 +23,24 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 @ClientEndpoint
-public class WsChatClientEndpoint extends ChatUtils  implements ServletContextListener {
+public class WsChatClientEndpoint {
+
 	private final Logger log = LoggerFactory.getLogger(getClass().name)
 
 	private Session userSession = null
 
 	private MessageHandler messageHandler
-	private WsChatClientService  wsChatClientService
-	@Override
-	public void contextInitialized(ServletContextEvent event) {
-		ServletContext servletContext = event.servletContext
-		final ServerContainer serverContainer = servletContext.getAttribute("javax.websocket.server.ServerContainer")
-		try {
-
-			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
-
-			def grailsApplication = ctx.grailsApplication
-
-			wsChatAuthService = ctx.wsChatAuthService
-			wsChatClientService = ctx.wsChatClientService
-			
-			config = grailsApplication.config.wschat
-			int defaultMaxSessionIdleTimeout = config.timeout ?: 0
-			serverContainer.defaultMaxSessionIdleTimeout = defaultMaxSessionIdleTimeout
-
-		}
-		catch (IOException e) {
-			log.error e.message, e
-		}
-	}
-
-	@Override
-	public void contextDestroyed(ServletContextEvent event) {
-	}
-
+	private WsClientProcessService  wsClientProcessService
+	private ConfigObject config
 
 
 	public WsChatClientEndpoint(final URI endpointURI) {
 		try {
-			WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-			container.connectToServer(this, endpointURI);
+			WebSocketContainer container = ContainerProvider.getWebSocketContainer()
+			container.connectToServer(this, endpointURI)
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			log.error e
+			//throw new RuntimeException(e)
 		}
 	}
 
@@ -75,11 +49,10 @@ public class WsChatClientEndpoint extends ChatUtils  implements ServletContextLi
 		this.userSession = userSession
 		def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 		def grailsApplication = ctx.grailsApplication
-		wsChatAuthService = ctx.wsChatAuthService
-		wsChatClientService = ctx.wsChatClientService
-		
+		wsClientProcessService = ctx.wsClientProcessService
+
 		config = grailsApplication.config.wschat
-				
+
 	}
 
 
@@ -101,7 +74,6 @@ public class WsChatClientEndpoint extends ChatUtils  implements ServletContextLi
 
 	public void connectClient(String user) {
 		String message="CONN:-"+user
-		//wsChatAuthService.connectUser(message,userSession,room)
 		userSession.basicRemote.sendText(message)
 	}
 
@@ -111,28 +83,20 @@ public class WsChatClientEndpoint extends ChatUtils  implements ServletContextLi
 	}
 
 	public void listDomain(String sendThis,String divId) {
-		
+
 	}
-	
-	public void processAction( Session userSess, boolean pm,String actionthis, String sendThis, 
-		String divId, String msgFrom, boolean strictMode, boolean masterNode) {
-		/*
-		if (pm) {
-			if (strictMode==false) {
-				sendMessage("||>>"+sendThis)
-			}
-			sendMessage("/pm ${msgFrom},${sendThis}")
-		}else{
-			sendMessage("${sendThis}")
-		}
-		*/
-		wsChatClientService.processAct(userSess ?: userSession ,pm ?: false, actionthis ?: '', sendThis ?: '', divId ?: '_', msgFrom ?: '',strictMode ?: false, masterNode ?: false)
+
+	public void processAction( Session userSess, boolean pm,String actionthis, String sendThis,
+			String divId, String msgFrom, boolean strictMode, boolean masterNode) {
+		wsClientProcessService.processAct(userSess ?: userSession ,pm ?: false, 
+			actionthis ?: '', sendThis ?: '', divId ?: '_', msgFrom ?: '',
+			strictMode ?: false, masterNode ?: false)
 	}
-	
+
 	public void sendMessage(final String message) {
 		userSession.basicRemote.sendText(message)
 	}
-	
+
 	public Session returnSession() {
 		return userSession
 	}
@@ -143,7 +107,8 @@ public class WsChatClientEndpoint extends ChatUtils  implements ServletContextLi
 
 	@OnError
 	public void handleError(Throwable t) {
-		t.printStackTrace()
+		//t.printStackTrace()
+		log.error t
 	}
 
 }

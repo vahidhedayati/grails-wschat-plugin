@@ -20,6 +20,7 @@ public interface ChatSessions {
 
 	//static final Set<Session> camsessions = ([] as Set).asSynchronized();
 	//static final Set<Session> chatroomUsers = ([] as Set).asSynchronized();
+			
 	static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>());
 	static final Set<Session> camsessions = Collections.synchronizedSet(new HashSet<Session>());
 

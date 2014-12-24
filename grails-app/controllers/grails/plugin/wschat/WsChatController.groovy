@@ -5,25 +5,28 @@ import groovy.time.TimeCategory
 
 import java.text.SimpleDateFormat
 
+import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
+import org.codehaus.groovy.grails.web.json.JSONObject
+
 
 class WsChatController {
 	def grailsApplication
 
 	def index() {
 		
-		def dbSupport=grailsApplication.config.wschat.dbsupport ?: 'yes'
+		String dbSupport = config.dbsupport ?: 'yes'
 		def dbrooms
 		if (dbSupport.toString().toLowerCase().equals('yes')) {
-			dbrooms=ChatRoomList?.findAll()*.room.unique()
+			dbrooms = ChatRoomList?.findAll()*.room.unique()
 		}	
-		def process=grailsApplication.config.wschat.disable.login ?: 'no'
-		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
-		def chatHeader=grailsApplication.config.wschat.heading ?: 'Grails websocket chat'
-		def room=grailsApplication.config.wschat.rooms
+		String process = config.disable.login ?: 'no'
+		String chatTitle = config.title ?: 'Grails Websocket Chat'
+		String chatHeader = config.heading ?: 'Grails websocket chat'
+		def room = config.rooms
 		if (!room && dbrooms) {
-			room=dbrooms
+			room = dbrooms
 		} else if (!room && !dbrooms) {
-			room=['wschat']
+			room = ['wschat']
 		}	    
 		
 		if (process.toLowerCase().equals('yes')) {
@@ -33,18 +36,18 @@ class WsChatController {
 	}
 
 	def login(String username,String room) {
-		def errors
-		def process=grailsApplication.config.wschat.disable.login ?: 'no'
+		String errors
+		String process = config.disable.login ?: 'no'
 		if (process.toLowerCase().equals('yes')) {
 			render "Default sign in page disabled"
 		}
-		username=username.trim().replace(' ', '_').replace('.', '_')
+		username = username.trim().replace(' ', '_').replace('.', '_')
 		if (errors) {
-			flash.message=errors
+			flash.message = errors
 			redirect(controller: "wsChat",action: "index")
 		}else{
-			session.wschatuser=username
-			session.wschatroom=room
+			session.wschatuser = username
+			session.wschatroom = room
 			redirect(controller: "wsChat", action: "chat")
 		}
 		//redirect (uri : "/wsChat/chat/${room}")
@@ -52,72 +55,72 @@ class WsChatController {
 	
 
 	def camsend(String user) {
-		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
-		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
+		String chatTitle = config.title ?: 'Grails Websocket Chat'
+		String hostname = config.hostname ?: 'localhost:8080'
 		[user:user,chatTitle:chatTitle,hostname:hostname]
 	}
 
 	def webrtcsend(String user) {
-		def iceservers=grailsApplication.config.stunServers as JSON
-		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
-		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
+		JSONObject iceservers = grailsApplication.config.stunServers as JSON
+		String chatTitle = config.title ?: 'Grails Websocket Chat'
+		String hostname = config.hostname ?: 'localhost:8080'
 		[user:user,chatTitle:chatTitle,hostname:hostname,iceservers:iceservers]
 	}
 	
 	def webrtcrec(String user) {
-		def iceservers=grailsApplication.config.stunServers as JSON
-		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
-		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
-		def chatuser=session.wschatuser
+		JSONObject iceservers = grailsApplication.config.stunServers as JSON
+		String chatTitle = config.title ?: 'Grails Websocket Chat'
+		String hostname = config.hostname ?: 'localhost:8080'
+		def chatuser = session.wschatuser
 		[user:user,hostname:hostname,chatuser:chatuser,chatTitle:chatTitle,iceservers:iceservers]
 	}
 	
 	
 	def camrec(String user) {
-		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
-		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
-		def chatuser=session.wschatuser
+		String chatTitle = config.title ?: 'Grails Websocket Chat'
+		String hostname = config.hostname ?: 'localhost:8080'
+		def chatuser = session.wschatuser
 		[user:user,hostname:hostname,chatuser:chatuser,chatTitle:chatTitle]
 	}
 
 	def chat() {
-		def chatTitle=grailsApplication.config.wschat.title ?: 'Grails Websocket Chat'
-		def chatHeader=grailsApplication.config.wschat.heading ?: 'Grails websocket chat'
-		def hostname=grailsApplication.config.wschat.hostname ?: 'localhost:8080'
-		def dbsupport=grailsApplication.config.wschat.dbsupport ?: 'yes'
-		def showtitle=grailsApplication.config.wschat.showtitle ?: 'yes'
-		def chatuser=session.wschatuser
-		def room=session.wschatroom
+		String chatTitle = config.title ?: 'Grails Websocket Chat'
+		String chatHeader = config.heading ?: 'Grails websocket chat'
+		String hostname = config.hostname ?: 'localhost:8080'
+		String dbsupport = config.dbsupport ?: 'yes'
+		String showtitle = config.showtitle ?: 'yes'
+		def chatuser = session.wschatuser
+		def room = session.wschatroom
 		[showtitle:showtitle.toLowerCase(), dbsupport:dbsupport.toLowerCase() , room:room, chatuser:chatuser, chatTitle:chatTitle,chatHeader:chatHeader, now:new Date(),hostname:hostname]
 	}
 
 	def verifyprofile(String username) {
-		Boolean actualuser=false
-		def chatuser=ChatUser.findByUsername(username)
-		def profile=ChatUserProfile.findByChatuser(chatuser)
-		def photos=ChatUserPics.findAllByChatuser(chatuser,[max: 5, sort: 'id', order:'desc'])
+		Boolean actualuser = false
+		ChatUser chatuser = ChatUser.findByUsername(username)
+		ChatUserProfile profile = ChatUserProfile.findByChatuser(chatuser)
+		ChatUserPics photos = ChatUserPics.findAllByChatuser(chatuser,[max: 5, sort: 'id', order:'desc'])
 		if (verifyUser(username)) {
-			actualuser=true
+			actualuser = true
 		}
 		render template: '/profile/verifyprofile', model:[photos:photos,actualuser:actualuser,username:username,profile:profile]
 	}
 
 	def editprofile(String username) {
-		def chatuser=ChatUser.findByUsername(username)
-		def profile=ChatUserProfile.findByChatuser(chatuser)
+		ChatUser chatuser = ChatUser.findByUsername(username)
+		ChatUserProfile profile = ChatUserProfile.findByChatuser(chatuser)
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy")
 		if (verifyUser(username)) {
-			def bdate=profile?.birthDate
+			def bdate = profile?.birthDate
 			def cdate
 			if (bdate) {
 				cdate = formatter.format(bdate)
 			}else{
-				Date cc=new Date()
+				Date cc = new Date()
 				cc.clearTime()
 				use(TimeCategory) {
-					cc=cc -5.years
+					cc = cc -5.years
 				}
-				cdate=formatter.format(cc)
+				cdate = formatter.format(cc)
 			}
 			render template: '/profile/editprofile', model:[cdate:cdate,profile:profile,chatuser:chatuser,username:username]
 		}else{
@@ -126,9 +129,9 @@ class WsChatController {
 	}
 
 	def uploadPhoto(String username) {
-		def chatuser=ChatUser.findByUsername(username)
-		def profile=ChatUserProfile.findByChatuser(chatuser)
-		def g = new org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib()
+		ChatUser chatuser = ChatUser.findByUsername(username)
+		ChatUserProfile profile = ChatUserProfile.findByChatuser(chatuser)
+		ApplicationTagLib g = new org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib()
 		def photoFile= g.createLink(controller: 'wsChat', action: 'photo', params: [username:username],  absolute: 'true' )
 
 		if (verifyUser(username)) {
@@ -144,15 +147,15 @@ class WsChatController {
 	}
 
 	def delaRoom() {
-		def roomList=ChatRoomList?.findAll()*.room.unique()
+		def roomList = ChatRoomList?.findAll()*.room.unique()
 		render template : '/room/delaRoom' , model:[ roomList:roomList ]
 	}
 
 	def addRoom(String room) { 
-		def record=ChatRoomList.findByRoom(room)
+		def record = ChatRoomList.findByRoom(room)
 		if (!record) {
-			record=new ChatRoomList()
-			record.room=room
+			record = new ChatRoomList()
+			record.room = room
 			if (!record.save(flush:true)) {
 				render "Issue saving new room"
 			}
@@ -162,7 +165,7 @@ class WsChatController {
 	}
 	
 	def delRoom(String room) {
-		def record=ChatRoomList.findByRoom(room)
+		def record = ChatRoomList.findByRoom(room)
 		if (!record) {
 			render "Room ${room} not found"
 		}else{
@@ -180,9 +183,9 @@ class WsChatController {
 	}
 
 	def addPhoto() {
-		params.chatuser=ChatUser.findByUsername(params.username)
+		params.chatuser = ChatUser.findByUsername(params.username)
 		if ((params.chatuser)&&(params.photo)) {
-			def newRecord=new ChatUserPics(params)
+			def newRecord = new ChatUserPics(params)
 			if (!newRecord.save(flush:true)) {
 				flash.message="Something has gone wrong, could not upload photo"
 			}
@@ -204,11 +207,11 @@ class WsChatController {
 		if (params.birthDate) {
 			params.birthDate = new SimpleDateFormat("dd/MM/yyyy").parse(params.birthDate)
 		}
-		params.chatuser=ChatUser.findByUsername(params.username)
+		params.chatuser = ChatUser.findByUsername(params.username)
 		if (params.chatuser) {
-			def exists=ChatUserProfile.findByChatuser(params.chatuser)
+			def exists = ChatUserProfile.findByChatuser(params.chatuser)
 			if (!exists) {
-				def newRecord=new ChatUserProfile(params)
+				def newRecord = new ChatUserProfile(params)
 				if (!newRecord.save(flush:true)) {
 					output="Something has gone wrong"
 				}
@@ -230,11 +233,15 @@ class WsChatController {
 	}
 
 	private Boolean verifyUser(String username) {
-		Boolean userChecksOut=false
-		def chatuser=ChatUser.findByUsername(username)
+		Boolean userChecksOut = false
+		def chatuser = ChatUser.findByUsername(username)
 		if ((chatuser) && (username.equals(session.wschatuser))) {
-			userChecksOut=true
+			userChecksOut = true
 		}
 		return userChecksOut
+	}
+	
+	private getConfig() {
+		grailsApplication?.config?.wschat
 	}
 }

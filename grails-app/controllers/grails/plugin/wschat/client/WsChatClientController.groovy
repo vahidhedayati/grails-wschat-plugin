@@ -6,6 +6,8 @@ import grails.plugin.wschat.interfaces.ClientSessions
 
 class WsChatClientController implements ClientSessions {
 	
+	def wsChatClientService
+	
 	def index() { 
 		[ clientMaster:clientMaster, clientSlave:clientSlave]
 	}
@@ -35,5 +37,6 @@ class WsChatClientController implements ClientSessions {
 		clientMaster.clear()
 		render "clientMaster truncated"
 	}
+	
 		
 }

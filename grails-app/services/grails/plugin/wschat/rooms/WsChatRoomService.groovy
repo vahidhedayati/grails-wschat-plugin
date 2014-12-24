@@ -3,7 +3,6 @@ package grails.plugin.wschat.rooms
 import grails.plugin.wschat.ChatRoomList
 import grails.plugin.wschat.WsChatConfService
 import grails.plugin.wschat.interfaces.ChatSessions
-import grails.transaction.Transactional
 
 import javax.websocket.Session
 
@@ -22,7 +21,19 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		wsChatMessagingService.broadcast2all(roomList())
 	}
 	
-
+	def returnRoom(String dbSupport) {
+		def dbrooms
+		def room = config.rooms[0]
+		if (dbSupport.toLowerCase().equals('yes')) {
+			dbrooms = ChatRoomList?.get(0)?.room
+		}
+		if (dbrooms) {
+			room = dbrooms
+		} else if (!room && !dbrooms) {
+			room = 'wschat'
+		}
+		return room
+	}
 	
 	public void addRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
