@@ -40,7 +40,7 @@ class WsChatTagLib implements ClientSessions {
 		session.wschatroom = room
 
 		def model = [ dbsupport: dbSupport.toLowerCase() , showtitle: showtitle.toLowerCase(),
-			room: room, chatuser: chatuser, chatTitle: chatTitle, chatHeader: chatHeader,appName:appName,
+			room: room, chatuser: chatuser, chatTitle: chatTitle, chatHeader: chatHeader,
 			now: new Date(), hostname: hostname, addAppName: addAppName ]
 
 		if (template) {
