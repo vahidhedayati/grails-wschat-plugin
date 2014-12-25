@@ -3,9 +3,9 @@ package grails.plugin.wschat.client
 import grails.converters.JSON
 import grails.plugin.wschat.interfaces.ClientSessions
 
-import javax.websocket.ContainerProvider
 import javax.websocket.Session
 
+import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 /*
@@ -58,19 +58,92 @@ public class WsClientProcessService  implements ClientSessions {
 
 	def grailsApplication
 	def chatClientListenerService
-
+	def wsChatUserService
 
 	// CLIENT SERVER CHAT VIA ChatClientListenerService method aka
-	// <chat:clientWsConnect gsp call
+	// This is server processing of taglib call:
+	// <chat:clientWsConnect gsp
+	// A demo and for you to change to what you want your backend to do
+	// I have commented out a disco = false
 	public void processResponse(Session userSession, String message) {
+		String username = userSession.userProperties.get("username") as String
+
+		//println "DEBUG ${username}: $message"
+
+		// Disconnect automatically
+		// set to false (commented out) in this example when a command is receieved
+		boolean disco = true
+
 		JSONObject rmesg=JSON.parse(message)
+
 		String actionthis=''
 		String msgFrom = rmesg.msgFrom
 		boolean pm = false
+
 		String disconnect = rmesg.system
-		
+		if (rmesg.privateMessage) {
+
+			JSONObject rmesg2=JSON.parse(rmesg.privateMessage)
+			String command = rmesg2.command
+			if (command) {
+				String event,context=''
+				boolean strictMode, masterNode, autodisco, frontenduser = false
+				JSONArray data
+				JSONArray arguments = rmesg2.arguments as JSONArray
+				arguments.each { args ->
+					event = args.event
+					context = args.context
+					data = args.data
+					strictMode = args.strictMode.toBoolean()
+					masterNode = args.masterNode.toBoolean()
+					autodisco = args.autodisco.toBoolean()
+					frontenduser = args.frontenduser.toBoolean()
+				}
+
+				def jsonData = (data as JSON).toString()
+
+
+				//println "${event} ${context} ${jsonData}"
+				//println "${strictMode} ${masterNode} ${autodisco} ${frontenduser}"
+
+				if ( (event == "open_session")  || (autodisco == false)){
+					disco = false
+				}
+
+				// You can now do something with the above event received on backend of your application
+				// I will give example of event back to sender where again would hit this and you could
+				// do same in this block for client app
+
+
+				String sMessage = """{
+                        "command":"event",
+                        "arguments":[
+                                        {
+                                        "event":"${event}_received",
+										"strictMode" : "${strictMode as String}",
+										"masterNode" : "${masterNode as String}",
+										"autodisco" : "${autodisco as String}",
+										"frontenduser" : "${frontenduser as String}",
+                                        "context":"$context",
+										"data":${jsonData as String}
+                                        }
+                                    ]
+                        }
+                    """
+
+
+				// There is a sleep time put in
+				// This is because front end takes while to load up on initial connection
+				// This is to match above modified event sMessage which has _received added to event
+				// Put in place to stop forever loop
+				if (!event.endsWith("_received")) {
+					sleep(1000)
+					chatClientListenerService.sendPM(userSession, msgFrom ,sMessage.replaceAll("\t","").replaceAll("\n",""))
+				}
+			}
+		}
 		if (disconnect && disconnect == "disconnect") {
-			chatClientListenerService.sendMessage(userSession, DISCONNECTOR)
+			chatClientListenerService.disconnect(userSession)
 		}
 		if (msgFrom ) {
 			actionthis = rmesg.privateMessage
@@ -90,26 +163,39 @@ public class WsClientProcessService  implements ClientSessions {
 
 		if (actionthis) {
 			if (actionthis == 'close_connection') {
-				chatClientListenerService.sendMessage(userSession, DISCONNECTOR)
+				chatClientListenerService.disconnect(userSession)
+			}else if (actionthis == 'close_my_connection') {
+				if (pm) {
+					chatClientListenerService.sendPM(userSession, msgFrom,"close_connection")
+				}	
 			}else{
 				// THIS IS AN EXAMPLE
 				if (actionthis == "do_something") {
-					chatClientListenerService.sendMessage(userSession, ">>HAVE DONE \n"+actionthis)
+					if (pm) {
+						chatClientListenerService.sendPM(userSession, msgFrom,"[PROCESSED]${actionthis}")
+					}else{
+						chatClientListenerService.sendMessage(userSession, ">>HAVE DONE \n"+actionthis)
+					}
 				}else{
 					// DISCONNECTING HERE OTHERWISE WE WILL GET A LOOP OF REPEATED MESSAGES
-					chatClientListenerService.sendMessage(userSession, DISCONNECTOR)
+					if (disco) {
+						chatClientListenerService.disconnect(userSession)
+
+					}
 				}
 			}
 		}
 	}
-	
+
 
 	// CLIENT SERVER CHAT VIA WsChatClientService method aka
 	// <chat:clientConnect gsp call
-	public void processAct(Session userSession, boolean pm,String actionthis, String sendThis,
+	public void processAct(String user, boolean pm,String actionthis, String sendThis,
 			String divId, String msgFrom, boolean strictMode, boolean masterNode) {
-
-		String addon=">PROCESS>>"
+			Session userSession=wsChatUserService.usersSession(user)
+		String username = userSession.userProperties.get("username") as String
+		println "-------- ${username}"
+		String addon=">PROCESS>"
 
 		def myMap=[pm:pm, actionThis: actionthis, sendThis: sendThis, divId:divId,
 			msgFrom:msgFrom, strictMode:strictMode, masterNode:masterNode ]
@@ -125,29 +211,36 @@ public class WsClientProcessService  implements ClientSessions {
 				clientSlave.add(myMap)
 			}
 		}
-
-		 if (pm) {
+		
+		
+		
+		//OVERRIDE AND SET CUSTOM ACTIONS
+		/*
+		if (masterNode) {
+			if (actionthis== 'do_task_1') {
+				// TODO something on master node that has mappings to do_task_1
+				println "something on master node that has mappings to do_task_1 TASK1"
+			}else if (actionthis== 'do_task_2') {
+				// TODO something on master node that has mappings to do_task_2
+				println "something on master node that has mappings to do_task_2 TASK2"
+			}else if (actionthis== 'do_task_3') {
+				// TODO something on master node that has mappings to do_task_3
+				println "something on master node that has mappings to do_task_3 TASK3"
+			}
+		}
+		*/	
+			
+		
+		if (pm) {
 			//if (strictMode==false) {
-			chatClientListenerService.sendMessage(userSession, "${addon}${sendThis}")
+			//chatClientListenerService.sendMessage(userSession, "${addon}${sendThis}")
 			//}
 			chatClientListenerService.sendPM(userSession,msgFrom,sendThis)
 		}else{
-			chatClientListenerService.sendMessage(userSession, "${addon}${sendThis}")
+			//chatClientListenerService.sendMessage(userSession, "${addon}${sendThis}")
 			chatClientListenerService.sendMessage(userSession, "${sendThis}")
 		}
-		 
-		/*if (pm) {
-			//if (strictMode==false) {
-			userSession.basicRemote.sendText("${addon}"+sendThis)
-			//}
-			userSession.basicRemote.sendText("/pm ${msgFrom},${sendThis}")
-		}else{
-			userSession.basicRemote.sendText("${addon}${sendThis}")
-			userSession.basicRemote.sendText("${sendThis}")
-		}
-		*/
 	}
-
 
 
 	private boolean getSaveClients() {
@@ -166,7 +259,10 @@ public class WsClientProcessService  implements ClientSessions {
 		clientMaster.clear()
 	}
 
-
+	private String getFrontend() {
+		def cuser=config.frontenduser ?: '_frontend'
+		return cuser
+	}
 	private getConfig() {
 		grailsApplication?.config?.wschat
 	}

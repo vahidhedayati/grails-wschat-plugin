@@ -86,9 +86,9 @@ public class WsChatClientEndpoint {
 		return wsChatUserService.findUser(userId)
 	}
 
-	public void processAction( Session userSess, boolean pm,String actionthis, String sendThis,
+	public void processAction( String user, boolean pm,String actionthis, String sendThis,
 			String divId, String msgFrom, boolean strictMode, boolean masterNode) {
-		wsClientProcessService.processAct(userSess ?: userSession ,pm ?: false, 
+		wsClientProcessService.processAct(user ,pm ?: false, 
 			actionthis ?: '', sendThis ?: '', divId ?: '_', msgFrom ?: '',
 			strictMode ?: false, masterNode ?: false)
 	}
@@ -107,7 +107,7 @@ public class WsChatClientEndpoint {
 	}
 
 	public static interface MessageHandler {
-		public void handleMessage(String message)
+		public void handleMessage(def message)
 	}
 
 	@OnError

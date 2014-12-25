@@ -11,31 +11,65 @@ public class ChatClientListenerService implements ClientSessions {
 	def grailsApplication
 	def wsChatRoomService
 	def wsChatUserService
+	def chatClientOverrideService
 
 	def sendArrayPM(Session userSession, ArrayList user,String message) {
 		user.each { cuser ->
-			boolean found=wsChatUserService.findUser(cuser+frontend)
-			if (found) {
-				userSession.basicRemote.sendText("/pm ${cuser+frontend},${message}")
-			}
+			boolean found
 			found=wsChatUserService.findUser(cuser)
 			if (found) {
 				userSession.basicRemote.sendText("/pm ${cuser},${message}")
 			}
+			if (!cuser.toString().endsWith(frontend)) {
+				found=wsChatUserService.findUser(cuser+frontend)
+				if (found) {
+					userSession.basicRemote.sendText("/pm ${cuser+frontend},${message}")
+				}
+			}
 		}
 	}
 	
-	def sendPM(Session userSession, String user,String message) {
-		boolean found=wsChatUserService.findUser(user+frontend)
+	def sendPM2(Session userSession, String user,String message) {
+		println "--- 0 "
+		String username = userSession.userProperties.get("username") as String
+		boolean found=false
+		println "--- 1 "
+		found=wsChatUserService.findUser(user)
+		println "--- 3 "+user
 		if (found) {
-			userSession.basicRemote.sendText("/pm ${user+frontend},${message}")
+			println "--- 4 "+user
+			println username+ " Trying to send to : "+user+" : "+message
+			userSession.basicRemote.sendText("/pm ${user},${message}")
 		}
+		sleep(300)
+		if (!user.endsWith(frontend)) {
+			println "--- 5 "+user+frontend
+			found=wsChatUserService.findUser(user+frontend)
+			if (found) {
+				println "--- 7 "+user+frontend
+				userSession.basicRemote.sendText("/pm ${user+frontend},${message}")
+				println username+ " Trying to send to : "+user+frontend+" : "+message
+			}
+		}
+
+	}
+	
+	def sendPM(Session userSession, String user,String message) {
+		String username = userSession.userProperties.get("username") as String
+		boolean found
+
 		found=wsChatUserService.findUser(user)
 		if (found) {
 			userSession.basicRemote.sendText("/pm ${user},${message}")
 		}
+		if (!user.endsWith(frontend)) {
+			found=wsChatUserService.findUser(user+frontend)
+			if (found) {
+				userSession.basicRemote.sendText("/pm ${user+frontend},${message}")
+			}
+		}
 	}
-	
+
 	public void sendMessage(Session userSession,final String message) {
 		userSession.basicRemote.sendText(message)
 	}
@@ -120,44 +154,43 @@ public class ChatClientListenerService implements ClientSessions {
 		}
 		return _oSession
 	}
-	
-	public void alertEvent(def _oSession,  String _event, String _context, def _data, ArrayList cusers){
-		//"data":[${JSON.toString(_data)}]
+
+	public void alertEvent(def _oSession,  String _event, String _context, JSON _data,
+			ArrayList cusers, boolean masterNode, boolean strictMode, boolean autodisco,
+			boolean frontenduser){
+
 		def oSession = _oSession ?: connect()
 		String sMessage = """{
                         "command":"event",
                         "arguments":[
                                         {
                                         "event":"$_event",
+										"strictMode" : "${strictMode as String}",
+										"masterNode" : "${masterNode as String}",
+										"autodisco" : "${autodisco as String}",
+										"frontenduser" : "${frontenduser as String}",
                                         "context":"$_context",
-										"data":["${_data as String}"]
+										"data":[${_data as String}]
                                         }
                                     ]
                         }
                     """
+		//println "------------ BOOT> ${cusers} ${sMessage}"
 		cusers.each { userId ->
-			sendPM(oSession, getGlobalReceiverNameFromUserId(userId as String) ,sMessage.replaceAll("\t","").replaceAll("\n",""))
+			sendPM(oSession,
+					chatClientOverrideService.getGlobalReceiverNameFromUserId(userId as String),
+					sMessage.replaceAll("\t","").replaceAll("\n",""))
 		}
 		if (_oSession == null) {
 			disconnect(oSession)
 		}
 	}
 
-
-	// Override this to get value from another DB
-	// like commented out example
-	private String getGlobalReceiverNameFromUserId(String userId) {
-		//def user=ChatUser.get(userId as Long)
-		//return user.username as String
-		return userId
-	}
-
-	
 	private String getFrontend() {
 		def cuser=config.frontenduser ?: '_frontend'
-		return cuser 
+		return cuser
 	}
-	
+
 	private getAppName(){
 		grailsApplication.metadata['app.name']
 	}
@@ -165,6 +198,6 @@ public class ChatClientListenerService implements ClientSessions {
 	private getConfig() {
 		grailsApplication?.config?.wschat
 	}
-		
- 
+
+
 }

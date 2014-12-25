@@ -17,8 +17,7 @@
       </div>
  </div>
 
-  <script type="text/javascript">
-
+  <g:javascript>
  
 		if (!window.WebSocket) {
 			var msg = "Your browser does not have WebSocket support";
@@ -33,7 +32,12 @@
 		var WebCam = new WebCam();
 
 		// connect to websocket server
+		<g:if test="${addAppName=='no'}">
+		var uri="ws://"+getHostName()+"/WsCamEndpoint/"+getUser()+"/"+getUser()
+		</g:if>
+		<g:else>
 		var uri="ws://"+getHostName()+"/"+getApp()+"/WsCamEndpoint/"+getUser()+"/"+getUser()
+		</g:else>
 			WebCam.connectToSocket(uri);
 		
 	
@@ -42,6 +46,6 @@
 			WebCam.onclose = function() { }
 			WebCam.close();
 		}
-</script>
+<g:javascript>
 </body>
 </html>

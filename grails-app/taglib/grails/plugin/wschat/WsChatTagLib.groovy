@@ -28,17 +28,23 @@ class WsChatTagLib implements ClientSessions {
 		String showtitle = config.showtitle ?: 'yes'
 		String dbSupport = config.dbsupport ?: 'yes'
 
+		String addAppName = config.add.appName ?: 'yes'
+		def appName=''
+		if ((!appName)&& (addAppName=='yes')){
+			appName = grailsApplication.metadata['app.name']+"/"
+		}
+		
 		chatuser = chatuser.trim().replace(' ', '_').replace('.', '_')
 		session.wschatuser = chatuser
 
 		if (!room) {
 			room = wsChatRoomService.returnRoom(dbSupport as String)
 		}
-		
+
 		session.wschatroom = room
 
 		def model = [ dbsupport: dbSupport.toLowerCase() , showtitle: showtitle.toLowerCase(),
-			room: room, chatuser: chatuser, chatTitle: chatTitle, chatHeader: chatHeader, 
+			room: room, chatuser: chatuser, chatTitle: chatTitle, chatHeader: chatHeader,appName:appName,
 			now: new Date(), hostname: hostname ]
 
 		if (template) {
@@ -63,7 +69,7 @@ class WsChatTagLib implements ClientSessions {
 		String message = attrs.remove('message')?.toString()
 		String divId = attrs.remove('divId')?.toString() ?: ''
 		String template = attrs.remove('template')?.toString()
-		
+
 		if (receivers) {
 			receivers = receivers as ArrayList
 		}
@@ -73,15 +79,20 @@ class WsChatTagLib implements ClientSessions {
 			frontuser=user+frontend
 			receivers.add(frontuser)
 		}
-		
+
 		if (actionMap) {
 			actionMap = actionMap as Map
 		}
 
 		String dbSupport = config.dbsupport ?: 'yes'
-
+		String addAppName = config.add.appName ?: 'yes'
+		
 		if (!appName) {
 			appName = grailsApplication.metadata['app.name']
+		}
+		
+		if (addAppName=='no') {
+			appName=''
 		}
 
 		if (!hostname) {
@@ -114,8 +125,8 @@ class WsChatTagLib implements ClientSessions {
 			wsChatClientService.disco(clientEndPoint, user)
 		}else{
 			//Session userSess = wsChatClientService.returnSession()
-			Session userSession = clientEndPoint.returnSession()
-			wsChatClientService.handMessage(userSession, clientEndPoint, user, receivers, actionMap, strictMode, divId, masterNode)
+			//Session userSession = clientEndPoint.returnSession()
+			wsChatClientService.handMessage(clientEndPoint, user, receivers, actionMap, strictMode, divId, masterNode)
 			if (frontenduser) {
 				if (template) {
 					out << g.render(template:template, model:model)
@@ -145,12 +156,16 @@ class WsChatTagLib implements ClientSessions {
 		String event =  attrs.remove('event')?.toString()
 		String context = attrs.remove('context')?.toString()
 
-
-
 		if (receivers) {
 			receivers = receivers as ArrayList
 		}
-		
+		if (jsonData) {
+			if(jsonData instanceof String) {
+				jsonData =JSON.parse(jsonData)
+			}
+			jsonData = jsonData as JSON
+		}
+
 		String frontuser=''
 		if (frontenduser) {
 			frontuser=user+frontend
@@ -193,13 +208,13 @@ class WsChatTagLib implements ClientSessions {
 					chatClientListenerService.sendMessage( oSession,  message)
 				}
 			}else if (sendType == 'event') {
-				chatClientListenerService.alertEvent(oSession, event, context, jsonData, receivers)
+				chatClientListenerService.alertEvent(oSession, event, context, jsonData, receivers, masterNode, strictMode, autodisco, frontenduser)
 			}
 
 			if (autodisco) {
 				chatClientListenerService.disconnect(oSession)
 			}else{
-				
+
 			}
 		}catch(e){
 			//log.error e
@@ -217,7 +232,7 @@ class WsChatTagLib implements ClientSessions {
 		def cuser=config.frontenduser ?: '_frontend'
 		return cuser
 	}
-	
+
 	private getConfig() {
 		grailsApplication?.config?.wschat
 	}

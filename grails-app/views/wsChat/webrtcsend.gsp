@@ -19,7 +19,7 @@
 			</div>
 		</section>
 		
-<script type="text/javascript">
+<g:javascript>
 	function getIceServers() {
 		return "${iceservers}";
 	}
@@ -63,7 +63,16 @@
 	var WebRTC = new WebRTC();
 
 	// connect to websocket server
-	var uri="ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${user}"
+	
+	<g:if test="${addAppName=='no'}">
+		var uri="ws://${hostname}/WsCamEndpoint/${user}/${user}"
+		</g:if>
+		<g:else>
+		var uri="ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${user}"
+		</g:else>
+		
+		
+	
 		WebRTC.connectToSocket(uri);
 
 	/*
@@ -103,7 +112,7 @@
 		WebRTC.createRoom();
 	};
 	WebRTC.getMedia({audio: true, video: true},success);
-</script>
+</g:javascript>
 
 </body>
 </html>

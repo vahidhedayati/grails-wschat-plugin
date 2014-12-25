@@ -13,11 +13,11 @@ public class WsChatClientService implements ClientSessions {
 
 	def grailsApplication
 	def wsChatUserService
-	
+
 	private Session userSession = null
 	public WsChatClientEndpoint conn(String hostname, String appName, String room, String user ) {
-		WsChatClientEndpoint clientEndPoint = 
-		new WsChatClientEndpoint(new URI("ws://${hostname}/${appName}/${CHATAPP}/${room}"))
+		WsChatClientEndpoint clientEndPoint =
+				new WsChatClientEndpoint(new URI("ws://${hostname}/${appName}/${CHATAPP}/${room}"))
 		clientEndPoint.connectClient(user)
 		return clientEndPoint
 	}
@@ -28,33 +28,51 @@ public class WsChatClientService implements ClientSessions {
 
 	def sendArrayPM(WsChatClientEndpoint clientEndPoint, ArrayList pmuser, String message) {
 		pmuser.each { cuser ->
-			boolean found=wsChatUserService.findUser(cuser+frontend)
-			if (found) {
-				clientEndPoint.sendMessage("/pm ${cuser+frontend},${message}")
+			boolean found
+			if (!cuser.toString().endsWith(frontend)) {
+				found=wsChatUserService.findUser(cuser+frontend)
+				if (found) {
+					clientEndPoint.sendMessage("/pm ${cuser+frontend},${message}")
+				}
 			}
-			clientEndPoint.sendMessage("/pm ${cuser},${message}")
-		}	
+			found=wsChatUserService.findUser(cuser)
+			if (found) {
+				clientEndPoint.sendMessage("/pm ${cuser},${message}")
+			}
+
+		}
 	}
 	def sendPM(WsChatClientEndpoint clientEndPoint, String pmuser, String message) {
-		boolean found=wsChatUserService.findUser(pmuser+frontend)
-		if (found) {
-			clientEndPoint.sendMessage("/pm ${pmuser+frontend},${message}")
+		boolean found
+		if (!pmuser.endsWith(frontend)) {
+			found=wsChatUserService.findUser(pmuser+frontend)
+			if (found) {
+				clientEndPoint.sendMessage("/pm ${pmuser+frontend},${message}")
+			}
 		}
-			
-		clientEndPoint.sendMessage("/pm ${pmuser},${message}")
+		found=wsChatUserService.findUser(pmuser)
+		if (found) {
+			clientEndPoint.sendMessage("/pm ${pmuser},${message}")
+		}
 	}
 
 	def disco(WsChatClientEndpoint clientEndPoint, String user) {
 		clientEndPoint.disconnectClient(user)
 	}
 
-	def handMessage(Session userSess, WsChatClientEndpoint clientEndPoint, String user,
+	def handMessage(WsChatClientEndpoint clientEndPoint, String user,
 			ArrayList pmuser, Map aMap, boolean strictMode,String divId, boolean masterNode) {
 
 		clientEndPoint.addMessageHandler(
 				new WsChatClientEndpoint.MessageHandler() {
-					public void handleMessage(String message) {
-						JSONObject rmesg=JSON.parse(message)
+					public void handleMessage(def message) {
+						//println "------- ${message}"
+						def mg=message as JSON
+						if (mg) {
+							
+						
+						JSONObject rmesg=JSON?.parse(message)
+						//if (rmesg){
 						String actionthis=''
 						String msgFrom = rmesg.msgFrom
 						String disconnect = rmesg.system
@@ -63,21 +81,12 @@ public class WsChatClientService implements ClientSessions {
 						}
 						boolean pm = false
 						if (strictMode) {
-							String frontend = clientEndPoint.frontend
-							pmuser?.each { cuser -> 
-								boolean found=clientEndPoint.verifyUser(cuser+frontend)
-								if (found) {
-									if (msgFrom && msgFrom == cuser) {
-										actionthis = rmesg.privateMessage
-										pm = true
-									}
-								}
-							}
+							pmuser?.each { cuser ->
 								if (msgFrom && msgFrom == cuser) {
 									actionthis = rmesg.privateMessage
 									pm = true
 								}
-							
+							}
 						}else{
 							if (msgFrom ) {
 								actionthis = rmesg.privateMessage
@@ -90,15 +99,7 @@ public class WsChatClientService implements ClientSessions {
 							if (matcher.matches()){
 								msgFrom = matcher[0][1]
 								if (strictMode) {
-									String frontend = clientEndPoint.frontend
-									pmuser?.each { cuser -> 
-										boolean found=clientEndPoint.verifyUser(cuser+frontend)
-										if (found) {
-											if (msgFrom && msgFrom == cuser) {
-												actionthis = rmesg.privateMessage
-												pm = true
-											}
-										}
+									pmuser?.each { cuser ->
 										if (msgFrom && msgFrom == cuser) {
 											actionthis = matcher[0][2]
 										}
@@ -112,27 +113,27 @@ public class WsChatClientService implements ClientSessions {
 						}
 
 						if (actionthis) {
-							if ( (actionthis == 'close_connection') 
-								|| (actionthis.startsWith('DISCO:-')) ) {
+							if ( (actionthis == 'close_connection')
+							|| (actionthis.startsWith('DISCO:-')) ) {
 								clientEndPoint.sendMessage("DISCO:-"+user)
 							}else{
 								if (aMap.containsKey(actionthis)) {
 									String sendThis=aMap[actionthis]
-									clientEndPoint.processAction(userSess, pm, actionthis, sendThis, divId ?: '',msgFrom,strictMode,masterNode)
+									clientEndPoint.processAction( user, pm, actionthis, sendThis, divId ?: '',msgFrom,strictMode,masterNode)
 
 								}
 							}
 						}
 					}
-
+				  }
 				})
 	}
-			
+
 	private String getFrontend() {
 		def cuser=config.frontenduser ?: '_frontend'
 		return cuser
 	}
-	
+
 	private getConfig() {
 		grailsApplication?.config?.wschat
 	}

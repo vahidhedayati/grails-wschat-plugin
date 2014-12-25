@@ -57,22 +57,25 @@ class WsChatController {
 	def camsend(String user) {
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String hostname = config.hostname ?: 'localhost:8080'
-		[user:user,chatTitle:chatTitle,hostname:hostname]
+		String addAppName = config.add.appName ?: 'yes'
+		[user:user,chatTitle:chatTitle,hostname:hostname,addAppName:addAppName]
 	}
 
 	def webrtcsend(String user) {
 		JSONObject iceservers = grailsApplication.config.stunServers as JSON
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String hostname = config.hostname ?: 'localhost:8080'
-		[user:user,chatTitle:chatTitle,hostname:hostname,iceservers:iceservers]
+		String addAppName = config.add.appName ?: 'yes'
+		[user:user,chatTitle:chatTitle,hostname:hostname,iceservers:iceservers,addAppName:addAppName]
 	}
 	
 	def webrtcrec(String user) {
 		JSONObject iceservers = grailsApplication.config.stunServers as JSON
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String hostname = config.hostname ?: 'localhost:8080'
+		String addAppName = config.add.appName ?: 'yes'
 		def chatuser = session.wschatuser
-		[user:user,hostname:hostname,chatuser:chatuser,chatTitle:chatTitle,iceservers:iceservers]
+		[user:user,hostname:hostname,chatuser:chatuser,chatTitle:chatTitle,iceservers:iceservers,addAppName:addAppName]
 	}
 	
 	
@@ -80,7 +83,8 @@ class WsChatController {
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String hostname = config.hostname ?: 'localhost:8080'
 		def chatuser = session.wschatuser
-		[user:user,hostname:hostname,chatuser:chatuser,chatTitle:chatTitle]
+		String addAppName = config.add.appName ?: 'yes'
+		[user:user,hostname:hostname,chatuser:chatuser,chatTitle:chatTitle,addAppName:addAppName]
 	}
 
 	def chat() {
@@ -91,7 +95,15 @@ class WsChatController {
 		String showtitle = config.showtitle ?: 'yes'
 		def chatuser = session.wschatuser
 		def room = session.wschatroom
-		[showtitle:showtitle.toLowerCase(), dbsupport:dbsupport.toLowerCase() , room:room, chatuser:chatuser, chatTitle:chatTitle,chatHeader:chatHeader, now:new Date(),hostname:hostname]
+		
+		String addAppName = config.add.appName ?: 'yes'
+		def appName=''
+		if ((!appName)&& (addAppName=='yes')){
+			appName = grailsApplication.metadata['app.name']+"/"
+		}
+		
+		[showtitle:showtitle.toLowerCase(), dbsupport:dbsupport.toLowerCase() , room:room, appName:appName,
+			 chatuser:chatuser, chatTitle:chatTitle,chatHeader:chatHeader, now:new Date(),hostname:hostname]
 	}
 
 	def verifyprofile(String username) {

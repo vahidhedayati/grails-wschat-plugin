@@ -127,6 +127,7 @@ process page
 	// Open connection only if we have frontuser variable    
  	function processOpen(message) {
     	<g:if test="${frontuser}">
+    		//console.log("CONN:-${frontuser}");
     		webSocket.send("CONN:-${frontuser}");
        	</g:if>
        	<g:else>
