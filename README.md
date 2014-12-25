@@ -42,7 +42,9 @@ http://localhost:8080/yourapp/wsChat/
 
 [Video: grails app running wschat 0.14 part2](https://www.youtube.com/watch?v=xPxV_iEYYm0)
 
-[Video: WsChatClintEndPoint Client/Server Messaging via chat client API](https://www.youtube.com/watch?v=zAySkzNid3E)
+[Video: Client/Server Messaging part 1](https://www.youtube.com/watch?v=zAySkzNid3E)
+
+[Video: Client/Server Messaging part 2](https://www.youtube.com/watch?v=xagMYM9n3l0)
 
 
 ##### WebtRTC WebCam walk through
