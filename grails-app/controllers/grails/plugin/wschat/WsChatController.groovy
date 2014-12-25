@@ -16,17 +16,12 @@ class WsChatController {
 	def index() {
 		
 		String dbSupport = config.dbsupport ?: 'yes'
-		//def dbrooms
-		//if (dbSupport.toString().toLowerCase().equals('yes')) {
-		//	dbrooms = ChatRoomList?.findAll()*.room.unique()
-		//}
-			
+
 		String process = config.disable.login ?: 'no'
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String chatHeader = config.heading ?: 'Grails websocket chat'
 		def room = config.rooms
 		if (!room && (dbSupport=='yes')) {
-			//room = dbrooms
 			room = wsChatRoomService.returnRoom(dbSupport as String)
 		} else if (!room && (dbSupport=='no')) {
 			room = ['wschat']
@@ -111,10 +106,12 @@ class WsChatController {
 	}
 
 	def verifyprofile(String username) {
-		Boolean actualuser = false
-		ChatUser chatuser = ChatUser.findByUsername(username)
-		ChatUserProfile profile = ChatUserProfile.findByChatuser(chatuser)
-		ChatUserPics photos = ChatUserPics.findAllByChatuser(chatuser,[max: 5, sort: 'id', order:'desc'])
+		boolean actualuser = false
+		def chatuser = ChatUser.findByUsername(username)
+		def profile = ChatUserProfile?.findByChatuser(chatuser)
+		
+		def photos = ChatUserPics?.findAllByChatuser(chatuser,[max: 5, sort: 'id', order:'desc'])
+		
 		def model = [photos:photos,actualuser:actualuser,username:username,profile:profile]
 		if (verifyUser(username)) {
 			actualuser = true
@@ -123,8 +120,8 @@ class WsChatController {
 	}
 
 	def editprofile(String username) {
-		ChatUser chatuser = ChatUser.findByUsername(username)
-		ChatUserProfile profile = ChatUserProfile.findByChatuser(chatuser)
+		def chatuser = ChatUser.findByUsername(username)
+		def profile = ChatUserProfile.findByChatuser(chatuser)
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy")
 		if (verifyUser(username)) {
 			def bdate = profile?.birthDate
@@ -147,8 +144,8 @@ class WsChatController {
 	}
 
 	def uploadPhoto(String username) {
-		ChatUser chatuser = ChatUser.findByUsername(username)
-		ChatUserProfile profile = ChatUserProfile.findByChatuser(chatuser)
+		def chatuser = ChatUser.findByUsername(username)
+		def profile = ChatUserProfile.findByChatuser(chatuser)
 		ApplicationTagLib g = new org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib()
 		def photoFile= g.createLink(controller: 'wsChat', action: 'photo', params: [username:username],  absolute: 'true' )
 		def model = [photoFile:photoFile,profile:profile,chatuser:chatuser,username:username]
@@ -214,10 +211,12 @@ class WsChatController {
 		}
 	}
 
-	def viewPic(Long id) {
-		def photo = ChatUserPics.get( params.id )
-		byte[] image = photo.photo
-		response.outputStream << image
+	def viewPic() {
+		if (params.id && params.id != 'null') {
+			def photo = ChatUserPics.get( params.id as Long )
+			byte[] image = photo.photo
+			response.outputStream << image
+		}
 	}
 
 	def updateProfile() {
@@ -251,7 +250,7 @@ class WsChatController {
 	}
 
 	private Boolean verifyUser(String username) {
-		Boolean userChecksOut = false
+		boolean userChecksOut = false
 		def chatuser = ChatUser.findByUsername(username)
 		if ((chatuser) && (username.equals(session.wschatuser))) {
 			userChecksOut = true
