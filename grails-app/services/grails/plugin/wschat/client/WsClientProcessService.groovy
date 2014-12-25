@@ -1,6 +1,7 @@
 package grails.plugin.wschat.client
 
 import grails.converters.JSON
+import grails.plugin.wschat.interfaces.ChatSessions
 import grails.plugin.wschat.interfaces.ClientSessions
 
 import javax.websocket.Session
@@ -110,12 +111,22 @@ public class WsClientProcessService  implements ClientSessions {
 					disco = false
 				}
 
-				// You can now do something with the above event received on backend of your application
-				// I will give example of event back to sender where again would hit this and you could
-				// do same in this block for client app
 
 
-				String sMessage = """{
+				// There is a sleep time put in
+				// This is because front end takes while to load up on initial connection
+				// This is to match above modified event sMessage which has _received added to event
+				// Put in place to stop forever loop
+				if (!event.endsWith("_received")) {
+					sleep(1000)
+					
+					
+					// You can now do something with the above event received on backend of your application
+					// I will give example of event back to sender where again would hit this and you could
+					// do same in this block for client app
+	
+	
+					String sMessage = """{
                         "command":"event",
                         "arguments":[
                                         {
@@ -130,14 +141,7 @@ public class WsClientProcessService  implements ClientSessions {
                                     ]
                         }
                     """
-
-
-				// There is a sleep time put in
-				// This is because front end takes while to load up on initial connection
-				// This is to match above modified event sMessage which has _received added to event
-				// Put in place to stop forever loop
-				if (!event.endsWith("_received")) {
-					sleep(1000)
+					
 					chatClientListenerService.sendPM(userSession, msgFrom ,sMessage.replaceAll("\t","").replaceAll("\n",""))
 				}
 			}
@@ -187,22 +191,22 @@ public class WsClientProcessService  implements ClientSessions {
 		}
 	}
 
-
+	//OVERRIDE AND SET CUSTOM ACTIONS
 	// CLIENT SERVER CHAT VIA WsChatClientService method aka
 	// <chat:clientConnect gsp call
 	public void processAct(String user, boolean pm,String actionthis, String sendThis,
 			String divId, String msgFrom, boolean strictMode, boolean masterNode) {
 			Session userSession=wsChatUserService.usersSession(user)
+			
 		String username = userSession.userProperties.get("username") as String
-		println "-------- ${username}"
-		String addon=">PROCESS>"
-
+		
+		String addon="[PROCESS]"
+		
 		def myMap=[pm:pm, actionThis: actionthis, sendThis: sendThis, divId:divId,
 			msgFrom:msgFrom, strictMode:strictMode, masterNode:masterNode ]
 
-
 		if (masterNode) {
-			addon=">PROCESSED>>"
+			addon="[PROCESSED]"
 			if (saveClients) {
 				clientMaster.add(myMap)
 			}
@@ -214,8 +218,8 @@ public class WsClientProcessService  implements ClientSessions {
 		
 		
 		
-		//OVERRIDE AND SET CUSTOM ACTIONS
-		/*
+		
+		/* SET CUSTOM ACTIONS
 		if (masterNode) {
 			if (actionthis== 'do_task_1') {
 				// TODO something on master node that has mappings to do_task_1
@@ -229,7 +233,27 @@ public class WsClientProcessService  implements ClientSessions {
 			}
 		}
 		*/	
-			
+		
+		
+		/*
+		 * Fancy block to not start client transmission 
+		 * until it finds its own name _frontend logged in
+		 *  This way server/client transaction can happen with no issues
+		 */
+		
+		if ( masterNode == false ) {
+			boolean found = wsChatUserService.findUser(user+frontend)
+			int counter=0
+			if (found==false) {
+				while (found==false && (counter < 3) ) {
+					sleep(600)
+					found = wsChatUserService.findUser(user+frontend)
+					counter++
+				}
+			}
+		}
+		
+		//println " ${msgFrom} ${sendThis}"
 		
 		if (pm) {
 			//if (strictMode==false) {
@@ -238,7 +262,9 @@ public class WsClientProcessService  implements ClientSessions {
 			chatClientListenerService.sendPM(userSession,msgFrom,sendThis)
 		}else{
 			//chatClientListenerService.sendMessage(userSession, "${addon}${sendThis}")
-			chatClientListenerService.sendMessage(userSession, "${sendThis}")
+			if (strictMode==false) {
+				chatClientListenerService.sendMessage(userSession, "${addon}${sendThis}")
+			}	
 		}
 	}
 

@@ -33,12 +33,13 @@
 
 		// connect to websocket server
 		<g:if test="${addAppName=='no'}">
-		var uri="ws://"+getHostName()+"/WsCamEndpoint/"+getUser()+"/"+getUser()
+			var uri="ws://"+getHostName()+"/WsCamEndpoint/"+getUser()+"/"+getUser();
 		</g:if>
 		<g:else>
-		var uri="ws://"+getHostName()+"/"+getApp()+"/WsCamEndpoint/"+getUser()+"/"+getUser()
+			var uri="ws://"+getHostName()+"/"+getApp()+"/WsCamEndpoint/"+getUser()+"/"+getUser();
 		</g:else>
-			WebCam.connectToSocket(uri);
+		
+		WebCam.connectToSocket(uri);
 		
 	
 		window.onbeforeunload = function() {

@@ -126,7 +126,7 @@ document.getElementById('themeChanger4').onclick = function () {
 	</div>
 	
 </div>
-<script>
+<g:javascript>
 
 	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
@@ -166,8 +166,14 @@ var options = {
 		"video" : true,
 		audio:true
 };
-	
-    var webSocket=new WebSocket("ws://${hostname}/${appName}WsChatEndpoint/${room}");
+	<g:if test="${addAppName=='no'}">
+		var uri="ws://${hostname}/WsChatEndpoint/${room}";
+	</g:if>
+	<g:else>
+		var uri="ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint/${room}"
+	</g:else>
+
+	var webSocket=new WebSocket(uri);
      
     var chatMessages=document.getElementById("chatMessages");
     var onlineUsers=document.getElementById("onlineUsers");
@@ -215,8 +221,7 @@ var options = {
        	//webSocket.close();
      }
 
- 
-</script>
+</g:javascript>
 
 
 </body>

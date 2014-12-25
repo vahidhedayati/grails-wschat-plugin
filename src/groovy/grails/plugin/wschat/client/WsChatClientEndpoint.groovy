@@ -1,6 +1,7 @@
 package grails.plugin.wschat.client
 
 
+import grails.converters.JSON
 import grails.plugin.wschat.users.WsChatUserService
 
 import javax.websocket.ClientEndpoint
@@ -16,6 +17,7 @@ import javax.websocket.WebSocketContainer
 import javax.websocket.server.PathParam
 
 import org.codehaus.groovy.grails.web.context.ServletContextHolder as SCH
+import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes as GA
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -97,17 +99,32 @@ public class WsChatClientEndpoint {
 		userSession.basicRemote.sendText(message)
 	}
 	
+	/*
 	public String getFrontend() {
 		def cuser=config.frontenduser ?: '_frontend'
 		return cuser
 	}
+
+	public boolean isJson(String message) {
+		
+		boolean result = false
+		
+		try {
+			JSONObject rmesg=JSON?.parse(message)
+			result = true
+		} catch (Exception e) {
+			//	e.printStackTrace()
+		}
+		return result
+	}
+	*/
 	
 	public Session returnSession() {
 		return userSession
 	}
 
 	public static interface MessageHandler {
-		public void handleMessage(def message)
+		public void handleMessage(String message)
 	}
 
 	@OnError

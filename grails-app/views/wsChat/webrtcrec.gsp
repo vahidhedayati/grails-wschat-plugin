@@ -64,10 +64,10 @@
 	//connect to websocket server
 	<g:if test="${addAppName=='no'}">
 		var uri="ws://${hostname}/WsCamEndpoint/${user}/${chatuser}"
-		</g:if>
-		<g:else>
+	</g:if>
+	<g:else>
 		var uri="ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${chatuser}"
-		</g:else>
+	</g:else>
 		
 	
 		WebRTC.connectToSocket(uri);

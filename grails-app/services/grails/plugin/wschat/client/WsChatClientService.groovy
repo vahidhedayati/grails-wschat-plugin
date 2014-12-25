@@ -3,8 +3,6 @@ package grails.plugin.wschat.client
 import grails.converters.JSON
 import grails.plugin.wschat.interfaces.ClientSessions
 
-import javax.websocket.ContainerProvider
-import javax.websocket.SendHandler
 import javax.websocket.Session
 
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -16,9 +14,17 @@ public class WsChatClientService implements ClientSessions {
 
 	private Session userSession = null
 	public WsChatClientEndpoint conn(String hostname, String appName, String room, String user ) {
+		String addAppName = config.add.appName ?: 'yes'
+		
+		String uri="ws://${hostname}/${appName}/${CHATAPP}/${room}"
+		if (addAppName=="no") {
+			uri="ws://${hostname}/${CHATAPP}/${room}"
+		}
+		
 		WsChatClientEndpoint clientEndPoint =
-				new WsChatClientEndpoint(new URI("ws://${hostname}/${appName}/${CHATAPP}/${room}"))
+				new WsChatClientEndpoint(new URI(uri))
 		clientEndPoint.connectClient(user)
+		
 		return clientEndPoint
 	}
 
@@ -60,19 +66,15 @@ public class WsChatClientService implements ClientSessions {
 		clientEndPoint.disconnectClient(user)
 	}
 
+
 	def handMessage(WsChatClientEndpoint clientEndPoint, String user,
 			ArrayList pmuser, Map aMap, boolean strictMode,String divId, boolean masterNode) {
-
+			
 		clientEndPoint.addMessageHandler(
 				new WsChatClientEndpoint.MessageHandler() {
-					public void handleMessage(def message) {
-						//println "------- ${message}"
-						def mg=message as JSON
-						if (mg) {
-							
-						
+					public void handleMessage(String message) {
+						if (message.startsWith('{"')) {
 						JSONObject rmesg=JSON?.parse(message)
-						//if (rmesg){
 						String actionthis=''
 						String msgFrom = rmesg.msgFrom
 						String disconnect = rmesg.system
@@ -124,6 +126,9 @@ public class WsChatClientService implements ClientSessions {
 								}
 							}
 						}
+						
+					}else{
+						clientEndPoint.sendMessage("${message}")
 					}
 				  }
 				})

@@ -29,10 +29,6 @@ class WsChatTagLib implements ClientSessions {
 		String dbSupport = config.dbsupport ?: 'yes'
 
 		String addAppName = config.add.appName ?: 'yes'
-		def appName=''
-		if ((!appName)&& (addAppName=='yes')){
-			appName = grailsApplication.metadata['app.name']+"/"
-		}
 		
 		chatuser = chatuser.trim().replace(' ', '_').replace('.', '_')
 		session.wschatuser = chatuser
@@ -45,7 +41,7 @@ class WsChatTagLib implements ClientSessions {
 
 		def model = [ dbsupport: dbSupport.toLowerCase() , showtitle: showtitle.toLowerCase(),
 			room: room, chatuser: chatuser, chatTitle: chatTitle, chatHeader: chatHeader,appName:appName,
-			now: new Date(), hostname: hostname ]
+			now: new Date(), hostname: hostname, addAppName: addAppName ]
 
 		if (template) {
 			out << g.render(template:template, model:model)
@@ -91,10 +87,6 @@ class WsChatTagLib implements ClientSessions {
 			appName = grailsApplication.metadata['app.name']
 		}
 		
-		if (addAppName=='no') {
-			appName=''
-		}
-
 		if (!hostname) {
 			hostname = config.hostname ?: 'localhost:8080'
 		}
@@ -109,13 +101,13 @@ class WsChatTagLib implements ClientSessions {
 
 		Map model = [  message : message, room: room, hostname: hostname, actionMap: actionMap,
 			appName: appName, frontuser:frontuser,  user: user, receivers: receivers, divId: divId,
-			chatApp: CHATAPP ]
+			chatApp: CHATAPP, addAppName: addAppName ]
 
 		WsChatClientEndpoint clientEndPoint = wsChatClientService.conn(hostname, appName, room, user)
 		if (receivers) {
-			if (strictMode==false) {
-				wsChatClientService.sendMessage(clientEndPoint, ">>"+message)
-			}
+			//if (strictMode==false) {
+			//	wsChatClientService.sendMessage(clientEndPoint, ">>"+message)
+			//}
 			wsChatClientService.sendArrayPM(clientEndPoint, receivers, message)
 		} else {
 			wsChatClientService.sendMessage(clientEndPoint, message)
@@ -155,7 +147,7 @@ class WsChatTagLib implements ClientSessions {
 		String sendType = attrs.remove('sendType')?.toString() ?: 'message'
 		String event =  attrs.remove('event')?.toString()
 		String context = attrs.remove('context')?.toString()
-
+		String addAppName = config.add.appName ?: 'yes'
 		if (receivers) {
 			receivers = receivers as ArrayList
 		}
@@ -193,12 +185,18 @@ class WsChatTagLib implements ClientSessions {
 			message = "testing"
 		}
 
+		
+		
 		String uri="ws://${hostname}/${appName}/${CHATAPP}/"
-
+		if (addAppName=="no") {
+			uri="ws://${hostname}/${CHATAPP}/"
+		}
+		
+		
 		Session oSession = chatClientListenerService.p_connect(uri, user, room)
 		Map model = [  message : message, room: room, hostname: hostname, actionMap: actionMap,
 			appName: appName, frontuser:frontuser,  user: user, receivers: receivers, divId: divId,
-			chatApp: CHATAPP ]
+			chatApp: CHATAPP, addAppName: addAppName ]
 		try{
 			//closure(session)
 			if (sendType == 'message') {

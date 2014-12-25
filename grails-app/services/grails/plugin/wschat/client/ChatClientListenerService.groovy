@@ -29,30 +29,6 @@ public class ChatClientListenerService implements ClientSessions {
 		}
 	}
 	
-	def sendPM2(Session userSession, String user,String message) {
-		println "--- 0 "
-		String username = userSession.userProperties.get("username") as String
-		boolean found=false
-		println "--- 1 "
-		found=wsChatUserService.findUser(user)
-		println "--- 3 "+user
-		if (found) {
-			println "--- 4 "+user
-			println username+ " Trying to send to : "+user+" : "+message
-			userSession.basicRemote.sendText("/pm ${user},${message}")
-		}
-		sleep(300)
-		if (!user.endsWith(frontend)) {
-			println "--- 5 "+user+frontend
-			found=wsChatUserService.findUser(user+frontend)
-			if (found) {
-				println "--- 7 "+user+frontend
-				userSession.basicRemote.sendText("/pm ${user+frontend},${message}")
-				println username+ " Trying to send to : "+user+frontend+" : "+message
-			}
-		}
-
-	}
 	
 	def sendPM(Session userSession, String user,String message) {
 		String username = userSession.userProperties.get("username") as String
@@ -175,7 +151,6 @@ public class ChatClientListenerService implements ClientSessions {
                                     ]
                         }
                     """
-		//println "------------ BOOT> ${cusers} ${sMessage}"
 		cusers.each { userId ->
 			sendPM(oSession,
 					chatClientOverrideService.getGlobalReceiverNameFromUserId(userId as String),

@@ -6,7 +6,15 @@ process page
 	var receivers="${receivers}"
 	var arrayLength = receivers.length;
 	// Connect websocket and set up processes 
-	var webSocket=new WebSocket("ws://${hostname}/${appName}/${chatApp }/${room}");
+	
+	<g:if test="${addAppName=='no'}">
+		var uri="ws://${hostname}/${chatApp }/${room}";
+	</g:if>
+	<g:else>
+		var uri="ws://${hostname}/${appName}/${chatApp }/${room}";
+	</g:else>
+	
+	var webSocket=new WebSocket(uri);
  	webSocket.onopen=function(message) {processOpen(message);};
  	webSocket.onclose=function(message) {processClose(message);};
     webSocket.onerror=function(message) {processError(message);};
@@ -52,9 +60,12 @@ process page
 				receiver=jsonData.msgTo
 			}
 			
+			
 			console.log("--->"+jsonData.privateMessage);
-		//$('#chatMessages').append("PM("+sender+"): "+jsonData.privateMessage+"\n");
-		//sendPM(receiver,sender,jsonData.privateMessage);
+			//var jsonActions = JSON.parse(jsonData.privateMessage);
+			
+			//$('#chatMessages').append("PM("+sender+"): "+jsonData.privateMessage+"\n");
+			//sendPM(receiver,sender,jsonData.privateMessage);
 		}   	
 		
 	}

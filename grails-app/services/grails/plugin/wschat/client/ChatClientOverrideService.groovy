@@ -3,11 +3,7 @@ package grails.plugin.wschat.client
 import grails.plugin.wschat.interfaces.ClientSessions
 
 public class ChatClientOverrideService {
-	// implements ClientSessions {
 
-	//def grailsApplication
-	//def wsChatRoomService
-	//def wsChatUserService
 
 	// Override this to get value from another DB
 	// like commented out example

@@ -66,14 +66,14 @@
 	
 	<g:if test="${addAppName=='no'}">
 		var uri="ws://${hostname}/WsCamEndpoint/${user}/${user}"
-		</g:if>
-		<g:else>
+	</g:if>
+	<g:else>
 		var uri="ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${user}"
-		</g:else>
+	</g:else>
 		
 		
 	
-		WebRTC.connectToSocket(uri);
+	WebRTC.connectToSocket(uri);
 
 	/*
 	 *	Add Click-Handler and Event-Listener

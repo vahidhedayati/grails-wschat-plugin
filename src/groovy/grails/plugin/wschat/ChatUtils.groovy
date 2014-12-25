@@ -98,16 +98,16 @@ class ChatUtils extends WsChatConfService  implements ChatSessions {
 				wsChatUserService.removeUser(user,person)
 				wsChatUserService.sendUsers(userSession,user)
 			}else if (message.startsWith("/joinRoom")) {
+			
+				String sendjoin = config.send.joinroom  ?: 'yes'
 				def values = parseInput("/joinRoom ",message)
 				String user = values.user as String
 				String rroom = values.msg as String
 				if (wsChatRoomService.roomList().toMapString().contains(rroom)) {
 					userSession.userProperties.put("room", rroom)
-					room = rroom;
+					room = rroom
 					myMsg.put("currentRoom", "${room}")
 					wsChatMessagingService.messageUser(userSession,myMsg)
-
-					String sendjoin = config.send.joinroom  ?: 'yes'
 					if (sendjoin == 'yes') {
 						myMsg = [:]
 						wsChatUserService.sendUsers(userSession,user)

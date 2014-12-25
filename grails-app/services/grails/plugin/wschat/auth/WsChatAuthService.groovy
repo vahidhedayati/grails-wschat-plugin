@@ -1,15 +1,14 @@
 package grails.plugin.wschat.auth
 
-import javax.websocket.Session;
-
 import grails.plugin.wschat.ChatLogs
 import grails.plugin.wschat.ChatPermissions
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.WsChatConfService
 import grails.plugin.wschat.interfaces.ChatSessions
-import grails.transaction.Transactional
 
-//@Transactional
+import javax.websocket.Session
+
+
 class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 	
 	def wsChatMessagingService
@@ -38,9 +37,11 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 				wsChatMessagingService.messageUser(userSession,myMsg2)
 				wsChatUserService.sendUsers(userSession,username)
 				String sendjoin = config.send.joinroom  ?: 'yes'
+				
 				if (sendjoin == 'yes') {
 					myMsg.put("message", "${username} has joined ${room}")
 					wsChatRoomService.sendRooms(userSession)
+					//wsChatMessagingService.messageUser(userSession,myMsg)
 				}
 			}else{
 				def myMsg1 = [:]
@@ -49,6 +50,11 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 				//chatroomUsers.remove(userSession)
 			}
 		}
+		
+		if ((myMsg)&&(!isuBanned)) {
+			wsChatMessagingService.broadcast(userSession,myMsg)
+		}
+
 	}
 	
 	String validateLogin(String username) {

@@ -38,19 +38,19 @@
 	// connect to websocket server
 	
 	
-	<g:if test="${addAppName=='no'}">
-	var uri="ws://"+getHostName()+"/WsCamEndpoint/${user}/"+getUser()
+		<g:if test="${addAppName=='no'}">
+			var uri="ws://"+getHostName()+"/WsCamEndpoint/${user}/"+getUser();
 		</g:if>
 		<g:else>
-	var uri="ws://"+getHostName()+"/"+getApp()+"/WsCamEndpoint/${user}/"+getUser()
+			var uri="ws://"+getHostName()+"/"+getApp()+"/WsCamEndpoint/${user}/"+getUser();
 		</g:else>
 
 	
-	console.log(uri);
-	WebCamRec.getFromSocket(uri);
+		//console.log(uri);
+		WebCamRec.getFromSocket(uri);
 	
 
-	window.onbeforeunload = function() {
+		window.onbeforeunload = function() {
 		//WebCam.send("DISCO:-");
 		WebCamRec.onclose = function() { }
 		WebCamRec.close();
