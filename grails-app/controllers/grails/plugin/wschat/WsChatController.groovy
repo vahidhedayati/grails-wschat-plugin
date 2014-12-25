@@ -11,21 +11,24 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 
 class WsChatController {
 	def grailsApplication
-
+	def wsChatRoomService
+	
 	def index() {
 		
 		String dbSupport = config.dbsupport ?: 'yes'
-		def dbrooms
-		if (dbSupport.toString().toLowerCase().equals('yes')) {
-			dbrooms = ChatRoomList?.findAll()*.room.unique()
-		}	
+		//def dbrooms
+		//if (dbSupport.toString().toLowerCase().equals('yes')) {
+		//	dbrooms = ChatRoomList?.findAll()*.room.unique()
+		//}
+			
 		String process = config.disable.login ?: 'no'
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String chatHeader = config.heading ?: 'Grails websocket chat'
 		def room = config.rooms
-		if (!room && dbrooms) {
-			room = dbrooms
-		} else if (!room && !dbrooms) {
+		if (!room && (dbSupport=='yes')) {
+			//room = dbrooms
+			room = wsChatRoomService.returnRoom(dbSupport as String)
+		} else if (!room && (dbSupport=='no')) {
 			room = ['wschat']
 		}	    
 		
@@ -96,7 +99,10 @@ class WsChatController {
 		String showtitle = config.showtitle ?: 'yes'
 		def chatuser = session.wschatuser
 		def room = session.wschatroom
-		
+		String dbSupport = config.dbsupport ?: 'yes'
+		if (!room) {
+			room = wsChatRoomService.returnRoom(dbSupport as String)
+		}
 		String addAppName = config.add.appName ?: 'yes'
 		
 		[showtitle:showtitle.toLowerCase(), dbsupport:dbsupport.toLowerCase() , room:room,
