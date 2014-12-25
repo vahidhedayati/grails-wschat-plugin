@@ -66,7 +66,7 @@ http://localhost:8080/yourapp/wsChat/
 [pre 2.4 apps](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/resources-based-apps)
 
 ##### ChatClientEndPoint Client/Server Messaging  new feature since 1.11
-[wsChatClientEndPoint explained](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/wsChatClientEndPoint-new-feature-since-1.11)
+[Client/Server Messaging explained](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/wsChatClient-Client-Server-Messaging-new-feature-since-1.11)
 
  
 #####Commands
