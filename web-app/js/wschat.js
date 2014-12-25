@@ -198,7 +198,10 @@ function processMessage(message) {
 				sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry.owner)+','+wrapIt('send')+','+wrapIt('webrtc')+');">Enable WebRTC</a>\n');
 				sb.push('</li>\n');
 	
-				
+				sb.push('<li class="btn-xs">\n');
+				sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry.owner)+','+wrapIt('send')+','+wrapIt('webrtcscreen')+');">WebRTC ScreenShare</a>\n');
+				sb.push('</li>\n');
+	
 				camoff(entry.owner);
 				rtcoff(entry.owner);
 				sb.push('</ul>\n</li>\n\n\n');
@@ -219,6 +222,9 @@ function processMessage(message) {
 				rtcon(entry.friends_rtc);
 				sb1.push('<li class="btn-xs">\n');
 				sb1.push('<a onclick="javascript:enableCam('+wrapIt(entry.friends_rtc)+','+wrapIt('view')+','+wrapIt('webrtc')+');">WebRTC</a>\n');
+				sb1.push('</li>\n');
+				sb1.push('<li class="btn-xs">\n');
+				sb1.push('<a onclick="javascript:enableCam('+wrapIt(entry.friends_rtc)+','+wrapIt('view')+','+wrapIt('webrtcscreen')+');">WebRTC Screen</a>\n');
 				sb1.push('</li>\n');
 				var admintool=adminOptions(isAdmin,entry.friend)
 				sb1.push(admintool);
@@ -283,6 +289,10 @@ function processMessage(message) {
 				sb2.push('<li class="btn-xs">\n');
 				sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_rtc)+','+wrapIt('view')+','+wrapIt('webrtc')+');">WebRTC</a>\n');
 				sb2.push('</li>\n');	
+				sb2.push('<li class="btn-xs">\n');
+				sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_rtc)+','+wrapIt('view')+','+wrapIt('webrtcscreen')+');">WebRTC Screen</a>\n');
+				sb2.push('</li>\n');	
+				
 				camoff(entry.user_rtc);
 				rtcon(entry.user_rtc);
 				var admintool=adminOptions(isAdmin,entry.user_rtc)
@@ -610,6 +620,21 @@ function sendCam() {
 	webSocket.send("/camenabled "+user);
 }
 
+function getWebrtc(user,rtcType) {
+	$.get("/"+getApp()+"/wsChat/webrtcrec?user="+user+"&rtc="+rtcType,function(data){
+		$('#camViewContainer').html(data);
+	});
+}
+
+function sendWebrtc(rtcType) {
+	$.get("/"+getApp()+"/wsChat/webrtcsend?user="+user+"&rtc="+rtcType,function(data){
+		$('#myCamContainer').html(data);
+	});
+	webSocket.send("/webrtcenabled "+user);
+}
+
+
+/*
 function getWebrtc(user) {
 	$.get("/"+getApp()+"/wsChat/webrtcrec?user="+user,function(data){
 		$('#camViewContainer').html(data);
@@ -622,7 +647,7 @@ function sendWebrtc() {
 	});
 	webSocket.send("/webrtcenabled "+user);
 }
-
+*/
 function disablertc() {
 	delCamList(user);
 	webSocket.send("/webrtcdisabled "+user);

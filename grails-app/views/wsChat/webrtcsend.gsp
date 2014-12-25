@@ -111,7 +111,16 @@
 		// create a room
 		WebRTC.createRoom();
 	};
-	WebRTC.getMedia({audio: true, video: true},success);
+	//WebRTC.getMedia({audio: true, video: true},success);
+	//WebRTC.getMedia(JSON.stringify(webvid),success);
+	
+	<g:if test="${rtc=='webrtcscreen'}">
+		WebRTC.getMedia({video:{mandatory: {chromeMediaSource: 'screen'}}},success);
+	</g:if>
+	<g:else>
+		WebRTC.getMedia({audio: true, video: true},success);
+	</g:else>
+	
 </g:javascript>
 
 </body>

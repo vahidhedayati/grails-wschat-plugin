@@ -9,6 +9,9 @@ import grails.plugin.wschat.users.WsChatUserService
 
 import javax.websocket.Session
 
+import org.apache.log4j.spi.LoggerFactory
+import org.slf4j.Logger
+
 
 class ChatUtils extends WsChatConfService  implements ChatSessions {
 
@@ -19,6 +22,25 @@ class ChatUtils extends WsChatConfService  implements ChatSessions {
 	WsChatRoomService wsChatRoomService
 	WsChatMessagingService wsChatMessagingService
 	WsCamService wsCamService
+	
+	public Boolean loggedIn(String user) {
+		Boolean loggedin = false
+		try {
+			synchronized (chatroomUsers) {
+				chatroomUsers?.each { crec->
+					if (crec && crec.isOpen()) {
+						def cuser = crec.userProperties.get("username").toString()
+						if (cuser.equals(user)) {
+							loggedin = true
+						}
+					}
+				}
+			}
+		} catch (IOException e) {
+			//log.info ("onMessage failed", e)
+		}
+		return loggedin
+	}
 
 	private void verifyAction(Session userSession,String message) {
 		def myMsg = [:]

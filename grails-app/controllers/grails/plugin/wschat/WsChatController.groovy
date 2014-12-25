@@ -64,24 +64,27 @@ class WsChatController {
 		[user:user, chatTitle:chatTitle, hostname:hostname, addAppName:addAppName]
 	}
 
-	def webrtcsend(String user) {
-		JSONObject iceservers = grailsApplication.config.stunServers as JSON
+	def webrtcsend(String user, String rtc) {
+		println "----- ${rtc}"
+		JSON iceservers = grailsApplication.config.stunServers as JSON
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String hostname = config.hostname ?: 'localhost:8080'
 		String addAppName = config.add.appName ?: 'yes'
-		[user:user, chatTitle:chatTitle, hostname:hostname, iceservers:iceservers, addAppName:addAppName]
+		[user:user, chatTitle:chatTitle, hostname:hostname, iceservers:iceservers, 
+			addAppName:addAppName, rtc:rtc]
 	}
 	
-	def webrtcrec(String user) {
-		JSONObject iceservers = grailsApplication.config.stunServers as JSON
+	def webrtcrec(String user, String rtc) {
+		println "----- ${rtc}"
+		JSON iceservers = grailsApplication.config.stunServers as JSON
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String hostname = config.hostname ?: 'localhost:8080'
 		String addAppName = config.add.appName ?: 'yes'
 		def chatuser = session.wschatuser
 		[user:user, hostname:hostname, chatuser:chatuser, chatTitle:chatTitle,
-			iceservers:iceservers, addAppName:addAppName]
+			iceservers:iceservers, addAppName:addAppName, rtc:rtc]
 	}
-	
+
 	
 	def camrec(String user) {
 		String chatTitle = config.title ?: 'Grails Websocket Chat'

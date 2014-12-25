@@ -356,24 +356,6 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 	}
 
 
-	public Boolean loggedIn(String user) {
-		Boolean loggedin = false
-		try {
-			synchronized (chatroomUsers) {
-				chatroomUsers?.each { crec->
-					if (crec && crec.isOpen()) {
-						def cuser = crec.userProperties.get("username").toString()
-						if (cuser.equals(user)) {
-							loggedin = true
-						}
-					}
-				}
-			}
-		} catch (IOException e) {
-			log.info ("onMessage failed", e)
-		}
-		return loggedin
-	}
 
 	private String getCurrentUserName(Session userSession) {
 		def myMsg = [:]

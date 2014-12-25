@@ -23,7 +23,7 @@
 	function getIceServers() {
 		return "${iceservers}";
 	}
-
+	
 	/*
 	 *	Get DOM-Elements
 	 */
@@ -108,7 +108,12 @@
 		// join a room
 		WebRTC.joinRoom(roomidInput.value);
 	};
-	WebRTC.getMedia({audio: true, video: true},success);		
+	<g:if test="${rtc=='webrtcscreen'}">
+		WebRTC.getMedia({video:{mandatory: {chromeMediaSource: 'screen'}}},success);
+	</g:if>
+	<g:else>
+		WebRTC.getMedia({audio: true, video: true},success);
+	</g:else>
 </g:javascript>
 </body>
 </html>

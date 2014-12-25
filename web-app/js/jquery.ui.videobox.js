@@ -104,9 +104,9 @@
 				//webrtc new method
 			}else{
 				if (camaction=="view") {
-					uiVidContent='<div id="camViewContainer"></div>'+getWebrtc(sender);
+					uiVidContent='<div id="camViewContainer"></div>'+getWebrtc(sender,viewtype);
 				}else{
-					uiVidContent='<div id="myCamContainer"></div>'+sendWebrtc();
+					uiVidContent='<div id="myCamContainer"></div>'+sendWebrtc(viewtype);
 				}		
 			}
 
