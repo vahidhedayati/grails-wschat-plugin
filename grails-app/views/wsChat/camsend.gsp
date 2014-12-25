@@ -47,6 +47,6 @@
 			WebCam.onclose = function() { }
 			WebCam.close();
 		}
-<g:javascript>
+</g:javascript>
 </body>
 </html>
