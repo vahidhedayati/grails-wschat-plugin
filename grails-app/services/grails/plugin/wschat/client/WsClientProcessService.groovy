@@ -95,10 +95,7 @@ public class WsClientProcessService  implements ClientSessions {
 					event = args.event
 					context = args.context
 					data = args.data
-					strictMode = args.strictMode.toBoolean()
-					masterNode = args.masterNode.toBoolean()
-					autodisco = args.autodisco.toBoolean()
-					frontenduser = args.frontenduser.toBoolean()
+					
 				}
 
 				def jsonData = (data as JSON).toString()
@@ -131,10 +128,6 @@ public class WsClientProcessService  implements ClientSessions {
                         "arguments":[
                                         {
                                         "event":"${event}_received",
-										"strictMode" : "${strictMode as String}",
-										"masterNode" : "${masterNode as String}",
-										"autodisco" : "${autodisco as String}",
-										"frontenduser" : "${frontenduser as String}",
                                         "context":"$context",
 										"data":${jsonData as String}
                                         }

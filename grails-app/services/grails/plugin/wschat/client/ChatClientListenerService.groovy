@@ -141,10 +141,6 @@ public class ChatClientListenerService implements ClientSessions {
                         "arguments":[
                                         {
                                         "event":"$_event",
-										"strictMode" : "${strictMode as String}",
-										"masterNode" : "${masterNode as String}",
-										"autodisco" : "${autodisco as String}",
-										"frontenduser" : "${frontenduser as String}",
                                         "context":"$_context",
 										"data":[${_data as String}]
                                         }
