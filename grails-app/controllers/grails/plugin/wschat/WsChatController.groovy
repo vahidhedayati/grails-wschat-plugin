@@ -65,7 +65,6 @@ class WsChatController {
 	}
 
 	def webrtcsend(String user, String rtc) {
-		println "----- ${rtc}"
 		JSON iceservers = grailsApplication.config.stunServers as JSON
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String hostname = config.hostname ?: 'localhost:8080'
@@ -75,7 +74,6 @@ class WsChatController {
 	}
 	
 	def webrtcrec(String user, String rtc) {
-		println "----- ${rtc}"
 		JSON iceservers = grailsApplication.config.stunServers as JSON
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String hostname = config.hostname ?: 'localhost:8080'

@@ -68,7 +68,7 @@ class WsCamService extends WsChatConfService  implements ChatSessions {
 	void discoCam(Session userSession) {
 		String user  =  userSession.userProperties.get("camusername") as String
 		String camuser  =  userSession.userProperties.get("camuser") as String
-		if (user && camuser && camuser.endsWith(':'+user)) {
+		if (user && camuser && camuser.endsWith(':'+user) && (camuser != user+":"+user)) {
 			try {
 				synchronized (camsessions) {
 					camsessions?.each { crec->
@@ -84,7 +84,7 @@ class WsCamService extends WsChatConfService  implements ChatSessions {
 					}
 				}
 			} catch (Throwable e) {
-				log.error ("onMessage failed", e)
+				log.error ("discoCam failed", e)
 			}
 		}
 		try {

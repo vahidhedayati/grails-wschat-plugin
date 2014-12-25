@@ -66,7 +66,6 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 			userSession.setMaxBinaryMessageBufferSize(1024*512)
 			userSession.setMaxTextMessageBufferSize(1000000)
 			//userSession.setmaxMessageSize(-1L)
-
 			if (viewer.equals(user)) {
 				userSession.userProperties.put("camuser", user+":"+user);
 			}else{

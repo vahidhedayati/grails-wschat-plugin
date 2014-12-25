@@ -369,7 +369,7 @@
 	
 	
 	function toggleCamButton(self,isOn,isrtc) {
-		console.log('Toggling cam button WEBCAM '+isOn+' RTC: '+isrtc);
+		//console.log('Toggling cam button WEBCAM '+isOn+' RTC: '+isrtc);
 		if (isOn=="true") {
 			uiChatboxTitlebarVideo = (self.uiChatboxTitlebarVideo = $('<a href="#"></a>'))
 			.addClass('ui-corner-all ' +'ui-chatbox-icon' + ' ui-videobox-icon')

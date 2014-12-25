@@ -13,6 +13,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 0.19+ supports webcam tested  on chrome/firefox.  
 1.0+ supports WebRTC (HD: Video/Audio streaming using cam/mic) currently only on Chrome Canary.
 1.11-SNAPSHOT4 + supports WebRTC screen sharing + chat client/server messaging/event services.
+		WebRTC screen sharing only on Chrome Canary+ (no plugins required)
 ```
 
  Websocket chat can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
@@ -50,6 +51,7 @@ http://localhost:8080/yourapp/wsChat/
 
 ##### WebtRTC WebCam walk through
 [WebtRTC WebCam walk through](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebtRTC-WebCam-walk-through)
+
 
 
 ##### Config.groovy variables required:

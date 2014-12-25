@@ -12,7 +12,11 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 
 	def messageUser(Session userSession,Map msg) {
 		def myMsgj = msg as JSON
-		userSession.basicRemote.sendText(myMsgj as String)
+		try {
+			userSession.basicRemote.sendText(myMsgj as String)
+		} catch (IOException e) {
+		}
+		
 	}
 
 	def privateMessage(String user,Map msg,Session userSession) {
