@@ -6,7 +6,7 @@ class ChatUser {
 	Date lastUpdated
 	String username
 	ChatPermissions permissions
-	static belongsTo = [ChatUserProfile]
+	static belongsTo = [profile:ChatUserProfile]
 	static hasMany = [photos: ChatUserPics, friends: ChatFriendList, blocked:ChatBlockList ]
 	
 	static mapping = {
@@ -19,6 +19,7 @@ class ChatUser {
 		friends nullable:true
 		blocked nullable:true
 		photos nullable:true
+		profile nullable:true
     }
 
 	

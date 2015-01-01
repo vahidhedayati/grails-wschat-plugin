@@ -62,19 +62,11 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnOpen
 	public void whenOpening(Session userSession,EndpointConfig c,@PathParam("user") String user,@PathParam("viewer") String viewer) {
-		if (loggedIn(viewer)) {
+		
 			userSession.setMaxBinaryMessageBufferSize(1024*512)
 			userSession.setMaxTextMessageBufferSize(1000000)
 			//userSession.setmaxMessageSize(-1L)
-			if (viewer.equals(user)) {
-				userSession.userProperties.put("camuser", user+":"+user);
-			}else{
-				userSession.userProperties.put("camuser", user+":"+viewer);
-			}
-			if (!camLoggedIn(viewer)) {
-				userSession.userProperties.put("camusername", viewer);
-				camsessions.add(userSession)
-			}
+		
 
 			def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 			def grailsApplication = ctx.grailsApplication
@@ -85,9 +77,23 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 			wsChatMessagingService = ctx.wsChatMessagingService
 			wsChatRoomService = ctx.wsChatRoomService
 			wsCamService = ctx.wsCamService
-
+			
+			if (loggedIn(viewer)) {
+				userSession.userProperties.put("camusername", viewer)
+				
+				if (viewer.equals(user)) {
+					userSession.userProperties.put("camuser", user+":"+user)
+				}else{
+					userSession.userProperties.put("camuser", user+":"+viewer)
+					
+				}
+				
+				if (!camLoggedIn(viewer)) {
+					camsessions.add(userSession)
+				}
+			
 		}else{
-			log.info "could not find chat user ! ${viewer}"
+			log.error "could not find chat user ! ${viewer}"
 		}
 	}
 

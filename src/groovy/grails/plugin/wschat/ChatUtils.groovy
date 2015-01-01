@@ -182,6 +182,8 @@ class ChatUtils extends WsChatConfService  implements ChatSessions {
 				myMsg.put("message", "${camuser} has disabled WebrRTC")
 				wsChatMessagingService.broadcast(userSession,myMsg)
 				wsChatUserService.sendUsers(userSession,camuser)
+			}else if (message.startsWith("/flatusers")) {
+				wsChatUserService.sendFlatUsers(userSession,username)
 				// Usual chat messages bound for all
 			}else{
 				myMsg.put("message", "${username}: ${message}")

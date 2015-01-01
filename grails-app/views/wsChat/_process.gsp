@@ -33,9 +33,9 @@
 		//Create internal users list
 		// and log out front end user when backend - real user has logged out
 		var jsonData = JSON.parse(message.data);
-		if (jsonData.users!=null) {
+		if (jsonData.flatusers!=null) {
 			loggedInUsers=[];
-			updateUserList(jsonData.users);
+			updateFlatUserList(jsonData.users);
 			var backendLoggedin=verifyIsOn(user);
 			if (backendLoggedin=="false") {
 				//console.log('Backend user left, logging out now');
@@ -160,44 +160,16 @@
 	    }
     }
 	
-	
-	function updateUserList(users) {
+	function updateFlatUserList(users) {
 		if (users!=null) {
 			users.forEach(function(entry) {
-				if (entry.owner_rtc!=null) {
-					addUser(entry.owner_rtc);
-				}
-				if (entry.owner_av!=null) {
-					addUser(entry.owner_av);
-				}
-				if (entry.owner!=null) {
-					addUser(entry.owner);
-				}			
-				if (entry.friends_rtc!=null) {
-					addUser(entry.friends_rtc);
-				}	
-				if (entry.friends_av!=null) {
-					addUser(entry.friends_av);
-				}
-				if (entry.friends!=null) {
-					addUser(entry.friends);
-				}
-				if (entry.user_rtc!=null) {
-					addUser(entry.user_rtc);
-				}
-				if (entry.user_av!=null) {
-					addUser(entry.user_av);
-				}
 				if (entry.user!=null) {
 					addUser(entry.user);
 				}
-				if (entry.blocked!=null) {
-				}
 			});
-			
 		}	
 	}
-
+	
 	function isJson(message) {
  		var input='{';
  		return new RegExp('^' + input).test(message);

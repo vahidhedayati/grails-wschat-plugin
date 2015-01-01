@@ -1,3 +1,24 @@
+
+.dropdown-submenu{position:relative;  z-index: 21; background:  #000; color: #fff;  }
+
+#user-title {background:  #000; color: #FFF;}
+#themeChoice {background:  #000;  }
+#onlineUsers {background:  #111;  }
+#sideBar a {background:  #000; color: #FFF;}
+#sideBar a:hover { background:  #000; color: #FFF;}
+
+#ownerBar a {background:  #333; color: #FFF;}
+#ownerBar a:hover { background:  #444; color: #FFF;}
+
+.dropdown-submenu>.dropdown-menu{top:0;left:100%;margin-top:-6px;margin-left:-1px;-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px;  background:  #000; color: #fff; }
+
+.dropdown-submenu:hover>.dropdown-menu{display:block;  background:  #000; color: #fff; }
+.dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;  background:  #000; color: #fff; }
+.dropdown-submenu:hover>a:after{border-left-color:#ffffff;  background:  #000; color: #fff; }
+.dropdown-submenu{float:none; }.dropdown-submenu>.dropdown-menu{right:-100%;margin-left:0px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;  background:  #000; color: #fff; }
+.sidebar{float:right;margin-right:1px;  background:  #000; color: #fff; }
+
+
 .message-thread   {
 	background:  #000000;
 	color:#FFF; 

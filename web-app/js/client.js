@@ -354,9 +354,9 @@ function WebRTC() {
             }
         }, function(e){
             console.log("GetUserMediaFailed: "+e);
-            if(fail) {
-                fail();
-            }
+           // if(fail) {
+             //   fail();
+            //}
         });
 	};
 

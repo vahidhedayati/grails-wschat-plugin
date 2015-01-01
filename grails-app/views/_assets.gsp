@@ -11,6 +11,7 @@
  	<asset:javascript src="client.js"/>
     <asset:javascript src="jquery.ui.chatbox.js"/>
     <asset:javascript src="jquery.ui.videobox.js"/>
-
+ <asset:javascript src="jquery-ui-timepicker-addon.js"/>
+<asset:javascript src="jquery-ui-timepicker-addon-i18n.min.js"/>
 
     

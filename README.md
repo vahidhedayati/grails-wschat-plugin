@@ -71,7 +71,44 @@ http://localhost:8080/yourapp/wsChat/
 ##### ChatClientEndPoint Client/Server Messaging  new feature since 1.11
 [Client/Server Messaging explained](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/wsChatClient-Client-Server-Messaging-new-feature-since-1.11)
 
+#### 1.12 additions:
+Profile creation/updating feature added to taglib call. This works in conjunction with invites which with email address will contact end user.
+```
+<chat:connect can include a map collection of user profile:
+profile="[email: 'something@domain.com']"
+```
+
+Full tag:
+```
+profile="[email: 'something@domain.com', firstName:firstName, middleName:middleName, lastName:lastName, age:age, birthDate:birthDate, wage:wage, email:email, homePage:homePage, martialStatus:martialStatus, children:children , gender:"Male/Female"]"
+``
+
+If you wish to update profile upon each usage:
+```
+updateProfile="true/false" -- default is false
+
+```
+
+Two additional tag libs to work with <chat:connect:
+```
+<chat:includeAllStyle/>
+<chat:includeStyle/>
+```
+Use one or the other, I found on a default grails site I needed includeAllStyles.
+
+
+
+####Screen capture
+
+Your clients need to open up chrome with these options, in order for this to work:
  
+```
+chromium-browser --allow-http-screen-capture --enable-usermedia-screen-capturing
+chrome --allow-http-screen-capture --enable-usermedia-screen-capturing
+```
+
+
+
 #####Commands
 [Commands](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Commands)
 

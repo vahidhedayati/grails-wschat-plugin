@@ -18,14 +18,14 @@ class ChatUserProfile {
 	Integer children
 	
 	static constraints = {
-		firstName size: 1..50
+		firstName nullable: true,size: 0..50
         middleName nullable: true,size: 0..50
-        lastName size: 1..50
+        lastName nullable: true,size: 0..50
         email nullable: true,email: true, notEqual: "bill@microsoft.com"
         age nullable: true, range: 0..150
-        gender inList: ["Male", "Female"]
-		martialStatus inList: ["Single", "Married"]
-        birthDate max: new Date()
+        gender nullable: true,inList: ["Male", "Female"]
+		martialStatus nullable: true,inList: ["Single", "Married"]
+        birthDate nullable: true,max: new Date()
         wage nullable: true, min: 0F, scale: 2
 		children nullable: true,min:0, max:10
         homePage nullable: true,url: true

@@ -10,11 +10,11 @@ import javax.websocket.Session
 
 
 class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
-	
+
 	def wsChatMessagingService
 	def wsChatUserService
 	def wsChatRoomService
-	
+
 	public void connectUser(String message,Session userSession,String room) {
 		def myMsg = [:]
 		Boolean isuBanned = false
@@ -37,7 +37,7 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 				wsChatMessagingService.messageUser(userSession,myMsg2)
 				wsChatUserService.sendUsers(userSession,username)
 				String sendjoin = config.send.joinroom  ?: 'yes'
-				
+
 				if (sendjoin == 'yes') {
 					myMsg.put("message", "${username} has joined ${room}")
 					wsChatRoomService.sendRooms(userSession)
@@ -50,25 +50,38 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 				//chatroomUsers.remove(userSession)
 			}
 		}
-		
+
 		if ((myMsg)&&(!isuBanned)) {
 			wsChatMessagingService.broadcast(userSession,myMsg)
 		}
 
 	}
-	
+
+	public Map addUser(String username) {
+		String defaultPermission = config.defaultperm  ?: defaultPerm
+		def perm,user
+		ChatPermissions.withTransaction {
+			perm = ChatPermissions.findByName(defaultPermission)
+			if (!perm) {
+				perm = ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
+			}
+		}
+		ChatUser.withTransaction {
+			user = ChatUser.findByUsername(username)
+			if (!user) {
+				user = ChatUser.findOrSaveWhere(username:username, permissions:perm).save(flush:true)
+			}
+		}
+		return [ user:user, perm:perm ]
+	}
+
 	String validateLogin(String username) {
 		def defaultPerm = 'user'
 		if (dbSupport()) {
+			def au=addUser(username)
+			def user=au.user
+			def perm=au.perm
 
-			String defaultPermission = config.defaultperm  ?: defaultPerm
-			def perm,user
-			ChatPermissions.withTransaction {
-				perm = ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
-			}
-			ChatUser.withTransaction {
-				user = ChatUser.findOrSaveWhere(username:username, permissions:perm).save(flush:true)
-			}
 			ChatLogs.withTransaction {
 				def logit = new ChatLogs()
 				logit.username = username

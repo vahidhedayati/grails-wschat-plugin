@@ -127,7 +127,21 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 		return found
 	}
 	
-	private ArrayList genUserMenu(ArrayList friendslist, ArrayList blocklist, String room, String uiterator ) {
+	public ArrayList genAllUsers() {
+		def uList = []
+		synchronized (chatroomUsers) {
+			chatroomUsers?.each { crec->
+				def myUser = [:]
+				if (crec && crec.isOpen()) {
+					def cuser = crec.userProperties.get("username").toString()
+					uList.add(cuser)
+				}
+			}
+		}
+		return uList				
+	}
+	
+	private ArrayList genUserMenu(ArrayList friendslist, ArrayList blocklist, String room, String uiterator, String listType ) {
 		def uList = []
 		try {
 
@@ -139,27 +153,31 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 						def av = crec.userProperties.get("av").toString()
 						def rtc = crec.userProperties.get("rtc").toString()
 						def addav = ""
-						if (av.equals("on")) {
-							addav = "_av"
-						}
-						if (rtc.equals("on")) {
-							addav = "_rtc"
-						}
-						if (cuser.equals(uiterator)) {
-							myUser.put("owner${addav}", cuser)
-							uList.add(myUser)
-						}else{
-							if ((blocklist)&&(blocklist.username.contains(cuser))) {
-								myUser.put("blocked", cuser)
-								uList.add(myUser)
-
-							}else if  ((friendslist)&&(friendslist.username.contains(cuser))) {
-								myUser.put("friends${addav}", cuser)
+						if (listType=="generic") { 
+							if (av.equals("on")) {
+								addav = "_av"
+							}
+							if (rtc.equals("on")) {
+								addav = "_rtc"
+							}
+							if (cuser.equals(uiterator)) {
+								myUser.put("owner${addav}", cuser)
 								uList.add(myUser)
 							}else{
-								myUser.put("user${addav}", cuser)
-								uList.add(myUser)
-							}
+								if ((blocklist)&&(blocklist.username.contains(cuser))) {
+									myUser.put("blocked", cuser)
+									uList.add(myUser)
+								}else if  ((friendslist)&&(friendslist.username.contains(cuser))) {
+									myUser.put("friends${addav}", cuser)
+									uList.add(myUser)
+								}else{
+									myUser.put("user${addav}", cuser)
+									uList.add(myUser)
+								}
+							}	
+						}else{
+							myUser.put("users", cuser)
+							uList.add(myUser)
 						}
 					}
 				}
@@ -170,7 +188,26 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 		return uList
 	}
 
-	void sendUsers(Session userSession,String username) {
+	def sendFlatUsers(Session userSession,String username) {
+		userListGen(userSession, username, "flat")
+	}
+	
+	def sendUsers(Session userSession,String username) {
+		userListGen(userSession, username, "generic")
+	}
+	
+	Boolean validateAdmin(String username) {
+		boolean useris = false
+		def found=ChatUser.findByUsername(username)
+		if (found) {
+			if (found.permissions.name.toString().toLowerCase().startsWith('admin')) {
+				useris = true
+			}
+		}	
+		return useris
+	}
+	
+	private void userListGen(Session userSession,String username, String listType) {
 		String room  =  userSession.userProperties.get("room") as String
 		try {
 			synchronized (chatroomUsers) {
@@ -189,9 +226,12 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 								friendslist = ChatFriendList.findAllByChatuser(currentUser(uiterator))
 							}
 						}
-
-						def uList = genUserMenu(friendslist, blocklist, room, uiterator)
-						finalList.put("users", uList)
+						def	uList = genUserMenu(friendslist, blocklist, room, uiterator, listType)	
+						if (listType=="generic") {
+							finalList.put("users", uList)
+						}else{
+							finalList.put("flatusers", uList)
+						}
 						sendUserList(uiterator,finalList)
 					}
 				}
@@ -200,9 +240,8 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 		} catch (IOException e) {
 			log.error ("onMessage failed", e)
 		}
-
+	
 	}
-
 	void sendUsersLoggedOut(String room,String username) {
 
 		try {
@@ -233,7 +272,7 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 									friendslist = ChatFriendList.findAllByChatuser(currentUser(uiterator))
 								}
 							}
-							def uList = genUserMenu(friendslist, blocklist, room, uiterator)
+							def uList = genUserMenu(friendslist, blocklist, room, uiterator, 'generic')
 							finalList.put("users", uList)
 							sendUserList(uiterator,finalList)
 						}

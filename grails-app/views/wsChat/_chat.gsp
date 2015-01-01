@@ -13,28 +13,8 @@
 </head>
 <body>
 <div class="container">
-<button id="themeChanger" class="btn btn-danger btn-xs">RED</button>
-<button id="themeChanger2" class="btn btn-primary btn-xs">BLUE</button>
-<button id="themeChanger3" class="btn btn-inverse btn-xs">DARK</button>
-<button id="themeChanger4" class="btn btn-default btn-xs">DEFAULT</button>
-
-<g:javascript>
-
-document.getElementById('themeChanger2').onclick = function () { 
-    document.getElementById('chat_theme').href = '../assets/chat-blue.css';
-};
-document.getElementById('themeChanger').onclick = function () { 
-    document.getElementById('chat_theme').href = '../assets/chat-red.css';
-};
-document.getElementById('themeChanger3').onclick = function () { 
-    document.getElementById('chat_theme').href = '../assets/chat-dark.css';
-};
-document.getElementById('themeChanger4').onclick = function () { 
-    document.getElementById('chat_theme').href = '../assets/chat.css';
-};
 
 
-</g:javascript>
 <g:if test="${showtitle.equals('yes') }">
 	<div  class="page-header">
 	<h2>${chatHeader }</h2>
@@ -71,35 +51,38 @@ document.getElementById('themeChanger4').onclick = function () {
 	<div id="roomcontainer" style="display:none;">
 		<g:render template="/room/room" />
 	</div>
-	
-
-	
-	<div id="chatterBox">
+		
+	<div id="admincontainer" style="display:none;">
+		<g:render template="/admin/master" />
+	</div>
 		
 			
-		<div class="container navbar nav navbar-inverse">
-	
+	<div id="chatterBox">
+		<div class='row' id="themeChoice">
+			
+		<nav class="container navbar nav">
 				<ul class="nav-pills pull-left">
-				<li class="btn">
-					<a  class="btn btn-success glyphicon glyphicon-hand-right" title="Chatrooms" alt="choose a different room"></a>
+				<li class="btn btn-success" style="margin-top: 10px; margin-right: 2px;">
+					CHANGE ROOM: <span  class="glyphicon glyphicon-hand-right"   title="Chatrooms" alt="choose a different room"></span>
 				</li>
 				</ul>
 				<div id="chatRooms" >
 				</div>
-				
-			
-			
-				<div id="adminRooms"></div>
-			
+				<div id="adminRooms">
+				</div>
+			<div id="colourthemes">
+			<button id="themeChanger" class="btn btn-danger btn-xs"> </button>
+		<button id="themeChanger2" class="btn btn-primary btn-xs"> </button>
+		<button id="themeChanger3" class="btn btn-inverse btn-xs"> </button>
+		<button id="themeChanger4" class="btn btn-default btn-xs"> </button>
 		</div>
-		
-		<div class='row'>
-				
+		</nav>
+	
 		<div class='col-sm-2'>
 		
 			<div id="fixyflow"><div id="fixflow">
-			<ul class="nav nav-tabs nav-stacked"  >
-				<ul class="dropdown-menu" id='onlineUsers' style="display: block; position: static; margin-bottom: 5px; *">
+			<ul class="nav nav-stacked"  >
+				<ul class="dropdown-menu" id='onlineUsers' style="display: block; position: absolute; margin-bottom: 5px; *">
 					<span  id="onlineUsers" />
 				</ul>
 			</ul>
@@ -126,7 +109,23 @@ document.getElementById('themeChanger4').onclick = function () {
 	</div>
 	
 </div>
+
+
 <g:javascript>
+
+document.getElementById('themeChanger2').onclick = function () { 
+    document.getElementById('chat_theme').href = '../assets/chat-blue.css';
+};
+document.getElementById('themeChanger').onclick = function () { 
+    document.getElementById('chat_theme').href = '../assets/chat-red.css';
+};
+document.getElementById('themeChanger3').onclick = function () { 
+    document.getElementById('chat_theme').href = '../assets/chat-dark.css';
+};
+document.getElementById('themeChanger4').onclick = function () { 
+    document.getElementById('chat_theme').href = '../assets/chat.css';
+};
+
 
 	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
@@ -216,9 +215,9 @@ var options = {
 	
 
      window.onbeforeunload = function() {
-    	 webSocket.send("DISCO:-"+user);
-       	//webSocket.onclose = function() { }
-       	//webSocket.close();
+    	 //webSocket.send("DISCO:-"+user);
+       	webSocket.onclose = function() { }
+       	webSocket.close();
      }
 
 </g:javascript>

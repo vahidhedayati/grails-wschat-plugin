@@ -15,7 +15,16 @@ class WsChatTagLib implements ClientSessions {
 	def wsChatClientService
 	def chatClientListenerService
 	def wsChatRoomService
-
+	def wsChatProfileService
+	
+	def includeAllStyle = { 
+		out << g.render(contextPath: pluginContextPath, template : "/${CHATVIEW}/includes")
+	}
+	
+	def includeStyle = {
+		out << g.render(contextPath: pluginContextPath, template : "/${CHATVIEW}/includeStyles")
+	}
+	
 	def connect  =   { attrs ->
 
 		String chatuser = attrs.remove('chatuser')?.toString()
@@ -28,9 +37,19 @@ class WsChatTagLib implements ClientSessions {
 		String showtitle = config.showtitle ?: 'yes'
 		String dbSupport = config.dbsupport ?: 'yes'
 
+		
 		String addAppName = config.add.appName ?: 'yes'
 		
-		chatuser = chatuser.trim().replace(' ', '_').replace('.', '_')
+		chatuser = chatuser.replace(' ', '_').replace('.', '_')
+		
+		def profile= attrs.remove('profile')
+		boolean updateProfile = attrs.remove('updateProfile')?.toBoolean() ?: false
+		if (profile) {
+			profile=profile as Map
+			wsChatProfileService.addProfile(chatuser, profile, updateProfile)
+		}
+		
+		
 		session.wschatuser = chatuser
 
 		if (!room) {
@@ -226,6 +245,79 @@ class WsChatTagLib implements ClientSessions {
 		}
 	}
 
+	def complete = {attrs ->
+		def clazz,name,cid,styles = ""
+		if (attrs.id == null) {
+			throwTagError("Tag [autoComplete] is missing required attribute [id]")
+		}
+		
+		if ( (!attrs.controller) && (!attrs.action) ) {
+			if (attrs.domain == null) {
+				throwTagError("Tag [autoComplete] is missing required attribute [domain]")
+			}
+			if (attrs.searchField == null) {
+				throwTagError("Tag [autoComplete] is missing required attribute [searchField]")
+			}
+		}
+		
+		if (!attrs.controller) {
+			attrs.controller= "wsChat"
+		}
+		if (!attrs.action) {
+			attrs.action= "autocomplete"
+		}
+		
+		if (!attrs.max) {
+			attrs.max = 10
+		}
+		if (!attrs.value) {
+			attrs.value =""
+		}
+		if (!attrs.order) {
+			attrs.order = "asc"
+		}
+		if (!attrs.collectField) {
+			attrs.collectField = attrs.searchField
+		}
+		if (attrs.class) {
+			clazz = " class='${attrs.class}'"
+		}
+		if (attrs.style) {
+			styles = " styles='${attrs.style}'"
+		}
+		if (attrs.name) {
+			name = " name ='${attrs.name}'"
+		} else {
+			name = " name ='${attrs.id}'"
+		}
+	
+		def  required=""
+		Boolean requireField=true
+		if (attrs.require) {
+			requireField=attrs.remove('require')?.toBoolean()
+		}
+		
+		if (attrs.required) {
+			requireField=attrs.remove('required')?.toBoolean()
+		}
+		if (requireField) {
+			 required=" required='required' "
+		}
+
+		def template='/autoComplete/AutoCompleteBasic'
+		
+		def userTemplate=attrs.remove('userTemplate') ?: config.autocomplete
+		
+		def model = [attrs:attrs, clazz:clazz, styles:styles,name:name,required:required ]
+		 
+		if (userTemplate) {
+			out << g.render(template:userTemplate, model: model)
+		}else{
+			out << g.render(contextPath: pluginContextPath, template: template, model:model)
+		}
+		
+	}
+	
 	private String getFrontend() {
 		def cuser=config.frontenduser ?: '_frontend'
 		return cuser

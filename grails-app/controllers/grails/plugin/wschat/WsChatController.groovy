@@ -6,37 +6,31 @@ import groovy.time.TimeCategory
 import java.text.SimpleDateFormat
 
 import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
-import org.codehaus.groovy.grails.web.json.JSONObject
 
 
 class WsChatController {
 	def grailsApplication
 	def wsChatRoomService
+	def autoCompleteService
+	def wsChatUserService
+	def wsChatProfileService
 	
 	def index() {
-		
-		String dbSupport = config.dbsupport ?: 'yes'
-
-		String process = config.disable.login ?: 'no'
-		String chatTitle = config.title ?: 'Grails Websocket Chat'
-		String chatHeader = config.heading ?: 'Grails websocket chat'
 		def room = config.rooms
-		if (!room && (dbSupport=='yes')) {
-			room = wsChatRoomService.returnRoom(dbSupport as String)
-		} else if (!room && (dbSupport=='no')) {
+		if (!room && (wsconf.dbSupport=='yes')) {
+			room = wsChatRoomService.returnRoom(wsconf.dbSupport as String)
+		} else if (!room && (wsconf.dbSupport=='no')) {
 			room = ['wschat']
-		}	    
-		
-		if (process.toLowerCase().equals('yes')) {
+		}
+		if (wsconf.process.toLowerCase().equals('yes')) {
 			render "Default sign in page disabled"
 		}
-		[chatTitle:chatTitle,chatHeader:chatHeader,room:room]
+		[chatTitle:wsconf.chatTitle,chatHeader:wsconf.chatHeader,room:room]
 	}
 
 	def login(String username,String room) {
 		String errors
-		String process = config.disable.login ?: 'no'
-		if (process.toLowerCase().equals('yes')) {
+		if (wsconf.process.toLowerCase().equals('yes')) {
 			render "Default sign in page disabled"
 		}
 		username = username.trim().replace(' ', '_').replace('.', '_')
@@ -50,72 +44,29 @@ class WsChatController {
 		}
 		//redirect (uri : "/wsChat/chat/${room}")
 	}
-	
-
-	def camsend(String user) {
-		String chatTitle = config.title ?: 'Grails Websocket Chat'
-		String hostname = config.hostname ?: 'localhost:8080'
-		String addAppName = config.add.appName ?: 'yes'
-		[user:user, chatTitle:chatTitle, hostname:hostname, addAppName:addAppName]
-	}
-
-	def webrtcsend(String user, String rtc) {
-		JSON iceservers = grailsApplication.config.stunServers as JSON
-		String chatTitle = config.title ?: 'Grails Websocket Chat'
-		String hostname = config.hostname ?: 'localhost:8080'
-		String addAppName = config.add.appName ?: 'yes'
-		[user:user, chatTitle:chatTitle, hostname:hostname, iceservers:iceservers, 
-			addAppName:addAppName, rtc:rtc]
-	}
-	
-	def webrtcrec(String user, String rtc) {
-		JSON iceservers = grailsApplication.config.stunServers as JSON
-		String chatTitle = config.title ?: 'Grails Websocket Chat'
-		String hostname = config.hostname ?: 'localhost:8080'
-		String addAppName = config.add.appName ?: 'yes'
-		def chatuser = session.wschatuser
-		[user:user, hostname:hostname, chatuser:chatuser, chatTitle:chatTitle,
-			iceservers:iceservers, addAppName:addAppName, rtc:rtc]
-	}
-
-	
-	def camrec(String user) {
-		String chatTitle = config.title ?: 'Grails Websocket Chat'
-		String hostname = config.hostname ?: 'localhost:8080'
-		def chatuser = session.wschatuser
-		String addAppName = config.add.appName ?: 'yes'
-		[user:user, hostname:hostname, chatuser:chatuser, chatTitle:chatTitle, addAppName:addAppName]
-	}
 
 	def chat() {
-		String chatTitle = config.title ?: 'Grails Websocket Chat'
-		String chatHeader = config.heading ?: 'Grails websocket chat'
-		String hostname = config.hostname ?: 'localhost:8080'
-		String dbsupport = config.dbsupport ?: 'yes'
-		String showtitle = config.showtitle ?: 'yes'
 		def chatuser = session.wschatuser
 		def room = session.wschatroom
-		String dbSupport = config.dbsupport ?: 'yes'
 		if (!room) {
-			room = wsChatRoomService.returnRoom(dbSupport as String)
+			room = wsChatRoomService.returnRoom(wsconf.dbSupport as String)
 		}
-		String addAppName = config.add.appName ?: 'yes'
-		
-		[showtitle:showtitle.toLowerCase(), dbsupport:dbsupport.toLowerCase() , room:room,
-		chatuser:chatuser, chatTitle:chatTitle,chatHeader:chatHeader, now:new Date(), hostname:hostname]
+		[showtitle:wsconf.showtitle.toLowerCase(), dbsupport:wsconf.dbSupport.toLowerCase() , room:room,
+			chatuser:chatuser, chatTitle:wsconf.chatTitle,chatHeader:wsconf.chatHeader,
+			now:new Date(), hostname:wsconf.hostname]
 	}
+
+
 
 	def verifyprofile(String username) {
 		boolean actualuser = false
 		def chatuser = ChatUser.findByUsername(username)
 		def profile = ChatUserProfile?.findByChatuser(chatuser)
-		
 		def photos = ChatUserPics?.findAllByChatuser(chatuser,[max: 5, sort: 'id', order:'desc'])
-		
-		def model = [photos:photos,actualuser:actualuser,username:username,profile:profile]
 		if (verifyUser(username)) {
 			actualuser = true
 		}
+		def model = [photos:photos,actualuser:actualuser,username:username,profile:profile]
 		render template: '/profile/verifyprofile', model:model
 	}
 
@@ -156,39 +107,6 @@ class WsChatController {
 		}
 	}
 
-	def addaRoom() {
-		
-		render template : '/room/addaRoom' 
-	}
-
-	def delaRoom() {
-		def roomList = ChatRoomList?.findAll()*.room.unique()
-		render template : '/room/delaRoom' , model:[ roomList:roomList ]
-	}
-
-	def addRoom(String room) { 
-		def record = ChatRoomList.findByRoom(room)
-		if (!record) {
-			record = new ChatRoomList()
-			record.room = room
-			if (!record.save(flush:true)) {
-				render "Issue saving new room"
-			}
-			render "New room has been added"
-		}
-		render "Room ${room} already added"
-	}
-	
-	def delRoom(String room) {
-		def record = ChatRoomList.findByRoom(room)
-		if (!record) {
-			render "Room ${room} not found"
-		}else{
-			record.delete(flush:true)
-			render "Room has been deleted"
-		}
-	}
-	
 	def photo(String username) {
 		render template : '/profile/photo' , model:[ username:username ]
 	}
@@ -211,12 +129,10 @@ class WsChatController {
 		}
 	}
 
-	def viewPic() {
-		if (params.id && params.id != 'null') {
-			def photo = ChatUserPics.get( params.id as Long )
-			byte[] image = photo.photo
-			response.outputStream << image
-		}
+	def viewPic(Long picId) {
+		def photo = ChatUserPics.get( picId)
+		byte[] image = photo.photo
+		response.outputStream << image
 	}
 
 	def updateProfile() {
@@ -246,7 +162,214 @@ class WsChatController {
 	}
 
 	def confirmBan(String username,String duration,String period) {
-		[username:username,duration:duration,period:period]
+		if (isAdmin) {
+			[username:username,duration:duration,period:period]
+		}
+	}
+
+
+
+
+
+	def camsend(String user) {
+		[user:user, chatTitle:wsconf.chatTitle, hostname:wsconf.hostname, addAppName:wsconf.addAppName]
+	}
+
+	def webrtcsend(String user, String rtc) {
+		[user:user, chatTitle:wsconf.chatTitle, hostname:wsconf.hostname, iceservers:wsconf.iceservers,
+			addAppName:wsconf.addAppName, rtc:rtc]
+	}
+
+	def webrtcrec(String user, String rtc) {
+		def chatuser = session.wschatuser
+		[user:user, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
+			iceservers:wsconf.iceservers, addAppName:wsconf.addAppName, rtc:rtc]
+	}
+
+	def camrec(String user) {
+		def chatuser = session.wschatuser
+		[user:user, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
+			addAppName:wsconf.addAppName]
+	}
+
+
+
+	def autocomplete() {
+		render autoCompleteService.autocomplete(params)
+	}
+
+
+	def viewUsers(Integer max, String s) {
+		if (isAdmin) {
+			params.order = params.order ?: 'desc'
+			def foundRec
+			int total = 0
+			String pageSizes = params.pageSizes ?: '10'
+			String order = params.order ?: "desc"
+			String sortby = params.sortby ?: "lastUpdated"
+			int offset = (params.offset ?: '0') as int
+			def inputid = params.id
+
+			params.max = Math.min(max ?: 10, 1000)
+			def uList = wsChatUserService.genAllUsers()
+
+			def paginationParams = [sort: sortby, order: order, offset: offset, max: params?.max]
+			def allcat=ChatUser.list()
+			switch (s) {
+				case 'p':
+					def permissions = ChatPermissions.get(params.id)
+					if (permissions) {
+						foundRec = ChatUser.findAllByPermissions( permissions, paginationParams)
+						total = ChatUser.countByPermissions(permissions)
+					}
+					break
+				default:
+					s = ''
+					foundRec = ChatUser.list(paginationParams)
+					total = ChatUser.count()
+			}
+
+			def model = [userList: foundRec, userListCount: total, divupdate: 'adminsContainer',
+				pageSizes: pageSizes, offset: offset,inputid: inputid, s: s, order: order,
+				sortby:sortby, action: 'list', allcat:allcat, max:max, params:params, uList:uList]
+			if (request.xhr) {
+				render (template: '/admin/viewUsers', model: model)
+			}
+			else {
+				render (view: '/admin/viewUsers', model: model)
+			}
+
+		}
+	}
+
+	def search(String mq) {
+		if (isAdmin) {
+			def userList = ChatUser?.findAllByUsernameLike("%" + mq + "%", [max: 30])
+			def uList = wsChatUserService.genAllUsers()
+			if (!userList) {
+				userList = ChatUserProfile.findAllByFirstNameLikeOrEmailLikeOrLastNameLike("%" + mq + "%", "%" + mq + "%", "%" + mq + "%", [max: 30])*.chatuser.unique()
+			}
+			render (template: '/admin/userList', model: [ userList: userList,uList:uList])
+		}
+	}
+
+	def findUser(String uid) {
+		def returnResult=[:]
+		def found=ChatUser.findByUsername(uid)
+		if (found) {
+			returnResult.put("status", "found")
+			def foundProfile=ChatUserProfile?.findByChatuser(found)
+			if (foundProfile) {
+				if (foundProfile?.email)  {
+					returnResult.put("email", foundProfile.email)
+				}
+			}
+
+		}else{
+			returnResult.put("status", "not_found")
+		}
+		render returnResult as JSON
+	}
+
+	def addUser(String username) {
+		if (isAdmin) {
+			render (template: '/admin/addUser', model: [ username:username])
+		}
+	}	
+	/*def addUserRecord(String username,String email) {
+		if (isAdmin) {
+			if (email) {
+				def profile=[email: email] as Map
+				wsChatProfileService.addProfile(username, profile, false)
+			}
+		}
+	}*/
+	
+	def addEmail(String username) {
+		if (isAdmin) {
+			render (template: '/admin/addEmail', model: [ username:username])
+		}
+	}
+	def addUserEmail(String username,String email) {
+		if (isAdmin && email) {
+			def profile=[email: email] as Map
+			wsChatProfileService.addProfile(username, profile, false)
+		}
+		render "attempted add of ${email}"
+	}
+
+	def addaRoom() {
+		if (isAdmin) {
+			render template : '/room/addaRoom'
+		}
+	}
+
+	def delaRoom() {
+		if (isAdmin) {
+			def roomList = ChatRoomList?.findAll()*.room.unique()
+			render template : '/room/delaRoom' , model:[ roomList:roomList ]
+		}
+	}
+
+	def addRoom(String room) {
+		if (isAdmin) {
+			def record = ChatRoomList.findByRoom(room)
+			if (!record) {
+				record = new ChatRoomList()
+				record.room = room
+				if (!record.save(flush:true)) {
+					render "Issue saving new room"
+					return
+				}
+				render "New room has been added"
+				return
+			}
+			render "Room ${room} already added"
+		}
+	}
+
+	def delRoom(String room) {
+		if (isAdmin) {
+			def record = ChatRoomList.findByRoom(room)
+			if (!record) {
+				render "Room ${room} not found"
+				return
+			}else{
+				record.delete(flush:true)
+				render "Room has been deleted"
+				return
+			}
+		}
+	}
+
+	def createConference() {
+		if (isAdmin) {
+			render (template: '/admin/book')
+		}
+	}
+		
+	def adminMenu() {
+		if (isAdmin) {
+			render template: '/admin/admin'
+		}
+	}
+
+	private Boolean getIsAdmin() {
+		wsChatUserService.validateAdmin(session.wschatuser)
+	}
+	private Map getWsconf() {
+		String dbSupport = config.dbsupport ?: 'yes'
+		String process = config.disable.login ?: 'no'
+		String chatTitle = config.title ?: 'Grails Websocket Chat'
+		String chatHeader = config.heading ?: 'Grails websocket chat'
+
+		String hostname = config.hostname ?: 'localhost:8080'
+		String addAppName = config.add.appName ?: 'yes'
+		JSON iceservers = grailsApplication.config.stunServers as JSON
+		String showtitle = config.showtitle ?: 'yes'
+		return [dbSupport:dbSupport, process:process, chatTitle:chatTitle,
+			chatHeader:chatHeader,  hostname:hostname, addAppName:addAppName,
+			iceservers:iceservers, showtitle:showtitle]
 	}
 
 	private Boolean verifyUser(String username) {
@@ -257,7 +380,7 @@ class WsChatController {
 		}
 		return userChecksOut
 	}
-	
+
 	private getConfig() {
 		grailsApplication?.config?.wschat
 	}
