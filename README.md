@@ -49,14 +49,15 @@ http://localhost:8080/yourapp/wsChat/
 
  
 ##### Videos:
-[Video: grails app running wschat 0.14 part1](https://www.youtube.com/watch?v=E-NmbDZg9G4)
+1. [Video: grails app running wschat 0.14 part1](https://www.youtube.com/watch?v=E-NmbDZg9G4)
 
-[Video: grails app running wschat 0.14 part2](https://www.youtube.com/watch?v=xPxV_iEYYm0)
+2. [Video: grails app running wschat 0.14 part2](https://www.youtube.com/watch?v=xPxV_iEYYm0)
 
-[Video: Client/Server Messaging part 1](https://www.youtube.com/watch?v=zAySkzNid3E)
+3. [Video: Client/Server Messaging part 1](https://www.youtube.com/watch?v=zAySkzNid3E)
 
-[Video: Client/Server Messaging part 2](https://www.youtube.com/watch?v=xagMYM9n3l0)
+4. [Video: Client/Server Messaging part 2](https://www.youtube.com/watch?v=xagMYM9n3l0)
 
+5. [Video: 1.12 Chat room booking/reservations](https://www.youtube.com/watch?v=ZQ86b6zN4aE)
 
 ##### WebtRTC WebCam walk through
 [WebtRTC WebCam walk through](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebtRTC-WebCam-walk-through)

@@ -1,3 +1,13 @@
+<div class='modal-header'>
+<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>×</button>
+<div id='myModalLabel'><h3>${message(code: 'wschat.'+actionName+'.label', default: ''+actionName+'')}</h3>
+<div class=heading1>
+			<g:message code="wschat.search.label" default="Search"/>:
+			<g:remoteField name="mq"  id="searchform"  update="resultSet" paramName="mq" url="[controller:'wsChat', action:'search']"></g:remoteField>
+</div>
+
+</div>
+</div>
 
 
 <div id="resultSet">

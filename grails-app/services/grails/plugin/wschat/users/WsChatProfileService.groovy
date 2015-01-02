@@ -15,16 +15,20 @@ class WsChatProfileService  {
 	def addProfile(String user, Map paramsMap, boolean update) {
 		def found=ChatUser.findByUsername(user)
 		if (found) {
-
 			def foundprofile=ChatUserProfile.findByChatuser(found)
-			if (foundprofile && update) {
-				ChatUserProfile.withTransaction  {
-					foundprofile.properties=paramsMap
-					if (!foundprofile.save(flush: true)) {
-						log.error "Error updating ${user}'s profile"
+			if (foundprofile) {
+				if (update) {
+					ChatUserProfile.withTransaction  {
+						foundprofile.properties=paramsMap
+						if (!foundprofile.save(flush: true)) {
+							log.error "Error updating ${user}'s profile"
+						}
 					}
 				}
 			}else{
+				def foundu=wsChatAuthService.addUser(user)
+				found=foundu.user
+				def perm=foundu.perm
 				saveProfile(found.id,paramsMap)
 			}
 
