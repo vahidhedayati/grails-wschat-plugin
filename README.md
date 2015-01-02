@@ -62,6 +62,12 @@ http://localhost:8080/yourapp/wsChat/
 ##### WebtRTC WebCam walk through
 [WebtRTC WebCam walk through](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebtRTC-WebCam-walk-through)
 
+##### Intergrating chat with your apps authentication
+[Definitely disable index](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Custom-calling-plugin-disabled-login)
+
+[Method 1](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Merging-plugin-with-your-own-custom-calls)
+
+[Method 2](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Custom-calls)
 
 
 ##### Config.groovy variables required:
@@ -82,73 +88,13 @@ http://localhost:8080/yourapp/wsChat/
 [Client/Server Messaging explained](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/wsChatClient-Client-Server-Messaging-new-feature-since-1.11)
 
 #### 1.12 additions:
-Profile creation/updating feature added to taglib call. This works in conjunction with invites which with email address will contact end user.
-```
-<chat:connect can include a map collection of user profile:
-profile="[email: 'something@domain.com']"
-```
+[add profile with taglib connection call](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/profile-creation)
 
-Full tag:
-```
-profile="[email: 'something@domain.com', firstName:firstName, middleName:middleName, lastName:lastName, age:age, birthDate:birthDate, wage:wage, email:email, homePage:homePage, martialStatus:martialStatus, children:children , gender:"Male/Female"]"
-```
+[how to screen capture](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Screen-capture-commands)
 
-If you wish to update profile upon each usage:
-```
-updateProfile="true/false" -- default is false
+[Chat to DB](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Persist-Chat-to-DB)
 
-```
-
-Two additional tag libs to work with <chat:connect:
-```
-<chat:includeAllStyle/>
-<chat:includeStyle/>
-```
-Use one or the other, I found on a default grails site I needed includeAllStyles.
-
-
-
-1.12 Screen capture
-
-Your clients need to open up chrome with these options, in order for this to work:
- 
-```
-chromium-browser --allow-http-screen-capture --enable-usermedia-screen-capturing
-chrome --allow-http-screen-capture --enable-usermedia-screen-capturing
-```
-
-1.12 Persist Room/User/PM Messages to DB:
-
-To enable this feature, add the following configuration to your Config.groovy:
-```groovy
-wschat.dbstore=true
-wschat.dbstore_pm_messages=true
-wschat.dbstore_room_messages=true
-//wschat.dbstore_user_messages=true 
-```
-
-1.12 - Viewing users + Scheduled - Conferencing.
-As an administrator you will now find a new cog icon by +- room icons, this when triggered will open and show a drop down of two additional features.
-
-1. View users:
- 
-This in short allows you to search / find users store on DB, more features such as barring email/user is required.
-
-2. Booking a conference :
-
-This option took a while due to UI requirements, a modal box that provides a jquery ajax driven page that acts quite similar to a responsive angularJs built page.
-In short set a name then start typing username, if found a drop down auto complete is provided, once it is selected or typed, it looks up user. If found and has email it will add email as a checkbox and empty field for you to add other participants, If user found no email a secondary modal can be triggered to add email which upon submission + success of email found added to list. If not found at all a secondary modal can be triggered to add user/email. Upon submission final check to ensure user exists+email and added as check box. Repeat this as much as required.
-Finally set the start dateTime using datepicker and set the end conference end date+Time.
-
-Save this. Now those selected users/emails are emailed with a unique URL to join on specified period. They can join 5 minutes pre and all the way until 5 minutes after set end Date. 
-
-In theory it can go on for much longer than endDate - the endDate is I think best described the time the end user can join + 5.
-
-So if both was set to now - then it would be now + 10 min window 5 before 5 after.
-
-Lots of DB changes so these conference rooms will not appear in normal chat room listing due to roomTypes.
-
-I hope that explains it all.   
+[Chat room booking/reservations](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Booking-chat-event)
 
 
 #####Commands
