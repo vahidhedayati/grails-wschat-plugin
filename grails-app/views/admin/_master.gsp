@@ -1,4 +1,4 @@
-  
+  <div id="adminConfirmation"></div>
 
 	<div class="modal fade" id="admincontainer1" role="dialog">
 	<div class="modal-dialog">

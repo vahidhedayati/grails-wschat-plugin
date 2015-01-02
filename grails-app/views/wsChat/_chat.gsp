@@ -23,6 +23,7 @@
 	</small>
 	</div>
 </g:if>
+
     <div id="chat_div">
     </div>
     

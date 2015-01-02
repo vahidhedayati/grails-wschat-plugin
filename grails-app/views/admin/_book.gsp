@@ -5,16 +5,34 @@
 </div>
 
 	<div class="container">
+		<g:formRemote 
+	name="urlParams"  
+	class="form-horizontal" 
+	url="[controller:'wsChat', action:'addBooking']" 
+	update="adminConfirmation"  
+	onComplete="closeAdminModal();"
+	>
+	<div class='row'>
+	<div class='col-sm-6'>
+		<div class='form-group'>
+		
 <div class="fieldcontain ${hasErrors(bean: bookingInstance, field: 'conferenceName', 'error')} required">
 <label for="manager">
 <g:message code="dateTime.label" default="Conference Name" />
 </label>
 	<input type="text" name="conferenceName" id="conferenceName" value="" />
 </div>
+</div>
+</div>
+</div>
+<div class='row'>
+	<div class='col-sm-8'>
+		<div class='form-group'>
+		
 
-<div class="fieldcontain ${hasErrors(bean: bookingInstance, field: 'masterUser', 'error')}">
+
 <label for="masterUser">
-<g:message code="wschat.room.owner.label" default="Room owner" />
+<g:message code="wschat.room.owner.label" default="Invite members" />
 </label>
 	
 <chat:complete 
@@ -23,19 +41,54 @@ domain='grails.plugin.wschat.ChatUser'
 searchField='username'
 collectField='username'
 value=''/>
-</div>
+
 
 <div id="selectedValues">
 </div>
+</div>
+</div>
+</div>
 
+<div class='row'>
+	<div class='col-sm-8'>
+		<div class='form-group'>
 <div class="fieldcontain ${hasErrors(bean: bookingInstance, field: 'dateTime', 'error')} required">
 <label for="manager">
-<g:message code="dateTime.label" default="Conference Schedule date/Time" />
+<g:message code="dateTime.label" default="Start date/Time" />
 </label>
 	<input type="text" name="dateTime" id="dateTime" value="${current}" />
 </div>
 </div>
+</div>
+</div>
+<div class='row'>
+	<div class='col-sm-8'>
+		<div class='form-group'>
+<div class="fieldcontain ${hasErrors(bean: bookingInstance, field: 'endDateTime', 'error')} required">
+<label for="manager">
+<g:message code="endDateTime.label" default="End date/Time" />
+</label>
+	<input type="text" name="endDateTime" id="endDateTime" value="${current}" />
+</div>
+</div>
+</div>
+</div>
 
+
+
+	<div class='row'>
+	<div class='col-sm-8'>
+		<div class='form-group'>
+		<label for="firstname">
+		</label>
+			<g:submitButton name="send" class="btn btn-primary" value="${message(code: 'wschat.add.booking.label', default: 'Add Booking')}" />
+			
+		</div>
+		</div>
+		</div>
+
+
+	</g:formRemote>			
 <g:javascript>
 $().ready(function() {
 	$('#dateTime').datetimepicker({
@@ -43,7 +96,11 @@ $().ready(function() {
 		timeFormat: 'HH:mm',
 		dateFormat: "dd/mm/yy"
 	});
-	
+	$('#endDateTime').datetimepicker({
+		controlType: 'slider',
+		timeFormat: 'HH:mm',
+		dateFormat: "dd/mm/yy"
+	});
 });
 
 	//function showModal(){

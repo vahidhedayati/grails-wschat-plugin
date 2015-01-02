@@ -23,17 +23,16 @@
 		<g:textField name="email" />
 		</div>
 		</div>
-			<div class='col-sm-4'>
+		</div>
+	<div class='row'>
+	<div class='col-sm-4'>
 		<div class='form-group'>
 		<label for="firstname">
 		</label>
 			<g:submitButton name="send" class="btn btn-primary" value="${message(code: 'wschat.add.chat.user.email.label', default: 'Add Chat User Email')}" />
-			
-		
 		</div>
 		</div>
 		
-		
-</div>
+	</div>
 
 	</g:formRemote>	

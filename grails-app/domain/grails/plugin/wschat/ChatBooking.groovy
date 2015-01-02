@@ -9,16 +9,13 @@ class ChatBooking {
 	
 	static hasMany = [invites: ChatBookingInvites]
 	
-	String users
 	Date dateTime
 	Date endDateTime
 	
 	static constraints = {
 		conferenceName blank:false
-		masterUser blank: false
 		dateTime blank: false
 		endDateTime blank: false
-		users nullable: true
 		invites nullable: true
     }
 

@@ -14,6 +14,7 @@ class WsChatController {
 	def autoCompleteService
 	def wsChatUserService
 	def wsChatProfileService
+	def wsChatBookingService
 	
 	def index() {
 		def room = config.rooms
@@ -298,6 +299,17 @@ class WsChatController {
 		render "attempted add of ${email}"
 	}
 
+	
+	def addBooking(){
+		ArrayList invites = returnInvitesArrary(params.invites)
+		String dateTime = params.dateTime
+		String endDateTime = params.endDateTime
+		String conferenceName =  params.conferenceName
+		Map results = wsChatBookingService.addBooking(invites, conferenceName, dateTime, endDateTime)
+		
+		render "Added: ${results.conference} : Returned Booking ID: ${results.confirmation}"
+	}
+
 	def addaRoom() {
 		if (isAdmin) {
 			render template : '/room/addaRoom'
@@ -306,17 +318,24 @@ class WsChatController {
 
 	def delaRoom() {
 		if (isAdmin) {
-			def roomList = ChatRoomList?.findAll()*.room.unique()
+			//def roomList = ChatRoomList?.findAll()*.room.unique()
+			def roomList = ChatRoomList?.findAllByRoomType('chat')*.room?.unique()
+			//def roomList
+			//def rooms = ChatRoomList?.findAllByRoomType('chat')
+			//if (rooms) {
+			//	roomList =rooms.room
+			//}
 			render template : '/room/delaRoom' , model:[ roomList:roomList ]
 		}
 	}
 
 	def addRoom(String room) {
 		if (isAdmin) {
-			def record = ChatRoomList.findByRoom(room)
+			def record = ChatRoomList?.findByRoomAndRoomType(room, 'chat')
 			if (!record) {
 				record = new ChatRoomList()
 				record.room = room
+				record.roomType = 'chat'
 				if (!record.save(flush:true)) {
 					render "Issue saving new room"
 					return
@@ -330,7 +349,7 @@ class WsChatController {
 
 	def delRoom(String room) {
 		if (isAdmin) {
-			def record = ChatRoomList.findByRoom(room)
+			def record = ChatRoomList?.findByRoomAndRoomType(room, 'chat')
 			if (!record) {
 				render "Room ${room} not found"
 				return
@@ -353,10 +372,23 @@ class WsChatController {
 			render template: '/admin/admin'
 		}
 	}
-
+	
+	private returnInvitesArrary(String invites) {
+		List<String> recipients
+		if (invites.toString().indexOf(',')>-1) {
+			recipients = invites.split(',').collect { it.trim() }
+			return recipients
+		}
+		else{
+			recipients = [ invites ]
+		}
+		return recipients
+	}
+	
 	private Boolean getIsAdmin() {
 		wsChatUserService.validateAdmin(session.wschatuser)
 	}
+	
 	private Map getWsconf() {
 		String dbSupport = config.dbsupport ?: 'yes'
 		String process = config.disable.login ?: 'no'

@@ -43,7 +43,7 @@
 					$('#return_result').html('Email address found: '+semail);
 					addSelection(semail, data);
 					
-					$('#${attrs.id }').val("");
+					$('#${attrs.id }').val(" ");
 					resetMsg();
 				}else{
 					$('#response_image').html('<div id="question"></div>');

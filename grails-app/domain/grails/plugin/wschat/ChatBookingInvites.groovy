@@ -5,15 +5,17 @@ class ChatBookingInvites {
 	Date dateCreated
 	Date lastUpdated
 	
-	String name
+	String username
 	String emailAddress
+	String token
+	
 	Boolean accepted = false
 	
 	static belongsTo = [ booking: ChatBooking]
 	
 	static constraints = {
-		emailAddress nullable: true,email: true, notEqual: "bill@microsoft.com"
-		name nullable:true
+		emailAddress blank: false,email: true, notEqual: "bill@microsoft.com"
+		username blank: false
     }
 
 	

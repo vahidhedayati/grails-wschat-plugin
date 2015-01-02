@@ -144,7 +144,7 @@ class ChatUtils extends WsChatConfService  implements ChatSessions {
 			}else if (message.startsWith("/addRoom")) {
 				def p1 = "/addRoom "
 				def nroom = message.substring(p1.length(),message.length())
-				wsChatRoomService.addRoom(userSession,nroom)
+				wsChatRoomService.addRoom(userSession,nroom,'chat')
 			}else if (message.startsWith("/delRoom")) {
 				def p1 = "/delRoom "
 				def nroom = message.substring(p1.length(),message.length())

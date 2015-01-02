@@ -25,7 +25,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		def dbrooms
 		def room = config.rooms[0]
 		if (dbSupport.toLowerCase().equals('yes')) {
-			dbrooms = ChatRoomList?.get(0)?.room
+			dbrooms = ChatRoomList?.findByRoomType('chat', [max:1])*.room?.unique()
 		}
 		if (dbrooms) {
 			room = dbrooms
@@ -35,11 +35,14 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		return room
 	}
 	
-	public void addRoom(Session userSession,String roomName) {
+	public void addRoom(Session userSession,String roomName, String roomType) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			ChatRoomList.withTransaction {
 				def nr = new ChatRoomList()
 				nr.room = roomName
+				if (roomType) {
+					nr.roomType = roomType
+				}
 				if (!nr.save(flush:true)) {
 					log.error "Error saving ${roomName}"
 				}
@@ -47,7 +50,21 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 			ListRooms()
 		}
 	}
-
+	public void addManualRoom(String roomName, String roomType) {
+		if 	(dbSupport())  {
+			ChatRoomList.withTransaction {
+				def nr = new ChatRoomList()
+				nr.room = roomName
+				if (roomType) {
+					nr.roomType = roomType
+				}
+				if (!nr.save(flush:true)) {
+					log.error "Error saving ${roomName}"
+				}
+			}
+			ListRooms()
+		}
+	}
 	void delRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			try {
@@ -61,7 +78,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 					}
 
 					ChatRoomList.withTransaction {
-						def nr = ChatRoomList.findByRoom(roomName)
+						def nr = ChatRoomList?.findByRoomAndRoomType(roomName,'chat')
 						if (nr) {
 							nr.delete(flush: true)
 						}
@@ -89,7 +106,11 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		def finalList = [:]
 		if (dbSupport()) {
 			ChatRoomList.withTransaction {
-				dbrooms = ChatRoomList?.findAll()*.room.unique()
+				//def rooms = ChatRoomList?.findAllByRoomType('chat')
+				//if (rooms) {
+				dbrooms = ChatRoomList?.findAllByRoomType('chat')*.room?.unique()
+				//	dbrooms =rooms.room
+				//}	
 			}
 			if (dbrooms) {
 				//uList = []
