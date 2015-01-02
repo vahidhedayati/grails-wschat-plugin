@@ -1,6 +1,6 @@
 package grails.plugin.wschat
 
-class ChatLogs {
+class ChatAuthLogs {
 	
 	Date dateCreated
 	Date lastUpdated

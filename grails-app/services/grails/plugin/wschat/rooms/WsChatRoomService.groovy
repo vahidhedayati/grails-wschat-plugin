@@ -12,7 +12,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 	def wsChatMessagingService
 	def wsChatUserService
 
-	
+
 	def sendRooms(Session userSession) {
 		wsChatMessagingService.messageUser(userSession,roomList())
 	}
@@ -20,7 +20,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 	def  ListRooms() {
 		wsChatMessagingService.broadcast2all(roomList())
 	}
-	
+
 	def returnRoom(String dbSupport) {
 		def dbrooms
 		def room = config.rooms[0]
@@ -34,7 +34,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		}
 		return room
 	}
-	
+
 	public void addRoom(Session userSession,String roomName, String roomType) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			ChatRoomList.withTransaction {
@@ -51,20 +51,36 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		}
 	}
 	public void addManualRoom(String roomName, String roomType) {
+		if (!roomType) {
+			roomType = 'chat'
+		}
 		if 	(dbSupport())  {
-			ChatRoomList.withTransaction {
-				def nr = new ChatRoomList()
-				nr.room = roomName
-				if (roomType) {
-					nr.roomType = roomType
-				}
-				if (!nr.save(flush:true)) {
-					log.error "Error saving ${roomName}"
+			def record = ChatRoomList?.findByRoomAndRoomType(roomName, roomType)
+			if (!record) {
+				ChatRoomList.withTransaction {
+					def nr = new ChatRoomList()
+					nr.room = roomName
+					if (roomType) {
+						nr.roomType = roomType
+					}
+					if (!nr.save(flush:true)) {
+						log.error "Error saving ${roomName}"
+					}
 				}
 			}
-			ListRooms()
 		}
 	}
+	void delaRoom(String roomName, String roomType) {
+		if (!roomType) {
+			roomType = 'chat'
+		}
+
+		def record = ChatRoomList?.findByRoomAndRoomType(roomName, roomType)
+		if (record) {
+			record.delete(flush:true)
+		}
+	}
+
 	void delRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			try {
@@ -110,7 +126,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 				//if (rooms) {
 				dbrooms = ChatRoomList?.findAllByRoomType('chat')*.room?.unique()
 				//	dbrooms =rooms.room
-				//}	
+				//}
 			}
 			if (dbrooms) {
 				//uList = []

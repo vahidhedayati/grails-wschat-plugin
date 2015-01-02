@@ -5,9 +5,9 @@ import grails.plugin.wschat.ChatBanList
 import grails.plugin.wschat.ChatBlockList
 import grails.plugin.wschat.ChatFriendList
 import grails.plugin.wschat.ChatUser
+import grails.plugin.wschat.ChatUserProfile
 import grails.plugin.wschat.WsChatConfService
 import grails.plugin.wschat.interfaces.ChatSessions
-import grails.transaction.Transactional
 import groovy.time.TimeCategory
 
 import java.text.SimpleDateFormat
@@ -26,6 +26,33 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 		}
 	}
 
+	public Map findaUser(String uid) {
+		def returnResult=[:]
+		def found=ChatUser.findByUsername(uid)
+		if (found) {
+			returnResult.put("status", "found")
+			def foundProfile=ChatUserProfile?.findByChatuser(found)
+			if (foundProfile) {
+				if (foundProfile?.email)  {
+					returnResult.put("email", foundProfile.email)
+				}
+			}
+
+		}else{
+			returnResult.put("status", "not_found")
+		}
+		return returnResult
+	}
+	
+	public Map search(String mq) { 
+		def userList = ChatUser?.findAllByUsernameLike("%" + mq + "%", [max: 30])
+		def uList = genAllUsers()
+		if (!userList) {
+			userList = ChatUserProfile.findAllByFirstNameLikeOrEmailLikeOrLastNameLike("%" + mq + "%", "%" + mq + "%", "%" + mq + "%", [max: 30])*.chatuser.unique()
+		}
+		return [userList:userList, uList:uList]
+	} 
+	
 	def logUserOut(Session userSession,String username,String room) {
 		userSession.close()
 		removeUser(username)

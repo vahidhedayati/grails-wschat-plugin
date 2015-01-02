@@ -91,7 +91,7 @@
 	
 	function processMapAction(currentact) {
 			if (currentact=="do_task_1") {
-				$('#task_1').html('Doing task 1 for this broken video');
+				$('#task_1').html('Example: Doing task 1');
 			}
 
 	}

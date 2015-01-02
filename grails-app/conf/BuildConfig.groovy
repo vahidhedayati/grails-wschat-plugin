@@ -22,11 +22,14 @@ grails.project.dependency.resolution = {
 		runtime ":hibernate4:4.3.6.1", {
 			export = false
 		}
-		runtime ":pluginbuddy:0.3"
+		
 		build ':release:3.0.1', ':rest-client-builder:2.0.3', {
 			export = false
 		}
+		
+		runtime ":pluginbuddy:0.3"
 		compile ":remote-pagination:0.4.8"
+		compile ":mail:1.0.7"
 	}
 
 

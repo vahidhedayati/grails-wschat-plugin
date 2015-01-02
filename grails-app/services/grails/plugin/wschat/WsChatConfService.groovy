@@ -11,6 +11,10 @@ class WsChatConfService {
 
 	def grailsApplication
 
+	boolean isConfigEnabled(String input) {
+		return Boolean.valueOf(input ?: false)
+	}
+	
 	Boolean dbSupport() {
 		Boolean dbsupport = false
 		String dbsup = config.dbsupport  ?: 'yes'

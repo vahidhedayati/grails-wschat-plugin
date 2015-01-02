@@ -1,6 +1,7 @@
 package grails.plugin.wschat.auth
 
-import grails.plugin.wschat.ChatLogs
+import grails.plugin.wschat.ChatAuthLogs
+import grails.plugin.wschat.ChatLog
 import grails.plugin.wschat.ChatPermissions
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.WsChatConfService
@@ -40,15 +41,17 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 
 				if (sendjoin == 'yes') {
 					myMsg.put("message", "${username} has joined ${room}")
-					wsChatRoomService.sendRooms(userSession)
 					//wsChatMessagingService.messageUser(userSession,myMsg)
 				}
+				wsChatRoomService.sendRooms(userSession)
 			}else{
 				def myMsg1 = [:]
 				myMsg1.put("isBanned", "user ${username} is banned being disconnected")
 				wsChatMessagingService.messageUser(userSession,myMsg1)
 				//chatroomUsers.remove(userSession)
 			}
+		}else{
+			myMsg.put("message", "${username} is already loggged in elsewhere, action denied")
 		}
 
 		if ((myMsg)&&(!isuBanned)) {
@@ -66,15 +69,23 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 				perm = ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
 			}
 		}
+		//ChatLog logInstance = addLog()
 		ChatUser.withTransaction {
 			user = ChatUser.findByUsername(username)
 			if (!user) {
-				user = ChatUser.findOrSaveWhere(username:username, permissions:perm).save(flush:true)
+				user = ChatUser.findOrSaveWhere(username:username, permissions:perm, log: addLog()).save(flush:true)
 			}
 		}
 		return [ user:user, perm:perm ]
 	}
-
+	private ChatLog addLog() {
+		ChatLog.withTransaction {
+			ChatLog logInstance = new ChatLog(messages: [])
+			logInstance.save(flush: true)
+			return logInstance
+		}
+	}
+	
 	String validateLogin(String username) {
 		def defaultPerm = 'user'
 		if (dbSupport()) {
@@ -82,8 +93,8 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 			def user=au.user
 			def perm=au.perm
 
-			ChatLogs.withTransaction {
-				def logit = new ChatLogs()
+			ChatAuthLogs.withTransaction {
+				def logit = new ChatAuthLogs()
 				logit.username = username
 				logit.loggedIn = true
 				logit.loggedOut = false
@@ -117,8 +128,8 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 
 	void validateLogOut(String username) {
 		if (dbSupport()) {
-			ChatLogs.withTransaction {
-				def logit = new ChatLogs()
+			ChatAuthLogs.withTransaction {
+				def logit = new ChatAuthLogs()
 				logit.username = username
 				logit.loggedIn = false
 				logit.loggedOut = true

@@ -10,10 +10,19 @@ User roles (Admin/regular user)
 Admin can:  kick/Ban (for specified time period)
 Users can create profiles define details and upload photos.
 Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
-0.19+ supports webcam tested  on chrome/firefox.  
-1.0+ supports WebRTC (HD: Video/Audio streaming using cam/mic) currently only on Chrome Canary.
-1.11-SNAPSHOT4 + supports WebRTC screen sharing + chat client/server messaging/event services.
-		WebRTC screen sharing only on Chrome Canary+ (no plugins required)
+
+0.19+ -  			supports webcam tested  on chrome/firefox.  
+1.0+  -  			supports WebRTC currently only on Chrome Canary.
+
+1.11-SNAPSHOT4 + 	supports WebRTC screen sharing + chat client/server 
+					messaging/event services.
+					screen sharing only Chrome Canary+ (no plugins req)
+					
+1.12 				Chat room bookings for multiple participants
+					Persist messages to DB override config required.
+					Lots of bug fixing + ui changes.
+					On the fly colour theme changes extended.
+					
 ```
 
  Websocket chat can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
@@ -23,7 +32,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency :
 ```groovy
-	compile ":wschat:1.11-SNAPSHOT4" 
+	compile ":wschat:1.12" 
 ```
 
 This plugin provides  basic chat page, once installed you can access
@@ -98,7 +107,7 @@ Use one or the other, I found on a default grails site I needed includeAllStyles
 
 
 
-####Screen capture
+1.12 Screen capture
 
 Your clients need to open up chrome with these options, in order for this to work:
  
@@ -107,6 +116,38 @@ chromium-browser --allow-http-screen-capture --enable-usermedia-screen-capturing
 chrome --allow-http-screen-capture --enable-usermedia-screen-capturing
 ```
 
+1.12 Persist Room/User/PM Messages to DB:
+
+To enable this feature, add the following configuration to your Config.groovy:
+```groovy
+wschat.dbstore=true
+wschat.dbstore_pm_messages=true
+wschat.dbstore_room_messages=true
+//wschat.dbstore_user_messages=true 
+```
+
+1.12 - Viewing users + Scheduled - Conferencing.
+As an administrator you will now find a new cog icon by +- room icons, this when triggered will open and show a drop down of two additional features.
+
+1. View users:
+ 
+This in short allows you to search / find users store on DB, more features such as barring email/user is required.
+
+2. Booking a conference :
+
+This option took a while due to UI requirements, a modal box that provides a jquery ajax driven page that acts quite similar to a responsive angularJs built page.
+In short set a name then start typing username, if found a drop down auto complete is provided, once it is selected or typed, it looks up user. If found and has email it will add email as a checkbox and empty field for you to add other participants, If user found no email a secondary modal can be triggered to add email which upon submission + success of email found added to list. If not found at all a secondary modal can be triggered to add user/email. Upon submission final check to ensure user exists+email and added as check box. Repeat this as much as required.
+Finally set the start dateTime using datepicker and set the end conference end date+Time.
+
+Save this. Now those selected users/emails are emailed with a unique URL to join on specified period. They can join 5 minutes pre and all the way until 5 minutes after set end Date. 
+
+In theory it can go on for much longer than endDate - the endDate is I think best described the time the end user can join + 5.
+
+So if both was set to now - then it would be now + 10 min window 5 before 5 after.
+
+Lots of DB changes so these conference rooms will not appear in normal chat room listing due to roomTypes.
+
+I hope that explains it all.   
 
 
 #####Commands

@@ -15,7 +15,7 @@ class WsChatController {
 	def wsChatUserService
 	def wsChatProfileService
 	def wsChatBookingService
-	
+
 	def index() {
 		def room = config.rooms
 		if (!room && (wsconf.dbSupport=='yes')) {
@@ -245,47 +245,24 @@ class WsChatController {
 
 	def search(String mq) {
 		if (isAdmin) {
-			def userList = ChatUser?.findAllByUsernameLike("%" + mq + "%", [max: 30])
-			def uList = wsChatUserService.genAllUsers()
-			if (!userList) {
-				userList = ChatUserProfile.findAllByFirstNameLikeOrEmailLikeOrLastNameLike("%" + mq + "%", "%" + mq + "%", "%" + mq + "%", [max: 30])*.chatuser.unique()
-			}
-			render (template: '/admin/userList', model: [ userList: userList,uList:uList])
+			Map ss = wsChatUserService.search(mq)
+			render (template: '/admin/userList', model: [ userList: ss.userList,uList:ss.uList])
 		}
 	}
 
 	def findUser(String uid) {
-		def returnResult=[:]
-		def found=ChatUser.findByUsername(uid)
-		if (found) {
-			returnResult.put("status", "found")
-			def foundProfile=ChatUserProfile?.findByChatuser(found)
-			if (foundProfile) {
-				if (foundProfile?.email)  {
-					returnResult.put("email", foundProfile.email)
-				}
-			}
-
-		}else{
-			returnResult.put("status", "not_found")
+		if (isAdmin) {
+			def returnResult = wsChatUserService.findaUser(uid)
+			render returnResult as JSON
 		}
-		render returnResult as JSON
 	}
 
 	def addUser(String username) {
 		if (isAdmin) {
 			render (template: '/admin/addUser', model: [ username:username])
 		}
-	}	
-	/*def addUserRecord(String username,String email) {
-		if (isAdmin) {
-			if (email) {
-				def profile=[email: email] as Map
-				wsChatProfileService.addProfile(username, profile, false)
-			}
-		}
-	}*/
-	
+	}
+
 	def addEmail(String username) {
 		if (isAdmin) {
 			render (template: '/admin/addEmail', model: [ username:username])
@@ -299,15 +276,41 @@ class WsChatController {
 		render "attempted add of ${email}"
 	}
 
-	
-	def addBooking(){
-		ArrayList invites = returnInvitesArrary(params.invites)
-		String dateTime = params.dateTime
-		String endDateTime = params.endDateTime
-		String conferenceName =  params.conferenceName
-		Map results = wsChatBookingService.addBooking(invites, conferenceName, dateTime, endDateTime)
+	def joinBooking(String id,String username) {
 		
-		render "Added: ${results.conference} : Returned Booking ID: ${results.confirmation}"
+		Map vj = wsChatBookingService.verifyJoin(id,username)
+		
+		boolean goahead = vj.goahead
+		String room = vj.room
+		String startDate = vj.startDate
+		String endDate = vj.endDate
+		if (goahead) {
+			session.wschatuser = username
+			session.wschatroom = room
+			redirect(controller: "wsChat", action: "chat")
+		
+		}
+		
+		[startDate:startDate, endDate:endDate]
+	}
+
+	def addBooking(){
+		if (isAdmin) {
+
+			def invite = params.invites
+			if(invite instanceof String) {
+				invite = [invite]
+			}else{
+				invite = invite as ArrayList
+			}
+
+			ArrayList invites = invite
+			String dateTime = params.dateTime
+			String endDateTime = params.endDateTime
+			String conferenceName =  params.conferenceName
+			Map results = wsChatBookingService.addBooking(invites, conferenceName, dateTime, endDateTime)
+			render "Added: ${results.conference} : Returned Booking ID: ${results.confirmation}"
+		}
 	}
 
 	def addaRoom() {
@@ -318,46 +321,22 @@ class WsChatController {
 
 	def delaRoom() {
 		if (isAdmin) {
-			//def roomList = ChatRoomList?.findAll()*.room.unique()
 			def roomList = ChatRoomList?.findAllByRoomType('chat')*.room?.unique()
-			//def roomList
-			//def rooms = ChatRoomList?.findAllByRoomType('chat')
-			//if (rooms) {
-			//	roomList =rooms.room
-			//}
 			render template : '/room/delaRoom' , model:[ roomList:roomList ]
 		}
 	}
 
 	def addRoom(String room) {
 		if (isAdmin) {
-			def record = ChatRoomList?.findByRoomAndRoomType(room, 'chat')
-			if (!record) {
-				record = new ChatRoomList()
-				record.room = room
-				record.roomType = 'chat'
-				if (!record.save(flush:true)) {
-					render "Issue saving new room"
-					return
-				}
-				render "New room has been added"
-				return
-			}
-			render "Room ${room} already added"
+			wsChatRoomService.addManualRoom(room,'chat')
+			render "Room ${room} added"
 		}
 	}
 
 	def delRoom(String room) {
 		if (isAdmin) {
-			def record = ChatRoomList?.findByRoomAndRoomType(room, 'chat')
-			if (!record) {
-				render "Room ${room} not found"
-				return
-			}else{
-				record.delete(flush:true)
-				render "Room has been deleted"
-				return
-			}
+			wsChatRoomService.delaRoom(room,'chat')
+			render "Room ${room} removed"
 		}
 	}
 
@@ -366,29 +345,18 @@ class WsChatController {
 			render (template: '/admin/book')
 		}
 	}
-		
+
 	def adminMenu() {
 		if (isAdmin) {
 			render template: '/admin/admin'
 		}
 	}
-	
-	private returnInvitesArrary(String invites) {
-		List<String> recipients
-		if (invites.toString().indexOf(',')>-1) {
-			recipients = invites.split(',').collect { it.trim() }
-			return recipients
-		}
-		else{
-			recipients = [ invites ]
-		}
-		return recipients
-	}
-	
+
+
 	private Boolean getIsAdmin() {
 		wsChatUserService.validateAdmin(session.wschatuser)
 	}
-	
+
 	private Map getWsconf() {
 		String dbSupport = config.dbsupport ?: 'yes'
 		String process = config.disable.login ?: 'no'
