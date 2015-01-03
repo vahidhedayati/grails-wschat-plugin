@@ -106,6 +106,13 @@ http://localhost:8080/yourapp/wsChat/
 
 [Chat room booking/reservations](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Booking-chat-event)
 
+#### 1.13 Offline Messaging - enable override:
+
+It will work when this is enabled in your Config.groovy
+
+```
+wschat.offline_pm=true
+```
 
 #####Commands
 [Commands](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Commands)
