@@ -3,27 +3,29 @@
 <head>
 
 <g:if test="${enduser?.verifyAppVersion().equals('assets')}">
-	<g:render template="/assets"/>
+	<g:render template="/assets" />
 </g:if>
 <g:else>
-	<g:render template="/resources"/>
+	<g:render template="/resources" />
 </g:else>
-    
-   <title>${chatTitle }</title>
+
+<title>
+	${chatTitle }
+</title>
 </head>
 <body>
 
 
- <div id="pageHeader"></div>
-       <div  style="visibility: hidden; width: 0; height: 0;">
-              <canvas width="320" id="canvas" height="240"></canvas>
-       </div>
+	<div id="pageHeader"></div>
+	<div style="visibility: hidden; width: 0; height: 0;">
+		<canvas width="320" id="canvas" height="240"></canvas>
+	</div>
 
-       <div>
-              <img id="target" style="display: inline;" />
-       </div>
-       
-<g:javascript>
+	<div>
+		<img id="target" style="display: inline;" />
+	</div>
+
+	<g:javascript>
 	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
 		$("#pageHeader").html(msg);

@@ -23,6 +23,14 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 					Lots of bug fixing + ui changes.
 					On the fly colour theme changes extended.
 					
+1.13				Friends List / Room list - showing any online friends 
+					anywhere in chat. Issue with friends/block list unique ids 
+					causing issue (Fixed).
+					Offline Messaging added - offline PM friends. Or if a user that
+					leaves room. Upon next login offline messages appears.
+					More UI updates. Button to close PMs added. 
+										
+					
 ```
 
  Websocket chat can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
@@ -32,7 +40,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency :
 ```groovy
-	compile ":wschat:1.12" 
+	compile ":wschat:1.13" 
 ```
 
 This plugin provides  basic chat page, once installed you can access
@@ -53,9 +61,11 @@ http://localhost:8080/yourapp/wsChat/
 
 2. [Video: grails app running wschat 0.14 part2](https://www.youtube.com/watch?v=xPxV_iEYYm0)
 
-3. [Video: Client/Server Messaging part 1](https://www.youtube.com/watch?v=zAySkzNid3E)
-
+3. [Video: Client/Server Messaging part 1.](https://www.youtube.com/watch?v=zAySkzNid3E)
+ Earlier version focus on backend control of socket messages. So the backend of your application. Override a service for this. Explained in links further below.
+ 
 4. [Video: Client/Server Messaging part 2](https://www.youtube.com/watch?v=xagMYM9n3l0)
+(Messages via websockets to frontend). In short update frontend via websocket callbacks.
 
 5. [Video: 1.12 Chat room booking/reservations](https://www.youtube.com/watch?v=ZQ86b6zN4aE)
 
@@ -105,5 +115,5 @@ http://localhost:8080/yourapp/wsChat/
 
 
 ### Known issues/work arounds:
-Since 0.20+ ui.videobox has been added, earlier versions and even current version suffers from conflicts with jquery.ui.chatbox and does not send message. Currently the temporary fix is when you open a cam/rtc session to another user or as the initiator. If you did have pm boxes open you will find they will all close down as you open the video box. If you then go to the user and click on PM your currently pm history will reappear along with their pm box.
+Since 0.20+ ui.videobox has been added, earlier versions and even current version suffers from conflicts with jquery.ui.chatbox and does not send message. In 1.13 an option above left of rooms will attempt to close PM windows. Otherwise refresh your page.
 

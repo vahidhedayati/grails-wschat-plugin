@@ -170,15 +170,21 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 	
 	private ArrayList genUserMenu(ArrayList friendslist, ArrayList blocklist, String room, String uiterator, String listType ) {
 		def uList = []
+		def vList = []
 		try {
 
 			synchronized (chatroomUsers) {
 				chatroomUsers?.each { crec->
 					def myUser = [:]
-					if (crec && crec.isOpen() && room.equals(crec.userProperties.get("room"))) {
+					
+					if (crec && crec.isOpen()) { 
 						def cuser = crec.userProperties.get("username").toString()
+						vList.add(cuser)
+					
+						if (room.equals(crec.userProperties.get("room"))) {
+						//def cuser = crec.userProperties.get("username").toString()
 						def av = crec.userProperties.get("av").toString()
-						def rtc = crec.userProperties.get("rtc").toString()
+						def rtc = crec.userProperties.get("rtc").toString()	
 						def addav = ""
 						if (listType=="generic") { 
 							if (av.equals("on")) {
@@ -207,6 +213,21 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 							uList.add(myUser)
 						}
 					}
+					}
+				}
+			}	
+			
+			if (friendslist) {
+				String method='_void'
+				friendslist.each { fl-> 	
+					def myUser = [:]
+					if (vList.contains(fl.username)) {
+						method="online_friends"
+					}else{
+						method="offline_friends"
+					}
+					myUser.put(method, fl.username)
+					uList.add(myUser)
 				}
 			}
 		} catch (IOException e) {
@@ -400,7 +421,8 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 		if (dbSupport()) {
 			def cuser = currentUser(username)
 			ChatFriendList.withTransaction {
-				def found = ChatFriendList.findByChatuserAndUsername(cuser,urecord)
+				def found = ChatFriendList.findByChatuserAndUsername(cuser, urecord)
+				
 				if (!found) {
 					def newEntry = new ChatFriendList()
 					newEntry.chatuser = cuser

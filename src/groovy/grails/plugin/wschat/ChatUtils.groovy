@@ -42,6 +42,10 @@ class ChatUtils extends WsChatConfService  implements ChatSessions {
 		return loggedin
 	}
 
+	private void privateMessage(Session userSession , String username, String user,String msg) {
+		def myMap = [msgFrom:username, msgTo:user,privateMessage:msg ]
+		wsChatMessagingService.privateMessage(user,myMap,userSession)
+	}
 	private void verifyAction(Session userSession,String message) {
 		def myMsg = [:]
 		String username = userSession.userProperties.get("username") as String
@@ -77,10 +81,13 @@ class ChatUtils extends WsChatConfService  implements ChatSessions {
 				String user = values.user as String
 				String msg = values.msg as String
 				if (!user.equals(username)) {
-					myMsg.put("msgFrom", username)
+					
+					/*myMsg.put("msgFrom", username)
 					myMsg.put("msgTo", user)
 					myMsg.put("privateMessage", "${msg}")
 					wsChatMessagingService.privateMessage(user,myMsg,userSession)
+					*/
+					privateMessage(userSession, username,user,msg)
 				}else{
 					myMsg.put("message","Private message self?")
 					wsChatMessagingService.messageUser(userSession,myMsg)
@@ -113,12 +120,16 @@ class ChatUtils extends WsChatConfService  implements ChatSessions {
 				String person = values.msg as String
 				wsChatUserService.addUser(user,person)
 				wsChatUserService.sendUsers(userSession,user)
+				String msg = "${user} has added you to their Friends List"
+				privateMessage(userSession, user,person,msg)
 			}else if (message.startsWith("/removefriend")) {
 				def values = parseInput("/removefriend ",message)
 				String user = values.user as String
 				String person = values.msg as String
 				wsChatUserService.removeUser(user,person)
 				wsChatUserService.sendUsers(userSession,user)
+				String msg = "${user} has removed you from their Friends List"
+				privateMessage(userSession, user,person,msg)
 			}else if (message.startsWith("/joinRoom")) {
 			
 				String sendjoin = config.send.joinroom  ?: 'yes'

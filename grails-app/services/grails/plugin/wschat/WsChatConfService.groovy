@@ -24,12 +24,14 @@ class WsChatConfService {
 		return dbsupport
 	}
 	
-	def currentUser(String username) {
+	ChatUser currentUser(String username) {
+		ChatUser cu
 		if (dbSupport()) {
 			ChatUser.withTransaction {
-				return ChatUser.findByUsername(username)
+				cu =  ChatUser.findByUsername(username)
 			}
 		}
+		return cu
 	}
 	
 	Boolean isAdmin(Session userSession) {

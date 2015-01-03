@@ -3,23 +3,26 @@
 <head>
 
 <g:if test="${enduser?.verifyAppVersion().equals('assets')}">
-	<g:render template="/assets"/>
+	<g:render template="/assets" />
 </g:if>
 <g:else>
-	<g:render template="/resources"/>
+	<g:render template="/resources" />
 </g:else>
-   <title>${chatTitle }</title>
+<title>
+	${chatTitle }
+</title>
 </head>
 <body>
-		<input type="hidden" id="roomidInput" value="${user}">
-		<section id="room" class="section room">
-			<div class="video-wrapper">
-				<video id="otherVideo" class="other-video" src="" autoplay="true"></video>
-				<video id="ownVideo" class="own-video" src="" autoplay="true" muted="true"></video>
-			</div>
-		</section>
-		
-<g:javascript>
+	<input type="hidden" id="roomidInput" value="${user}">
+	<section id="room" class="section room">
+		<div class="video-wrapper">
+			<video id="otherVideo" class="other-video" src="" autoplay="true"></video>
+			<video id="ownVideo" class="own-video" src="" autoplay="true"
+				muted="true"></video>
+		</div>
+	</section>
+
+	<g:javascript>
 	function getIceServers() {
 		return "${iceservers}";
 	}
@@ -67,7 +70,7 @@
 	<g:if test="${addAppName=='no'}">
 		var uri="ws://${hostname}/WsCamEndpoint/${user}/${user}"
 	</g:if>
-	<g:else>
+		<g:else>
 		var uri="ws://${hostname}/${meta(name:'app.name')}/WsCamEndpoint/${user}/${user}"
 	</g:else>
 		
@@ -117,11 +120,11 @@
 	<g:if test="${rtc=='webrtcscreen'}">
 		WebRTC.getMedia({video:{mandatory: {chromeMediaSource: 'screen'}}},success);
 	</g:if>
-	<g:else>
+		<g:else>
 		WebRTC.getMedia({audio: true, video: true},success);
 	</g:else>
-	
-</g:javascript>
+
+	</g:javascript>
 
 </body>
 </html>

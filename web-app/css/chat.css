@@ -1,3 +1,31 @@
+#friendsBlock {
+
+	min-height: 5em;
+	display:block; 
+	position: relative;
+	 list-style-type:none;
+	 resize:both;
+}
+.clearfix:after
+{
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    height: 0;
+    line-height: 0;  
+}
+.clearall {
+	clear:both;
+	padding-bottom: 6px;
+}
+#roomBlock {
+	min-height: 12em;
+	position: relative;
+	display: block;
+ list-style-type:none;
+	resize:both;
+}
 
 #ownerBar a {background:  #000066; color: #FFF;}
 #ownerBar a:hover { background:  #0000CC; color: #FF0000;}
@@ -177,10 +205,25 @@
 .dropdown-submenu{float:none; }.dropdown-submenu>.dropdown-menu{right:-100%;margin-left:0px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
 .sidebar{float:right;margin-right:1px;}
 
-
+#chatFriend{
+  background-color: #FEF5CA;
+}
+#chatOffline{
+	background-color: #FEF5CA;
+}
+#chatOnline{
+	background-color: #FDF2EE;
+}
+#chatBlocked{
+	background-color: #FF4040;
+}
+#chatUser{
+	background-color: #FFFFFE;
+}
 #chatRooms{
 	
 }
+
 .btn-inverse {
   color: #ffffff;
   background-color: #000000;
@@ -382,3 +425,22 @@ ul#user_spot:hover ul#user_spot_links {
   background-color: #CFCFCF;
 }
 .ui-autocomplete-input, .ui-menu, .ui-menu-item {  z-index: 2006; }
+
+div[class*="bttn"] { 
+	box-sizing: content-box !important;
+	width: auto;
+	display: inline-block;
+    *zoom: 1;
+    *display: inline;
+	text-align: center;
+	outline: none; 
+}
+	
+.bttn-xs a {
+		 border-radius:0.31px; 
+	-moz-border-radius:0.31px; 
+	-webkit-border-radius:0.31px;
+	 border:1px	inset #fff;
+	  list-style-type:none;	 
+}
+#onlineUsers >li ,#friendsList > li {  text-align: left; list-style-type:none; cursor: pointer; cursor: hand; }

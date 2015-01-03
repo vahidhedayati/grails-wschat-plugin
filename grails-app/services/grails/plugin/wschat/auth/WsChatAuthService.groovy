@@ -4,12 +4,14 @@ import grails.plugin.wschat.ChatAuthLogs
 import grails.plugin.wschat.ChatLog
 import grails.plugin.wschat.ChatPermissions
 import grails.plugin.wschat.ChatUser
+import grails.plugin.wschat.OffLineMessage
 import grails.plugin.wschat.WsChatConfService
 import grails.plugin.wschat.interfaces.ChatSessions
+import grails.transaction.Transactional
 
 import javax.websocket.Session
 
-
+@Transactional
 class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 
 	def wsChatMessagingService
@@ -20,18 +22,22 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 		def myMsg = [:]
 		Boolean isuBanned = false
 		String connector = "CONN:-"
+		def user
 		def username = message.substring(message.indexOf(connector)+connector.length(),message.length()).trim().replace(' ', '_').replace('.', '_')
 		if (loggedIn(username) == false) {
 			userSession.userProperties.put("username", username)
 			isuBanned = isBanned(username)
 			if (!isuBanned){
 				if (dbSupport()) {
-					def userLevel = validateLogin(username)
+					def userRec = validateLogin(username)
+					def userLevel = userRec.permission
+					user = userRec.user
 					userSession.userProperties.put("userLevel", userLevel)
 					Boolean useris = isAdmin(userSession)
 					def myMsg1 = [:]
 					myMsg1.put("isAdmin", useris.toString())
 					wsChatMessagingService.messageUser(userSession,myMsg1)
+
 				}
 				def myMsg2 = [:]
 				myMsg2.put("currentRoom", "${room}")
@@ -44,6 +50,8 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 					//wsChatMessagingService.messageUser(userSession,myMsg)
 				}
 				wsChatRoomService.sendRooms(userSession)
+
+
 			}else{
 				def myMsg1 = [:]
 				myMsg1.put("isBanned", "user ${username} is banned being disconnected")
@@ -57,7 +65,23 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 		if ((myMsg)&&(!isuBanned)) {
 			wsChatMessagingService.broadcast(userSession,myMsg)
 		}
+		if (dbSupport()) {
+			verifyOffLine(userSession,username)
+		}
+	}
 
+	private void verifyOffLine(Session userSession, String username) {
+		OffLineMessage.withTransaction {
+			def chat = ChatUser?.findByUsername(username)
+			def pms=OffLineMessage?.findAllByOfflog(chat.offlog)
+			if (pms) {
+				pms.each { aa->
+					wsChatMessagingService.sendMsg(userSession,aa?.contents)
+				}
+
+				pms*.delete()
+			}
+		}
 	}
 
 	public Map addUser(String username) {
@@ -73,11 +97,13 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 		ChatUser.withTransaction {
 			user = ChatUser.findByUsername(username)
 			if (!user) {
-				user = ChatUser.findOrSaveWhere(username:username, permissions:perm, log: addLog()).save(flush:true)
+				def addlog = addLog()
+				user = ChatUser.findOrSaveWhere(username:username, permissions:perm, log: addlog, offlog: addlog).save(flush:true)
 			}
 		}
 		return [ user:user, perm:perm ]
 	}
+
 	private ChatLog addLog() {
 		ChatLog.withTransaction {
 			ChatLog logInstance = new ChatLog(messages: [])
@@ -85,12 +111,13 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 			return logInstance
 		}
 	}
-	
-	String validateLogin(String username) {
+
+	Map validateLogin(String username) {
 		def defaultPerm = 'user'
+		def user
 		if (dbSupport()) {
 			def au=addUser(username)
-			def user=au.user
+			user=au.user
 			def perm=au.perm
 
 			ChatAuthLogs.withTransaction {
@@ -100,10 +127,11 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 				logit.loggedOut = false
 				logit.save(flush:true)
 			}
-			return user.permissions.name as String
-		}else{
-			return defaultPerm
+			//return user.permissions.name as String
+			defaultPerm = user.permissions.name as String
 		}
+
+		[permission: defaultPerm, user: user]
 	}
 
 	Boolean loggedIn(String user) {

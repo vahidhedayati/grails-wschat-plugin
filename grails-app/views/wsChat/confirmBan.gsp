@@ -1,4 +1,8 @@
-	Banning ${username } for ${duration } ${period }
+ Banning
+${username }
+for
+${duration }
+${period }
 <g:javascript>
 var username="${username }";
 var duration="${duration }"

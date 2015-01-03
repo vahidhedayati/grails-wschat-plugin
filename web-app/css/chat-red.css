@@ -39,7 +39,7 @@ textarea{
 	*display:inline;
 	*zoom:3;
 	float:right;
-	 background: #0000FF;
+	 background: #228B22	;
 	color: #FFF;
 	padding:8px 13px; 
 	font-family:'Helvetica Neue',sans-serif; 
@@ -56,6 +56,6 @@ textarea{
 #sendMessage  textarea {
 	height: 3em;
 	width: 91%;
-	background: #000099;
+	background: #8B2500;
 	color:#FFF; 
 }

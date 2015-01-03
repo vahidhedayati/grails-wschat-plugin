@@ -6,11 +6,11 @@ class ChatBlockList {
 	Date lastUpdated
 	
 	String username
-	
 	static belongsTo=[chatuser:ChatUser]
 	
     static constraints = {
-		username blank: false, unique: true
+		username blank: false
+		//, unique: true
     }
 
 }

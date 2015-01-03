@@ -7,6 +7,7 @@ class ChatUser {
 	Date lastUpdated
 	String username
 	ChatLog log
+	ChatLog offlog
 	ChatPermissions permissions
 	static belongsTo = [profile:ChatUserProfile]
 	static hasMany = [photos: ChatUserPics, friends: ChatFriendList, blocked:ChatBlockList ]
@@ -23,6 +24,7 @@ class ChatUser {
 		photos nullable:true
 		profile nullable:true
 		log nullable: true
+		offlog nullable: true
     }
 
 	

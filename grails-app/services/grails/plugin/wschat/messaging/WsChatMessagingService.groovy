@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.plugin.wschat.ChatBlockList
 import grails.plugin.wschat.ChatMessage
 import grails.plugin.wschat.ChatUser
+import grails.plugin.wschat.OffLineMessage
 import grails.plugin.wschat.WsChatConfService
 import grails.plugin.wschat.interfaces.ChatSessions
 
@@ -12,18 +13,22 @@ import javax.websocket.Session
 
 class WsChatMessagingService extends WsChatConfService  implements ChatSessions {
 
-	def messageUser(Session userSession,Map msg) {
-		def myMsgj = msg as JSON
+
+	def sendMsg(Session userSession,String msg) {
 		String urecord = userSession.userProperties.get("username") as String
 		boolean isEnabled = boldef(config.dbstore_user_messages)
 		if (isEnabled) {
-			persistMessage(myMsgj as String,urecord)
+			persistMessage(msg ,urecord)
 		}
 		try {
-			userSession.basicRemote.sendText(myMsgj as String)
+			userSession.basicRemote.sendText(msg)
 		} catch (IOException e) {
 		}
+	}
 
+	def messageUser(Session userSession,Map msg) {
+		def myMsgj = (msg as JSON).toString()
+		sendMsg(userSession, myMsgj)
 	}
 
 	def privateMessage(String user,Map msg,Session userSession) {
@@ -31,12 +36,14 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 		def myMsgj = msg as JSON
 		String urecord = userSession.userProperties.get("username") as String
 		Boolean found = false
-		
+
+		//verifyPmDbStore(msg, user, urecord)
+
 		boolean isEnabled = boldef(config.dbstore_pm_messages)
 		if (isEnabled) {
 			persistMessage(myMsgj as String,user,urecord)
+			persistMessage(myMsgj as String,urecord,urecord)
 		}
-		
 		try {
 			synchronized (chatroomUsers) {
 				chatroomUsers?.each { crec->
@@ -62,8 +69,8 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 			log.error ("onMessage failed", e)
 		}
 		if (found == false) {
-			myMsg.put("message","Error: ${user} not found - unable to send PM")
-			messageUser(userSession,myMsg)
+			verifyOfflinePM(user, myMsgj as String, userSession, urecord)
+
 		}
 	}
 
@@ -101,14 +108,14 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 		def myMsgj = msg as JSON
 		String room = userSession.userProperties.get("room") as String
 		String urecord = userSession.userProperties.get("username") as String
-		
+
 		boolean isEnabled = boldef(config.dbstore_room_messages)
 		if (isEnabled) {
-			
+
 			persistMessage(myMsgj as String,urecord)
 		}
-		
-		
+
+
 		try {
 			synchronized (chatroomUsers) {
 				chatroomUsers?.each { crec->
@@ -121,7 +128,7 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 			log.error ("onMessage failed", e)
 		}
 	}
-	
+
 	def jsonmessageUser(Session userSession,String msg) {
 		userSession.basicRemote.sendText(msg as String)
 	}
@@ -163,6 +170,23 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 	}
 
 
+	private void verifyOfflinePM(String user,String message,Session userSession,String username) {
+		boolean isEnabled = boldef(config.offline_pm)
+		if (isEnabled) {
+			OffLineMessage.withTransaction {
+				def chat = ChatUser.findByUsername(user)
+				if (chat) {
+					new OffLineMessage(user: username, contents: message, offlog: chat?.offlog, readMsg: false).save(flush: true)
+					messageUser(userSession,["message": "--> OFFLINE MSG sent to ${user}"])
+				} else{
+					messageUser(userSession,["message": "Error: ${user} not found - unable to send PM"])
+				}
+			}
+		}else{
+			messageUser(userSession,["message": "Error: ${user} not found :- unable to send PM"])
+		}
+	}
+
 	private void persistMessage(String message, String user, String username=null) {
 		boolean isEnabled = boldef(config.dbstore)
 		if (isEnabled) {
@@ -176,11 +200,11 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 	private Boolean boldef(def input) {
 		boolean isEnabled = false
 		if (input) {
-		if (input instanceof String) {
-			isEnabled = isConfigEnabled(input)
-		}else{
-			isEnabled = input
-		}
+			if (input instanceof String) {
+				isEnabled = isConfigEnabled(input)
+			}else{
+				isEnabled = input
+			}
 		}
 		return isEnabled
 	}

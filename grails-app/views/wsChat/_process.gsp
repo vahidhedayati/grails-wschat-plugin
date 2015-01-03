@@ -1,9 +1,7 @@
 
-<div id="task_1" style="font-size: 4em; font-weight: bold;">
-</div>
+<div id="task_1" style="font-size: 4em; font-weight: bold;"></div>
 
-<div id="flipflop" style="font-size: 4em; font-weight: bold;">
-</div>
+<div id="flipflop" style="font-size: 4em; font-weight: bold;"></div>
 
 <g:javascript>
 	var loggedInUsers=[];
@@ -212,7 +210,7 @@
     	<g:if test="${frontuser}">
     		webSocket.send("CONN:-${frontuser}");
        	</g:if>
-       	<g:else>
+	<g:else>
        		$('#chatMessages').append("Chat denied no username \n");
        		webSocket.send("DISCO:-");
        	 	webSocket.close();
