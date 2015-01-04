@@ -54,7 +54,7 @@ class WsChatController {
 		}
 		[showtitle:wsconf.showtitle.toLowerCase(), dbsupport:wsconf.dbSupport.toLowerCase() , room:room,
 			chatuser:chatuser, chatTitle:wsconf.chatTitle,chatHeader:wsconf.chatHeader,
-			now:new Date(), hostname:wsconf.hostname]
+			now:new Date(), hostname:wsconf.hostname, addAppName: wsconf.addAppName]
 	}
 
 

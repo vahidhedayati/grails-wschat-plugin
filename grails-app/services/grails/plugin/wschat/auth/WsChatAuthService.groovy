@@ -24,43 +24,52 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 		String connector = "CONN:-"
 		def user
 		def username = message.substring(message.indexOf(connector)+connector.length(),message.length()).trim().replace(' ', '_').replace('.', '_')
-		if (loggedIn(username) == false) {
-			userSession.userProperties.put("username", username)
-			isuBanned = isBanned(username)
-			if (!isuBanned){
-				if (dbSupport()) {
-					def userRec = validateLogin(username)
-					def userLevel = userRec.permission
-					user = userRec.user
-					userSession.userProperties.put("userLevel", userLevel)
-					Boolean useris = isAdmin(userSession)
-					def myMsg1 = [:]
-					myMsg1.put("isAdmin", useris.toString())
-					wsChatMessagingService.messageUser(userSession,myMsg1)
-
-				}
-				def myMsg2 = [:]
-				myMsg2.put("currentRoom", "${room}")
-				wsChatMessagingService.messageUser(userSession,myMsg2)
-				wsChatUserService.sendUsers(userSession,username)
-				String sendjoin = config.send.joinroom  ?: 'yes'
-
-				if (sendjoin == 'yes') {
-					myMsg.put("message", "${username} has joined ${room}")
-					//wsChatMessagingService.messageUser(userSession,myMsg)
-				}
-				wsChatRoomService.sendRooms(userSession)
-
-
-			}else{
-				def myMsg1 = [:]
-				myMsg1.put("isBanned", "user ${username} is banned being disconnected")
-				wsChatMessagingService.messageUser(userSession,myMsg1)
-				//chatroomUsers.remove(userSession)
-			}
+		
+		// Rather than deny chat give user a warning on multiple connections
+		// since messaging is between user and room and should work with multiple 
+		// connections.
+		if (loggedIn(username)==false) {
+		
 		}else{
-			myMsg.put("message", "${username} is already loggged in elsewhere, action denied")
+			myMsg.put("message", "${username} Warning you are logged in elsewhere as well")
 		}
+		
+		userSession.userProperties.put("username", username)
+		isuBanned = isBanned(username)
+		if (!isuBanned){
+			if (dbSupport()) {
+				def userRec = validateLogin(username)
+				def userLevel = userRec.permission
+				user = userRec.user
+				userSession.userProperties.put("userLevel", userLevel)
+				Boolean useris = isAdmin(userSession)
+				def myMsg1 = [:]
+				myMsg1.put("isAdmin", useris.toString())
+				wsChatMessagingService.messageUser(userSession,myMsg1)
+
+			}
+			def myMsg2 = [:]
+			myMsg2.put("currentRoom", "${room}")
+			wsChatMessagingService.messageUser(userSession,myMsg2)
+			wsChatUserService.sendUsers(userSession,username)
+			String sendjoin = config.send.joinroom  ?: 'yes'
+
+			if (sendjoin == 'yes') {
+				myMsg.put("message", "${username} has joined ${room}")
+				//wsChatMessagingService.messageUser(userSession,myMsg)
+			}
+			wsChatRoomService.sendRooms(userSession)
+
+
+		}else{
+			def myMsg1 = [:]
+			myMsg1.put("isBanned", "user ${username} is banned being disconnected")
+			wsChatMessagingService.messageUser(userSession,myMsg1)
+			//chatroomUsers.remove(userSession)
+		}
+		//}else{
+		//	myMsg.put("message", "${username} is already loggged in elsewhere, action denied")
+		///}
 
 		if ((myMsg)&&(!isuBanned)) {
 			wsChatMessagingService.broadcast(userSession,myMsg)
