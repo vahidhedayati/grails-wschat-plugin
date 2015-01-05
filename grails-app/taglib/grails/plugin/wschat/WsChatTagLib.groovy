@@ -16,13 +16,19 @@ class WsChatTagLib implements ClientSessions {
 	def chatClientListenerService
 	def wsChatRoomService
 	def wsChatProfileService
+	def pluginbuddyService
+	
 	
 	def includeAllStyle = { 
 		out << g.render(contextPath: pluginContextPath, template : "/${CHATVIEW}/includes")
 	}
 	
 	def includeStyle = {
-		out << g.render(contextPath: pluginContextPath, template : "/${CHATVIEW}/includeStyles")
+		 if (pluginbuddyService.returnAppVersion().equals('assets')) { 
+			 out << g.render(contextPath: pluginContextPath, template : "/assets")
+		 }else{
+		 	out << g.render(contextPath: pluginContextPath, template : "/resources")
+		 }
 	}
 	
 	def connect  =   { attrs ->

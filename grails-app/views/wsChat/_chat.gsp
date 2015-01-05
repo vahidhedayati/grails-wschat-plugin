@@ -157,17 +157,32 @@
 	<g:javascript>
 	$( "#roomBlock" ).resizable();
  	$( "#friendsBlock" ).resizable();
+ 	
+ 	var baseapp="${meta(name:'app.name')}";
+ 	
+	function getApp() {
+		return baseapp;
+	}
+ 	
+ 	<g:if test="${addAppName=='no'}">
+		var themeuri="/assets/"
+	</g:if>
+	<g:else>
+		var themeuri="/"+baseapp+"/assets/"
+	</g:else>
+	
+	
 	document.getElementById('themeChanger2').onclick = function () { 
-   	 	document.getElementById('chat_theme').href = '../assets/chat-blue.css';
+   	 	document.getElementById('chat_theme').href = themeuri+'chat-blue.css';
 	};
 	document.getElementById('themeChanger').onclick = function () { 
-    	document.getElementById('chat_theme').href = '../assets/chat-red.css';
+    	document.getElementById('chat_theme').href = themeuri+'chat-red.css';
 	};
 	document.getElementById('themeChanger3').onclick = function () { 
-    	document.getElementById('chat_theme').href = '../assets/chat-dark.css';
+    	document.getElementById('chat_theme').href = themeuri+'chat-dark.css';
 	};
 	document.getElementById('themeChanger4').onclick = function () { 
-   	 	document.getElementById('chat_theme').href = '../assets/chat.css';
+   	 	document.getElementById('chat_theme').href = themeuri+'/chat.css';
 	};
 
 
@@ -180,10 +195,7 @@
 	// Convert grails variable values to javascript format
 	var user="${chatuser}";
 	var hostname="${hostname}";
-	var baseapp="${meta(name:'app.name')}";
-	function getApp() {
-		return baseapp;
-	}
+
 	function getHostName() {
 		return hostname;
 	}
