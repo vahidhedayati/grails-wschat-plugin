@@ -163,7 +163,12 @@ public class ChatClientListenerService implements ClientSessions {
 	}
 
 	private getAppName(){
-		grailsApplication.metadata['app.name']
+		String addAppName = config.add.appName ?: 'yes'
+		if (addAppName=="yes") {
+			grailsApplication.metadata['app.name']
+		}else{
+			return ""
+		}
 	}
 
 	private getConfig() {
