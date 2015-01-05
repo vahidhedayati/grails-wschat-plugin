@@ -53,7 +53,7 @@ public class ChatClientListenerService implements ClientSessions {
 	public connectUserRoom  = {  String user, String room,  Closure closure ->
 
 		String wshostname = config.hostname ?: 'localhost:8080'
-		String uri="ws://${wshostname}/${appName}/${CHATAPP}/"
+		String uri="ws://${wshostname}/${appName}${CHATAPP}/"
 
 
 		Session oSession = p_connect( uri, user, room)
@@ -71,7 +71,7 @@ public class ChatClientListenerService implements ClientSessions {
 	public connectRoom  = { String room,  Closure closure ->
 
 		String wshostname = config.hostname ?: 'localhost:8080'
-		String uri="ws://${wshostname}/${appName}/${CHATAPP}/"
+		String uri="ws://${wshostname}/${appName}${CHATAPP}/"
 
 		String oUsername = config.app.id ?: "[${(Math.random()*1000).intValue()}]-$room";
 		Session oSession = p_connect( uri, oUsername, room)
@@ -89,7 +89,7 @@ public class ChatClientListenerService implements ClientSessions {
 	Session connect() {
 		String dbSupport = config.dbsupport ?: 'yes'
 		String wshostname = config.hostname ?: 'localhost:8080'
-		String uri = "ws://${wshostname}/${appName}/${CHATAPP}/"
+		String uri = "ws://${wshostname}/${appName}${CHATAPP}/"
 		def room = wsChatRoomService.returnRoom(dbSupport as String)
 		String oUsername = config.app.id ?: "[${(Math.random()*1000).intValue()}]-$room";
 		Session csession = p_connect( uri, oUsername, room)
@@ -165,7 +165,7 @@ public class ChatClientListenerService implements ClientSessions {
 	private getAppName(){
 		String addAppName = config.add.appName ?: 'yes'
 		if (addAppName=="yes") {
-			grailsApplication.metadata['app.name']
+			grailsApplication.metadata['app.name']+"/"
 		}else{
 			return ""
 		}
