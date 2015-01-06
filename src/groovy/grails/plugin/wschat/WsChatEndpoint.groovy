@@ -87,6 +87,7 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 			if (dbSupport()&&username) {
 				wsChatAuthService.validateLogOut(username as String)
 			}
+			chatroomUsers.remove(userSession)
 		} catch(SocketException e) {
 			log.debug "Error $e"
 		}
