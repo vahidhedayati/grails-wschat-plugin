@@ -291,7 +291,8 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 	
 	}
 	void sendUsersLoggedOut(String room,String username) {
-
+		String sendUserList = config.send.userList  ?: 'yes'
+		if ( sendUserList == 'yes') {
 		try {
 			def myMsg = [:]
 			String sendleave = config.send.leftroom  ?: 'yes'
@@ -330,10 +331,12 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 		} catch (IOException e) {
 			log.error ("onMessage failed", e)
 		}
-
+		}
 	}
 
 	private void sendUserList(String iuser,Map msg) {
+		String sendUserList = config.send.userList  ?: 'yes'
+		if ( sendUserList == 'yes') {
 		def myMsgj = msg as JSON
 		try {
 			synchronized (chatroomUsers) {
@@ -353,6 +356,7 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 		} catch (IOException e) {
 			log.error ("onMessage failed", e)
 		}
+		}
 	}
 
 	private void removeUser(String username) {
@@ -362,7 +366,7 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 					if (crec && crec.isOpen()) {
 						def cuser = crec.userProperties.get("username").toString()
 						if (cuser.equals(username)) {
-							iterator.remove()
+							chatroomUsers.remove(crec)
 						}
 					}
 				}
