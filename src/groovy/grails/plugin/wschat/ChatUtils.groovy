@@ -67,15 +67,9 @@ class ChatUtils extends WsChatConfService  implements ChatSessions {
 				if (dbsup == 'yes') {
 					log.error "Room: >${room}< | User: >${username}<  "
 				}
-
-
-				//userSession.close()
-				//wsChatUserService.removeUser(username)
-				//String bcasto = config.left.timeout  ?: '0'
-				//sleep(bcasto as int)
-				//wsChatUserService.sendUsersLoggedOut(croom,username)
-				wsChatUserService.logUserOut(userSession,username,room)
-
+				wsChatUserService.removeUser(username)
+				wsChatUserService.sendUsers(userSession,username)
+				userSession.close()
 			}else if (message.startsWith("/pm")) {
 				def values = parseInput("/pm ",message)
 				String user = values.user as String

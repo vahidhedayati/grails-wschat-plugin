@@ -268,9 +268,10 @@
 	});
 	
      window.onbeforeunload = function() {
-    	 webSocket.send("DISCO:-"+user);
+       	webSocket.send("DISCO:-"+user);
        	//webSocket.onclose = function() { }
-       	webSocket.close();
+       	//webSocket.close();
+       	
      }
 
 </g:javascript>
