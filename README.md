@@ -124,3 +124,6 @@ wschat.offline_pm=true
 ### Known issues/work arounds:
 Since 0.20+ ui.videobox has been added, earlier versions and even current version suffers from conflicts with jquery.ui.chatbox and does not send message. In 1.13 an option above left of rooms will attempt to close PM windows. Otherwise refresh your page.
 
+### Complete site wrapper example 
+[example chat web application with Bootstrap/Shiro:LDAP/AD](https://github.com/vahidhedayati/kchat)
+
