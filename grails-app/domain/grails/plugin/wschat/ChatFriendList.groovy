@@ -12,7 +12,6 @@ class ChatFriendList {
 	
     static constraints = {
 		username blank: false
-		//, unique: true
     }
 	
 }

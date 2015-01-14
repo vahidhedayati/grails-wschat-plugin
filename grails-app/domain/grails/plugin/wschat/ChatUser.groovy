@@ -2,7 +2,7 @@ package grails.plugin.wschat
 
 
 class ChatUser {
-	
+
 	Date dateCreated
 	Date lastUpdated
 	String username
@@ -11,12 +11,12 @@ class ChatUser {
 	ChatPermissions permissions
 	static belongsTo = [profile:ChatUserProfile]
 	static hasMany = [photos: ChatUserPics, friends: ChatFriendList, blocked:ChatBlockList ]
-	
+
 	static mapping = {
 		permissions lazy: false
 		//friends cascade: 'lock'
 	}
-	
+
 	static constraints = {
 		username blank: false, unique: true
 		friends nullable:true
@@ -25,7 +25,6 @@ class ChatUser {
 		profile nullable:true
 		log nullable: true
 		offlog nullable: true
-    }
+	}
 
-	
 }

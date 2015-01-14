@@ -91,6 +91,4 @@ class WsCamService extends WsChatConfService  implements ChatSessions {
 			camsessions.remove(userSession)
 		} catch (Throwable e) {	}
 	}
-
-
 }

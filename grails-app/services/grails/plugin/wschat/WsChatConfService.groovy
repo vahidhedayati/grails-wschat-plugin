@@ -1,5 +1,7 @@
 package grails.plugin.wschat
 
+import grails.converters.JSON
+
 import java.text.SimpleDateFormat
 
 import javax.websocket.Session
@@ -11,10 +13,31 @@ class WsChatConfService {
 
 	def grailsApplication
 
+	Map getWsconf() {
+		String dbSupport = config.dbsupport ?: 'yes'
+		String process = config.disable.login ?: 'no'
+		String chatTitle = config.title ?: 'Grails Websocket Chat'
+		String chatHeader = config.heading ?: 'Grails websocket chat'
+
+		String hostname = config.hostname ?: 'localhost:8080'
+		String addAppName = config.add.appName ?: 'yes'
+		JSON iceservers = grailsApplication.config.stunServers as JSON
+		String showtitle = config.showtitle ?: 'yes'
+		return [dbSupport:dbSupport, process:process, chatTitle:chatTitle,
+			chatHeader:chatHeader,  hostname:hostname, addAppName:addAppName,
+			iceservers:iceservers, showtitle:showtitle]
+	}
+
+	
+	
 	boolean isConfigEnabled(String input) {
 		return Boolean.valueOf(input ?: false)
 	}
 	
+	boolean getSaveClients() {
+		return isConfigEnabled(config.storeForFrontEnd ?: 'false')
+	}
+
 	Boolean dbSupport() {
 		Boolean dbsupport = false
 		String dbsup = config.dbsupport  ?: 'yes'
@@ -59,6 +82,14 @@ class WsChatConfService {
 		return yesis
 	}
 
+	String getApplicationName() { 
+		return grailsApplication.metadata['app.name']
+	}
+	String getFrontend() {
+		return config.frontenduser ?: '_frontend'
+		//return cuser
+	}
+	
 	def getConfig() {
 		grailsApplication?.config?.wschat
 	}

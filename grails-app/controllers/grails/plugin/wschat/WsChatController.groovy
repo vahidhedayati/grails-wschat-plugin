@@ -8,8 +8,8 @@ import java.text.SimpleDateFormat
 import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
 
 
-class WsChatController {
-	def grailsApplication
+class WsChatController extends WsChatConfService {
+	
 	def wsChatRoomService
 	def autoCompleteService
 	def wsChatUserService
@@ -56,8 +56,6 @@ class WsChatController {
 			chatuser:chatuser, chatTitle:wsconf.chatTitle,chatHeader:wsconf.chatHeader,
 			now:new Date(), hostname:wsconf.hostname, addAppName: wsconf.addAppName]
 	}
-
-
 
 	def verifyprofile(String username) {
 		boolean actualuser = false
@@ -168,10 +166,6 @@ class WsChatController {
 		}
 	}
 
-
-
-
-
 	def camsend(String user) {
 		[user:user, chatTitle:wsconf.chatTitle, hostname:wsconf.hostname, addAppName:wsconf.addAppName]
 	}
@@ -277,9 +271,7 @@ class WsChatController {
 	}
 
 	def joinBooking(String id,String username) {
-		
 		Map vj = wsChatBookingService.verifyJoin(id,username)
-		
 		boolean goahead = vj.goahead
 		String room = vj.room
 		String startDate = vj.startDate
@@ -288,15 +280,12 @@ class WsChatController {
 			session.wschatuser = username
 			session.wschatroom = room
 			redirect(controller: "wsChat", action: "chat")
-		
 		}
-		
 		[startDate:startDate, endDate:endDate]
 	}
 
 	def addBooking(){
 		if (isAdmin) {
-
 			def invite = params.invites
 			if(invite instanceof String) {
 				invite = [invite]
@@ -352,26 +341,10 @@ class WsChatController {
 		}
 	}
 
-
 	private Boolean getIsAdmin() {
 		wsChatUserService.validateAdmin(session.wschatuser)
 	}
-
-	private Map getWsconf() {
-		String dbSupport = config.dbsupport ?: 'yes'
-		String process = config.disable.login ?: 'no'
-		String chatTitle = config.title ?: 'Grails Websocket Chat'
-		String chatHeader = config.heading ?: 'Grails websocket chat'
-
-		String hostname = config.hostname ?: 'localhost:8080'
-		String addAppName = config.add.appName ?: 'yes'
-		JSON iceservers = grailsApplication.config.stunServers as JSON
-		String showtitle = config.showtitle ?: 'yes'
-		return [dbSupport:dbSupport, process:process, chatTitle:chatTitle,
-			chatHeader:chatHeader,  hostname:hostname, addAppName:addAppName,
-			iceservers:iceservers, showtitle:showtitle]
-	}
-
+	
 	private Boolean verifyUser(String username) {
 		boolean userChecksOut = false
 		def chatuser = ChatUser.findByUsername(username)
@@ -380,8 +353,9 @@ class WsChatController {
 		}
 		return userChecksOut
 	}
-
+	/*
 	private getConfig() {
 		grailsApplication?.config?.wschat
 	}
+	*/
 }

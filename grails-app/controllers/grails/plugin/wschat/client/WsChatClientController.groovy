@@ -28,11 +28,11 @@ class WsChatClientController implements ClientSessions {
 		render (view: 'index', model: [clientSlave:clientSlave])
 	}
 	
-	
 	def truncateSlaves() {
 		clientSlave.clear()
 		render "clientSlave truncated"
 	}
+	
 	def truncateMasters() {
 		clientMaster.clear()
 		render "clientMaster truncated"

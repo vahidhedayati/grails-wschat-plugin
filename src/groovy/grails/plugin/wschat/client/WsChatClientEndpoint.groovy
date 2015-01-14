@@ -99,25 +99,7 @@ public class WsChatClientEndpoint {
 		userSession.basicRemote.sendText(message)
 	}
 	
-	/*
-	public String getFrontend() {
-		def cuser=config.frontenduser ?: '_frontend'
-		return cuser
-	}
 
-	public boolean isJson(String message) {
-		
-		boolean result = false
-		
-		try {
-			JSONObject rmesg=JSON?.parse(message)
-			result = true
-		} catch (Exception e) {
-			//	e.printStackTrace()
-		}
-		return result
-	}
-	*/
 	
 	public Session returnSession() {
 		return userSession

@@ -10,7 +10,6 @@ class ChatBlockList {
 	
     static constraints = {
 		username blank: false
-		//, unique: true
     }
 
 }

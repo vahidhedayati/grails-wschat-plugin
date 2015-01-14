@@ -4,6 +4,7 @@ import grails.plugin.wschat.ChatBooking
 import grails.plugin.wschat.ChatBookingInvites
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.ChatUserProfile
+import grails.plugin.wschat.WsChatConfService
 import groovy.time.TimeCategory
 
 import java.rmi.server.UID
@@ -14,11 +15,11 @@ import java.text.SimpleDateFormat
 import org.springframework.transaction.annotation.Transactional
 
 @Transactional
-class WsChatBookingService  {
+class WsChatBookingService  extends WsChatConfService {
 	def mailService
 	def wsChatRoomService
 	def messageSource
-	def grailsApplication
+	
 	
 	static prng = new SecureRandom()
 
@@ -198,7 +199,7 @@ Please join chat on [CHATURL]
 				address = config
 			}
 			else {
-				address = grailsApplication.config.mailconfig[config] ?: ''
+				address = config.mailconfig[config] ?: ''
 				if (address.toString().indexOf(',') > -1) {
 					recipients.addAll(address.split(',').collect { it.trim() })
 				}
@@ -210,7 +211,9 @@ Please join chat on [CHATURL]
 		return address
 	}
 	
+	/*
 	def getConfig() {
 		grailsApplication?.config?.wschat
 	}
+	*/
 }

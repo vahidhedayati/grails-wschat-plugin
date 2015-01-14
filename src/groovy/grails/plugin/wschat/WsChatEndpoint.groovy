@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory
 class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 	private final Logger log = LoggerFactory.getLogger(getClass().name)
 
-	//GrailsApplication grailsApplication
+
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
 		ServletContext servletContext = event.servletContext

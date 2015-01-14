@@ -6,11 +6,9 @@ import grails.plugin.wschat.interfaces.ClientSessions
 
 import javax.websocket.Session
 
-class WsChatTagLib implements ClientSessions {
+class WsChatTagLib extends WsChatConfService implements ClientSessions {
 
 	static namespace  =  "chat"
-
-	def grailsApplication
 
 	def wsChatClientService
 	def chatClientListenerService
@@ -54,16 +52,13 @@ class WsChatTagLib implements ClientSessions {
 			profile=profile as Map
 			wsChatProfileService.addProfile(chatuser, profile, updateProfile)
 		}
-		
-		
-		session.wschatuser = chatuser
 
 		if (!room) {
 			room = wsChatRoomService.returnRoom(dbSupport as String)
 		}
-
 		session.wschatroom = room
-
+		session.wschatuser = chatuser
+		
 		def model = [ dbsupport: dbSupport.toLowerCase() , showtitle: showtitle.toLowerCase(),
 			room: room, chatuser: chatuser, chatTitle: chatTitle, chatHeader: chatHeader,
 			now: new Date(), hostname: hostname, addAppName: addAppName ]
@@ -109,7 +104,7 @@ class WsChatTagLib implements ClientSessions {
 		String addAppName = config.add.appName ?: 'yes'
 		
 		if (!appName) {
-			appName = grailsApplication.metadata['app.name']
+			appName = applicationName
 		}
 		
 		if (!hostname) {
@@ -195,7 +190,7 @@ class WsChatTagLib implements ClientSessions {
 		String dbSupport = config.dbsupport ?: 'yes'
 
 		if (!appName) {
-			appName = grailsApplication.metadata['app.name']
+			appName = applicationName
 		}
 
 		if (!hostname) {
@@ -209,8 +204,6 @@ class WsChatTagLib implements ClientSessions {
 		if (!message) {
 			message = "testing"
 		}
-
-		
 		
 		String uri="ws://${hostname}/${appName}/${CHATAPP}/"
 		if (addAppName=="no") {
@@ -324,13 +317,4 @@ class WsChatTagLib implements ClientSessions {
 		
 	}
 	
-	private String getFrontend() {
-		def cuser=config.frontenduser ?: '_frontend'
-		return cuser
-	}
-
-	private getConfig() {
-		grailsApplication?.config?.wschat
-	}
-
 }

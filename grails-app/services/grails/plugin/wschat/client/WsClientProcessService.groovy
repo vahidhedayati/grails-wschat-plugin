@@ -1,7 +1,7 @@
 package grails.plugin.wschat.client
 
 import grails.converters.JSON
-import grails.plugin.wschat.interfaces.ChatSessions
+import grails.plugin.wschat.WsChatConfService
 import grails.plugin.wschat.interfaces.ClientSessions
 
 import javax.websocket.Session
@@ -31,7 +31,8 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  * 
  * Override Service Howto:
  * 
- * 1. Create a service in your app:
+ * 1. Create a service in your app: 
+ * https://github.com/vahidhedayati/testwschat/blob/master/grails-app/services/anythingbut/grails/plugin/wschat/MyOverrideService.groovy
  * 
  * package grails.plugin.wschat.myclient
  * import grails.plugin.wschat.client.WsClientProcessService
@@ -49,15 +50,25 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  * 2. Setting up bean :
  * 
  * Open conf/spring/resources.groovy
- * beans = {
- * 		wsClientProcessService(MyChatClientService)
- * 	}
+ * 
+ * 
+ import anythingbut.grails.plugin.wschat.MyOverrideService
+
+// Place your Spring DSL code here
+beans = {
+	wsClientProcessService(MyOverrideService){
+		grailsApplication = ref('grailsApplication')
+		chatClientListenerService = ref('chatClientListenerService')
+		wsChatUserService = ref('wsChatUserService')
+	}
+}
+
  * run ctrl shift o (in eclipse based ide's ggts etc and that will import MyChatClientService)
  * 
  */
-public class WsClientProcessService  implements ClientSessions {
+public class WsClientProcessService extends WsChatConfService implements ClientSessions {
 
-	def grailsApplication
+	//def grailsApplication
 	def chatClientListenerService
 	def wsChatUserService
 
@@ -210,8 +221,6 @@ public class WsClientProcessService  implements ClientSessions {
 		}
 		
 		
-		
-		
 		/* SET CUSTOM ACTIONS
 		if (masterNode) {
 			if (actionthis== 'do_task_1') {
@@ -246,8 +255,6 @@ public class WsClientProcessService  implements ClientSessions {
 			}
 		}
 		
-		//println " ${msgFrom} ${sendThis}"
-		
 		if (pm) {
 			//if (strictMode==false) {
 			//chatClientListenerService.sendMessage(userSession, "${addon}${sendThis}")
@@ -261,28 +268,11 @@ public class WsClientProcessService  implements ClientSessions {
 		}
 	}
 
-
-	private boolean getSaveClients() {
-		return isConfigEnabled(config.storeForFrontEnd ?: 'false')
-	}
-
-	private boolean isConfigEnabled(String config) {
-		return Boolean.valueOf(config)
-	}
-
 	public void truncateSlaves() {
 		clientSlave.clear()
 	}
 
 	public void truncateMasters() {
 		clientMaster.clear()
-	}
-
-	private String getFrontend() {
-		def cuser=config.frontenduser ?: '_frontend'
-		return cuser
-	}
-	private getConfig() {
-		grailsApplication?.config?.wschat
 	}
 }

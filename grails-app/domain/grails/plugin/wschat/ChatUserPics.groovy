@@ -1,7 +1,7 @@
 package grails.plugin.wschat
 
 class ChatUserPics {
-	
+
 	Date dateCreated
 	Date lastUpdated
 	ChatUser chatuser
@@ -11,7 +11,7 @@ class ChatUserPics {
 	}
 	static constraints = {
 		photo(maxSize: 2048000, blank:false, minsize: 1) // 250kb
-    }
+	}
 
-	
+
 }

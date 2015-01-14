@@ -10,21 +10,15 @@ import javax.websocket.Session;
 
 public interface ChatSessions {
 	/*
-	 * private static List camusers = Collections.synchronizedList(new ArrayList())
-	 * private static List camusers = Collections.synchronizedList(new ArrayList())
-	 * static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>())
-	 * static final Set<Session> camsessions = Collections.synchronizedSet(new HashSet<Session>())
-	 * Map<String,String> chatroomUsers = new ConcurrentHashMap<String,String>()
-	 * List<String> chatroomUsers = new CopyOnWriteArrayList<String>()
-	 */
-
-	//static final Set<Session> camsessions = ([] as Set).asSynchronized();
-	//static final Set<Session> chatroomUsers = ([] as Set).asSynchronized();
-			
+	  	private static List camusers = Collections.synchronizedList(new ArrayList())
+	  	private static List camusers = Collections.synchronizedList(new ArrayList())
+		static final Set<Session> camsessions = ([] as Set).asSynchronized();
+		static final Set<Session> chatroomUsers = ([] as Set).asSynchronized();
+		static Collection<Session> chatroomUsers =  Collections.synchronizedCollection(new HashSet<Session>());
+		static Collection<Session> camsessions =  Collections.synchronizedCollection(new HashSet<Session>());
+	*/
 	static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>());
 	static final Set<Session> camsessions = Collections.synchronizedSet(new HashSet<Session>());
 
-	//static Collection<Session> chatroomUsers =  Collections.synchronizedCollection(new HashSet<Session>());
-	//static Collection<Session> camsessions =  Collections.synchronizedCollection(new HashSet<Session>());
 
 }
