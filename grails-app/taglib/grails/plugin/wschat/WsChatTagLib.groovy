@@ -40,7 +40,7 @@ class WsChatTagLib extends WsChatConfService implements ClientSessions {
 		String hostname = config.hostname ?: 'localhost:8080'
 		String showtitle = config.showtitle ?: 'yes'
 		String dbSupport = config.dbsupport ?: 'yes'
-
+		String debug = config.debug ?: 'off'
 		
 		String addAppName = config.add.appName ?: 'yes'
 		
@@ -61,7 +61,7 @@ class WsChatTagLib extends WsChatConfService implements ClientSessions {
 		
 		def model = [ dbsupport: dbSupport.toLowerCase() , showtitle: showtitle.toLowerCase(),
 			room: room, chatuser: chatuser, chatTitle: chatTitle, chatHeader: chatHeader,
-			now: new Date(), hostname: hostname, addAppName: addAppName ]
+			now: new Date(), hostname: hostname, addAppName: addAppName, debug:debug ]
 
 		if (template) {
 			out << g.render(template:template, model:model)

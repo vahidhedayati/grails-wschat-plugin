@@ -1,6 +1,7 @@
 package grails.plugin.wschat.interfaces;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,16 +10,7 @@ import javax.websocket.Session;
 
 
 public interface ChatSessions {
-	/*
-	  	private static List camusers = Collections.synchronizedList(new ArrayList())
-	  	private static List camusers = Collections.synchronizedList(new ArrayList())
-		static final Set<Session> camsessions = ([] as Set).asSynchronized();
-		static final Set<Session> chatroomUsers = ([] as Set).asSynchronized();
-		static Collection<Session> chatroomUsers =  Collections.synchronizedCollection(new HashSet<Session>());
-		static Collection<Session> camsessions =  Collections.synchronizedCollection(new HashSet<Session>());
-	*/
+	static Set<HashMap<String[],String[]>> chatroomUsers1= Collections.synchronizedSet(new HashSet<HashMap<String[],String[]>>());
 	static Set<Session> chatroomUsers = Collections.synchronizedSet(new HashSet<Session>());
 	static final Set<Session> camsessions = Collections.synchronizedSet(new HashSet<Session>());
-
-
 }

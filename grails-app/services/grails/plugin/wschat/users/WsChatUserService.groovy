@@ -285,6 +285,7 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 
 	private void sendUserList(String iuser,Map msg) {
 		String sendUserList = config.send.userList  ?: 'yes'
+		
 		if ( sendUserList == 'yes') {
 			def myMsgj = msg as JSON
 			try {
@@ -351,10 +352,18 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 				def newEntry = new ChatBanList()
 				newEntry.username = username
 				newEntry.period = current
-				newEntry.save(flush:true)
+				if (!newEntry.save(flush:true)) {
+					if (config.debug == "on") {
+						newEntry.errors.allErrors.each{println it}
+					}
+				}
 			}else{
 				found.period = current
-				found.save(flush:true)
+				if (!found.save(flush:true)) {
+					if (config.debug == "on") {
+						found.errors.allErrors.each{println it}
+					}
+				}
 			}
 		}
 	}
@@ -368,7 +377,11 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 					def newEntry = new ChatBlockList()
 					newEntry.chatuser = cuser
 					newEntry.username = urecord
-					newEntry.save(flush:true)
+					if (!newEntry.save(flush:true)) {
+						if (config.debug == "on") {
+							newEntry.errors.allErrors.each{println it}
+						}
+					}
 				}
 			}
 		}
@@ -384,7 +397,11 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 					def newEntry = new ChatFriendList()
 					newEntry.chatuser = cuser
 					newEntry.username = urecord
-					newEntry.save(flush:true)
+					if (!newEntry.save(flush:true)) {
+						if (config.debug == "on") {
+							newEntry.errors.allErrors.each{println it}
+						}
+					}
 				}
 			}
 		}
@@ -396,6 +413,7 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 				def cuser = currentUser(username)
 				def found = ChatFriendList.findByChatuserAndUsername(cuser,urecord)
 				found.delete(flush: true)
+
 			}
 		}
 	}

@@ -140,8 +140,15 @@ function processChatMessage(message) {
 }	
 
 function processMessage(message) {
+	
+	
 	var jsonData=JSON.parse(message.data);
 
+		if (debug == "on") {
+			console.log('@onMessage: '+JSON.stringify(message.data));
+		}
+		
+		
 	if (jsonData.message!=null) {
 		$('#chatMessages').append(htmlEncode(jsonData.message)+"\n");
 	}

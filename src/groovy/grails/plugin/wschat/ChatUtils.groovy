@@ -7,6 +7,7 @@ import grails.plugin.wschat.messaging.WsChatMessagingService
 import grails.plugin.wschat.rooms.WsChatRoomService
 import grails.plugin.wschat.users.WsChatUserService
 
+import javax.websocket.OnMessage;
 import javax.websocket.Session
 
 import org.apache.log4j.spi.LoggerFactory
@@ -47,6 +48,9 @@ class ChatUtils extends WsChatConfService  implements ChatSessions {
 		wsChatMessagingService.privateMessage(user,myMap,userSession)
 	}
 	private void verifyAction(Session userSession,String message) {
+		if (config.debug == "on") {
+			println "@OnMessage: ${message}"
+		}
 		def myMsg = [:]
 		String username = userSession.userProperties.get("username") as String
 		String room  =  userSession.userProperties.get("room") as String

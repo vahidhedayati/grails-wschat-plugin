@@ -33,6 +33,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 					
 ```
 
+
  Websocket chat can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
 
 ###### Plugin will work with tomcat 7.0.54 + (inc. 8) running java 1.7+
@@ -40,23 +41,41 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency :
 ```groovy
-	compile ":wschat:1.14" 
+	compile ":wschat:1.14-SNAPSHOT1" 
 ```
 
 This plugin provides  basic chat page, once installed you can access
 ```
 http://localhost:8080/yourapp/wsChat/
 ```
-		
 
-##### Custom calling plugin disabled login
-[Custom calling plugin](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Custom-calling-plugin-disabled-login)
 
-##### Custom calls 
-[Custom calls](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Custom-calls)
+
+## Config.groovy variables required:
+ [Config.groovy variables required:](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Config.groovy)
+ 		
+
+
+##Version info
+[Version info](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Version-info)
+
+
+
+###Commands
+[Commands](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Commands)
+
+
+
+
+### Intergrating chat with your apps authentication
+[Definitely disable index](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Custom-calling-plugin-disabled-login)
+
+[Method 1](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Merging-plugin-with-your-own-custom-calls)
+
+[Method 2](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Custom-calls)
 
  
-##### Videos:
+### Videos:
 1. [Video: grails app running wschat 0.14 part1](https://www.youtube.com/watch?v=E-NmbDZg9G4)
 
 2. [Video: grails app running wschat 0.14 part2](https://www.youtube.com/watch?v=xPxV_iEYYm0)
@@ -69,19 +88,15 @@ http://localhost:8080/yourapp/wsChat/
 
 5. [Video: 1.12 Chat room booking/reservations](https://www.youtube.com/watch?v=ZQ86b6zN4aE)
 
+
+
+
 ##### WebtRTC WebCam walk through
 [WebtRTC WebCam walk through](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebtRTC-WebCam-walk-through)
 
-##### Intergrating chat with your apps authentication
-[Definitely disable index](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Custom-calling-plugin-disabled-login)
-
-[Method 1](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Merging-plugin-with-your-own-custom-calls)
-
-[Method 2](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Custom-calls)
 
 
-##### Config.groovy variables required:
- [Config.groovy variables required:](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Config.groovy)
+
 
 #### STUN Server, setting up your own server:
 [WebRTC-terminology](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebRTC-terminology)
@@ -113,12 +128,6 @@ It will work when this is enabled in your Config.groovy
 ```
 wschat.offline_pm=true
 ```
-
-#####Commands
-[Commands](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Commands)
-
-#####Version info
-[Version info](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Version-info)
 
 
 ### Known issues/work arounds:

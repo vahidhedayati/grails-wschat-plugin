@@ -110,7 +110,11 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 	private ChatLog addLog() {
 		ChatLog.withTransaction {
 			ChatLog logInstance = new ChatLog(messages: [])
-			logInstance.save(flush: true)
+			if (!logInstance.save(flush:true)) {
+				if (config.debug == "on") {
+					logInstance.errors.allErrors.each{println it}
+				}
+			}
 			return logInstance
 		}
 	}
@@ -128,7 +132,13 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 				logit.username = username
 				logit.loggedIn = true
 				logit.loggedOut = false
-				logit.save(flush:true)
+				
+				if (!logit.save(flush:true)) {
+					if (config.debug == "on") {
+						logit.errors.allErrors.each{println it}
+					}
+				}
+					
 			}
 			//return user.permissions.name as String
 			defaultPerm = user.permissions.name as String
@@ -164,7 +174,11 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 				logit.username = username
 				logit.loggedIn = false
 				logit.loggedOut = true
-				logit.save(flush:true)
+				if (!logit.save(flush:true)) {
+					if (config.debug == "on") {
+						logit.errors.allErrors.each{println it}
+					}
+				}
 			}
 		}
 	}

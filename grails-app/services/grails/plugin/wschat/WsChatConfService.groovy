@@ -91,7 +91,7 @@ class WsChatConfService {
 	}
 	
 	def getConfig() {
-		grailsApplication?.config?.wschat
+		grailsApplication?.config?.wschat ?: ''
 	}
 
 }

@@ -23,7 +23,11 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 
 	def returnRoom(String dbSupport) {
 		def dbrooms
-		def room = config.rooms[0]
+		def crooms = config.rooms as ArrayList
+		def room
+		if (crooms) {
+			room = crooms[0]
+		}
 		if (dbSupport.toLowerCase().equals('yes')) {
 			dbrooms = ChatRoomList?.findByRoomType('chat', [max:1])*.room?.unique()
 		}
@@ -45,6 +49,11 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 				}
 				if (!nr.save(flush:true)) {
 					log.error "Error saving ${roomName}"
+					if (!nr.save(flush:true)) {
+						if (config.debug == "on") {
+							nr.errors.allErrors.each{println it}
+						}
+					}
 				}
 			}
 			ListRooms()
@@ -65,6 +74,11 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 					}
 					if (!nr.save(flush:true)) {
 						log.error "Error saving ${roomName}"
+						if (!nr.save(flush:true)) {
+							if (config.debug == "on") {
+								nr.errors.allErrors.each{println it}
+							}
+						}
 					}
 				}
 			}

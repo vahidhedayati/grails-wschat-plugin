@@ -16,6 +16,12 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 
 	def sendMsg(Session userSession,String msg) {
 		String urecord = userSession.userProperties.get("username") as String
+		
+		if (config.debug == "on") {
+			println "sendMsg ${urecord}: ${msg}"
+		}
+		
+		
 		boolean isEnabled = boldef(config.dbstore_user_messages)
 		if (isEnabled) {
 			persistMessage(msg ,urecord)
@@ -176,7 +182,12 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 			OffLineMessage.withTransaction {
 				def chat = ChatUser.findByUsername(user)
 				if (chat) {
-					new OffLineMessage(user: username, contents: message, offlog: chat?.offlog, readMsg: false).save(flush: true)
+					def cm = new OffLineMessage(user: username, contents: message, offlog: chat?.offlog, readMsg: false)
+					if (!cm.save(flush:true)) {
+						if (config.debug == "on") {
+							cm.errors.allErrors.each{println it}
+						}
+					}
 					messageUser(userSession,["message": "--> OFFLINE MSG sent to ${user}"])
 				} else{
 					messageUser(userSession,["message": "Error: ${user} not found - unable to send PM"])
@@ -192,7 +203,12 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 		if (isEnabled) {
 			ChatMessage.withTransaction {
 				def chat = ChatUser.findByUsername(user)
-				new ChatMessage(user: username, contents: message, log: chat?.log).save(flush: true)
+				def cm = new ChatMessage(user: username, contents: message, log: chat?.log)
+				if (!cm.save(flush:true)) {
+					if (config.debug == "on") {
+						cm.errors.allErrors.each{println it}
+					}
+				}
 			}
 		}
 	}

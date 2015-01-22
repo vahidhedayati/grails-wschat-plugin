@@ -211,6 +211,10 @@
 	var rtcOn = new Array();
 	var isAdmin="false";
 	
+	var debug = "${debug }";
+		
+		
+		
 	var video = $("#live").get()[0];
 	var canvas = $("#canvas");
 	var ctx
@@ -228,6 +232,10 @@
 		var uri="ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint/${room}"
 	</g:else>
 
+	if (debug == "on") {
+		console.log('Connecting to '+uri);
+	}
+	
 	var webSocket=new WebSocket(uri);
      
     var chatMessages=document.getElementById("chatMessages");
@@ -240,6 +248,11 @@
     webSocket.onmessage=function(message) {processMessage(message);	};
 		
    function processOpen(message) {
+   
+   		if (debug == "on") {
+			console.log('Openning  connection for to ${chatuser}');
+		}
+	
     	<g:if test="${!chatuser}">
        		$('#chatMessages').append("Chat denied no username \n");
        		webSocket.send("DISCO:-"+user);
