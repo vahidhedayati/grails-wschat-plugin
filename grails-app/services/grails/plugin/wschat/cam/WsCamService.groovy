@@ -2,14 +2,15 @@ package grails.plugin.wschat.cam
 
 import grails.converters.JSON
 import grails.plugin.wschat.WsChatConfService
-import grails.plugin.wschat.interfaces.ChatSessions
 import groovy.json.JsonBuilder
 
 import javax.websocket.Session
 
 
-class WsCamService extends WsChatConfService  implements ChatSessions {
+class WsCamService extends WsChatConfService {
 
+	static transactional  =  false
+	
 	def wsChatMessagingService
 
 	String realCamUser(String camuser) {

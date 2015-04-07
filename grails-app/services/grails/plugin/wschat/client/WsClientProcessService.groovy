@@ -2,7 +2,6 @@ package grails.plugin.wschat.client
 
 import grails.converters.JSON
 import grails.plugin.wschat.WsChatConfService
-import grails.plugin.wschat.interfaces.ClientSessions
 
 import javax.websocket.Session
 
@@ -66,8 +65,10 @@ beans = {
  * run ctrl shift o (in eclipse based ide's ggts etc and that will import MyChatClientService)
  * 
  */
-public class WsClientProcessService extends WsChatConfService implements ClientSessions {
-
+public class WsClientProcessService extends WsChatConfService {
+	
+	static transactional  =  false
+	
 	//def grailsApplication
 	def chatClientListenerService
 	def wsChatUserService

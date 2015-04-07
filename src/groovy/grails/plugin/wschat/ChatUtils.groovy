@@ -2,19 +2,14 @@ package grails.plugin.wschat
 
 import grails.plugin.wschat.auth.WsChatAuthService
 import grails.plugin.wschat.cam.WsCamService
-import grails.plugin.wschat.interfaces.ChatSessions
 import grails.plugin.wschat.messaging.WsChatMessagingService
 import grails.plugin.wschat.rooms.WsChatRoomService
 import grails.plugin.wschat.users.WsChatUserService
 
-import javax.websocket.OnMessage;
 import javax.websocket.Session
 
-import org.apache.log4j.spi.LoggerFactory
-import org.slf4j.Logger
 
-
-class ChatUtils extends WsChatConfService  implements ChatSessions {
+class ChatUtils extends WsChatConfService {
 
 	ConfigObject config
 

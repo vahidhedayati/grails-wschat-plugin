@@ -6,13 +6,12 @@ import grails.plugin.wschat.ChatMessage
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.OffLineMessage
 import grails.plugin.wschat.WsChatConfService
-import grails.plugin.wschat.interfaces.ChatSessions
+import grails.transaction.Transactional
 
 import javax.websocket.Session
 
 
-class WsChatMessagingService extends WsChatConfService  implements ChatSessions {
-
+class WsChatMessagingService extends WsChatConfService {
 
 	def sendMsg(Session userSession,String msg) {
 		String urecord = userSession.userProperties.get("username") as String
@@ -80,16 +79,16 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 		}
 	}
 
-
+	@Transactional
 	Boolean checkPM(String username, String urecord) {
 		Boolean result = true
 		if (dbSupport()) {
-			ChatBlockList.withTransaction {
+			//ChatBlockList.withTransaction {
 				def found = ChatBlockList.findByChatuserAndUsername(currentUser(username),urecord)
 				if (found) {
 					result = false
 				}
-			}
+			//}
 		}
 		return result
 	}
@@ -175,11 +174,11 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 		}
 	}
 
-
+	@Transactional
 	private void verifyOfflinePM(String user,String message,Session userSession,String username) {
 		boolean isEnabled = boldef(config.offline_pm)
 		if (isEnabled) {
-			OffLineMessage.withTransaction {
+			//OffLineMessage.withTransaction {
 				def chat = ChatUser.findByUsername(user)
 				if (chat) {
 					def cm = new OffLineMessage(user: username, contents: message, offlog: chat?.offlog, readMsg: false)
@@ -192,16 +191,17 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 				} else{
 					messageUser(userSession,["message": "Error: ${user} not found - unable to send PM"])
 				}
-			}
+			//}
 		}else{
 			messageUser(userSession,["message": "Error: ${user} not found :- unable to send PM"])
 		}
 	}
 
+	@Transactional
 	private void persistMessage(String message, String user, String username=null) {
 		boolean isEnabled = boldef(config.dbstore)
 		if (isEnabled) {
-			ChatMessage.withTransaction {
+			//ChatMessage.withTransaction {
 				def chat = ChatUser.findByUsername(user)
 				def cm = new ChatMessage(user: username, contents: message, log: chat?.log)
 				if (!cm.save(flush:true)) {
@@ -209,7 +209,7 @@ class WsChatMessagingService extends WsChatConfService  implements ChatSessions 
 						cm.errors.allErrors.each{println it}
 					}
 				}
-			}
+			//}
 		}
 	}
 

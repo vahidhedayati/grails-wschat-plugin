@@ -1,10 +1,10 @@
 package grails.plugin.wschat.client
 
 import grails.converters.JSON
-import grails.plugin.wschat.interfaces.ClientSessions
+import grails.plugin.wschat.WsChatConfService
 
 
-class WsChatClientController implements ClientSessions {
+class WsChatClientController extends WsChatConfService {
 	
 	def wsChatClientService
 	

@@ -3,6 +3,8 @@ package grails.plugin.wschat
 
 import grails.util.Environment
 
+import java.nio.ByteBuffer
+
 import javax.servlet.ServletContext
 import javax.servlet.ServletContextEvent
 import javax.servlet.ServletContextListener
@@ -17,6 +19,7 @@ import javax.websocket.server.PathParam
 import javax.websocket.server.ServerContainer
 import javax.websocket.server.ServerEndpoint
 
+import org.apache.commons.fileupload.FileUpload
 import org.codehaus.groovy.grails.web.context.ServletContextHolder as SCH
 import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes as GA
 import org.slf4j.Logger
@@ -79,7 +82,7 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 			log.debug "Error $e"
 		}
 	}
-
+	
 	@OnClose
 	public void handeClose(Session userSession) throws SocketException {
 		try {

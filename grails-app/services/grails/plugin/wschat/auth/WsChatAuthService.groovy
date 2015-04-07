@@ -6,18 +6,113 @@ import grails.plugin.wschat.ChatPermissions
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.OffLineMessage
 import grails.plugin.wschat.WsChatConfService
-import grails.plugin.wschat.interfaces.ChatSessions
 import grails.transaction.Transactional
 
 import javax.websocket.Session
 
 @Transactional
-class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
+class WsChatAuthService extends WsChatConfService   {
 
 	def wsChatMessagingService
 	def wsChatUserService
 	def wsChatRoomService
 
+	@Transactional
+	private void verifyOffLine(Session userSession, String username) {
+		//OffLineMessage.withTransaction {
+			def chat = ChatUser?.findByUsername(username)
+			def pms=OffLineMessage?.findAllByOfflog(chat.offlog)
+			if (pms) {
+				pms.each { aa->
+					wsChatMessagingService.sendMsg(userSession,aa?.contents)
+				}
+
+				pms*.delete()
+			}
+		//}
+	}
+
+	@Transactional
+	public Map addUser(String username) {
+		String defaultPermission = config.defaultperm  ?: defaultPerm
+		def perm,user
+		//ChatPermissions.withTransaction {
+			perm = ChatPermissions.findByName(defaultPermission)
+			if (!perm) {
+				perm = ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
+			}
+		//}
+		//ChatLog logInstance = addLog()
+		//ChatUser.withTransaction {
+			user = ChatUser.findByUsername(username)
+			if (!user) {
+				def addlog = addLog()
+				user = ChatUser.findOrSaveWhere(username:username, permissions:perm, log: addlog, offlog: addlog).save(flush:true)
+			}
+		//}
+		return [ user:user, perm:perm ]
+	}
+
+	@Transactional
+	private ChatLog addLog() {
+		//ChatLog.withTransaction {
+			ChatLog logInstance = new ChatLog(messages: [])
+			if (!logInstance.save(flush:true)) {
+				if (config.debug == "on") {
+					logInstance.errors.allErrors.each{println it}
+				}
+			}
+			return logInstance
+		//}
+	}
+
+	@Transactional
+	Map validateLogin(String username) {
+		def defaultPerm = 'user'
+		def user
+		if (dbSupport()) {
+			def au=addUser(username)
+			user=au.user
+			def perm=au.perm
+
+			//ChatAuthLogs.withTransaction {
+				def logit = new ChatAuthLogs()
+				logit.username = username
+				logit.loggedIn = true
+				logit.loggedOut = false
+				
+				if (!logit.save(flush:true)) {
+					if (config.debug == "on") {
+						logit.errors.allErrors.each{println it}
+					}
+				}
+					
+			//}
+			//return user.permissions.name as String
+			defaultPerm = user.permissions.name as String
+		}
+
+		[permission: defaultPerm, user: user]
+	}
+	
+	@Transactional
+	void validateLogOut(String username) {
+		if (dbSupport()) {
+			//ChatAuthLogs.withTransaction {
+				def logit = new ChatAuthLogs()
+				logit.username = username
+				logit.loggedIn = false
+				logit.loggedOut = true
+				if (!logit.save(flush:true)) {
+					if (config.debug == "on") {
+						logit.errors.allErrors.each{println it}
+					}
+				}
+			//}
+		}
+	}
+	
+	
 	public void connectUser(String message,Session userSession,String room) {
 		def myMsg = [:]
 		Boolean isuBanned = false
@@ -72,81 +167,7 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 			verifyOffLine(userSession,username)
 		}
 	}
-
-	private void verifyOffLine(Session userSession, String username) {
-		OffLineMessage.withTransaction {
-			def chat = ChatUser?.findByUsername(username)
-			def pms=OffLineMessage?.findAllByOfflog(chat.offlog)
-			if (pms) {
-				pms.each { aa->
-					wsChatMessagingService.sendMsg(userSession,aa?.contents)
-				}
-
-				pms*.delete()
-			}
-		}
-	}
-
-	public Map addUser(String username) {
-		String defaultPermission = config.defaultperm  ?: defaultPerm
-		def perm,user
-		ChatPermissions.withTransaction {
-			perm = ChatPermissions.findByName(defaultPermission)
-			if (!perm) {
-				perm = ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
-			}
-		}
-		//ChatLog logInstance = addLog()
-		ChatUser.withTransaction {
-			user = ChatUser.findByUsername(username)
-			if (!user) {
-				def addlog = addLog()
-				user = ChatUser.findOrSaveWhere(username:username, permissions:perm, log: addlog, offlog: addlog).save(flush:true)
-			}
-		}
-		return [ user:user, perm:perm ]
-	}
-
-	private ChatLog addLog() {
-		ChatLog.withTransaction {
-			ChatLog logInstance = new ChatLog(messages: [])
-			if (!logInstance.save(flush:true)) {
-				if (config.debug == "on") {
-					logInstance.errors.allErrors.each{println it}
-				}
-			}
-			return logInstance
-		}
-	}
-
-	Map validateLogin(String username) {
-		def defaultPerm = 'user'
-		def user
-		if (dbSupport()) {
-			def au=addUser(username)
-			user=au.user
-			def perm=au.perm
-
-			ChatAuthLogs.withTransaction {
-				def logit = new ChatAuthLogs()
-				logit.username = username
-				logit.loggedIn = true
-				logit.loggedOut = false
-				
-				if (!logit.save(flush:true)) {
-					if (config.debug == "on") {
-						logit.errors.allErrors.each{println it}
-					}
-				}
-					
-			}
-			//return user.permissions.name as String
-			defaultPerm = user.permissions.name as String
-		}
-
-		[permission: defaultPerm, user: user]
-	}
-
+	
 	Boolean loggedIn(String user) {
 		Boolean loggedin = false
 		try {
@@ -167,19 +188,4 @@ class WsChatAuthService extends WsChatConfService  implements ChatSessions  {
 	}
 
 
-	void validateLogOut(String username) {
-		if (dbSupport()) {
-			ChatAuthLogs.withTransaction {
-				def logit = new ChatAuthLogs()
-				logit.username = username
-				logit.loggedIn = false
-				logit.loggedOut = true
-				if (!logit.save(flush:true)) {
-					if (config.debug == "on") {
-						logit.errors.allErrors.each{println it}
-					}
-				}
-			}
-		}
-	}
 }

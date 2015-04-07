@@ -68,6 +68,7 @@ class WsChatBookingService  extends WsChatConfService {
 		return yesis
 	}
 	
+	@Transactional
 	public Map addBooking(ArrayList invites, String conference, String startDate, String endDate) {
 
 		def curr = new Date()
@@ -124,7 +125,7 @@ Please join chat on [CHATURL]
 				def myMap = [username: found.username, emailAddress: foundprofile.email, 
 					token: parsedToken, booking:myConference]
 				
-				ChatBookingInvites.withTransaction {
+				//ChatBookingInvites.withTransaction {
 					def inviteInstance = new ChatBookingInvites(myMap)
 					if (!inviteInstance.save(flush: true)) {
 						//inviteInstance.errors.allErrors.each{println it}
@@ -137,7 +138,7 @@ Please join chat on [CHATURL]
 						}		
 						SendMail(foundprofile.email,'',subject,sendbody)
 					}
-				}
+				//}
 			}
 		}
 		return [conference:conference, confirmation: myConference ]

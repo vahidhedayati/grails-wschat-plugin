@@ -1,9 +1,9 @@
 package grails.plugin.wschat.client
 
-import grails.plugin.wschat.interfaces.ClientSessions
 
 public class ChatClientOverrideService {
-
+	
+	static transactional  =  false
 
 	// Override this to get value from another DB
 	// like commented out example

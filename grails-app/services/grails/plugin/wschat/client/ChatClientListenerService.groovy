@@ -1,13 +1,15 @@
 package grails.plugin.wschat.client
 
 import grails.converters.JSON
-import grails.plugin.wschat.interfaces.ClientSessions
+import grails.plugin.wschat.WsChatConfService
 
 import javax.websocket.ContainerProvider
 import javax.websocket.Session
 
-public class ChatClientListenerService implements ClientSessions {
-
+public class ChatClientListenerService extends WsChatConfService {
+	
+	static transactional  =  false
+	
 	def grailsApplication
 	def wsChatRoomService
 	def wsChatUserService
@@ -53,7 +55,7 @@ public class ChatClientListenerService implements ClientSessions {
 	public connectUserRoom  = {  String user, String room,  Closure closure ->
 
 		String wshostname = config.hostname ?: 'localhost:8080'
-		String uri="ws://${wshostname}/${appName}${CHATAPP}/"
+		String uri="ws://${wshostname}/${applicationName}${CHATAPP}/"
 
 
 		Session oSession = p_connect( uri, user, room)
@@ -71,7 +73,7 @@ public class ChatClientListenerService implements ClientSessions {
 	public connectRoom  = { String room,  Closure closure ->
 
 		String wshostname = config.hostname ?: 'localhost:8080'
-		String uri="ws://${wshostname}/${appName}${CHATAPP}/"
+		String uri="ws://${wshostname}/${applicationName}${CHATAPP}/"
 
 		String oUsername = config.app.id ?: "[${(Math.random()*1000).intValue()}]-$room";
 		Session oSession = p_connect( uri, oUsername, room)
@@ -89,7 +91,7 @@ public class ChatClientListenerService implements ClientSessions {
 	Session connect() {
 		String dbSupport = config.dbsupport ?: 'yes'
 		String wshostname = config.hostname ?: 'localhost:8080'
-		String uri = "ws://${wshostname}/${appName}${CHATAPP}/"
+		String uri = "ws://${wshostname}/${applicationName}${CHATAPP}/"
 		def room = wsChatRoomService.returnRoom(dbSupport as String)
 		String oUsername = config.app.id ?: "[${(Math.random()*1000).intValue()}]-$room";
 		Session csession = p_connect( uri, oUsername, room)
@@ -156,24 +158,5 @@ public class ChatClientListenerService implements ClientSessions {
 			disconnect(oSession)
 		}
 	}
-
-	private String getFrontend() {
-		def cuser=config.frontenduser ?: '_frontend'
-		return cuser
-	}
-
-	private getAppName(){
-		String addAppName = config.add.appName ?: 'yes'
-		if (addAppName=="yes") {
-			grailsApplication.metadata['app.name']+"/"
-		}else{
-			return ""
-		}
-	}
-
-	private getConfig() {
-		grailsApplication?.config?.wschat
-	}
-
 
 }

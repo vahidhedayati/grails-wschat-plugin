@@ -1,16 +1,16 @@
 package grails.plugin.wschat
 
 import grails.converters.JSON
-import grails.web.Action
-import java.lang.reflect.Method
-import org.codehaus.groovy.grails.commons.DefaultGrailsControllerClass
+import grails.transaction.Transactional
 
 
 class AutoCompleteService {
 	
-	static transactional = false
+	
+	
 	def grailsApplication
 	
+	@Transactional
 	def autocomplete (params) {
 		def domainClass = grailsApplication.getDomainClass(params.domain).clazz
 		def results = domainClass?.createCriteria().list {

@@ -1,18 +1,21 @@
 package grails.plugin.wschat.client
 
 import grails.converters.JSON
-import grails.plugin.wschat.interfaces.ClientSessions
+import grails.plugin.wschat.WsChatConfService
 
 import javax.websocket.Session
 
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-public class WsChatClientService implements ClientSessions {
-
+public class WsChatClientService extends WsChatConfService {
+	
+	static transactional  =  false
+	
 	def grailsApplication
 	def wsChatUserService
 
 	private Session userSession = null
+	
 	public WsChatClientEndpoint conn(String hostname, String appName, String room, String user ) {
 		String addAppName = config.add.appName ?: 'yes'
 		
@@ -134,12 +137,5 @@ public class WsChatClientService implements ClientSessions {
 				})
 	}
 
-	private String getFrontend() {
-		def cuser=config.frontenduser ?: '_frontend'
-		return cuser
-	}
 
-	private getConfig() {
-		grailsApplication?.config?.wschat
-	}
 }

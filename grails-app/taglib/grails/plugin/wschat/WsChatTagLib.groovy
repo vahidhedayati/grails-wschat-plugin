@@ -2,11 +2,10 @@ package grails.plugin.wschat
 
 import grails.converters.JSON
 import grails.plugin.wschat.client.WsChatClientEndpoint
-import grails.plugin.wschat.interfaces.ClientSessions
 
 import javax.websocket.Session
 
-class WsChatTagLib extends WsChatConfService implements ClientSessions {
+class WsChatTagLib extends WsChatConfService {
 
 	static namespace  =  "chat"
 

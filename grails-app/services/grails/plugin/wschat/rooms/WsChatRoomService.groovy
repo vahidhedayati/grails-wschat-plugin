@@ -2,12 +2,12 @@ package grails.plugin.wschat.rooms
 
 import grails.plugin.wschat.ChatRoomList
 import grails.plugin.wschat.WsChatConfService
-import grails.plugin.wschat.interfaces.ChatSessions
+import grails.transaction.Transactional
 
 import javax.websocket.Session
 
 //@Transactional
-class WsChatRoomService extends WsChatConfService  implements ChatSessions {
+class WsChatRoomService extends WsChatConfService {
 
 	def wsChatMessagingService
 	def wsChatUserService
@@ -21,6 +21,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		wsChatMessagingService.broadcast2all(roomList())
 	}
 
+	
 	def returnRoom(String dbSupport) {
 		def dbrooms
 		def crooms = config.rooms as ArrayList
@@ -39,9 +40,10 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		return room
 	}
 
+	@Transactional
 	public void addRoom(Session userSession,String roomName, String roomType) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
-			ChatRoomList.withTransaction {
+			//ChatRoomList.withTransaction {
 				def nr = new ChatRoomList()
 				nr.room = roomName
 				if (roomType) {
@@ -57,8 +59,10 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 				}
 			}
 			ListRooms()
-		}
+		//}
 	}
+	
+	@Transactional
 	public void addManualRoom(String roomName, String roomType) {
 		if (!roomType) {
 			roomType = 'chat'
@@ -66,7 +70,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		if 	(dbSupport())  {
 			def record = ChatRoomList?.findByRoomAndRoomType(roomName, roomType)
 			if (!record) {
-				ChatRoomList.withTransaction {
+				//ChatRoomList.withTransaction {
 					def nr = new ChatRoomList()
 					nr.room = roomName
 					if (roomType) {
@@ -80,10 +84,12 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 							}
 						}
 					}
-				}
+				//}
 			}
 		}
 	}
+	
+	@Transactional
 	void delaRoom(String roomName, String roomType) {
 		if (!roomType) {
 			roomType = 'chat'
@@ -95,6 +101,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		}
 	}
 
+	@Transactional
 	void delRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			try {
@@ -107,12 +114,12 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 						}
 					}
 
-					ChatRoomList.withTransaction {
+					//ChatRoomList.withTransaction {
 						def nr = ChatRoomList?.findByRoomAndRoomType(roomName,'chat')
 						if (nr) {
 							nr.delete(flush: true)
 						}
-					}
+					//}
 					ListRooms()
 				}
 			} catch (IOException e) {
@@ -121,6 +128,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		}
 	}
 
+	@Transactional
 	Map roomList() {
 		def uList = []
 		def room = config.rooms
@@ -135,7 +143,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 		def dbrooms
 		def finalList = [:]
 		if (dbSupport()) {
-			ChatRoomList.withTransaction {
+			//ChatRoomList.withTransaction {
 				//def rooms = ChatRoomList?.findAllByRoomType('chat')
 				//if (rooms) {
 				dbrooms = ChatRoomList?.findAllByRoomType('chat')*.room?.unique()
@@ -150,7 +158,7 @@ class WsChatRoomService extends WsChatConfService  implements ChatSessions {
 					uList.add(myMsg)
 				}
 			}
-		}
+		//}
 		if (!room && !dbrooms) {
 			room = 'wschat'
 			def myMsg = [:]

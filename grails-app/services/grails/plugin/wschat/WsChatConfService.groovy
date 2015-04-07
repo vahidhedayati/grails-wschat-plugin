@@ -12,7 +12,23 @@ class WsChatConfService {
 	static transactional  =  false
 
 	def grailsApplication
+	
+	static final Set<HashMap<String[],String[]>> chatroomUsers1 = ([:] as Set).asSynchronized()
+	static final Set<Session> chatroomUsers = ([] as Set).asSynchronized()
+	final Set<Session> camsessions = ([] as Set).asSynchronized()
 
+	
+	
+	public String CONNECTOR = "CONN:-"
+	public String DISCONNECTOR = "DISCO:-"
+	public String CHATAPP = "WsChatEndpoint"
+	public String CHATVIEW = "wsChat"
+	
+	static final Set<HashMap<String[],String[]>> clientMaster = ([:] as Set).asSynchronized()
+	static final Set<HashMap<String[],String[]>> clientSlave = ([:] as Set).asSynchronized()
+	
+	
+	
 	Map getWsconf() {
 		String dbSupport = config.dbsupport ?: 'yes'
 		String process = config.disable.login ?: 'no'
@@ -85,6 +101,7 @@ class WsChatConfService {
 	String getApplicationName() { 
 		return grailsApplication.metadata['app.name']
 	}
+	
 	String getFrontend() {
 		return config.frontenduser ?: '_frontend'
 		//return cuser

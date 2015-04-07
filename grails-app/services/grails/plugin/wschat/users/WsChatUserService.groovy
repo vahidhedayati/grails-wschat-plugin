@@ -7,7 +7,7 @@ import grails.plugin.wschat.ChatFriendList
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.ChatUserProfile
 import grails.plugin.wschat.WsChatConfService
-import grails.plugin.wschat.interfaces.ChatSessions
+import grails.transaction.Transactional
 import groovy.time.TimeCategory
 
 import java.text.SimpleDateFormat
@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat
 import javax.websocket.Session
 
 
-class WsChatUserService extends WsChatConfService  implements ChatSessions {
+class WsChatUserService extends WsChatConfService  {
 
 	def wsChatMessagingService
 
@@ -368,10 +368,11 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 		}
 	}
 
+	@Transactional
 	private void blockUser(String username,String urecord) {
 		if (dbSupport()) {
 			def cuser = currentUser(username)
-			ChatBlockList.withTransaction {
+			//ChatBlockList.withTransaction {
 				def found = ChatBlockList.findByChatuserAndUsername(cuser,urecord)
 				if (!found) {
 					def newEntry = new ChatBlockList()
@@ -383,14 +384,15 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 						}
 					}
 				}
-			}
+			//}
 		}
 	}
-
+	
+	@Transactional
 	private void addUser(String username,String urecord) {
 		if (dbSupport()) {
 			def cuser = currentUser(username)
-			ChatFriendList.withTransaction {
+			//ChatFriendList.withTransaction {
 				def found = ChatFriendList.findByChatuserAndUsername(cuser, urecord)
 
 				if (!found) {
@@ -403,18 +405,19 @@ class WsChatUserService extends WsChatConfService  implements ChatSessions {
 						}
 					}
 				}
-			}
+			//}
 		}
 	}
-
+	
+	@Transactional
 	private void removeUser(String username,String urecord) {
 		if (dbSupport()) {
-			ChatFriendList.withTransaction {
+			//ChatFriendList.withTransaction {
 				def cuser = currentUser(username)
 				def found = ChatFriendList.findByChatuserAndUsername(cuser,urecord)
 				found.delete(flush: true)
 
-			}
+			//}
 		}
 	}
 
