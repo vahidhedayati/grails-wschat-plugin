@@ -280,7 +280,7 @@ function processMessage(message) {
 				sb1.push('<li class="btn-xs" id="sideBar">\n');
 				sb1.push('<a onclick="javascript:enableCam('+wrapIt(entry.friends_av)+','+wrapIt('view')+','+wrapIt('webcam')+');">View Camera</a>\n');
 				sb1.push('</li>\n');
-				var admintool=adminOptions(isAdmin,friends_av)
+				var admintool=adminOptions(isAdmin,entry.friends_av)
 				sb1.push(admintool);
 				sb1.push('</ul>\n</li>\n\n\n');
 			}

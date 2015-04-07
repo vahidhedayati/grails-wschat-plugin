@@ -160,6 +160,52 @@ class WsChatUserService extends WsChatConfService  {
 		return uList
 	}
 
+	def sendFlatUsers(Session userSession,String username) {
+		userListGen(userSession, username, "flat")
+	}
+
+	def sendUsers(Session userSession,String username) {
+		String uiterator = userSession.userProperties.get("username").toString()
+		userListGen(userSession, username, "generic")
+	}
+
+	@Transactional
+	private void userListGen(Session userSession,String username, String listType) {
+		String room  =  userSession.userProperties.get("room") as String
+		try {
+			synchronized (chatroomUsers) {
+				chatroomUsers?.each { crec2->
+					if (crec2 && crec2.isOpen()) {
+						String uiterator = crec2.userProperties.get("username").toString()
+
+						def finalList = [:]
+						def blocklist
+						def friendslist
+						if (dbSupport()) {
+							//ChatBlockList.withTransaction {
+							blocklist = ChatBlockList.findAllByChatuser(currentUser(uiterator))
+							//}
+							//ChatFriendList.withTransaction {
+							friendslist = ChatFriendList.findAllByChatuser(currentUser(uiterator))
+							//}
+						}
+						def	uList = genUserMenu(friendslist, blocklist, room, uiterator, listType)
+						if (listType=="generic") {
+							finalList.put("users", uList)
+						}else{
+							finalList.put("flatusers", uList)
+						}
+						sendUserList(uiterator,finalList)
+					}
+				}
+			}
+
+		} catch (IOException e) {
+			log.error ("onMessage failed", e)
+		}
+
+	}
+
 	private ArrayList genUserMenu(ArrayList friendslist, ArrayList blocklist, String room, String uiterator, String listType ) {
 		def uList = []
 		def vList = []
@@ -210,16 +256,14 @@ class WsChatUserService extends WsChatConfService  {
 			}
 
 			if (friendslist) {
-				String method='_void'
-				friendslist.each { fl->
-					def myUser = [:]
+				String method='offline_friends'
+				friendslist.each { ChatFriendList fl->
+					def myUser1 = [:]
 					if (vList.contains(fl.username)) {
 						method="online_friends"
-					}else{
-						method="offline_friends"
 					}
-					myUser.put(method, fl.username)
-					uList.add(myUser)
+					myUser1.put(method, fl.username)
+					uList.add(myUser1)
 				}
 			}
 		} catch (IOException e) {
@@ -228,13 +272,6 @@ class WsChatUserService extends WsChatConfService  {
 		return uList
 	}
 
-	def sendFlatUsers(Session userSession,String username) {
-		userListGen(userSession, username, "flat")
-	}
-
-	def sendUsers(Session userSession,String username) {
-		userListGen(userSession, username, "generic")
-	}
 
 	Boolean validateAdmin(String username) {
 		boolean useris = false
@@ -247,45 +284,10 @@ class WsChatUserService extends WsChatConfService  {
 		return useris
 	}
 
-	private void userListGen(Session userSession,String username, String listType) {
-		String room  =  userSession.userProperties.get("room") as String
-		try {
-			synchronized (chatroomUsers) {
-				chatroomUsers?.each { crec2->
-					if (crec2 && crec2.isOpen()) {
-						String uiterator = crec2.userProperties.get("username").toString()
-
-						def finalList = [:]
-						def blocklist
-						def friendslist
-						if (dbSupport()) {
-							ChatBlockList.withTransaction {
-								blocklist = ChatBlockList.findAllByChatuser(currentUser(uiterator))
-							}
-							ChatFriendList.withTransaction {
-								friendslist = ChatFriendList.findAllByChatuser(currentUser(uiterator))
-							}
-						}
-						def	uList = genUserMenu(friendslist, blocklist, room, uiterator, listType)
-						if (listType=="generic") {
-							finalList.put("users", uList)
-						}else{
-							finalList.put("flatusers", uList)
-						}
-						sendUserList(uiterator,finalList)
-					}
-				}
-			}
-
-		} catch (IOException e) {
-			log.error ("onMessage failed", e)
-		}
-
-	}
 
 	private void sendUserList(String iuser,Map msg) {
 		String sendUserList = config.send.userList  ?: 'yes'
-		
+
 		if ( sendUserList == 'yes') {
 			def myMsgj = msg as JSON
 			try {
@@ -330,42 +332,44 @@ class WsChatUserService extends WsChatConfService  {
 		}
 	}
 
+	@Transactional
 	private void unblockUser(String username,String urecord) {
 		if (dbSupport()) {
 			def cuser = currentUser(username)
-			ChatBlockList.withTransaction {
-				def found = ChatBlockList.findByChatuserAndUsername(cuser,urecord)
-				found.delete(flush: true)
-			}
+			//ChatBlockList.withTransaction {
+			def found = ChatBlockList.findByChatuserAndUsername(cuser,urecord)
+			found.delete(flush: true)
+			//}
 		}
 	}
 
+	@Transactional
 	private void banthisUser(String username,String duration, String period) {
 		def cc
 		use(TimeCategory) {
 			cc = new Date() +(duration as int)."${period}"
 		}
 		def current  =  new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss").format(cc)
-		ChatBanList.withTransaction {
-			def found = ChatBanList.findByUsername(username)
-			if (!found) {
-				def newEntry = new ChatBanList()
-				newEntry.username = username
-				newEntry.period = current
-				if (!newEntry.save(flush:true)) {
-					if (config.debug == "on") {
-						newEntry.errors.allErrors.each{println it}
-					}
+		//ChatBanList.withTransaction {
+		def found = ChatBanList.findByUsername(username)
+		if (!found) {
+			def newEntry = new ChatBanList()
+			newEntry.username = username
+			newEntry.period = current
+			if (!newEntry.save(flush:true)) {
+				if (config.debug == "on") {
+					newEntry.errors.allErrors.each{println it}
 				}
-			}else{
-				found.period = current
-				if (!found.save(flush:true)) {
-					if (config.debug == "on") {
-						found.errors.allErrors.each{println it}
-					}
+			}
+		}else{
+			found.period = current
+			if (!found.save(flush:true)) {
+				if (config.debug == "on") {
+					found.errors.allErrors.each{println it}
 				}
 			}
 		}
+		//}
 	}
 
 	@Transactional
@@ -373,49 +377,49 @@ class WsChatUserService extends WsChatConfService  {
 		if (dbSupport()) {
 			def cuser = currentUser(username)
 			//ChatBlockList.withTransaction {
-				def found = ChatBlockList.findByChatuserAndUsername(cuser,urecord)
-				if (!found) {
-					def newEntry = new ChatBlockList()
-					newEntry.chatuser = cuser
-					newEntry.username = urecord
-					if (!newEntry.save(flush:true)) {
-						if (config.debug == "on") {
-							newEntry.errors.allErrors.each{println it}
-						}
+			def found = ChatBlockList.findByChatuserAndUsername(cuser,urecord)
+			if (!found) {
+				def newEntry = new ChatBlockList()
+				newEntry.chatuser = cuser
+				newEntry.username = urecord
+				if (!newEntry.save(flush:true)) {
+					if (config.debug == "on") {
+						newEntry.errors.allErrors.each{println it}
 					}
 				}
+			}
 			//}
 		}
 	}
-	
+
 	@Transactional
 	private void addUser(String username,String urecord) {
 		if (dbSupport()) {
 			def cuser = currentUser(username)
 			//ChatFriendList.withTransaction {
-				def found = ChatFriendList.findByChatuserAndUsername(cuser, urecord)
+			def found = ChatFriendList.findByChatuserAndUsername(cuser, urecord)
 
-				if (!found) {
-					def newEntry = new ChatFriendList()
-					newEntry.chatuser = cuser
-					newEntry.username = urecord
-					if (!newEntry.save(flush:true)) {
-						if (config.debug == "on") {
-							newEntry.errors.allErrors.each{println it}
-						}
+			if (!found) {
+				def newEntry = new ChatFriendList()
+				newEntry.chatuser = cuser
+				newEntry.username = urecord
+				if (!newEntry.save(flush:true)) {
+					if (config.debug == "on") {
+						newEntry.errors.allErrors.each{println it}
 					}
 				}
+			}
 			//}
 		}
 	}
-	
+
 	@Transactional
 	private void removeUser(String username,String urecord) {
 		if (dbSupport()) {
 			//ChatFriendList.withTransaction {
-				def cuser = currentUser(username)
-				def found = ChatFriendList.findByChatuserAndUsername(cuser,urecord)
-				found.delete(flush: true)
+			def cuser = currentUser(username)
+			def found = ChatFriendList.findByChatuserAndUsername(cuser,urecord)
+			found.delete(flush: true)
 
 			//}
 		}
