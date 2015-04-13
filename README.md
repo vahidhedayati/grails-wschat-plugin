@@ -41,7 +41,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency :
 ```groovy
-	compile ":wschat:1.14-SNAPSHOT1" 
+	compile ":wschat:1.15" 
 ```
 
 This plugin provides  basic chat page, once installed you can access
