@@ -17,53 +17,44 @@ class WsChatAuthService extends WsChatConfService   {
 	def wsChatUserService
 	def wsChatRoomService
 
-	@Transactional
-	private void verifyOffLine(Session userSession, String username) {
-		//OffLineMessage.withTransaction {
-			def chat = ChatUser?.findByUsername(username)
-			def pms=OffLineMessage?.findAllByOfflog(chat.offlog)
-			if (pms) {
-				pms.each { aa->
-					wsChatMessagingService.sendMsg(userSession,aa?.contents)
-				}
 
-				pms*.delete()
+	private void verifyOffLine(Session userSession, String username) {
+		def chat = ChatUser?.findByUsername(username)
+		def pms=OffLineMessage?.findAllByOfflog(chat.offlog)
+		if (pms) {
+			pms.each { aa->
+				wsChatMessagingService.sendMsg(userSession,aa?.contents)
 			}
-		//}
+			pms*.delete()
+		}
 	}
 
 	@Transactional
 	public Map addUser(String username) {
 		String defaultPermission = config.defaultperm  ?: defaultPerm
 		def perm,user
-		//ChatPermissions.withTransaction {
-			perm = ChatPermissions.findByName(defaultPermission)
-			if (!perm) {
-				perm = ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
-			}
-		//}
-		//ChatLog logInstance = addLog()
-		//ChatUser.withTransaction {
-			user = ChatUser.findByUsername(username)
-			if (!user) {
-				def addlog = addLog()
-				user = ChatUser.findOrSaveWhere(username:username, permissions:perm, log: addlog, offlog: addlog).save(flush:true)
-			}
-		//}
+		perm = ChatPermissions.findByName(defaultPermission)
+		if (!perm) {
+			perm = ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
+		}
+
+		user = ChatUser.findByUsername(username)
+		if (!user) {
+			def addlog = addLog()
+			user = ChatUser.findOrSaveWhere(username:username, permissions:perm, log: addlog, offlog: addlog).save(flush:true)
+		}
 		return [ user:user, perm:perm ]
 	}
 
 	@Transactional
 	private ChatLog addLog() {
-		//ChatLog.withTransaction {
-			ChatLog logInstance = new ChatLog(messages: [])
-			if (!logInstance.save(flush:true)) {
-				if (config.debug == "on") {
-					logInstance.errors.allErrors.each{println it}
-				}
+		ChatLog logInstance = new ChatLog(messages: [])
+		if (!logInstance.save(flush:true)) {
+			if (config.debug == "on") {
+				logInstance.errors.allErrors.each{println it}
 			}
-			return logInstance
-		//}
+		}
+		return logInstance
 	}
 
 	@Transactional
@@ -74,55 +65,46 @@ class WsChatAuthService extends WsChatConfService   {
 			def au=addUser(username)
 			user=au.user
 			def perm=au.perm
+			def logit = new ChatAuthLogs()
+			logit.username = username
+			logit.loggedIn = true
+			logit.loggedOut = false
 
-			//ChatAuthLogs.withTransaction {
-				def logit = new ChatAuthLogs()
-				logit.username = username
-				logit.loggedIn = true
-				logit.loggedOut = false
-				
-				if (!logit.save(flush:true)) {
-					if (config.debug == "on") {
-						logit.errors.allErrors.each{println it}
-					}
+			if (!logit.save(flush:true)) {
+				if (config.debug == "on") {
+					logit.errors.allErrors.each{println it}
 				}
-					
-			//}
-			//return user.permissions.name as String
+			}
+
 			defaultPerm = user.permissions.name as String
 		}
 
 		[permission: defaultPerm, user: user]
 	}
-	
+
 	@Transactional
 	void validateLogOut(String username) {
 		if (dbSupport()) {
-			//ChatAuthLogs.withTransaction {
-				def logit = new ChatAuthLogs()
-				logit.username = username
-				logit.loggedIn = false
-				logit.loggedOut = true
-				if (!logit.save(flush:true)) {
-					if (config.debug == "on") {
-						logit.errors.allErrors.each{println it}
-					}
+			def logit = new ChatAuthLogs()
+			logit.username = username
+			logit.loggedIn = false
+			logit.loggedOut = true
+			if (!logit.save(flush:true)) {
+				if (config.debug == "on") {
+					logit.errors.allErrors.each{println it}
 				}
-			//}
+			}
 		}
 	}
-	
-	
+
+
 	public void connectUser(String message,Session userSession,String room) {
 		def myMsg = [:]
 		Boolean isuBanned = false
 		String connector = "CONN:-"
 		def user
 		def username = message.substring(message.indexOf(connector)+connector.length(),message.length()).trim().replace(' ', '_').replace('.', '_')
-
 		if (loggedIn(username)==false) {
-
-
 			userSession.userProperties.put("username", username)
 			isuBanned = isBanned(username)
 			if (!isuBanned){
@@ -131,6 +113,8 @@ class WsChatAuthService extends WsChatConfService   {
 					def userLevel = userRec.permission
 					user = userRec.user
 					userSession.userProperties.put("userLevel", userLevel)
+					String rooma = userSession?.userProperties?.get("room")
+					chatroomUsers.putIfAbsent(username, userSession)
 					Boolean useris = isAdmin(userSession)
 					def myMsg1 = [:]
 					myMsg1.put("isAdmin", useris.toString())
@@ -167,25 +151,8 @@ class WsChatAuthService extends WsChatConfService   {
 			verifyOffLine(userSession,username)
 		}
 	}
-	
+
 	Boolean loggedIn(String user) {
-		Boolean loggedin = false
-		try {
-			synchronized (chatroomUsers) {
-				chatroomUsers?.each { crec->
-					if (crec && crec.isOpen()) {
-						def cuser = crec.userProperties.get("username").toString()
-						if (cuser.equals(user)) {
-							loggedin = true
-						}
-					}
-				}
-			}
-		} catch (IOException e) {
-			log.info ("onMessage failed", e)
-		}
-		return loggedin
+		return chatUserExists(user)
 	}
-
-
 }

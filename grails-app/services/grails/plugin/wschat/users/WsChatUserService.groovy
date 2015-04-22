@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat
 import javax.websocket.Session
 
 
+
 class WsChatUserService extends WsChatConfService  {
 
 	def wsChatMessagingService
@@ -64,97 +65,51 @@ class WsChatUserService extends WsChatConfService  {
 	private void logoutUser(String username) {
 		def myMsg = [:]
 		myMsg.put("message", "${username} about to be kicked off")
-		try {
-			synchronized (chatroomUsers) {
-				chatroomUsers?.each { crec->
-					if (crec && crec.isOpen()) {
-						def uList = []
-						def finalList = [:]
-						def cuser = crec.userProperties.get("username").toString()
-						if (cuser.equals(username)) {
-							def myMsg1 = [:]
-							myMsg1.put("system","disconnect")
-							wsChatMessagingService.messageUser(crec,myMsg1)
-						}
-					}
+		chatNames.each { String cuser, Session crec ->
+			if (crec && crec.isOpen()) {
+				def uList = []
+				def finalList = [:]
+				if (cuser.equals(username)) {
+					def myMsg1 = [:]
+					myMsg1.put("system","disconnect")
+					wsChatMessagingService.messageUser(crec,myMsg1)
 				}
 			}
-		} catch (IOException e) {
-			log.error ("onMessage failed", e)
 		}
 	}
+
 
 	private void logoutUser(Session userSession,String username) {
 		def myMsg = [:]
 		myMsg.put("message", "${username} about to be kicked off")
 		wsChatMessagingService.broadcast(userSession,myMsg)
-		try {
-			synchronized (chatroomUsers) {
-				chatroomUsers?.each { crec->
-					if (crec && crec.isOpen()) {
-						def uList = []
-						def finalList = [:]
-						def cuser = crec.userProperties.get("username").toString()
-						if (cuser.equals(username)) {
-							def myMsg1 = [:]
-							myMsg1.put("system","disconnect")
-							wsChatMessagingService.messageUser(crec,myMsg1)
-						}
-					}
+		chatNames.each { String cuser, Session crec ->
+			if (crec && crec.isOpen()) {
+				def uList = []
+				def finalList = [:]
+				if (cuser.equals(username)) {
+					def myMsg1 = [:]
+					myMsg1.put("system","disconnect")
+					wsChatMessagingService.messageUser(crec,myMsg1)
 				}
 			}
-		} catch (IOException e) {
-			log.error ("onMessage failed", e)
 		}
 	}
 
+
 	Session usersSession(String username) {
-		Session userSession
-		try {
-			synchronized (chatroomUsers) {
-				chatroomUsers?.each { crec->
-					if (crec && crec.isOpen()) {
-						def cuser = crec.userProperties.get("username").toString()
-						if (cuser.equals(username)) {
-							userSession=crec
-						}
-					}
-				}
-			}
-		} catch (IOException e) {
-			log.error ("onMessage failed", e)
-		}
-		return userSession
+		return getChatUser(username)
 	}
 
 	boolean findUser(String username) {
-		boolean found = false
-		try {
-			synchronized (chatroomUsers) {
-				chatroomUsers?.each { crec->
-					if (crec && crec.isOpen()) {
-						def cuser = crec.userProperties.get("username").toString()
-						if (cuser.equals(username)) {
-							found = true
-						}
-					}
-				}
-			}
-		} catch (IOException e) {
-			log.error ("onMessage failed", e)
-		}
-		return found
+		return chatUserExists(username)
 	}
 
 	public ArrayList genAllUsers() {
 		def uList = []
-		synchronized (chatroomUsers) {
-			chatroomUsers?.each { crec->
-				def myUser = [:]
-				if (crec && crec.isOpen()) {
-					def cuser = crec.userProperties.get("username").toString()
-					uList.add(cuser)
-				}
+		chatNames.each { String cuser, Session crec ->
+			if (crec && crec.isOpen()) {
+				uList.add(cuser)
 			}
 		}
 		return uList
@@ -168,107 +123,84 @@ class WsChatUserService extends WsChatConfService  {
 		String uiterator = userSession.userProperties.get("username").toString()
 		userListGen(userSession, username, "generic")
 	}
-
+	
 	@Transactional
 	private void userListGen(Session userSession,String username, String listType) {
 		String room  =  userSession.userProperties.get("room") as String
-		try {
-			synchronized (chatroomUsers) {
-				chatroomUsers?.each { crec2->
-					if (crec2 && crec2.isOpen()) {
-						String uiterator = crec2.userProperties.get("username").toString()
-
-						def finalList = [:]
-						def blocklist
-						def friendslist
-						if (dbSupport()) {
-							//ChatBlockList.withTransaction {
-							blocklist = ChatBlockList.findAllByChatuser(currentUser(uiterator))
-							//}
-							//ChatFriendList.withTransaction {
-							friendslist = ChatFriendList.findAllByChatuser(currentUser(uiterator))
-							//}
-						}
-						def	uList = genUserMenu(friendslist, blocklist, room, uiterator, listType)
-						if (listType=="generic") {
-							finalList.put("users", uList)
-						}else{
-							finalList.put("flatusers", uList)
-						}
-						sendUserList(uiterator,finalList)
-					}
+		chatNames.each { String uiterator, Session crec2 ->
+			if (crec2 && crec2.isOpen()) {
+				def finalList = [:]
+				def blocklist
+				def friendslist
+				if (dbSupport()) {
+					blocklist = ChatBlockList.findAllByChatuser(currentUser(uiterator))
+					friendslist = ChatFriendList.findAllByChatuser(currentUser(uiterator))
 				}
+				def	uList = genUserMenu(friendslist, blocklist, room, uiterator, listType)
+				if (listType=="generic") {
+					finalList.put("users", uList)
+				}else{
+					finalList.put("flatusers", uList)
+				}
+				sendUserList(uiterator,finalList)
 			}
-
-		} catch (IOException e) {
-			log.error ("onMessage failed", e)
 		}
-
 	}
+
 
 	private ArrayList genUserMenu(ArrayList friendslist, ArrayList blocklist, String room, String uiterator, String listType ) {
 		def uList = []
 		def vList = []
-		try {
-
-			synchronized (chatroomUsers) {
-				chatroomUsers?.each { crec->
-					def myUser = [:]
-
-					if (crec && crec.isOpen()) {
-						def cuser = crec.userProperties.get("username").toString()
-						vList.add(cuser)
-
-						if (room.equals(crec.userProperties.get("room"))) {
-							//def cuser = crec.userProperties.get("username").toString()
-							def av = crec.userProperties.get("av").toString()
-							def rtc = crec.userProperties.get("rtc").toString()
-							def addav = ""
-							if (listType=="generic") {
-								if (av.equals("on")) {
-									addav = "_av"
-								}
-								if (rtc.equals("on")) {
-									addav = "_rtc"
-								}
-								if (cuser.equals(uiterator)) {
-									myUser.put("owner${addav}", cuser)
-									uList.add(myUser)
-								}else{
-									if ((blocklist)&&(blocklist.username.contains(cuser))) {
-										myUser.put("blocked", cuser)
-										uList.add(myUser)
-									}else if  ((friendslist)&&(friendslist.username.contains(cuser))) {
-										myUser.put("friends${addav}", cuser)
-										uList.add(myUser)
-									}else{
-										myUser.put("user${addav}", cuser)
-										uList.add(myUser)
-									}
-								}
+		chatNames.each { String cuser, Session crec ->
+			if (crec && crec.isOpen()) {
+				def myUser = [:]
+				vList.add(cuser)
+				if (room.equals(crec.userProperties.get("room"))) {
+					//def cuser = crec.userProperties.get("username").toString()
+					def av = crec.userProperties.get("av").toString()
+					def rtc = crec.userProperties.get("rtc").toString()
+					def addav = ""
+					if (listType=="generic") {
+						if (av.equals("on")) {
+							addav = "_av"
+						}
+						if (rtc.equals("on")) {
+							addav = "_rtc"
+						}
+						if (cuser.equals(uiterator)) {
+							myUser.put("owner${addav}", cuser)
+							uList.add(myUser)
+						}else{
+							if ((blocklist)&&(blocklist.username.contains(cuser))) {
+								myUser.put("blocked", cuser)
+								uList.add(myUser)
+							}else if  ((friendslist)&&(friendslist.username.contains(cuser))) {
+								myUser.put("friends${addav}", cuser)
+								uList.add(myUser)
 							}else{
-								myUser.put("users", cuser)
+								myUser.put("user${addav}", cuser)
 								uList.add(myUser)
 							}
 						}
+					}else{
+						myUser.put("users", cuser)
+						uList.add(myUser)
 					}
 				}
 			}
-
-			if (friendslist) {
-				String method='offline_friends'
-				friendslist.each { ChatFriendList fl->
-					def myUser1 = [:]
-					if (vList.contains(fl.username)) {
-						method="online_friends"
-					}
-					myUser1.put(method, fl.username)
-					uList.add(myUser1)
-				}
-			}
-		} catch (IOException e) {
-			log.error ("onMessage failed", e)
 		}
+		if (friendslist) {
+			String method='offline_friends'
+			friendslist.each { ChatFriendList fl->
+				def myUser1 = [:]
+				if (vList.contains(fl.username)) {
+					method="online_friends"
+				}
+				myUser1.put(method, fl.username)
+				uList.add(myUser1)
+			}
+		}
+
 		return uList
 	}
 
@@ -287,59 +219,25 @@ class WsChatUserService extends WsChatConfService  {
 
 	private void sendUserList(String iuser,Map msg) {
 		String sendUserList = config.send.userList  ?: 'yes'
-
 		if ( sendUserList == 'yes') {
 			def myMsgj = msg as JSON
-			try {
-				synchronized (chatroomUsers) {
-					chatroomUsers?.each { crec->
-						if (crec && crec.isOpen()) {
-							def cuser = crec.userProperties.get("username").toString()
-							if (cuser=='null') {
-								removeUser(cuser)
-								//logoutUser(cuser)
-							}
-							if (cuser.equals(iuser)) {
-								crec.basicRemote.sendText(myMsgj as String)
-							}
-						}
-					}
-				}
-			} catch (IOException e) {
-				log.error ("onMessage failed", e)
+			Session crec = getChatUser(iuser)
+			if (crec && crec.isOpen()) {
+				crec.basicRemote.sendText(myMsgj as String)
 			}
 		}
 	}
 
 	private void removeUser(String username) {
-		try {
-			synchronized (chatroomUsers) {
-				Iterator<Session> iterator=chatroomUsers?.iterator()
-				if (iterator) {
-					while (iterator?.hasNext()) {
-						def crec=iterator?.next()
-						if (crec.isOpen()) {
-							def cuser=crec.userProperties.get("username").toString()
-							if (cuser.equals(username)) {
-								iterator.remove()
-							}
-						}
-					}
-				}
-			}
-		} catch (IOException e) {
-			log.error ("onMessage failed", e)
-		}
+		destroyChatUser(username)
 	}
 
 	@Transactional
 	private void unblockUser(String username,String urecord) {
 		if (dbSupport()) {
 			def cuser = currentUser(username)
-			//ChatBlockList.withTransaction {
 			def found = ChatBlockList.findByChatuserAndUsername(cuser,urecord)
 			found.delete(flush: true)
-			//}
 		}
 	}
 
@@ -350,7 +248,6 @@ class WsChatUserService extends WsChatConfService  {
 			cc = new Date() +(duration as int)."${period}"
 		}
 		def current  =  new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss").format(cc)
-		//ChatBanList.withTransaction {
 		def found = ChatBanList.findByUsername(username)
 		if (!found) {
 			def newEntry = new ChatBanList()
@@ -369,14 +266,12 @@ class WsChatUserService extends WsChatConfService  {
 				}
 			}
 		}
-		//}
 	}
 
 	@Transactional
 	private void blockUser(String username,String urecord) {
 		if (dbSupport()) {
 			def cuser = currentUser(username)
-			//ChatBlockList.withTransaction {
 			def found = ChatBlockList.findByChatuserAndUsername(cuser,urecord)
 			if (!found) {
 				def newEntry = new ChatBlockList()
@@ -388,7 +283,6 @@ class WsChatUserService extends WsChatConfService  {
 					}
 				}
 			}
-			//}
 		}
 	}
 
@@ -396,7 +290,6 @@ class WsChatUserService extends WsChatConfService  {
 	private void addUser(String username,String urecord) {
 		if (dbSupport()) {
 			def cuser = currentUser(username)
-			//ChatFriendList.withTransaction {
 			def found = ChatFriendList.findByChatuserAndUsername(cuser, urecord)
 
 			if (!found) {
@@ -409,19 +302,15 @@ class WsChatUserService extends WsChatConfService  {
 					}
 				}
 			}
-			//}
 		}
 	}
 
 	@Transactional
 	private void removeUser(String username,String urecord) {
 		if (dbSupport()) {
-			//ChatFriendList.withTransaction {
 			def cuser = currentUser(username)
 			def found = ChatFriendList.findByChatuserAndUsername(cuser,urecord)
 			found.delete(flush: true)
-
-			//}
 		}
 	}
 
@@ -438,4 +327,5 @@ class WsChatUserService extends WsChatConfService  {
 			return username
 		}
 	}
+
 }

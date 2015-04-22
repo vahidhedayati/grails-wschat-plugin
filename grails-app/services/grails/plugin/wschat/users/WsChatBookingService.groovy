@@ -14,15 +14,16 @@ import java.text.SimpleDateFormat
 
 import org.springframework.transaction.annotation.Transactional
 
-@Transactional
+
 class WsChatBookingService  extends WsChatConfService {
+
 	def mailService
 	def wsChatRoomService
 	def messageSource
-	
-	
-	static prng = new SecureRandom()
 
+	static prng = new SecureRandom()
+	
+	@Transactional
 	public Map verifyJoin(String token,String username)	{
 		boolean goahead = false
 		def found = ChatBookingInvites.findByTokenAndUsername(token,username)
@@ -39,16 +40,16 @@ class WsChatBookingService  extends WsChatConfService {
 		}
 		return [goahead: goahead, room: room, startDate:startDate, endDate:endDate]
 	}
-	
+
 	Boolean isValid(String startDate,String endDate ) {
 		Boolean yesis = false
-		
+
 		def now = new Date()
-		
+
 		def validStart,validEnd
 		String dFormat = config.db.booking ?: "yyyy-MM-dd HH:mm:ss"
 		SimpleDateFormat df = new SimpleDateFormat(dFormat)
-		
+
 		def dateTime = df.parse(startDate)
 		def endDateTime
 		if (endDate) {
@@ -57,17 +58,17 @@ class WsChatBookingService  extends WsChatConfService {
 		else{
 			endDateTime = df.parse(startDate)
 		}
-		
+
 		use(TimeCategory) {
 			validStart = dateTime -5.minutes
 			validEnd = endDateTime +5.minutes
 		}
 		if ((now.after(validStart)) && (now.before(validEnd))) {
-				yesis = true
+			yesis = true
 		}
 		return yesis
 	}
-	
+
 	@Transactional
 	public Map addBooking(ArrayList invites, String conference, String startDate, String endDate) {
 
@@ -85,14 +86,14 @@ class WsChatBookingService  extends WsChatConfService {
 		def endDateTime = df.parse(endDate)
 		def myConference
 		//ChatBooking.withTransaction {
-			myConference = ChatBooking.findOrSaveWhere(conferenceName: conference, dateTime:dateTime, endDateTime:endDateTime).save(flush:true)
+		myConference = ChatBooking.findOrSaveWhere(conferenceName: conference, dateTime:dateTime, endDateTime:endDateTime)
 		//}
 		String defaultsubject = "You have a chat Scheduled for ${startDate} "
-		
+
 		def g = new org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib()
-		
-		
-		
+
+
+
 		String defaultbody = """Dear [PERSON],
 A request has been made to join chat room ${conference}, scheduled between (${startDate}/${endDate}.
 
@@ -106,51 +107,48 @@ Please join chat on [CHATURL]
 """
 		String body  = 	config?.msgbody ?: defaultbody
 		String subject = config?.subject ?: defaultsubject
-			
+
 		wsChatRoomService.addManualRoom(conference,'booking')
 		invites.each { user->
 			def found=ChatUser.findByUsername(user)
 			if (found) {
 				def foundprofile=ChatUserProfile.findByChatuser(found)
-				
+
 				def uid = found.username + new UID().toString() + prng.nextLong() + System.currentTimeMillis()
 				MessageDigest digest = MessageDigest.getInstance("SHA-256");
 				byte[] hash = digest.digest(uid.getBytes("UTF-8"));
 				def token = hash.encodeBase64()
 				String parsedToken = token.toString().replaceAll('[^a-zA-Z0-9[:space:]]','')
-				
+
 				def sendMap = [username: found.username]
 				def chaturl = g.createLink(controller: 'wsChat', action: 'joinBooking', id: parsedToken, params: sendMap, absolute: 'true' )
-				
-				def myMap = [username: found.username, emailAddress: foundprofile.email, 
+
+				def myMap = [username: found.username, emailAddress: foundprofile.email,
 					token: parsedToken, booking:myConference]
-				
-				//ChatBookingInvites.withTransaction {
-					def inviteInstance = new ChatBookingInvites(myMap)
-					if (!inviteInstance.save(flush: true)) {
-						//inviteInstance.errors.allErrors.each{println it}
-						log.error "Error saving Booking"
-					}else{
-					
-						String sendbody = body.replace('[PERSON]', found.username).replace('[CHATURL]', chaturl)
-						if (config.debug) {
-							println "MSG: ${subject}\n${sendbody}"
-						}		
-						SendMail(foundprofile.email,'',subject,sendbody)
+				def inviteInstance = new ChatBookingInvites(myMap)
+				if (!inviteInstance.save(flush: true)) {
+					//inviteInstance.errors.allErrors.each{println it}
+					log.error "Error saving Booking"
+				}else{
+					String sendbody = body.replace('[PERSON]', found.username).replace('[CHATURL]', chaturl)
+					if (config.debug) {
+						println "MSG: ${subject}\n${sendbody}"
 					}
-				//}
+					SendMail(foundprofile.email,'',subject,sendbody)
+				}
 			}
 		}
 		return [conference:conference, confirmation: myConference ]
 	}
-	
+
 	void SendMail(toconfig, mycc, mysubject, mybody) {
 		doSendMail toconfig, mycc, mysubject, mybody, false
 	}
-	
+
 	void SendHMail(toconfig, mycc, mysubject, mybody) {
 		doSendMail toconfig, mycc, mysubject, mybody, true
 	}
+
 	private void doSendMail(toconfig, mycc, mysubject, mybody, boolean html) {
 		List<String> recipients = []
 		String email = calculateAddresses(recipients, toconfig)
@@ -191,8 +189,8 @@ Please join chat on [CHATURL]
 			log.error messageSource.getMessage('default.issue.sending.email.label', ["${e.message}"].toArray(), "Problem sending email ${e.message}", LCH.getLocale()),e
 		}
 	}
-	
-	
+
+
 	private String calculateAddresses(List<String> recipients, config) {
 		String address = ''
 		if (config) {
@@ -211,10 +209,5 @@ Please join chat on [CHATURL]
 		}
 		return address
 	}
-	
-	/*
-	def getConfig() {
-		grailsApplication?.config?.wschat
-	}
-	*/
+
 }

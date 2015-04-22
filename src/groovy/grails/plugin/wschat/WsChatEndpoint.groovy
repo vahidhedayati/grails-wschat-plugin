@@ -3,8 +3,6 @@ package grails.plugin.wschat
 
 import grails.util.Environment
 
-import java.nio.ByteBuffer
-
 import javax.servlet.ServletContext
 import javax.servlet.ServletContextEvent
 import javax.servlet.ServletContextListener
@@ -19,7 +17,6 @@ import javax.websocket.server.PathParam
 import javax.websocket.server.ServerContainer
 import javax.websocket.server.ServerEndpoint
 
-import org.apache.commons.fileupload.FileUpload
 import org.codehaus.groovy.grails.web.context.ServletContextHolder as SCH
 import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes as GA
 import org.slf4j.Logger
@@ -60,7 +57,7 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnOpen
 	public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) {
-		chatroomUsers.add(userSession)
+		
 		userSession.userProperties.put("room", room)
 
 		def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
@@ -76,34 +73,21 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnMessage
 	public void handleMessage(String message,Session userSession) throws IOException {
-		try {
-			verifyAction(userSession,message)
-		} catch(IOException e) {
-			log.debug "Error $e"
-		}
+		verifyAction(userSession,message)
 	}
-	
+
 	@OnClose
 	public void handeClose(Session userSession) throws SocketException {
-		try {
-			String username = userSession?.userProperties?.get("username")
-			if (dbSupport()&&username) {
-				wsChatAuthService.validateLogOut(username as String)
-			}
-			chatroomUsers.remove(userSession)
-		} catch(SocketException e) {
-			log.debug "Error $e"
+		String username = userSession?.userProperties?.get("username")
+		if (dbSupport()&&username) {
+			wsChatAuthService.validateLogOut(username as String)
 		}
+		destroyChatUser(username)
 	}
 
 	@OnError
 	public void handleError(Throwable t) {
 		t.printStackTrace()
 	}
-
-
-
-
-
 
 }

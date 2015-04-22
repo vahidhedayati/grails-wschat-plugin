@@ -132,9 +132,12 @@ class WsChatController extends WsChatConfService {
 	}
 
 	def viewPic(Long picId) {
-		def photo = ChatUserPics.get( picId)
-		byte[] image = photo.photo
-		response.outputStream << image
+		
+		def photo = ChatUserPics.get( picId ?: params.id)
+		if (photo) {
+			byte[] image = photo.photo
+			response.outputStream << image
+		}
 	}
 
 	def updateProfile() {
@@ -356,9 +359,5 @@ class WsChatController extends WsChatConfService {
 		}
 		return userChecksOut
 	}
-	/*
-	private getConfig() {
-		grailsApplication?.config?.wschat
-	}
-	*/
+
 }

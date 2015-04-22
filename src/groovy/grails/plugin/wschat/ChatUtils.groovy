@@ -18,22 +18,15 @@ class ChatUtils extends WsChatConfService {
 	WsChatRoomService wsChatRoomService
 	WsChatMessagingService wsChatMessagingService
 	WsCamService wsCamService
-	
+
 	public Boolean loggedIn(String user) {
 		Boolean loggedin = false
-		try {
-			synchronized (chatroomUsers) {
-				chatroomUsers?.each { crec->
-					if (crec && crec.isOpen()) {
-						def cuser = crec.userProperties.get("username").toString()
-						if (cuser.equals(user)) {
-							loggedin = true
-						}
-					}
+		chatNames.each { String cuser, Session crec ->
+			if (crec && crec.isOpen()) {
+				if (cuser.equals(user)) {
+					loggedin = true
 				}
 			}
-		} catch (IOException e) {
-			//log.info ("onMessage failed", e)
 		}
 		return loggedin
 	}
@@ -53,7 +46,6 @@ class ChatUtils extends WsChatConfService {
 		Boolean isuBanned = false
 		if (!username)  {
 			if (message.startsWith(connector)) {
-				//TODO
 				wsChatAuthService.connectUser(message,userSession,room)
 			}
 			if ((myMsg)&&(!isuBanned)) {
@@ -74,12 +66,12 @@ class ChatUtils extends WsChatConfService {
 				String user = values.user as String
 				String msg = values.msg as String
 				if (!user.equals(username)) {
-					
+
 					/*myMsg.put("msgFrom", username)
-					myMsg.put("msgTo", user)
-					myMsg.put("privateMessage", "${msg}")
-					wsChatMessagingService.privateMessage(user,myMsg,userSession)
-					*/
+					 myMsg.put("msgTo", user)
+					 myMsg.put("privateMessage", "${msg}")
+					 wsChatMessagingService.privateMessage(user,myMsg,userSession)
+					 */
 					privateMessage(userSession, username,user,msg)
 				}else{
 					myMsg.put("message","Private message self?")
@@ -124,7 +116,7 @@ class ChatUtils extends WsChatConfService {
 				String msg = "${user} has removed you from their Friends List"
 				privateMessage(userSession, user,person,msg)
 			}else if (message.startsWith("/joinRoom")) {
-			
+
 				String sendjoin = config.send.joinroom  ?: 'yes'
 				def values = parseInput("/joinRoom ",message)
 				String user = values.user as String
@@ -144,7 +136,7 @@ class ChatUtils extends WsChatConfService {
 					}
 				}
 			}else if (message.startsWith("/listRooms")) {
-				wsChatRoomService.ListRooms()
+				wsChatRoomService.listRooms()
 			}else if (message.startsWith("/addRoom")) {
 				def p1 = "/addRoom "
 				def nroom = message.substring(p1.length(),message.length())
@@ -203,24 +195,15 @@ class ChatUtils extends WsChatConfService {
 		}
 		return input
 	}
-	
+
 	Boolean camLoggedIn(String user) {
 		Boolean loggedin = false
-		try {
-			Iterator<Session> iterator = camsessions?.iterator()
-			if (iterator) {
-				while (iterator?.hasNext())  {
-					def crec = iterator?.next()
-					if (crec.isOpen()) {
-						def cuser = crec.userProperties.get("camusername").toString()
-						if (cuser.equals(user)) {
-							loggedin = true
-						}
-					}
+		camNames.each { String cuser, Session crec ->
+			if (crec && crec.isOpen()) {
+				if (cuser.equals(user)) {
+					loggedin = true
 				}
 			}
-		} catch (IOException e) {
-			log.error ("onMessage failed", e)
 		}
 		return loggedin
 	}

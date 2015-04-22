@@ -10,7 +10,7 @@ import javax.websocket.Session
 class WsCamService extends WsChatConfService {
 
 	static transactional  =  false
-	
+
 	def wsChatMessagingService
 
 	String realCamUser(String camuser) {
@@ -44,7 +44,7 @@ class WsCamService extends WsChatConfService {
 			}
 
 			if (cmessage.startsWith("DISCO:-")) {
-				camsessions.remove(userSession)
+				destroyCamUser(username)
 			}else if (cmessage.startsWith("createRoom")) {
 				def json  =  new JsonBuilder()
 				json {
@@ -70,26 +70,17 @@ class WsCamService extends WsChatConfService {
 		String user  =  userSession.userProperties.get("camusername") as String
 		String camuser  =  userSession.userProperties.get("camuser") as String
 		if (user && camuser && camuser.endsWith(':'+user) && (camuser != user+":"+user)) {
-			try {
-				synchronized (camsessions) {
-					camsessions?.each { crec->
-						if (crec && crec?.isOpen()) {
-							String chuser = crec?.userProperties.get("camuser") as String
-							if (chuser && chuser.startsWith(user)) {
-								def myMsg1 = [:]
-								myMsg1.put("system","disconnect")
-								wsChatMessagingService.messageUser(crec,myMsg1)
-								camsessions.remove(crec)
-							}
-						}
+			camNames.each { String chuser, Session crec ->
+				if (crec && crec.isOpen()) {
+					if (chuser && chuser.startsWith(user)) {
+						def myMsg1 = [:]
+						myMsg1.put("system","disconnect")
+						wsChatMessagingService.messageUser(crec,myMsg1)
+						destroyCamUser(chuser)
 					}
 				}
-			} catch (Throwable e) {
-				log.error ("discoCam failed", e)
 			}
 		}
-		try {
-			camsessions.remove(userSession)
-		} catch (Throwable e) {	}
+		destroyCamUser(user)
 	}
 }

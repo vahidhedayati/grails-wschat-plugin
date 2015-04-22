@@ -7,8 +7,9 @@ import grails.transaction.Transactional
 
 
 class WsChatProfileService  {
+
 	def wsChatAuthService
-	
+
 	@Transactional
 	def addProfile(String user, Map paramsMap, boolean update) {
 		def found=ChatUser.findByUsername(user)
@@ -16,12 +17,10 @@ class WsChatProfileService  {
 			def foundprofile=ChatUserProfile.findByChatuser(found)
 			if (foundprofile) {
 				if (update) {
-					//ChatUserProfile.withTransaction  {
-						foundprofile.properties=paramsMap
-						if (!foundprofile.save(flush: true)) {
-							log.error "Error updating ${user}'s profile"
-						}
-					//}
+					foundprofile.properties=paramsMap
+					if (!foundprofile.save(flush: true)) {
+						log.error "Error updating ${user}'s profile"
+					}
 				}
 			}else{
 				def foundu=wsChatAuthService.addUser(user)
@@ -37,17 +36,14 @@ class WsChatProfileService  {
 			saveProfile(found.id,paramsMap)
 		}
 	}
-	
+
 	@Transactional
 	private saveProfile(Long found, Map paramsMap ) {
 		paramsMap.put('chatuser', "${found}")
-		//ChatUserProfile.withTransaction {
-			def profileInstance = new ChatUserProfile(paramsMap)
-			if (!profileInstance.save(flush: true)) {
-				//profileInstance.errors.allErrors.each{println it}
-				log.error "Error saving profile ${paramsMap}"
-			}
-		//}
-
+		def profileInstance = new ChatUserProfile(paramsMap)
+		if (!profileInstance.save(flush: true)) {
+			//profileInstance.errors.allErrors.each{println it}
+			log.error "Error saving profile ${paramsMap}"
+		}
 	}
 }

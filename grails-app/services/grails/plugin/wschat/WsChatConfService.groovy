@@ -1,15 +1,15 @@
 package grails.plugin.wschat
 
 import grails.converters.JSON
+import grails.plugin.wschat.interfaces.UserMaps
 
 import java.text.SimpleDateFormat
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 import javax.websocket.Session
 
 
-class WsChatConfService {
+class WsChatConfService implements UserMaps{
 
 	static transactional  =  false
 
@@ -17,29 +17,51 @@ class WsChatConfService {
 
 	// Concurrent hashMap method -
 	// to port over Session sets over to concurrentHashMap
-	protected final ConcurrentMap<String, Session> chatroomUsers2 = new ConcurrentHashMap<String, Session>()
-
-	public Collection<String> getKeyNames() {
-		return Collections.unmodifiableSet(chatroomUsers2.keySet())
+	
+	
+	
+	public ConcurrentMap<String, Session> getChatNames() {
+		return chatroomUsers
 	}
-
-	public Session getUser(String username) {
-		Session userSession = chatroomUsers2.get(name)
+	
+	public Collection<String> getChatUsers() {
+		return Collections.unmodifiableSet(chatroomUsers.keySet())
+	}
+	
+	public Session getChatUser(String username) {
+		Session userSession = chatroomUsers.get(username)
 		return userSession
 	}
 
-	public boolean userExists(String name) {
-		return getKeyNames().contains(name)
+	public boolean chatUserExists(String username) {
+		return getChatUsers().contains(username)
 	}
 
-	public boolean destroyHash(String name) {
-		return chatroomUsers2.remove(name) != null
-	}	
+	public boolean destroyChatUser(String username) {
+		return chatroomUsers.remove(username) != null
+	}
+		
 	
-	static final Set<HashMap<String[],String[]>> chatroomUsers1 = ([:] as Set).asSynchronized()
-	static final Set<Session> chatroomUsers = ([] as Set).asSynchronized()
-	final Set<Session> camsessions = ([] as Set).asSynchronized()
+	
+	public Collection<String> getAvUsers() {
+		return Collections.unmodifiableSet(camUsers.keySet())
+	}
+	public ConcurrentMap<String, Session>  getCamNames() {
+		return camUsers
+	}
+	public Session getCamUser(String username) {
+		Session userSession = camUsers.get(username)
+		return userSession
+	}
 
+	public boolean camUserExists(String username) {
+		return getAvUsers().contains(username)
+	}
+
+	public boolean destroyCamUser(String username) {
+		return camUsers.remove(username) != null
+	}
+	
 	public String CONNECTOR = "CONN:-"
 	public String DISCONNECTOR = "DISCO:-"
 	public String CHATAPP = "WsChatEndpoint"
