@@ -31,7 +31,7 @@ class WsChatConfService implements UserMaps{
 	}
 
 	public boolean chatUserExists(String username) {
-		return getChatUsers().contains(username)
+		return chatUsers.contains(username)
 	}
 
 	public boolean destroyChatUser(String username) {
@@ -55,13 +55,37 @@ class WsChatConfService implements UserMaps{
 	}
 
 	public boolean camUserExists(String username) {
-		return getAvUsers().contains(username)
+		return avUsers.contains(username)
 	}
 
 	public boolean destroyCamUser(String username) {
 		return camUsers.remove(username) != null
 	}
 
+	
+	/*
+	 * fileroomUser ConcurrentHashMap
+	 */
+	public Collection<String> getFileUsers() {
+		return Collections.unmodifiableSet(fileroomUsers.keySet())
+	}
+	public ConcurrentMap<String, Session>  getFileNames() {
+		return fileroomUsers
+	}
+	public Session getFileUser(String username) {
+		Session userSession = fileroomUsers.get(username)
+		return userSession
+	}
+
+	public boolean fileUserExists(String username) {
+		return fileUsers.contains(username)
+	}
+
+	public boolean destroyFileUser(String username) {
+		return fileroomUsers.remove(username) != null
+	}
+
+	
 	
 	public String CONNECTOR = "CONN:-"
 	public String DISCONNECTOR = "DISCO:-"

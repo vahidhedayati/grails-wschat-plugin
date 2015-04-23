@@ -1,5 +1,6 @@
 import grails.plugin.wschat.WsCamEndpoint
 import grails.plugin.wschat.WsChatEndpoint
+import grails.plugin.wschat.WsChatFileEndpoint
 
 class WschatGrailsPlugin {
     def version = "1.16"
@@ -20,6 +21,9 @@ class WschatGrailsPlugin {
 			}
 			listener {
 				'listener-class'(WsCamEndpoint.name)
+			}
+			listener {
+				'listener-class'(WsChatFileEndpoint.name)
 			}
 		}
 	}

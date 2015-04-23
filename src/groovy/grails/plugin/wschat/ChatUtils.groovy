@@ -1,7 +1,7 @@
 package grails.plugin.wschat
 
 import grails.plugin.wschat.auth.WsChatAuthService
-import grails.plugin.wschat.cam.WsCamService
+import grails.plugin.wschat.file.WsFileService
 import grails.plugin.wschat.messaging.WsChatMessagingService
 import grails.plugin.wschat.rooms.WsChatRoomService
 import grails.plugin.wschat.users.WsChatUserService
@@ -17,7 +17,8 @@ class ChatUtils extends WsChatConfService {
 	WsChatUserService wsChatUserService
 	WsChatRoomService wsChatRoomService
 	WsChatMessagingService wsChatMessagingService
-	WsCamService wsCamService
+	WsFileService wsFileService
+	
 
 	public Boolean loggedIn(String user) {
 		Boolean loggedin = false

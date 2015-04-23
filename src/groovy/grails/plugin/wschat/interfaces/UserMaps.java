@@ -8,6 +8,6 @@ import javax.websocket.Session;
 public interface UserMaps {
 	static final ConcurrentMap<String, Session> chatroomUsers = new ConcurrentHashMap<String, Session>();
 	static final ConcurrentMap<String, Session> camUsers = new ConcurrentHashMap<String, Session>();
-			
+	static final ConcurrentMap<String, Session> fileroomUsers = new ConcurrentHashMap<String, Session>();			
 
 }
