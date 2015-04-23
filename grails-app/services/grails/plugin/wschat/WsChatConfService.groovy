@@ -3,7 +3,6 @@ package grails.plugin.wschat
 import grails.converters.JSON
 import grails.plugin.wschat.interfaces.UserMaps
 
-import java.text.SimpleDateFormat
 import java.util.concurrent.ConcurrentMap
 
 import javax.websocket.Session
@@ -15,19 +14,17 @@ class WsChatConfService implements UserMaps{
 
 	def grailsApplication
 
-	// Concurrent hashMap method -
-	// to port over Session sets over to concurrentHashMap
-	
-	
-	
+	/*
+	 * ChatUser ConcurrentHashMap
+	 */
 	public ConcurrentMap<String, Session> getChatNames() {
 		return chatroomUsers
 	}
-	
+
 	public Collection<String> getChatUsers() {
 		return Collections.unmodifiableSet(chatroomUsers.keySet())
 	}
-	
+
 	public Session getChatUser(String username) {
 		Session userSession = chatroomUsers.get(username)
 		return userSession
@@ -40,9 +37,12 @@ class WsChatConfService implements UserMaps{
 	public boolean destroyChatUser(String username) {
 		return chatroomUsers.remove(username) != null
 	}
-		
-	
-	
+
+
+
+	/*
+	 * CamUser ConcurrentHashMap
+	 */
 	public Collection<String> getAvUsers() {
 		return Collections.unmodifiableSet(camUsers.keySet())
 	}
@@ -61,6 +61,7 @@ class WsChatConfService implements UserMaps{
 	public boolean destroyCamUser(String username) {
 		return camUsers.remove(username) != null
 	}
+
 	
 	public String CONNECTOR = "CONN:-"
 	public String DISCONNECTOR = "DISCO:-"
@@ -125,21 +126,6 @@ class WsChatConfService implements UserMaps{
 		return useris
 	}
 
-	Boolean isBanned(String username) {
-		Boolean yesis = false
-		if (dbSupport()) {
-			def now = new Date()
-			def current  =  new SimpleDateFormat('EEE, d MMM yyyy HH:mm:ss').format(now)
-			ChatBanList.withTransaction {
-				def found = ChatBanList.findAllByUsernameAndPeriodGreaterThan(username,current)
-				def dd = ChatBanList.findAllByUsername(username)
-				if (found) {
-					yesis = true
-				}
-			}
-		}
-		return yesis
-	}
 
 	String getApplicationName() {
 		return grailsApplication.metadata['app.name']

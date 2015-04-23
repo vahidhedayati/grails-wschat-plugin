@@ -16,6 +16,7 @@ import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes as GA
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+
 @ClientEndpoint
 public class ChatClientEndpoint  {
 	 

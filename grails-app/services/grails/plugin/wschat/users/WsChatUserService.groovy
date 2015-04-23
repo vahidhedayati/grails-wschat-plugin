@@ -5,6 +5,7 @@ import grails.plugin.wschat.ChatBanList
 import grails.plugin.wschat.ChatBlockList
 import grails.plugin.wschat.ChatFriendList
 import grails.plugin.wschat.ChatUser
+import grails.plugin.wschat.ChatUserPics
 import grails.plugin.wschat.ChatUserProfile
 import grails.plugin.wschat.WsChatConfService
 import grails.transaction.Transactional
@@ -20,6 +21,7 @@ class WsChatUserService extends WsChatConfService  {
 
 	def wsChatMessagingService
 
+	
 	void kickUser(Session userSession,String username) {
 		Boolean useris = isAdmin(userSession)
 		if (useris) {

@@ -4,17 +4,19 @@ import grails.converters.JSON
 import groovy.time.TimeCategory
 
 import java.text.SimpleDateFormat
+import java.util.Map;
 
 import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
 
 
 class WsChatController extends WsChatConfService {
-	
+
 	def wsChatRoomService
 	def autoCompleteService
 	def wsChatUserService
 	def wsChatProfileService
 	def wsChatBookingService
+	def wsChatContService
 
 	def index() {
 		def room = config.rooms
@@ -51,7 +53,6 @@ class WsChatController extends WsChatConfService {
 		def chatuser = session.wschatuser
 		def room = session.wschatroom
 		String debug = config.debug ?: 'off'
-		
 		if (!room) {
 			room = wsChatRoomService.returnRoom(wsconf.dbSupport as String)
 		}
@@ -61,34 +62,20 @@ class WsChatController extends WsChatConfService {
 	}
 
 	def verifyprofile(String username) {
-		boolean actualuser = false
-		def chatuser = ChatUser.findByUsername(username)
-		def profile = ChatUserProfile?.findByChatuser(chatuser)
-		def photos = ChatUserPics?.findAllByChatuser(chatuser,[max: 5, sort: 'id', order:'desc'])
-		if (verifyUser(username)) {
-			actualuser = true
-		}
+		Map vp = wsChatContService.verifyProfile(username)
+		def photos = vp.photos
+		def actualuser = vp.actualuser
+		def profile = vp.profile
 		def model = [photos:photos,actualuser:actualuser,username:username,profile:profile]
 		render template: '/profile/verifyprofile', model:model
 	}
 
 	def editprofile(String username) {
-		def chatuser = ChatUser.findByUsername(username)
-		def profile = ChatUserProfile.findByChatuser(chatuser)
-		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy")
-		if (verifyUser(username)) {
-			def bdate = profile?.birthDate
-			def cdate
-			if (bdate) {
-				cdate = formatter.format(bdate)
-			}else{
-				Date cc = new Date()
-				cc.clearTime()
-				use(TimeCategory) {
-					cc = cc -5.years
-				}
-				cdate = formatter.format(cc)
-			}
+		def ep = wsChatContService.editProfile(username)
+		def cdate = ep.cdate
+		def chatuser = ep.chatuser
+		def profile = ep.profile
+		if (cdate) {
 			def model = [cdate:cdate,profile:profile,chatuser:chatuser,username:username]
 			render template: '/profile/editprofile', model:model
 		}else{
@@ -102,7 +89,7 @@ class WsChatController extends WsChatConfService {
 		ApplicationTagLib g = new org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib()
 		def photoFile= g.createLink(controller: 'wsChat', action: 'photo', params: [username:username],  absolute: 'true' )
 		def model = [photoFile:photoFile,profile:profile,chatuser:chatuser,username:username]
-		if (verifyUser(username)) {
+		if (wsChatContService.verifyUser(username)) {
 			render template: '/profile/addphoto', model:model
 		}else{
 			render "Not authorised!"
@@ -118,21 +105,14 @@ class WsChatController extends WsChatConfService {
 	}
 
 	def addPhoto() {
-		params.chatuser = ChatUser.findByUsername(params.username)
-		if ((params.chatuser)&&(params.photo)) {
-			def newRecord = new ChatUserPics(params)
-			if (!newRecord.save(flush:true)) {
-				flash.message="Something has gone wrong, could not upload photo"
-			}
-			flash.message="Record  ${newRecord.id} created. Create another?"
-			photo(params.username)
-		}else{
-			flash.message="Could not upload photo was a photo selected?"
+		String photoRes = wsChatContService.addPhoto(params)
+		if (photoRes) {
+			flash.message="${photoRes}"
 		}
+		photo(params.username)
 	}
 
 	def viewPic(Long picId) {
-		
 		def photo = ChatUserPics.get( picId ?: params.id)
 		if (photo) {
 			byte[] image = photo.photo
@@ -141,28 +121,7 @@ class WsChatController extends WsChatConfService {
 	}
 
 	def updateProfile() {
-		String output
-		if (params.birthDate) {
-			params.birthDate = new SimpleDateFormat("dd/MM/yyyy").parse(params.birthDate)
-		}
-		params.chatuser = ChatUser.findByUsername(params.username)
-		if (params.chatuser) {
-			def exists = ChatUserProfile.findByChatuser(params.chatuser)
-			if (!exists) {
-				def newRecord = new ChatUserProfile(params)
-				if (!newRecord.save(flush:true)) {
-					output="Something has gone wrong"
-				}
-			}else{
-				exists.properties = params
-				if (!exists.save(flush:true)) {
-					output="Something has gone wrong"
-				}
-			}
-		}
-		if (!output) {
-			output="Infromation has been updated"
-		}
+		String output = wsChatContService.updateProfile(params)
 		render output
 	}
 
@@ -193,8 +152,6 @@ class WsChatController extends WsChatConfService {
 			addAppName:wsconf.addAppName]
 	}
 
-
-
 	def autocomplete() {
 		render autoCompleteService.autocomplete(params)
 	}
@@ -203,43 +160,27 @@ class WsChatController extends WsChatConfService {
 	def viewUsers(Integer max, String s) {
 		if (isAdmin) {
 			params.order = params.order ?: 'desc'
-			def foundRec
 			int total = 0
 			String pageSizes = params.pageSizes ?: '10'
 			String order = params.order ?: "desc"
 			String sortby = params.sortby ?: "lastUpdated"
 			int offset = (params.offset ?: '0') as int
 			def inputid = params.id
-
 			params.max = Math.min(max ?: 10, 1000)
 			def uList = wsChatUserService.genAllUsers()
-
-			def paginationParams = [sort: sortby, order: order, offset: offset, max: params?.max]
-			def allcat=ChatUser.list()
-			switch (s) {
-				case 'p':
-					def permissions = ChatPermissions.get(params.id)
-					if (permissions) {
-						foundRec = ChatUser.findAllByPermissions( permissions, paginationParams)
-						total = ChatUser.countByPermissions(permissions)
-					}
-					break
-				default:
-					s = ''
-					foundRec = ChatUser.list(paginationParams)
-					total = ChatUser.count()
-			}
-
+			Map vu = wsChatContService.viewUsers(s ?: '', sortby, order, offset, params.max , inputid)
+			s = vu.s
+			def foundRec = vu.foundRec
+			total = vu.total
 			def model = [userList: foundRec, userListCount: total, divupdate: 'adminsContainer',
 				pageSizes: pageSizes, offset: offset,inputid: inputid, s: s, order: order,
-				sortby:sortby, action: 'list', allcat:allcat, max:max, params:params, uList:uList]
+				sortby:sortby, action: 'list', allcat:ChatUser.list(), max:max, params:params, uList:uList]
 			if (request.xhr) {
 				render (template: '/admin/viewUsers', model: model)
 			}
 			else {
 				render (view: '/admin/viewUsers', model: model)
 			}
-
 		}
 	}
 
@@ -350,14 +291,4 @@ class WsChatController extends WsChatConfService {
 	private Boolean getIsAdmin() {
 		wsChatUserService.validateAdmin(session.wschatuser)
 	}
-	
-	private Boolean verifyUser(String username) {
-		boolean userChecksOut = false
-		def chatuser = ChatUser.findByUsername(username)
-		if ((chatuser) && (username.equals(session.wschatuser))) {
-			userChecksOut = true
-		}
-		return userChecksOut
-	}
-
 }

@@ -1,12 +1,15 @@
 package grails.plugin.wschat.auth
 
 import grails.plugin.wschat.ChatAuthLogs
+import grails.plugin.wschat.ChatBanList
 import grails.plugin.wschat.ChatLog
 import grails.plugin.wschat.ChatPermissions
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.OffLineMessage
 import grails.plugin.wschat.WsChatConfService
 import grails.transaction.Transactional
+
+import java.text.SimpleDateFormat
 
 import javax.websocket.Session
 
@@ -152,6 +155,24 @@ class WsChatAuthService extends WsChatConfService   {
 		}
 	}
 
+	@Transactional
+	Boolean isBanned(String username) {
+		Boolean yesis = false
+		if (dbSupport()) {
+			def now = new Date()
+			def current  =  new SimpleDateFormat('EEE, d MMM yyyy HH:mm:ss').format(now)
+			//ChatBanList.withTransaction {
+				def found = ChatBanList.findAllByUsernameAndPeriodGreaterThan(username,current)
+				def dd = ChatBanList.findAllByUsername(username)
+				if (found) {
+					yesis = true
+				}
+			//}
+		}
+		return yesis
+	}
+
+	
 	Boolean loggedIn(String user) {
 		return chatUserExists(user)
 	}

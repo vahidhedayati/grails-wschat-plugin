@@ -99,7 +99,6 @@ public class WsChatClientEndpoint {
 		userSession.basicRemote.sendText(message)
 	}
 	
-
 	
 	public Session returnSession() {
 		return userSession
