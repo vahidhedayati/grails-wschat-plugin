@@ -61,6 +61,10 @@ class WsChatConfService implements UserMaps{
 	public boolean destroyCamUser(String username) {
 		return camUsers.remove(username) != null
 	}
+	
+	
+	
+	
 
 	
 	/*

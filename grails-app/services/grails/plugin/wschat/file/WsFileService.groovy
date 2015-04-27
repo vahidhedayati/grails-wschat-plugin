@@ -81,7 +81,7 @@ class WsFileService extends WsChatConfService {
 						def myMsg1 = [:]
 						myMsg1.put("system","disconnect")
 						wsChatMessagingService.messageUser(crec,myMsg1)
-						destroyCamUser(chuser)
+						destroyFileUser(chuser)
 					}
 				}
 			}

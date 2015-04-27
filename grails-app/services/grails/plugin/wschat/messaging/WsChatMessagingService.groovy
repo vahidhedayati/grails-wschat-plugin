@@ -13,8 +13,11 @@ import javax.websocket.Session
 
 class WsChatMessagingService extends WsChatConfService {
 
-	def sendMsg(Session userSession,String msg) throws IOException{
-		if (userSession && userSession.isOpen()) {
+	def sendMsg(Session userSession,String msg) throws Exception {
+		
+		try {
+				if (userSession && userSession.isOpen()) {
+			
 			String urecord = userSession.userProperties.get("username") as String
 			if (config.debug == "on") {
 				println "sendMsg ${urecord}: ${msg}"
@@ -23,7 +26,11 @@ class WsChatMessagingService extends WsChatConfService {
 			if (isEnabled) {
 				persistMessage(msg ,urecord)
 			}
+			
 			userSession.basicRemote.sendText(msg)
+		}
+		} catch (Exception e) {
+			//e.printStackTrace()
 		}
 	}
 
