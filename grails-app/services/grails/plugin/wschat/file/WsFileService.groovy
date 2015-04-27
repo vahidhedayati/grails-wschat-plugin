@@ -55,12 +55,12 @@ class WsFileService extends WsChatConfService {
 				wsChatMessagingService.jsonmessageUser(userSession,json.toString())
 			} else if (cmessage.startsWith("GETROOM")) {
 				// Offer is coming from client so direct it to owner
-			def json  =  new JsonBuilder()
-			json {
-				delegate.type "GETROOM"
-				delegate.payload "${camuser}"
-			}			
-			wsChatMessagingService.jsonmessageUser(userSession,json.toString())
+				def json  =  new JsonBuilder()
+				json {
+					delegate.type "GETROOM"
+					delegate.payload "${camuser}"
+				}
+				wsChatMessagingService.jsonmessageUser(userSession,json.toString())
 			}else{
 				if (camuser.equals(realCamUser+":"+realCamUser)) {
 					wsChatMessagingService.jsonmessageOther(userSession,message,realCamUser,true)

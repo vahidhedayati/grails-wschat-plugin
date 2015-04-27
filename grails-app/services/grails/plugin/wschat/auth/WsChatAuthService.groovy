@@ -162,17 +162,17 @@ class WsChatAuthService extends WsChatConfService   {
 			def now = new Date()
 			def current  =  new SimpleDateFormat('EEE, d MMM yyyy HH:mm:ss').format(now)
 			//ChatBanList.withTransaction {
-				def found = ChatBanList.findAllByUsernameAndPeriodGreaterThan(username,current)
-				def dd = ChatBanList.findAllByUsername(username)
-				if (found) {
-					yesis = true
-				}
+			def found = ChatBanList.findAllByUsernameAndPeriodGreaterThan(username,current)
+			def dd = ChatBanList.findAllByUsername(username)
+			if (found) {
+				yesis = true
+			}
 			//}
 		}
 		return yesis
 	}
 
-	
+
 	Boolean loggedIn(String user) {
 		return chatUserExists(user)
 	}

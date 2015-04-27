@@ -21,7 +21,7 @@ class WsChatUserService extends WsChatConfService  {
 
 	def wsChatMessagingService
 
-	
+
 	void kickUser(Session userSession,String username) {
 		Boolean useris = isAdmin(userSession)
 		if (useris) {
@@ -125,7 +125,7 @@ class WsChatUserService extends WsChatConfService  {
 		String uiterator = userSession.userProperties.get("username").toString()
 		userListGen(userSession, username, "generic")
 	}
-	
+
 	@Transactional
 	private void userListGen(Session userSession,String username, String listType) {
 		String room  =  userSession.userProperties.get("room") as String
@@ -162,7 +162,7 @@ class WsChatUserService extends WsChatConfService  {
 					def av = crec.userProperties.get("av").toString()
 					def rtc = crec.userProperties.get("rtc").toString()
 					def file = crec.userProperties.get("file").toString()
-					
+
 					def addav = ""
 					if (listType=="generic") {
 						if (av.equals("on")) {

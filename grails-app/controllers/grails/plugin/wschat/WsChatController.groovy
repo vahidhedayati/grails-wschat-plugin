@@ -18,7 +18,7 @@ class WsChatController extends WsChatConfService {
 	def wsChatBookingService
 	def wsChatContService
 
-	
+
 	def sendfile(String room) {
 		def chatuser = session.wschatuser
 		boolean sender = false

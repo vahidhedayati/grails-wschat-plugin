@@ -20,7 +20,7 @@ class ChatUtils extends WsChatConfService {
 	WsChatMessagingService wsChatMessagingService
 	WsFileService wsFileService
 	WsCamService wsCamService
-	
+
 
 	public Boolean loggedIn(String user) {
 		Boolean loggedin = false
@@ -197,7 +197,7 @@ class ChatUtils extends WsChatConfService {
 				myMsg.put("message", "${camuser} has disabled fileSharing")
 				wsChatMessagingService.broadcast(userSession,myMsg)
 				wsChatUserService.sendUsers(userSession,camuser)
-				
+
 			}else if (message.startsWith("/flatusers")) {
 				wsChatUserService.sendFlatUsers(userSession,username)
 				// Usual chat messages bound for all

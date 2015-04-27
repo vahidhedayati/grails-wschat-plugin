@@ -61,12 +61,9 @@ class WsChatConfService implements UserMaps{
 	public boolean destroyCamUser(String username) {
 		return camUsers.remove(username) != null
 	}
-	
-	
-	
-	
 
-	
+
+
 	/*
 	 * fileroomUser ConcurrentHashMap
 	 */
@@ -89,8 +86,8 @@ class WsChatConfService implements UserMaps{
 		return fileroomUsers.remove(username) != null
 	}
 
-	
-	
+
+
 	public String CONNECTOR = "CONN:-"
 	public String DISCONNECTOR = "DISCO:-"
 	public String CHATAPP = "WsChatEndpoint"
