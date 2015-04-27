@@ -19,21 +19,16 @@ class WsChatController extends WsChatConfService {
 	def wsChatContService
 
 	
-	def sendfile() { 
+	def sendfile(String room) {
 		def chatuser = session.wschatuser
-		def room = session.wschatroom
-		String debug = config.debug ?: 'off'
-		if (!room) {
-			room = wsChatRoomService.returnRoom(wsconf.dbSupport as String)
+		boolean sender = false
+		if (room == chatuser) {
+			sender = true
 		}
-		Map model = [showtitle:wsconf.showtitle.toLowerCase(), dbsupport:wsconf.dbSupport.toLowerCase() , room:room,
-			chatuser:chatuser, chatTitle:wsconf.chatTitle,chatHeader:wsconf.chatHeader,
-			now:new Date(), hostname:wsconf.hostname, addAppName: wsconf.addAppName, debug:debug]
-		
-		render view: 'sendfile', model: model
+		[sender:sender, room:room, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
+			addAppName:wsconf.addAppName]
 	}
-		
-	
+
 	def index() {
 		def room = config.rooms
 		if (!room && (wsconf.dbSupport=='yes')) {

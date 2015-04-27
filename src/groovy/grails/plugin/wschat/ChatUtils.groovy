@@ -1,6 +1,7 @@
 package grails.plugin.wschat
 
 import grails.plugin.wschat.auth.WsChatAuthService
+import grails.plugin.wschat.cam.WsCamService
 import grails.plugin.wschat.file.WsFileService
 import grails.plugin.wschat.messaging.WsChatMessagingService
 import grails.plugin.wschat.rooms.WsChatRoomService
@@ -18,6 +19,7 @@ class ChatUtils extends WsChatConfService {
 	WsChatRoomService wsChatRoomService
 	WsChatMessagingService wsChatMessagingService
 	WsFileService wsFileService
+	WsCamService wsCamService
 	
 
 	public Boolean loggedIn(String user) {
@@ -196,19 +198,6 @@ class ChatUtils extends WsChatConfService {
 		}
 		return input
 	}
-
-	Boolean camLoggedIn(String user) {
-		Boolean loggedin = false
-		camNames.each { String cuser, Session crec ->
-			if (crec && crec.isOpen()) {
-				if (cuser.equals(user)) {
-					loggedin = true
-				}
-			}
-		}
-		return loggedin
-	}
-
 
 
 	private Map<String, String> parseInput(String mtype,String message){

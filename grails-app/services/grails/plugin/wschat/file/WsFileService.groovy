@@ -24,8 +24,6 @@ class WsFileService extends WsChatConfService {
 	}
 
 	void verifyFileAction(Session userSession,String message) {
-		
-		println "from verifyFileAction: ---- ${message} "
 		def myMsg = [:]
 		String username = userSession.userProperties.get("camusername") as String
 		String camuser = userSession.userProperties.get("camuser") as String
@@ -50,19 +48,24 @@ class WsFileService extends WsChatConfService {
 			}else if (cmessage.startsWith("ENTERROOM")) {
 				def json  =  new JsonBuilder()
 				json {
-					delegate.type "roomCreated"
+					//delegate.type "roomCreated"
+					delegate.type "offer"
 					delegate.payload "${username}"
 				}
 				wsChatMessagingService.jsonmessageUser(userSession,json.toString())
 			} else if (cmessage.startsWith("GETROOM")) {
 				// Offer is coming from client so direct it to owner
-				wsChatMessagingService.jsonmessageOwner(userSession,message,realCamUser)
+			def json  =  new JsonBuilder()
+			json {
+				delegate.type "GETROOM"
+				delegate.payload "${camuser}"
+			}			
+			wsChatMessagingService.jsonmessageUser(userSession,json.toString())
 			}else{
-				// Message all others related to a msg coming from owner
 				if (camuser.equals(realCamUser+":"+realCamUser)) {
-					wsChatMessagingService.jsonmessageOther(userSession,message,realCamUser)
+					wsChatMessagingService.jsonmessageOther(userSession,message,realCamUser,true)
 				}else{
-					wsChatMessagingService.jsonmessageOwner(userSession,message,realCamUser)
+					wsChatMessagingService.jsonmessageOwner(userSession,message,realCamUser,true)
 				}
 			}
 		}
@@ -72,7 +75,7 @@ class WsFileService extends WsChatConfService {
 		String user  =  userSession.userProperties.get("camusername") as String
 		String camuser  =  userSession.userProperties.get("camuser") as String
 		if (user && camuser && camuser.endsWith(':'+user) && (camuser != user+":"+user)) {
-			camNames.each { String chuser, Session crec ->
+			fileroomUsers.each { String chuser, Session crec ->
 				if (crec && crec.isOpen()) {
 					if (chuser && chuser.startsWith(user)) {
 						def myMsg1 = [:]

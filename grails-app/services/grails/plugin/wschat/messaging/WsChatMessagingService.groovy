@@ -57,7 +57,6 @@ class WsChatMessagingService extends WsChatConfService {
 				}
 			}
 		}
-
 		if (found == false) {
 			verifyOfflinePM(user, myMsgj as String, userSession, urecord)
 
@@ -86,7 +85,6 @@ class WsChatMessagingService extends WsChatConfService {
 		}
 	}
 
-
 	def broadcast(Session userSession,Map msg) {
 		def myMsgj = msg as JSON
 		String room = userSession.userProperties.get("room") as String
@@ -109,27 +107,36 @@ class WsChatMessagingService extends WsChatConfService {
 		userSession.basicRemote.sendText(msg as String)
 	}
 
-	def jsonmessageOther(Session userSession,String msg,String realCamUser) {
-		camNames.each { String cuser, Session crec ->
+	def jsonmessageOther(Session userSession,String msg,String realCamUser, boolean fileUser=null) {
+		def uList = camNames
+		if (fileUser) {
+			uList = fileroomUsers
+		}
+		uList.each { String cuser, Session crec ->
 			if (crec && crec.isOpen()) {
 				def cmuser = crec.userProperties.get("camusername").toString()
-				if ((cuser.startsWith(realCamUser+":"))&&(!cuser.toString().endsWith(realCamUser))) {
+				String camuser = crec.userProperties.get("camuser") as String
+				if ((camuser.startsWith(realCamUser+":"))&&(!camuser.toString().endsWith(realCamUser))) {
 					crec.basicRemote.sendText(msg as String)
 				}
 			}
 		}
 	}
 
-	def jsonmessageOwner(Session userSession,String msg,String realCamUser) {
-		camNames.each { String cuser, Session crec ->
+	def jsonmessageOwner(Session userSession,String msg,String realCamUser, boolean fileUser=null) {
+		def uList = camNames
+		if (fileUser) {
+			uList = fileroomUsers
+		}
+		uList.each { String cuser, Session crec ->
 			if (crec && crec.isOpen()) {
 				def cmuser = crec.userProperties.get("camusername").toString()
-				if ((cuser.startsWith(realCamUser+":"))&&(cuser.toString().endsWith(realCamUser))) {
+				String camuser = crec.userProperties.get("camuser") as String
+				if ((camuser.startsWith(realCamUser+":"))&&(camuser.toString().endsWith(realCamUser))) {
 					crec.basicRemote.sendText(msg as String)
 				}
 			}
 		}
-
 	}
 
 	@Transactional

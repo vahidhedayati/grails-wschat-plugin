@@ -60,11 +60,8 @@ class WsChatFileEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnOpen
 	public void whenOpening(Session userSession,EndpointConfig c,@PathParam("user") String user,@PathParam("viewer") String viewer) {
-		println "-- $user :: ${viewer}"
 		userSession.setMaxBinaryMessageBufferSize(1024*512)
 		userSession.setMaxTextMessageBufferSize(1000000)
-		//userSession.setmaxMessageSize(-1L)
-
 
 		def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 		def grailsApplication = ctx.grailsApplication
@@ -74,23 +71,12 @@ class WsChatFileEndpoint extends ChatUtils implements ServletContextListener {
 		wsChatUserService = ctx.wsChatUserService
 		wsChatMessagingService = ctx.wsChatMessagingService
 		wsChatRoomService = ctx.wsChatRoomService
-		//wsCamService = ctx.wsCamService
 		wsFileService = ctx.wsFileService
 
 		if (loggedIn(viewer)) {
 			userSession.userProperties.put("camusername", viewer)
-
-			if (viewer.equals(user)) {
-				userSession.userProperties.put("camuser", user+":"+user)
-			}else{
-				userSession.userProperties.put("camuser", user+":"+viewer)
-
-			}
-
-			if (!camLoggedIn(viewer)) {
-				fileroomUsers.putIfAbsent(user, userSession)
-			}
-			
+			userSession.userProperties.put("camuser", user+":"+viewer)
+			fileroomUsers.putIfAbsent(viewer, userSession)
 		}else{
 			log.error "could not find chat user ! ${viewer}"
 		}
@@ -98,25 +84,9 @@ class WsChatFileEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnMessage
 	public void handleMessage(String message,Session userSession) throws IOException {
-		println "HM1 --- ${message} "
 		wsFileService.verifyFileAction(userSession,message)
 	}
 
-	@OnMessage
-	public void processVideo(byte[] imageData, Session userSession) {
-		println "HM2 --- ${imageData} "
-		String camuser = userSession.userProperties.get("camuser") as String
-		String realCamUser = wsFileService.realCamUser(camuser)
-		ByteBuffer buf = ByteBuffer.wrap(imageData)
-		fileNames.each { String chuser, Session crec ->
-			if (crec && crec.isOpen()) {
-				if (chuser && chuser.startsWith(realCamUser)) {
-					crec.basicRemote.sendBinary(buf)
-				}
-			}
-		}
-
-	}
 
 	@OnClose
 	public void whenClosing(Session userSession) throws SocketException {

@@ -80,19 +80,8 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 
 		if (loggedIn(viewer)) {
 			userSession.userProperties.put("camusername", viewer)
-
-			if (viewer.equals(user)) {
-				userSession.userProperties.put("camuser", user+":"+user)
-			}else{
-				userSession.userProperties.put("camuser", user+":"+viewer)
-
-			}
-
-			if (!camLoggedIn(viewer)) {
-				camUsers.putIfAbsent(user, userSession)
-				//camsessions.add(userSession)
-			}
-
+			userSession.userProperties.put("camuser", user+":"+viewer)
+			camUsers.putIfAbsent(user, userSession)
 		}else{
 			log.error "could not find chat user ! ${viewer}"
 		}

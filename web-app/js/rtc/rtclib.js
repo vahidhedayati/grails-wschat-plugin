@@ -12,6 +12,7 @@
 
     var pc = null;
     var signalingURL;
+    var isSender;
 
     var sendDChannel = null;
     var recvDChannel = null;
@@ -26,9 +27,9 @@
        [{url:'stun:23.21.150.121'},
         {url:'stun:stun.l.google.com:19302'}]};
 
-    function myrtclibinit(sURL) {
-    	console.log('--- WE ARE IN LIB INIT');
+    function myrtclibinit(sURL, sender) {
         signalingURL = sURL;
+        isSender = sender;
         initWebRTCAdapter();
         if (webrtcDetectedBrowser === 'firefox' ||
             (webrtcDetectedBrowser === 'chrome' && webrtcDetectedVersion >= 31)) {
@@ -50,19 +51,14 @@
     function onChannelOpened() {
         channelReady = true;
         createPeerConnection();
-        console.log('-----'+location);
-      //  if(location.search.substring(1,5) == "room") {
-        	console.log('1 ----- ENTERROOM');
-            room = location.search.substring(6);
-           // sendMessage({"type" : "ENTERROOM", "value" : room * 1});
-            sendMessage({"type" : "ENTERROOM", "value" : getUser()});
+        if (isSender=='false') {        	
+            sendMessage({"type" : "ENTERROOM", "value" : getUser1()});
             initiator = true;
             doCall();
-       // } else {
-        //	console.log('2 ----- GETROOM');
-         //   sendMessage({"type" : "GETROOM", "value" : ""});
-        //    initiator = false;
-       // }
+        } else {
+            sendMessage({"type" : "GETROOM", "value" : ""});
+            initiator = false;
+        }
     };
 
     function onChannelMessage(message) {
@@ -80,8 +76,9 @@
 
     function processSignalingMessage(message) {
         var msg = JSON.parse(message);
-
+        console.log('WE HAVE processSignalingMessage: '+msg)
         if (msg.type === 'offer') {
+        	console.log('WE HAVE AN OFFER');
             pc.setRemoteDescription(new RTCSessionDescription(msg));
             doAnswer();
         } else if (msg.type === 'answer') {

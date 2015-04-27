@@ -34,30 +34,32 @@
 </div>
 <g:javascript>
     var filelist;
-var hostname="${hostname}";
+	var hostname="${hostname}";
+
+	var sender="${sender}";
 
 	function getHostName() {
 		return hostname;
 	}
- 	
+ 	var room = "${room }";
  	var baseapp="${meta(name:'app.name')}";
  	
  	function getUser() {
- 		return "vv" 
+ 		return "${chatuser}";
  	}
  	
  	function getUser1() {
- 		return "vv1" 
+ 		return "${room }" 
  	}
 	function getApp() {
 		return baseapp;
 	}
  	
     <g:if test="${addAppName=='no'}">
-	var uri="ws://"+getHostName()+"/WsChatFileEndpoint/"+getUser()+"/"+getUser();
+	var uri="ws://${hostname}/WsChatFileEndpoint/${room}/${chatuser}";
 </g:if>
 <g:else>
-	var uri="ws://"+getHostName()+"/"+getApp()+"/WsChatFileEndpoint/"+getUser()+"/"+getUser();
+	var uri="ws://${hostname}/${meta(name:'app.name')}/WsChatFileEndpoint/${room}/${chatuser}";
 </g:else>
     
 $(function() {
@@ -72,8 +74,8 @@ $(function() {
     var _arr = _url.split("/");
     var domain = _arr[2];
 
-    console.log('connecting to uri'+uri);
-    myrtclibinit(uri);
+    console.log('connecting to uri'+uri+' : '+sender);
+    myrtclibinit(uri, sender);
 });
 function onSendBtnClick() {
     for (var i = 0, f; f = filelist[i]; i++) {
@@ -81,6 +83,7 @@ function onSendBtnClick() {
         reader.onload = (function(theFile) {
             return function(evt) {
                 var msg = JSON.stringify({"type" : "file", "name" : theFile.name, "size" : theFile.size, "data" : evt.target.result});
+                console.log('--->'+msg);
                 sendDataMessage(msg);
             };
         })(f);
