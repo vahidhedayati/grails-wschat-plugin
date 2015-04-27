@@ -28,7 +28,10 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 					causing issue (Fixed).
 					Offline Messaging added - offline PM friends. Or if a user that
 					leaves room. Upon next login offline messages appears.
-					More UI updates. Button to close PMs added. 
+					More UI updates. Button to close PMs added.
+					
+					
+1.17 				FileSharing peer2peer now enabled - users can send files via websockets					 
 										
 					
 ```

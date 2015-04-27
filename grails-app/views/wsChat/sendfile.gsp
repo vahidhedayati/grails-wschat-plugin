@@ -91,7 +91,7 @@ function onSendBtnClick() {
 
 function OnRoomReceived(room) {
     var st = document.getElementById("status");
-    st.innerHTML = "Now, if somebody wants to join you, should use this link: <a href=\""+window.location.href+"?room="+room+"\">"+window.location.href+"?room="+room+"</a>";
+    st.innerHTML = "Someone can join this by going over your name and choosing fileSharing";
 };
 
 function onFileReceived(name,size,data) {

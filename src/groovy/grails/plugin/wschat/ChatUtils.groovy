@@ -181,6 +181,23 @@ class ChatUtils extends WsChatConfService {
 				myMsg.put("message", "${camuser} has disabled WebrRTC")
 				wsChatMessagingService.broadcast(userSession,myMsg)
 				wsChatUserService.sendUsers(userSession,camuser)
+			}else if (message.startsWith("/fileenabled")) {
+				def p1 = "/fileenabled "
+				def camuser = message.substring(p1.length(),message.length())
+				//	addCamUser(userSession,camuser)
+				userSession.userProperties.put("file", "on")
+				myMsg.put("message", "${camuser} has enabled fileSharing")
+				wsChatMessagingService.broadcast(userSession,myMsg)
+				wsChatUserService.sendUsers(userSession,camuser)
+			}else if (message.startsWith("/filedisabled")) {
+				def p1 = "/filedisabled "
+				def camuser = message.substring(p1.length(),message.length())
+				//	addCamUser(userSession,camuser)
+				userSession.userProperties.put("file", "off")
+				myMsg.put("message", "${camuser} has disabled fileSharing")
+				wsChatMessagingService.broadcast(userSession,myMsg)
+				wsChatUserService.sendUsers(userSession,camuser)
+				
 			}else if (message.startsWith("/flatusers")) {
 				wsChatUserService.sendFlatUsers(userSession,username)
 				// Usual chat messages bound for all

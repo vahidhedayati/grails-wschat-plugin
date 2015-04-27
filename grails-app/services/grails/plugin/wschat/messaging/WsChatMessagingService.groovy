@@ -16,7 +16,7 @@ class WsChatMessagingService extends WsChatConfService {
 	def sendMsg(Session userSession,String msg) throws Exception {
 		
 		try {
-				if (userSession && userSession.isOpen()) {
+			if (userSession && userSession.isOpen()) {
 			
 			String urecord = userSession.userProperties.get("username") as String
 			if (config.debug == "on") {

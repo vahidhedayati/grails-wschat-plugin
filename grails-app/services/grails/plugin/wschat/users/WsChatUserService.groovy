@@ -161,6 +161,8 @@ class WsChatUserService extends WsChatConfService  {
 					//def cuser = crec.userProperties.get("username").toString()
 					def av = crec.userProperties.get("av").toString()
 					def rtc = crec.userProperties.get("rtc").toString()
+					def file = crec.userProperties.get("file").toString()
+					
 					def addav = ""
 					if (listType=="generic") {
 						if (av.equals("on")) {
@@ -168,6 +170,9 @@ class WsChatUserService extends WsChatConfService  {
 						}
 						if (rtc.equals("on")) {
 							addav = "_rtc"
+						}
+						if (file.equals('on')) {
+							addav = "_file"
 						}
 						if (cuser.equals(uiterator)) {
 							myUser.put("owner${addav}", cuser)

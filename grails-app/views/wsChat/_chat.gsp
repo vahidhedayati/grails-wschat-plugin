@@ -159,7 +159,6 @@
  	$( "#friendsBlock" ).resizable();
  	
  	var baseapp="${meta(name:'app.name')}";
- 	
 	function getApp() {
 		return baseapp;
 	}
@@ -171,20 +170,21 @@
 		var themeuri="/"+baseapp+"/assets/"
 	</g:else>
 	
-	
 	document.getElementById('themeChanger2').onclick = function () { 
    	 	document.getElementById('chat_theme').href = themeuri+'chat-blue.css';
 	};
+	
 	document.getElementById('themeChanger').onclick = function () { 
     	document.getElementById('chat_theme').href = themeuri+'chat-red.css';
 	};
+	
 	document.getElementById('themeChanger3').onclick = function () { 
     	document.getElementById('chat_theme').href = themeuri+'chat-dark.css';
 	};
+	
 	document.getElementById('themeChanger4').onclick = function () { 
    	 	document.getElementById('chat_theme').href = themeuri+'/chat.css';
 	};
-
 
 	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
@@ -199,32 +199,33 @@
 	function getHostName() {
 		return hostname;
 	}
+	
 	function getUser() {
 		return user;
 	}
-
 	
 	var currentRoom;
 	var idList = new Array();
 	var camList = new Array();
 	var camOn = new Array();
+	var fileOn = new Array();
 	var rtcOn = new Array();
 	var isAdmin="false";
-	
 	var debug = "${debug }";
-		
-		
-		
+			
 	var video = $("#live").get()[0];
 	var canvas = $("#canvas");
 	var ctx
+	
 	if (!canvas) {
 		ctx = canvas.get()[0].getContext('2d');
 	}
+	
 	var options = {
 		"video" : true,
 		audio:true
 	};
+	
 	<g:if test="${addAppName=='no'}">
 		var uri="ws://${hostname}/WsChatEndpoint/${room}";
 	</g:if>
@@ -237,22 +238,18 @@
 	}
 	
 	var webSocket=new WebSocket(uri);
-     
     var chatMessages=document.getElementById("chatMessages");
     var onlineUsers=document.getElementById("onlineUsers");
     var messageBox=document.getElementById("messageBox");
-   
     webSocket.onopen=function(message) {processOpen(message);};
     webSocket.onclose=function(message) {processClose(message);};
     webSocket.onerror=function(message) {processError(message);};
     webSocket.onmessage=function(message) {processMessage(message);	};
 		
    function processOpen(message) {
-   
    		if (debug == "on") {
 			console.log('Openning  connection for to ${chatuser}');
 		}
-	
     	<g:if test="${!chatuser}">
        		$('#chatMessages').append("Chat denied no username \n");
        		webSocket.send("DISCO:-"+user);
@@ -281,12 +278,10 @@
 	});
 	
      window.onbeforeunload = function() {
-       	webSocket.send("DISCO:-"+user);
-       	//webSocket.onclose = function() { }
-       	//webSocket.close();
-       	
+       webSocket.send("DISCO:-"+user);
+       //webSocket.onclose = function() { }
+       //webSocket.close();
      }
-
 </g:javascript>
 
 

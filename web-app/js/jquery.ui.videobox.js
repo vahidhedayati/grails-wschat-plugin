@@ -102,6 +102,13 @@
 					uiVidContent='<div id="myCamContainer"></div>'+sendCam();
 				}
 				//webrtc new method
+				
+			} else if (viewtype=="fileshare") { 
+				if (camaction=="view") {
+					uiVidContent='<div id="camViewContainer"></div>'+getFile(sender);
+				}else{
+					uiVidContent='<div id="myCamContainer"></div>'+sendFile();
+				}
 			}else{
 				if (camaction=="view") {
 					uiVidContent='<div id="camViewContainer"></div>'+getWebrtc(sender,viewtype);

@@ -229,11 +229,13 @@ function processMessage(message) {
 				sb.push('<li class="btn-xs" id="sideBar">\n');
 				sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry.owner)+','+wrapIt('send')+','+wrapIt('webrtc')+');">Enable WebRTC</a>\n');
 				sb.push('</li>\n');
-	
 				sb.push('<li class="btn-xs" id="sideBar">\n');
 				sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry.owner)+','+wrapIt('send')+','+wrapIt('webrtcscreen')+');">WebRTC ScreenShare</a>\n');
 				sb.push('</li>\n');
-	
+				sb.push('<li class="btn-xs" id="sideBar">\n');
+				sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry.owner)+','+wrapIt('send')+','+wrapIt('fileshare')+');">Enable FileSharing</a>\n');
+				sb.push('</li>\n');
+				fileshareoff(entry.owner);
 				camoff(entry.owner);
 				rtcoff(entry.owner);
 				sb.push('</ul>\n</li>\n\n\n');
@@ -285,6 +287,32 @@ function processMessage(message) {
 				sb1.push('</ul>\n</li>\n\n\n');
 			}
 
+			
+			if (entry.friends_file!=null) {
+				sb1.push('\n<li class="dropdown-submenu bttn-xs" id="chatFriend"><a tabindex="-1"  id="user-title" class="user-title glyphicon glyphicon glyphicon-share glyphicon-file">'+entry.friends_file+'</a>\n');
+				sb1.push('<ul class="dropdown-menu">\n');
+				sb1.push('<li class="btn-xs" id="sideBar">\n');
+				sb1.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.friends_file)+');">'+entry.friends_file+'\'s profile</a>\n');
+				sb1.push('</li>\n');
+				sb1.push('<li class="btn-xs" id="sideBar">\n');
+				sb1.push('<a onclick="javascript:pmuser('+wrapIt(entry.friends_file)+', '+wrapIt(user)+');">PM  '+entry.friends_file+'</a>\n');
+				sb1.push('\n</li> \n');
+
+				sb1.push('<li class="btn-xs" id="sideBar"><a onclick="javascript:removefriend('+wrapIt(entry.friends_file)+', '+wrapIt(user)+');">Del from friends list</a>\n');
+				sb1.push('\n</li> ');
+				camoff(entry.friends_file);
+				fileshareon(entry.friends_file);
+				rtcoff(entry.friends_file);
+				sb1.push('<li class="btn-xs" id="sideBar">\n');
+				sb1.push('<a onclick="javascript:enableCam('+wrapIt(entry.friends_file)+','+wrapIt('view')+','+wrapIt('fileshare')+');">FileShare Interact</a>\n');
+				sb1.push('</li>\n');
+				var admintool=adminOptions(isAdmin,entry.friends_file)
+				sb1.push(admintool);
+				sb1.push('</ul>\n</li>\n\n\n');
+			}
+
+			
+			
 			if (entry.friends!=null) {
 				sb1.push('\n<li class="dropdown-submenu bttn-xs" id="chatFriend"><a tabindex="-1" id="user-title" class="user-title" href="#">'+entry.friends+'</a>\n');
 				sb1.push('<ul class="dropdown-menu">\n');
@@ -303,6 +331,7 @@ function processMessage(message) {
 				sb1.push(admintool);
 				sb1.push('</ul>\n</li>\n\n\n');
 			}
+			
 			if (entry.user_rtc!=null) {
 				sb2.push('\n<li class="dropdown-submenu bttn-xs" id="chatUser"><a tabindex="-1"  id="user-title" class="user-title glyphicon glyphicon-facetime-video glyphicon-volume-up">'+entry.user_rtc+'</a>\n');
 				sb2.push('<ul class="dropdown-menu">\n');
@@ -357,6 +386,32 @@ function processMessage(message) {
 				sb2.push('</ul>\n</li>\n\n\n');
 			}
 
+			if (entry.user_file!=null) {
+				sb2.push('\n<li class="dropdown-submenu bttn-xs" id="chatUser"><a tabindex="-1" id="user-title" class="user-title glyphicon glyphicon-share glyphicon-file">'+entry.user_file+'</a>\n');
+				sb2.push('<ul class="dropdown-menu">\n');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.user_file)+');">'+entry.user_file+'\'s profile</a>\n');
+				sb2.push('</li>\n');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a onclick="javascript:pmuser('+wrapIt(entry.user_file)+', '+wrapIt(user)+');">PM  '+entry.user_file+'</a>\n');
+				sb2.push('\n</li> ');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a onclick="javascript:adduser('+wrapIt(entry.user_file)+', '+wrapIt(user)+');">Add  '+entry.user_file+'</a>\n');
+				sb2.push('</li>\n');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a onclick="javascript:blockuser('+wrapIt(entry.user_file)+', '+wrapIt(user)+');">Block  '+entry.user_file+'</a>\n');
+				sb2.push('</li>\n');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_file)+','+wrapIt('view')+','+wrapIt('fileshare')+');">FileShare Interact</a>\n');
+				sb2.push('</li>\n');
+				fileshareon(entry.user_file);
+				camoff(entry.user_file)
+				rtcoff(entry.user_file);
+				var admintool=adminOptions(isAdmin,entry.user_file)
+				sb2.push(admintool);
+				sb2.push('</ul>\n</li>\n\n\n');
+			}
+			
 			if (entry.user!=null) {
 				sb2.push('\n<li class="dropdown-submenu bttn-xs" id="chatUser"><a tabindex="-1" id="user-title" class="user-title" href="#">'+entry.user+'</a>\n');
 				sb2.push('<ul class="dropdown-menu">\n');
@@ -644,6 +699,12 @@ function delCamList(uid) {
 	}
 }
 
+function delFileList(uid) {
+	var i = fileOn.indexOf(uid);
+	if(i != -1) {
+		fileOn.splice(i, 1);
+	}
+}
 function rtcon(uid) {
 	var idx = rtcOn.indexOf(uid);
 	if(idx == -1) {
@@ -683,6 +744,20 @@ function camoff(uid) {
 	}
 }
 
+function fileshareon(uid) {
+	var idx = fileOn.indexOf(uid);
+	if(idx == -1) {
+		fileOn.push(uid);
+	}	
+}
+
+function fileshareoff(uid) {
+	var i = fileOn.indexOf(uid);
+	if(i != -1) {
+		fileOn.splice(i, 1);
+	}
+}
+
 
 function isCamOn(uid) {
 	var camadded="false";
@@ -701,11 +776,6 @@ function disableAV() {
 	//WebCam.close();
 }
 
-function getCam(user) {
-	$.get("/"+getApp()+"/wsChat/camrec?user="+user,function(data){
-		$('#camViewContainer').html(data);
-	});
-}
 
 /*
 function discoCam(user) {
@@ -716,6 +786,28 @@ function discoCam(user) {
 }
 */
 
+function getFile(user) {
+	$.get("/"+getApp()+"/wsChat/sendfile?room="+user,function(data){
+		$('#camViewContainer').html(data);
+	});
+}
+function sendFile() {
+	$.get("/"+getApp()+"/wsChat/sendfile?room="+user,function(data){
+		$('#myCamContainer').html(data);
+	});
+	webSocket.send("/fileenabled "+user);
+}
+function disableFile() {
+	delFileList(user);
+	webSocket.send("/filedisabled "+user);
+	
+}
+
+function getCam(user) {
+	$.get("/"+getApp()+"/wsChat/camrec?user="+user,function(data){
+		$('#camViewContainer').html(data);
+	});
+}
 function sendCam() {
 	$.get("/"+getApp()+"/wsChat/camsend?user="+user,function(data){
 		$('#myCamContainer').html(data);
