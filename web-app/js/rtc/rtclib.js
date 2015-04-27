@@ -76,9 +76,7 @@
 
     function processSignalingMessage(message) {
         var msg = JSON.parse(message);
-        console.log('WE HAVE processSignalingMessage: '+msg)
         if (msg.type === 'offer') {
-        	console.log('WE HAVE AN OFFER');
             pc.setRemoteDescription(new RTCSessionDescription(msg));
             doAnswer();
         } else if (msg.type === 'answer') {

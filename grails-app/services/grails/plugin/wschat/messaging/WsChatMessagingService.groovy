@@ -14,15 +14,17 @@ import javax.websocket.Session
 class WsChatMessagingService extends WsChatConfService {
 
 	def sendMsg(Session userSession,String msg) throws IOException{
-		String urecord = userSession.userProperties.get("username") as String
-		if (config.debug == "on") {
-			println "sendMsg ${urecord}: ${msg}"
+		if (userSession && userSession.isOpen()) {
+			String urecord = userSession.userProperties.get("username") as String
+			if (config.debug == "on") {
+				println "sendMsg ${urecord}: ${msg}"
+			}
+			boolean isEnabled = boldef(config.dbstore_user_messages)
+			if (isEnabled) {
+				persistMessage(msg ,urecord)
+			}
+			userSession.basicRemote.sendText(msg)
 		}
-		boolean isEnabled = boldef(config.dbstore_user_messages)
-		if (isEnabled) {
-			persistMessage(msg ,urecord)
-		}
-		userSession.basicRemote.sendText(msg)
 	}
 
 	def messageUser(Session userSession,Map msg) {
@@ -43,8 +45,8 @@ class WsChatMessagingService extends WsChatConfService {
 		chatNames.each { String cuser, Session crec ->
 			if (crec && crec.isOpen()) {
 				if (cuser.equals(user)) {
-					Boolean sendIt = checkPM(urecord,user)
-					Boolean sendIt2 = checkPM(user,urecord)
+					boolean sendIt = checkPM(urecord,user)
+					boolean sendIt2 = checkPM(user,urecord)
 					found = true
 					if (sendIt&&sendIt2) {
 						crec.basicRemote.sendText(myMsgj as String)
@@ -65,7 +67,7 @@ class WsChatMessagingService extends WsChatConfService {
 
 	@Transactional
 	Boolean checkPM(String username, String urecord) {
-		Boolean result = true
+		boolean result = true
 		if (dbSupport()) {
 			def found = ChatBlockList.findByChatuserAndUsername(currentUser(username),urecord)
 			if (found) {

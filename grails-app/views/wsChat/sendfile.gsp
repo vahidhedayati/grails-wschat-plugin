@@ -74,7 +74,6 @@ $(function() {
     var _arr = _url.split("/");
     var domain = _arr[2];
 
-    console.log('connecting to uri'+uri+' : '+sender);
     myrtclibinit(uri, sender);
 });
 function onSendBtnClick() {
@@ -83,7 +82,6 @@ function onSendBtnClick() {
         reader.onload = (function(theFile) {
             return function(evt) {
                 var msg = JSON.stringify({"type" : "file", "name" : theFile.name, "size" : theFile.size, "data" : evt.target.result});
-                console.log('--->'+msg);
                 sendDataMessage(msg);
             };
         })(f);
