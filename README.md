@@ -31,7 +31,9 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 					More UI updates. Button to close PMs added.
 					
 					
-1.17 				FileSharing peer2peer now enabled - users can send files via websockets					 
+1.17 				FileSharing peer2peer now enabled - users can send files via websockets to negotiate 
+                    and initiate WebRTC + HTML5 file sharing capabilities. Once negotiation completed 
+                    files are sent directly from userA to userB.					 
 										
 					
 ```
