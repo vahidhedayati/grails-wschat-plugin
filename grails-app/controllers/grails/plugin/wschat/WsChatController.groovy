@@ -28,6 +28,16 @@ class WsChatController extends WsChatConfService {
 		[sender:sender, room:room, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
 			addAppName:wsconf.addAppName]
 	}
+	
+	def sendmedia(String room) {
+		def chatuser = session.wschatuser
+		boolean sender = false
+		if (room == chatuser) {
+			sender = true
+		}
+		[sender:sender, room:room, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
+			addAppName:wsconf.addAppName]
+	}
 
 	def index() {
 		def room = config.rooms

@@ -87,7 +87,6 @@ class WsChatFileEndpoint extends ChatUtils implements ServletContextListener {
 		wsFileService.verifyFileAction(userSession,message)
 	}
 
-
 	@OnClose
 	public void whenClosing(Session userSession) throws SocketException {
 		try {
