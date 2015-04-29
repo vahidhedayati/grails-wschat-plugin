@@ -1,4 +1,9 @@
-
+/*
+ * Taken from WebRTC BluePrints
+ * https://github.com/fycth/WebRTC-Blueprints
+ * used for media streaming aspect of this plugin
+ * 
+ */
 var webrtcDetectedVersion = null;
 var webrtcDetectedBrowser = null;
 window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;

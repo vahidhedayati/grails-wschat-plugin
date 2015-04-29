@@ -162,7 +162,8 @@ class WsChatUserService extends WsChatConfService  {
 					def av = crec.userProperties.get("av").toString()
 					def rtc = crec.userProperties.get("rtc").toString()
 					def file = crec.userProperties.get("file").toString()
-
+					def media = crec.userProperties.get("media").toString()
+					
 					def addav = ""
 					if (listType=="generic") {
 						if (av.equals("on")) {
@@ -173,6 +174,9 @@ class WsChatUserService extends WsChatConfService  {
 						}
 						if (file.equals('on')) {
 							addav = "_file"
+						}
+						if (media.equals('on')) {
+							addav = "_mediastream"
 						}
 						if (cuser.equals(uiterator)) {
 							myUser.put("owner${addav}", cuser)

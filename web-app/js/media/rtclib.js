@@ -1,4 +1,9 @@
-
+/*
+ * Taken from WebRTC BluePrints
+ * https://github.com/fycth/WebRTC-Blueprints
+ * used for media streaming aspect of this plugin
+ * 
+ */
     var RTCPeerConnection = null;
     var webrtcDetectedBrowser = null;
 
@@ -207,6 +212,7 @@
     function onReceiveMessageCallback(event) {
         try {
             var msg = JSON.parse(event.data);
+           // console.log("Msg is "+msg);
             if (msg.type === 'streaming_proposed') {
                 doReceiveStreaming();
             }
@@ -255,6 +261,7 @@
         recvMediaSource = new MediaSource();
         recvMediaSource.addEventListener('sourceopen', function (e) {
             receiverBuffer = recvMediaSource.addSourceBuffer('video/webm; codecs="vorbis,vp8"');
+        	//receiverBuffer = recvMediaSource.addSourceBuffer('video/mp4;codecs="avc1.4d001e,mp4a.40.2"');
             console.log('media source state: ', this.readyState);
         }, false);
 

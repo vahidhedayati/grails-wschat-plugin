@@ -1,6 +1,7 @@
 /*
  * Taken from WebRTC BluePrints
  * https://github.com/fycth/WebRTC-Blueprints
+ * used for filesharing aspect of this plugin
  * 
  */
 

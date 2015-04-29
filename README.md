@@ -1,7 +1,7 @@
 wschat
 =========
 
-Grails websocket chat Plugin provides a multi-chat room facilty to an existing grails based site/application.
+Grails websocket chat Plugin provides a multi-chat room add-on to an existing grails based site/application.
 
 
 ##### grails wschat plugin supports:
@@ -11,7 +11,8 @@ Admin can:  kick/Ban (for specified time period)
 Users can create profiles define details and upload photos.
 Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
-0.19+ -  			supports webcam tested  on chrome/firefox.  
+0.19+ -  			supports webcam tested  on chrome/firefox.
+  
 1.0+  -  			supports WebRTC currently only on Chrome Canary.
 
 1.11-SNAPSHOT4 + 	supports WebRTC screen sharing + chat client/server 
@@ -31,9 +32,30 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 					More UI updates. Button to close PMs added.
 					
 					
-1.17 				FileSharing peer2peer now enabled - users can send files via websockets to negotiate 
-                    and initiate WebRTC + HTML5 file sharing capabilities. Once negotiation completed 
-                    files are sent directly from userA to userB.					 
+1.17 				Websocket -> WebRTC File sharing peer2peer available -  
+					Once websocket negotiation are completed, WebRTC and 
+					HTML5 File API are used in conjunction to allow file transfer
+					between the users physical machines.
+					Limitations (Chrome) - seems to only work on small files 18k worked..
+					 50k files failed. On firefox tested as far as 2MB files with no problems
+										 
+										 
+1.17-SNAPSHOT1      Mediastreaming enabled but has not worked for me personally, might do for someone else. 
+					Only supports .webm files.
+					firefox
+    				about:config
+    				media.mediasource.enabled = true
+
+    				screen casting for Chrome
+    				chrome://flags
+    				enable screen capture support in getusermedia()
+    				HTTPS is MANDATORY for screen casting
+    				Chrome will ask 'Do you want <web site name> to share your screen? - say YES
+    				firefox show what shared by chrome but FF doesn't share crseen itself 
+    				(transmits just video from cam)
+    				Or run
+    				chromium-browser --allow-http-screen-capture --enable-usermedia-screen-capturing
+    														 
 										
 					
 ```
@@ -46,7 +68,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency :
 ```groovy
-	compile ":wschat:1.17-SNAPSHOT" 
+	compile ":wschat:1.17-SNAPSHOT1" 
 ```
 
 This plugin provides  basic chat page, once installed you can access

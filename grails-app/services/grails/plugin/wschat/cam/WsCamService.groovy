@@ -83,4 +83,18 @@ class WsCamService extends WsChatConfService {
 		}
 		destroyCamUser(user)
 	}
+	
+	void addUser(String viewer, Session userSession){
+		cleanUpSession(userSession)
+		camUsers.putIfAbsent(viewer, userSession)
+	}
+	
+	void cleanUpSession(useSession) {
+		camNames.each { String chuser, Session crec ->
+			if (!crec || !crec.isOpen()) {
+				destroyFileUser(chuser)
+			}
+		}
+	}
+
 }

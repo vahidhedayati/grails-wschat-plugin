@@ -1,5 +1,7 @@
 package grails.plugin.wschat.file
 
+import java.util.concurrent.ConcurrentMap;
+
 import grails.converters.JSON
 import grails.plugin.wschat.WsChatConfService
 import groovy.json.JsonBuilder
@@ -70,14 +72,28 @@ class WsFileService extends WsChatConfService {
 			}
 		}
 	}
+	
+	void addUser(String viewer, Session userSession){
+		cleanUpSession(userSession)
+		fileroomUsers.putIfAbsent(viewer, userSession)
+	} 
+	
+	void cleanUpSession(useSession) {
+		fileNames.each { String chuser, Session crec ->
+			if (!crec || !crec.isOpen()) {
+				destroyFileUser(chuser)
+			}
+		}
+	}
 
 	void discoCam(Session userSession) {
 		String user  =  userSession.userProperties.get("camusername") as String
 		String camuser  =  userSession.userProperties.get("camuser") as String
 		if (user && camuser && camuser.endsWith(':'+user) && (camuser != user+":"+user)) {
-			fileroomUsers.each { String chuser, Session crec ->
+			fileNames.each { String chuser, Session crec ->
 				if (crec && crec.isOpen()) {
-					if (chuser && chuser.startsWith(user)) {
+					String chamuser  =  crec.userProperties.get("camuser") as String
+					if (chamuser && chamuser.startsWith(user)) {
 						def myMsg1 = [:]
 						myMsg1.put("system","disconnect")
 						wsChatMessagingService.messageUser(crec,myMsg1)
@@ -86,6 +102,6 @@ class WsFileService extends WsChatConfService {
 				}
 			}
 		}
-		destroyCamUser(user)
+		destroyFileUser(user)
 	}
 }

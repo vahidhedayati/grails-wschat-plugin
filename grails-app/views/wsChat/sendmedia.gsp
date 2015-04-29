@@ -40,15 +40,15 @@
 
 <div class="container">
     <video id="videoscreen" autoplay controls></video>
-    <video id="remotevideo" autoplay></video>
+    <video hidden id="remotevideo" autoplay></video>
 </div>
 <div class="container">
     <div id='status'></div>
     <div><br>
-        ...then select .webm file you want to stream <input type="file" id="files" name="files[]"/>
+        ...Select .webm file to stream <input type="file" id="files" name="files[]"/>
     </div>
     <div>
-        ...and then press <button onclick="onSendBtnClick()">Start streaming !</button>
+        <button onclick="onSendBtnClick()">Start streaming !</button>
     </div>
 </div>
 <script>
@@ -104,7 +104,7 @@ function onSendBtnClick() {
 
 function OnRoomReceived(room) {
     var st = document.getElementById("status");
-    st.innerHTML = "Now, open this link on other browser window or machine: <a href=\""+window.location.href+"?room="+room+"\">"+window.location.href+"?room="+room+"</a>";
+    st.innerHTML = "This has not worked for me, another user needs to join you";
 };
 
 function handleFileSelect(evt) {

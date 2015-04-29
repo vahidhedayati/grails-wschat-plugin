@@ -191,6 +191,7 @@ function processMessage(message) {
 		// for games use glyphicon-tower
 		
 		jsonData.users.forEach(function(entry) {
+			
 			if (entry.owner_rtc!=null) {
 				sb.push('\n<li class="dropdown-submenu bttn-xs" id="ownerBar">\n<a tabindex="-1" id="user-title" class="user-title glyphicon glyphicon-facetime-video glyphicon-volume-up">'+entry.owner_rtc+'</a>\n');
 				sb.push('<ul class="dropdown-menu">\n');
@@ -203,7 +204,33 @@ function processMessage(message) {
 				camoff(entry.owner_rtc);
 				rtcon(entry.owner_rtc);
 				sb.push('</ul>\n</li>\n\n\n');
-			}	
+			}
+			
+			if (entry.owner_file!=null) {
+				sb.push('\n<li class="dropdown-submenu bttn-xs" id="ownerBar">\n<a tabindex="-1" id="user-title" class="user-title glyphicon glyphicon-file" >'+entry.owner_file+'</a>\n');
+				sb.push('<ul class="dropdown-menu">\n');
+				sb.push('<li class="btn-xs" id="sideBar">\n');
+				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.owner_file)+');">'+entry.owner_file+'\'s profile</a>\n');
+				sb.push('</li>\n');
+				fileshareon(entry.owner_file);
+				camoff(entry.owner_file);
+				rtcoff(entry.owner_file);
+				sb.push('</ul>\n</li>\n\n\n');
+			}
+			
+			if (entry.owner_mediastream!=null) {
+				sb.push('\n<li class="dropdown-submenu bttn-xs" id="ownerBar">\n<a tabindex="-1" id="user-title" class="user-title glyphicon glyphicon-film" >'+entry.owner_mediastream+'</a>\n');
+				sb.push('<ul class="dropdown-menu">\n');
+				sb.push('<li class="btn-xs" id="sideBar">\n');
+				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.owner_mediastream)+');">'+entry.owner_mediastream+'\'s profile</a>\n');
+				sb.push('</li>\n');
+				fileshareoff(entry.owner_mediastream);
+				mediashareon(entry.owner_mediastream);
+				camoff(entry.owner_mediastream);
+				rtcoff(entry.owner_mediastream);
+				sb.push('</ul>\n</li>\n\n\n');
+			}
+			
 			if (entry.owner_av!=null) {
 				sb.push('\n<li class="dropdown-submenu bttn-xs" id="ownerBar">\n<a tabindex="-1" id="user-title" class="user-title glyphicon glyphicon-facetime-video " >'+entry.owner_av+'</a>\n');
 				sb.push('<ul class="dropdown-menu">\n');
@@ -217,6 +244,7 @@ function processMessage(message) {
 				rtcoff(entry.owner_av);
 				sb.push('</ul>\n</li>\n\n\n');
 			}
+			
 			if (entry.owner!=null) {
 				sb.push('\n<li class="dropdown-submenu bttn-xs" id="ownerBar">\n<a tabindex="-1" id="user-title" class="user-title" href="#">'+entry.owner+'</a>\n');
 				sb.push('<ul class="dropdown-menu">\n');
@@ -235,11 +263,17 @@ function processMessage(message) {
 				sb.push('<li class="btn-xs" id="sideBar">\n');
 				sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry.owner)+','+wrapIt('send')+','+wrapIt('fileshare')+');">Enable FileSharing</a>\n');
 				sb.push('</li>\n');
+				sb.push('<li class="btn-xs" id="sideBar">\n');
+				sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry.owner)+','+wrapIt('send')+','+wrapIt('mediastream')+');">Enable Media Streaming</a>\n');
+				sb.push('</li>\n');
 				fileshareoff(entry.owner);
 				camoff(entry.owner);
 				rtcoff(entry.owner);
 				sb.push('</ul>\n</li>\n\n\n');
 			}
+			
+			/*------------------------------------------------------------------------------------------*/
+			
 			if (entry.friends_rtc!=null) {
 				sb1.push('\n<li class="dropdown-submenu bttn-xs" id="chatFriend"><a tabindex="-1" id="user-title" class="user-title glyphicon glyphicon-facetime-video glyphicon-volume-up" >'+entry.friends_rtc+'</a>\n');
 				sb1.push('<ul class="dropdown-menu">\n');
@@ -289,7 +323,7 @@ function processMessage(message) {
 
 			
 			if (entry.friends_file!=null) {
-				sb1.push('\n<li class="dropdown-submenu bttn-xs" id="chatFriend"><a tabindex="-1"  id="user-title" class="user-title glyphicon glyphicon glyphicon-share glyphicon-file">'+entry.friends_file+'</a>\n');
+				sb1.push('\n<li class="dropdown-submenu bttn-xs" id="chatFriend"><a tabindex="-1"  id="user-title" class="user-title glyphicon glyphicon-file">'+entry.friends_file+'</a>\n');
 				sb1.push('<ul class="dropdown-menu">\n');
 				sb1.push('<li class="btn-xs" id="sideBar">\n');
 				sb1.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.friends_file)+');">'+entry.friends_file+'\'s profile</a>\n');
@@ -311,7 +345,29 @@ function processMessage(message) {
 				sb1.push('</ul>\n</li>\n\n\n');
 			}
 
-			
+			if (entry.friends_mediastream!=null) {
+				sb1.push('\n<li class="dropdown-submenu bttn-xs" id="chatFriend"><a tabindex="-1"  id="user-title" class="user-title glyphicon glyphicon-film">'+entry.friends_mediastream+'</a>\n');
+				sb1.push('<ul class="dropdown-menu">\n');
+				sb1.push('<li class="btn-xs" id="sideBar">\n');
+				sb1.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.friends_mediastream)+');">'+entry.friends_mediastream+'\'s profile</a>\n');
+				sb1.push('</li>\n');
+				sb1.push('<li class="btn-xs" id="sideBar">\n');
+				sb1.push('<a onclick="javascript:pmuser('+wrapIt(entry.friends_mediastream)+', '+wrapIt(user)+');">PM  '+entry.friends_mediastream+'</a>\n');
+				sb1.push('\n</li> \n');
+
+				sb1.push('<li class="btn-xs" id="sideBar"><a onclick="javascript:removefriend('+wrapIt(entry.friends_mediastream)+', '+wrapIt(user)+');">Del from friends list</a>\n');
+				sb1.push('\n</li> ');
+				camoff(entry.friends_mediastream);
+				fileshareoff(entry.friends_mediastream);
+				mediashareon(entry.friends_mediastream);
+				rtcoff(entry.friends_mediastream);
+				sb1.push('<li class="btn-xs" id="sideBar">\n');
+				sb1.push('<a onclick="javascript:enableCam('+wrapIt(entry.friends_mediastream)+','+wrapIt('view')+','+wrapIt('mediastream')+');">Connect to MediaStream</a>\n');
+				sb1.push('</li>\n');
+				var admintool=adminOptions(isAdmin,entry.friends_mediastream)
+				sb1.push(admintool);
+				sb1.push('</ul>\n</li>\n\n\n');
+			}
 			
 			if (entry.friends!=null) {
 				sb1.push('\n<li class="dropdown-submenu bttn-xs" id="chatFriend"><a tabindex="-1" id="user-title" class="user-title" href="#">'+entry.friends+'</a>\n');
@@ -331,6 +387,8 @@ function processMessage(message) {
 				sb1.push(admintool);
 				sb1.push('</ul>\n</li>\n\n\n');
 			}
+			
+			/*------------------------------------------------------------------------------------------*/
 			
 			if (entry.user_rtc!=null) {
 				sb2.push('\n<li class="dropdown-submenu bttn-xs" id="chatUser"><a tabindex="-1"  id="user-title" class="user-title glyphicon glyphicon-facetime-video glyphicon-volume-up">'+entry.user_rtc+'</a>\n');
@@ -386,8 +444,35 @@ function processMessage(message) {
 				sb2.push('</ul>\n</li>\n\n\n');
 			}
 
+			if (entry.user_mediastream!=null) {
+				sb2.push('\n<li class="dropdown-submenu bttn-xs" id="chatUser"><a tabindex="-1" id="user-title" class="user-title glyphicon glyphicon-film">'+entry.user_mediastream+'</a>\n');
+				sb2.push('<ul class="dropdown-menu">\n');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.user_mediastream)+');">'+entry.user_mediastream+'\'s profile</a>\n');
+				sb2.push('</li>\n');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a onclick="javascript:pmuser('+wrapIt(entry.user_mediastream)+', '+wrapIt(user)+');">PM  '+entry.user_mediastream+'</a>\n');
+				sb2.push('\n</li> ');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a onclick="javascript:adduser('+wrapIt(entry.user_mediastream)+', '+wrapIt(user)+');">Add  '+entry.user_mediastream+'</a>\n');
+				sb2.push('</li>\n');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a onclick="javascript:blockuser('+wrapIt(entry.user_mediastream)+', '+wrapIt(user)+');">Block  '+entry.user_mediastream+'</a>\n');
+				sb2.push('</li>\n');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_mediastream)+','+wrapIt('view')+','+wrapIt('mediastream')+');">Connect to MediaStream</a>\n');
+				sb2.push('</li>\n');
+				mediashareon(entry.user_mediastream);
+				fileshareoff(entry.user_mediastream);
+				camoff(entry.user_mediastream)
+				rtcoff(entry.user_mediastream);
+				var admintool=adminOptions(isAdmin,entry.user_mediastream)
+				sb2.push(admintool);
+				sb2.push('</ul>\n</li>\n\n\n');
+			}
+			
 			if (entry.user_file!=null) {
-				sb2.push('\n<li class="dropdown-submenu bttn-xs" id="chatUser"><a tabindex="-1" id="user-title" class="user-title glyphicon glyphicon-share glyphicon-file">'+entry.user_file+'</a>\n');
+				sb2.push('\n<li class="dropdown-submenu bttn-xs" id="chatUser"><a tabindex="-1" id="user-title" class="user-title glyphicon glyphicon-file">'+entry.user_file+'</a>\n');
 				sb2.push('<ul class="dropdown-menu">\n');
 				sb2.push('<li class="btn-xs" id="sideBar">\n');
 				sb2.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.user_file)+');">'+entry.user_file+'\'s profile</a>\n');
@@ -433,6 +518,8 @@ function processMessage(message) {
 				sb2.push(admintool);
 				sb2.push('</ul>\n</li>\n\n\n');
 			}
+			
+			/*------------------------------------------------------------------------------------------*/
 
 			if (entry.blocked!=null) {
 				sb3.push('\n<li class="dropdown-submenu bttn-xs" id="chatBlocked"><a tabindex="-1" id="user-title" class="user-title">'+entry.blocked+'</a>\n');
@@ -447,6 +534,10 @@ function processMessage(message) {
 				sb3.push(admintool);
 				sb3.push('</ul>\n</li>\n\n\n');
 			}
+			
+			
+			/*------------------------------------------------------------------------------------------*/
+			
 			if (entry.offline_friends!=null) {
 				sb4.push('\n<li class="dropdown-submenu btn-default bttn-xs" id="chatOffline"><a tabindex="-1" id="user-title" class="user-title"><i>'+entry.offline_friends+' (offline)</i></a>\n');
 				sb4.push('<ul class="dropdown-menu">\n');
@@ -462,6 +553,7 @@ function processMessage(message) {
 				sb4.push(admintool);
 				sb4.push('</ul>\n</li>\n\n\n');
 			}
+			/*------------------------------------------------------------------------------------------*/
 			if (entry.online_friends!=null) {
 				sb5.push('\n<li class="dropdown-submenu btn-default bttn-xs" id="chatOnline"><a tabindex="-1" id="user-title" class="user-title"><b>'+entry.online_friends+' (online)</b></a>\n');
 				sb5.push('<ul class="dropdown-menu">\n');
@@ -699,12 +791,7 @@ function delCamList(uid) {
 	}
 }
 
-function delFileList(uid) {
-	var i = fileOn.indexOf(uid);
-	if(i != -1) {
-		fileOn.splice(i, 1);
-	}
-}
+
 function rtcon(uid) {
 	var idx = rtcOn.indexOf(uid);
 	if(idx == -1) {
@@ -758,7 +845,34 @@ function fileshareoff(uid) {
 	}
 }
 
+function delFileList(uid) {
+	var i = fileOn.indexOf(uid);
+	if(i != -1) {
+		fileOn.splice(i, 1);
+	}
+}
 
+
+function mediashareon(uid) {
+	var idx = mediaOn.indexOf(uid);
+	if(idx == -1) {
+		mediaOn.push(uid);
+	}	
+}
+
+function mediashareoff(uid) {
+	var i = mediaOn.indexOf(uid);
+	if(i != -1) {
+		mediaOn.splice(i, 1);
+	}
+}
+
+function delMediaList(uid) {
+	var i = mediaOn.indexOf(uid);
+	if(i != -1) {
+		mediaOn.splice(i, 1);
+	}
+}
 function isCamOn(uid) {
 	var camadded="false";
 	var idx = camOn.indexOf(uid);
@@ -791,17 +905,40 @@ function getFile(user) {
 		$('#camViewContainer').html(data);
 	});
 }
+
 function sendFile() {
 	$.get("/"+getApp()+"/wsChat/sendfile?room="+user,function(data){
 		$('#myCamContainer').html(data);
 	});
 	webSocket.send("/fileenabled "+user);
 }
+
 function disableFile() {
 	delFileList(user);
 	webSocket.send("/filedisabled "+user);
 	
 }
+
+
+function getMedia(user) {
+	$.get("/"+getApp()+"/wsChat/sendmedia?room="+user,function(data){
+		$('#camViewContainer').html(data);
+	});
+}
+
+function sendMedia() {
+	$.get("/"+getApp()+"/wsChat/sendmedia?room="+user,function(data){
+		$('#myCamContainer').html(data);
+	});
+	webSocket.send("/mediaenabled "+user);
+}
+
+function disableMedia() {
+	delMediaList(user);
+	webSocket.send("/mediadisabled "+user);
+	
+}
+
 
 function getCam(user) {
 	$.get("/"+getApp()+"/wsChat/camrec?user="+user,function(data){
@@ -900,7 +1037,7 @@ function enableCam(camuser, camaction,viewtype){
 				vbox = $(ell).videobox({id:cmuser, 
 					//user:{key : "value"},
 					user:user,
-					title : "Webcam: "+camuser,
+					title : viewtype+": "+camuser,
 					sender: camuser,
 					camaction: camaction,
 					viewtype: viewtype,
@@ -909,7 +1046,7 @@ function enableCam(camuser, camaction,viewtype){
 					}
 				});
 				if (camaction=="view") {
-					webSocket.send("/pm "+camuser+", "+user+"is now viewing your cam");
+					webSocket.send("/pm "+camuser+", "+user+"is now viewing your "+viewtype);
 				}
 				//else{
 				//	webSocket.send("/pm "+user+", "+user+" you cam is now active");

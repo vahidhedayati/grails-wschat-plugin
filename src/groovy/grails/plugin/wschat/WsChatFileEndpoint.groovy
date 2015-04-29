@@ -72,11 +72,12 @@ class WsChatFileEndpoint extends ChatUtils implements ServletContextListener {
 		wsChatMessagingService = ctx.wsChatMessagingService
 		wsChatRoomService = ctx.wsChatRoomService
 		wsFileService = ctx.wsFileService
-
+		
 		if (loggedIn(viewer)) {
 			userSession.userProperties.put("camusername", viewer)
 			userSession.userProperties.put("camuser", user+":"+viewer)
-			fileroomUsers.putIfAbsent(viewer, userSession)
+			
+			wsFileService.addUser(viewer, userSession)
 		}else{
 			log.error "could not find chat user ! ${viewer}"
 		}

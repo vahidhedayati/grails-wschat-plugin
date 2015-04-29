@@ -109,6 +109,12 @@
 				}else{
 					uiVidContent='<div id="myCamContainer"></div>'+sendFile();
 				}
+			} else if (viewtype=="mediastream") { 
+				if (camaction=="view") {
+					uiVidContent='<div id="camViewContainer"></div>'+getMedia(sender);
+				}else{
+					uiVidContent='<div id="myCamContainer"></div>'+sendMedia();
+				}
 			}else{
 				if (camaction=="view") {
 					uiVidContent='<div id="camViewContainer"></div>'+getWebrtc(sender,viewtype);

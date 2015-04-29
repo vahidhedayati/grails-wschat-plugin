@@ -63,8 +63,8 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 	@OnOpen
 	public void whenOpening(Session userSession,EndpointConfig c,@PathParam("user") String user,@PathParam("viewer") String viewer) {
 
-		userSession.setMaxBinaryMessageBufferSize(1024*512)
-		userSession.setMaxTextMessageBufferSize(1000000)
+		userSession.setMaxBinaryMessageBufferSize(8094*512)
+		userSession.setMaxTextMessageBufferSize(1000000000)
 		//userSession.setmaxMessageSize(-1L)
 
 
@@ -81,7 +81,8 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 		if (loggedIn(viewer)) {
 			userSession.userProperties.put("camusername", viewer)
 			userSession.userProperties.put("camuser", user+":"+viewer)
-			camUsers.putIfAbsent(viewer, userSession)
+			//camUsers.putIfAbsent(viewer, userSession)
+			wsCamService.addUser(viewer, userSession)
 		}else{
 			log.error "could not find chat user ! ${viewer}"
 		}
