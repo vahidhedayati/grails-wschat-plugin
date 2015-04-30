@@ -36,8 +36,12 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 					Once websocket negotiation are completed, WebRTC and 
 					HTML5 File API are used in conjunction to allow file transfer
 					between the users physical machines.
-					Limitations (Chrome) - seems to only work on small files 18k worked..
-					 50k files failed. On firefox tested as far as 2MB files with no problems
+					Limitations 
+					1. (Chrome) - seems to only work on small files 18k worked..
+					50k files failed. On firefox tested as far as 2MB files all good.
+					2. Only chrome -> chrome OR Firefox -> Firefox. 
+					Can not send from FF to Chrome and vice versa.. read here:
+					https://bloggeek.me/send-file-webrtc-data-api/
 										 
 										 
 1.17-SNAPSHOT1      Mediastreaming enabled but has not worked for me personally, might do for someone else. 
