@@ -127,7 +127,7 @@ class WsChatAuthService extends WsChatConfService   {
 				def myMsg2 = [:]
 				myMsg2.put("currentRoom", "${room}")
 				wsChatMessagingService.messageUser(userSession,myMsg2)
-				wsChatUserService.sendUsers(userSession,username)
+
 				String sendjoin = config.send.joinroom  ?: 'yes'
 
 				if (sendjoin == 'yes') {
@@ -135,6 +135,7 @@ class WsChatAuthService extends WsChatConfService   {
 					//wsChatMessagingService.messageUser(userSession,myMsg)
 				}
 				wsChatRoomService.sendRooms(userSession)
+				wsChatUserService.sendUsers(userSession,username)
 
 
 			}else{

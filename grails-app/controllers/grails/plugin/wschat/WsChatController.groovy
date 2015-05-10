@@ -199,6 +199,7 @@ class WsChatController extends WsChatConfService {
 				render (view: '/admin/viewUsers', model: model)
 			}
 		}
+		render ''
 	}
 
 	def search(String mq) {
@@ -206,6 +207,7 @@ class WsChatController extends WsChatConfService {
 			Map ss = wsChatUserService.search(mq)
 			render (template: '/admin/userList', model: [ userList: ss.userList,uList:ss.uList])
 		}
+		render ''
 	}
 
 	def findUser(String uid) {
@@ -213,6 +215,7 @@ class WsChatController extends WsChatConfService {
 			def returnResult = wsChatUserService.findaUser(uid)
 			render returnResult as JSON
 		}
+		render ''
 	}
 
 	def addUser(String username) {
@@ -225,6 +228,7 @@ class WsChatController extends WsChatConfService {
 		if (isAdmin) {
 			render (template: '/admin/addEmail', model: [ username:username])
 		}
+		render ''
 	}
 	def addUserEmail(String username,String email) {
 		if (isAdmin && email) {
@@ -264,12 +268,14 @@ class WsChatController extends WsChatConfService {
 			Map results = wsChatBookingService.addBooking(invites, conferenceName, dateTime, endDateTime)
 			render "Added: ${results.conference} : Returned Booking ID: ${results.confirmation}"
 		}
+		render ''
 	}
 
 	def addaRoom() {
 		if (isAdmin) {
 			render template : '/room/addaRoom'
 		}
+		render ''
 	}
 
 	def delaRoom() {
@@ -277,6 +283,7 @@ class WsChatController extends WsChatConfService {
 			def roomList = ChatRoomList?.findAllByRoomType('chat')*.room?.unique()
 			render template : '/room/delaRoom' , model:[ roomList:roomList ]
 		}
+		render ''
 	}
 
 	def addRoom(String room) {
@@ -284,6 +291,7 @@ class WsChatController extends WsChatConfService {
 			wsChatRoomService.addManualRoom(room,'chat')
 			render "Room ${room} added"
 		}
+		render ''
 	}
 
 	def delRoom(String room) {
@@ -291,18 +299,21 @@ class WsChatController extends WsChatConfService {
 			wsChatRoomService.delaRoom(room,'chat')
 			render "Room ${room} removed"
 		}
+		render ''
 	}
 
 	def createConference() {
 		if (isAdmin) {
 			render (template: '/admin/book')
 		}
+		render ''
 	}
 
 	def adminMenu() {
 		if (isAdmin) {
 			render template: '/admin/admin'
 		}
+		render ''
 	}
 
 	private Boolean getIsAdmin() {

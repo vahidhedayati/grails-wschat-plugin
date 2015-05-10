@@ -19,9 +19,7 @@ import javax.websocket.server.ServerContainer
 import javax.websocket.server.ServerEndpoint
 
 @WebListener
-
 @ServerEndpoint("/WsChatFileEndpoint/{user}/{viewer}")
-
 class WsChatFileEndpoint extends ChatUtils implements ServletContextListener {
 
 	private final Logger log = LoggerFactory.getLogger(getClass().name)
@@ -31,7 +29,6 @@ class WsChatFileEndpoint extends ChatUtils implements ServletContextListener {
 		ServletContext servletContext = event.servletContext
 		final ServerContainer serverContainer = servletContext.getAttribute("javax.websocket.server.ServerContainer")
 		try {
-
 			if (Environment.current == Environment.DEVELOPMENT) {
 				serverContainer.addEndpoint(WsChatFileEndpoint)
 			}

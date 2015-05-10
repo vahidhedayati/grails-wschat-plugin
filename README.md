@@ -70,10 +70,21 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 ###### Plugin will work with tomcat 7.0.54 + (inc. 8) running java 1.7+
 
 
-###### Dependency :
+###### Dependency (Grails 2.X :
 ```groovy
 	compile ":wschat:1.17-SNAPSHOT1" 
 ```
+
+[codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/tree/grails2)
+
+
+###### Dependency (Grails 3.X :
+```groovy
+	compile "org.grails.plugins:wschat:3.0.1"
+```
+
+[codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/)
+
 
 This plugin provides  basic chat page, once installed you can access
 ```
@@ -81,14 +92,26 @@ http://localhost:8080/yourapp/wsChat/
 ```
 
 
+Memory Configuration (SHOULD NOT be required under Grails 3 under development)
+This should not be required but if you run into Heapspace issues you could try these:
+```bash
+export GRAILS_OPTS="-Xmx1G -Xms1024m -XX:MaxPermSize=1024m"
+export MAVEN_OPTS="-XX:MaxPermSize=1024m -Xms1024m -Xmx1024m"
+export JAVA_OPTS='-server -Xms1024m -Xmx1024m -XX:PermSize=1024m -XX:MaxPermSize=1024m'
+```
+
+before running grails run-app
+
+
+
 
 ## Config.groovy variables required:
- [Config.groovy variables required:](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Config.groovy)
+ [Config.groovy variables required:](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Config-V3.groovy)
  		
 
 
 ##Version info
-[Version info](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Version-info)
+[Version info](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Version-info-V3)
 
 
 

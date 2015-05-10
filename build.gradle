@@ -16,10 +16,11 @@ plugins {
     id "com.jfrog.bintray" version "1.1"
 }
 
-version "3.1"
+version "3.0.1"
 group "org.grails.plugins"
 
 apply plugin: 'maven-publish'
+//apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: "spring-boot"
