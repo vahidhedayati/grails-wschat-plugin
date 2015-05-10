@@ -1,8 +1,10 @@
 package grails.plugin.wschat
 
-
 import grails.util.Environment
+import grails.util.Holders
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.nio.ByteBuffer
 
 import javax.servlet.ServletContext
@@ -19,14 +21,8 @@ import javax.websocket.server.PathParam
 import javax.websocket.server.ServerContainer
 import javax.websocket.server.ServerEndpoint
 
-import org.codehaus.groovy.grails.web.context.ServletContextHolder as SCH
-import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes as GA
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 @WebListener
-
 @ServerEndpoint("/WsCamEndpoint/{user}/{viewer}")
-
 class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 
 	private final Logger log = LoggerFactory.getLogger(getClass().name)
@@ -42,13 +38,7 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 			if (Environment.current == Environment.DEVELOPMENT) {
 				serverContainer.addEndpoint(WsCamEndpoint)
 			}
-
-			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
-
-			def grailsApplication = ctx.grailsApplication
-
-			config = grailsApplication.config.wschat
-			int defaultMaxSessionIdleTimeout = config.camtimeout ?: 0
+			int defaultMaxSessionIdleTimeout = 0 //config.timeout ?: 0
 			serverContainer.defaultMaxSessionIdleTimeout = defaultMaxSessionIdleTimeout
 		}
 		catch (IOException e) {
@@ -66,18 +56,13 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 		userSession.setMaxBinaryMessageBufferSize(8094*512)
 		userSession.setMaxTextMessageBufferSize(1000000000)
 		//userSession.setmaxMessageSize(-1L)
-
-
-		def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
-		def grailsApplication = ctx.grailsApplication
-		config = grailsApplication.config.wschat
-
+		//def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
+		def ctx = Holders.applicationContext
 		wsChatAuthService = ctx.wsChatAuthService
 		wsChatUserService = ctx.wsChatUserService
 		wsChatMessagingService = ctx.wsChatMessagingService
 		wsChatRoomService = ctx.wsChatRoomService
 		wsCamService = ctx.wsCamService
-
 		if (loggedIn(viewer)) {
 			userSession.userProperties.put("camusername", viewer)
 			userSession.userProperties.put("camuser", user+":"+viewer)

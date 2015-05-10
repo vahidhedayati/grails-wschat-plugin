@@ -5,13 +5,13 @@ import grails.plugin.wschat.WsChatConfService
 
 import javax.websocket.Session
 
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.web.json.JSONObject
 
 public class WsChatClientService extends WsChatConfService {
 	
 	static transactional  =  false
 	
-	def grailsApplication
+
 	def wsChatUserService
 
 	private Session userSession = null

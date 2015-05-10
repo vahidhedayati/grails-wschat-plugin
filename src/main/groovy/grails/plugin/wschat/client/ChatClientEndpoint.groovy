@@ -1,5 +1,6 @@
 package grails.plugin.wschat.client
 
+import grails.util.Holders
 
 import javax.websocket.ClientEndpoint
 import javax.websocket.CloseReason
@@ -11,8 +12,7 @@ import javax.websocket.OnOpen
 import javax.websocket.Session
 import javax.websocket.server.PathParam
 
-import org.codehaus.groovy.grails.web.context.ServletContextHolder as SCH
-import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes as GA
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -28,7 +28,8 @@ public class ChatClientEndpoint  {
 	public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) {
 		this.userSession = userSession
 		
-		def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
+		//def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
+		def ctx = Holders.applicationContext
 		wsClientProcessService = ctx.wsClientProcessService
 	}
 	

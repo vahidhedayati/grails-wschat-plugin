@@ -2,11 +2,10 @@ package grails.plugin.wschat.client
 
 import grails.converters.JSON
 import grails.plugin.wschat.WsChatConfService
+import org.grails.web.json.JSONArray
+import org.grails.web.json.JSONObject
 
 import javax.websocket.Session
-
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
 
 /*
  * Vahid Hedayati

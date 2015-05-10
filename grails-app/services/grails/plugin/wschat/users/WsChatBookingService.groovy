@@ -11,7 +11,7 @@ import java.rmi.server.UID
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.text.SimpleDateFormat
-
+import org.grails.plugins.web.taglib.ApplicationTagLib
 import org.springframework.transaction.annotation.Transactional
 
 
@@ -90,7 +90,7 @@ class WsChatBookingService  extends WsChatConfService {
 		//}
 		String defaultsubject = "You have a chat Scheduled for ${startDate} "
 
-		def g = new org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib()
+		ApplicationTagLib g = new ApplicationTagLib()
 
 
 

@@ -1,18 +1,19 @@
 package grails.plugin.wschat
 
 import grails.converters.JSON
+import grails.core.GrailsApplication
+import grails.core.support.GrailsApplicationAware
 import grails.plugin.wschat.interfaces.UserMaps
 
+import javax.websocket.Session
 import java.util.concurrent.ConcurrentMap
 
-import javax.websocket.Session
-
-
-class WsChatConfService implements UserMaps{
+class WsChatConfService implements UserMaps, GrailsApplicationAware {
 
 	static transactional  =  false
-
-	def grailsApplication
+	def config
+	def cfg
+	GrailsApplication grailsApplication
 
 	/*
 	 * ChatUser ConcurrentHashMap
@@ -96,8 +97,8 @@ class WsChatConfService implements UserMaps{
 	static final Set<HashMap<String[],String[]>> clientMaster = ([:] as Set).asSynchronized()
 	static final Set<HashMap<String[],String[]>> clientSlave = ([:] as Set).asSynchronized()
 
-
-
+	//private String dbSupport
+	//private JSON iceservers
 	Map getWsconf() {
 		String dbSupport = config.dbsupport ?: 'yes'
 		String process = config.disable.login ?: 'no'
@@ -105,8 +106,8 @@ class WsChatConfService implements UserMaps{
 		String chatHeader = config.heading ?: 'Grails websocket chat'
 
 		String hostname = config.hostname ?: 'localhost:8080'
-		String addAppName = config.add.appName ?: 'yes'
-		JSON iceservers = grailsApplication.config.stunServers as JSON
+		String addAppName = config.add.appName ?: 'no'
+		JSON iceservers  = cfg.stunServers as JSON
 		String showtitle = config.showtitle ?: 'yes'
 		return [dbSupport:dbSupport, process:process, chatTitle:chatTitle,
 			chatHeader:chatHeader,  hostname:hostname, addAppName:addAppName,
@@ -123,9 +124,10 @@ class WsChatConfService implements UserMaps{
 		return isConfigEnabled(config.storeForFrontEnd ?: 'false')
 	}
 
-	Boolean dbSupport() {
+	Boolean hasDBSupport() {
 		Boolean dbsupport = false
 		String dbsup = config.dbsupport  ?: 'yes'
+
 		if ((dbsup.toLowerCase().equals('yes'))||(dbsup.toLowerCase().equals('true'))) {
 			dbsupport = true
 		}
@@ -134,7 +136,7 @@ class WsChatConfService implements UserMaps{
 
 	ChatUser currentUser(String username) {
 		ChatUser cu
-		if (dbSupport()) {
+		if (hasDBSupport()) {
 			ChatUser.withTransaction {
 				cu =  ChatUser.findByUsername(username)
 			}
@@ -142,7 +144,7 @@ class WsChatConfService implements UserMaps{
 		return cu
 	}
 
-	Boolean isAdmin(Session userSession) {
+	public Boolean isAdmin(Session userSession) {
 		Boolean useris = false
 		String userLevel = userSession.userProperties.get("userLevel") as String
 		if (userLevel.toString().toLowerCase().startsWith('admin')) {
@@ -152,17 +154,26 @@ class WsChatConfService implements UserMaps{
 	}
 
 
-	String getApplicationName() {
+	public String getApplicationName() {
 		return grailsApplication.metadata['app.name']
 	}
 
-	String getFrontend() {
+	public String getFrontend() {
 		return config.frontenduser ?: '_frontend'
 		//return cuser
 	}
 
-	def getConfig() {
-		grailsApplication?.config?.wschat ?: ''
+	void setGrailsApplication(GrailsApplication ga) {
+		cfg = ga.config
+		config = cfg.wschat
 	}
+
+	//def getConfig() {
+	//	return grailsApplication?.config?.wschat ?: ''
+		//return wschat
+	//}
+
+
+
 
 }

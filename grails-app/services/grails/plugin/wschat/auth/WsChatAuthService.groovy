@@ -64,7 +64,7 @@ class WsChatAuthService extends WsChatConfService   {
 	Map validateLogin(String username) {
 		def defaultPerm = 'user'
 		def user
-		if (dbSupport()) {
+		if (hasDBSupport()) {
 			def au=addUser(username)
 			user=au.user
 			def perm=au.perm
@@ -87,7 +87,7 @@ class WsChatAuthService extends WsChatConfService   {
 
 	@Transactional
 	void validateLogOut(String username) {
-		if (dbSupport()) {
+		if (hasDBSupport()) {
 			def logit = new ChatAuthLogs()
 			logit.username = username
 			logit.loggedIn = false
@@ -111,7 +111,7 @@ class WsChatAuthService extends WsChatConfService   {
 			userSession.userProperties.put("username", username)
 			isuBanned = isBanned(username)
 			if (!isuBanned){
-				if (dbSupport()) {
+				if (hasDBSupport()) {
 					def userRec = validateLogin(username)
 					def userLevel = userRec.permission
 					user = userRec.user
@@ -150,7 +150,7 @@ class WsChatAuthService extends WsChatConfService   {
 		if ((myMsg)&&(!isuBanned)) {
 			wsChatMessagingService.broadcast(userSession,myMsg)
 		}
-		if (dbSupport()) {
+		if (hasDBSupport()) {
 			verifyOffLine(userSession,username)
 		}
 	}
@@ -158,7 +158,7 @@ class WsChatAuthService extends WsChatConfService   {
 	@Transactional
 	Boolean isBanned(String username) {
 		Boolean yesis = false
-		if (dbSupport()) {
+		if (hasDBSupport()) {
 			def now = new Date()
 			def current  =  new SimpleDateFormat('EEE, d MMM yyyy HH:mm:ss').format(now)
 			//ChatBanList.withTransaction {

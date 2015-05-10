@@ -2,12 +2,8 @@
 <html>
 <head>
 
-<g:if test="${enduser?.verifyAppVersion().equals('assets')}">
-	<g:render template="/assets" />
-</g:if>
-<g:else>
-	<g:render template="/resources" />
-</g:else>
+
+<g:render template="/assets" />
 
 <title>
 	${chatTitle }
@@ -155,8 +151,8 @@
 
 
 	<g:javascript>
-	$( "#roomBlock" ).resizable();
- 	$( "#friendsBlock" ).resizable();
+	$("#roomBlock").resizable();
+ 	$("#friendsBlock").resizable();
  	
  	var baseapp="${meta(name:'app.name')}";
 	function getApp() {

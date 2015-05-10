@@ -13,19 +13,14 @@ class WsChatTagLib extends WsChatConfService {
 	def chatClientListenerService
 	def wsChatRoomService
 	def wsChatProfileService
-	def pluginbuddyService
-	
+
 	
 	def includeAllStyle = { 
 		out << g.render(contextPath: pluginContextPath, template : "/${CHATVIEW}/includes")
 	}
 	
 	def includeStyle = {
-		 if (pluginbuddyService.returnAppVersion().equals('assets')) { 
 			 out << g.render(contextPath: pluginContextPath, template : "/assets")
-		 }else{
-		 	out << g.render(contextPath: pluginContextPath, template : "/resources")
-		 }
 	}
 	
 	def connect  =   { attrs ->
@@ -41,7 +36,7 @@ class WsChatTagLib extends WsChatConfService {
 		String dbSupport = config.dbsupport ?: 'yes'
 		String debug = config.debug ?: 'off'
 		
-		String addAppName = config.add.appName ?: 'yes'
+		String addAppName = config.add.appName ?: 'no'
 		
 		chatuser = chatuser.replace(' ', '_').replace('.', '_')
 		
@@ -100,7 +95,7 @@ class WsChatTagLib extends WsChatConfService {
 		}
 
 		String dbSupport = config.dbsupport ?: 'yes'
-		String addAppName = config.add.appName ?: 'yes'
+		String addAppName = config.add.appName ?: 'no'
 		
 		if (!appName) {
 			appName = applicationName
@@ -166,7 +161,7 @@ class WsChatTagLib extends WsChatConfService {
 		String sendType = attrs.remove('sendType')?.toString() ?: 'message'
 		String event =  attrs.remove('event')?.toString()
 		String context = attrs.remove('context')?.toString()
-		String addAppName = config.add.appName ?: 'yes'
+		String addAppName = config.add.appName ?: 'no'
 		if (receivers) {
 			receivers = receivers as ArrayList
 		}

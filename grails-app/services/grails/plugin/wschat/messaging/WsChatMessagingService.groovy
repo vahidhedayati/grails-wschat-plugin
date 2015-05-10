@@ -75,7 +75,7 @@ class WsChatMessagingService extends WsChatConfService {
 	@Transactional
 	Boolean checkPM(String username, String urecord) {
 		boolean result = true
-		if (dbSupport()) {
+		if (hasDBSupport()) {
 			def found = ChatBlockList.findByChatuserAndUsername(currentUser(username),urecord)
 			if (found) {
 				result = false

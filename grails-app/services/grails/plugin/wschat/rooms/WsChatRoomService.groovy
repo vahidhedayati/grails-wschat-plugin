@@ -41,7 +41,7 @@ class WsChatRoomService extends WsChatConfService {
 
 	@Transactional
 	public void addRoom(Session userSession,String roomName, String roomType) {
-		if ((dbSupport()) && (isAdmin(userSession)) ) {
+		if ((hasDBSupport()) && (isAdmin(userSession)) ) {
 			def nr = new ChatRoomList()
 			nr.room = roomName
 			if (roomType) {
@@ -64,7 +64,7 @@ class WsChatRoomService extends WsChatConfService {
 		if (!roomType) {
 			roomType = 'chat'
 		}
-		if 	(dbSupport())  {
+		if 	(hasDBSupport())  {
 			def record = ChatRoomList?.findByRoomAndRoomType(roomName, roomType)
 			if (!record) {
 				def nr = new ChatRoomList()
@@ -98,7 +98,7 @@ class WsChatRoomService extends WsChatConfService {
 
 	@Transactional
 	void delRoom(Session userSession,String roomName) {
-		if ((dbSupport()) && (isAdmin(userSession)) ) {
+		if ((hasDBSupport()) && (isAdmin(userSession)) ) {
 			chatNames.each { String cuser, Session crec ->
 						if (crec && crec.isOpen() && roomName.equals(crec.userProperties.get("room"))) {
 							wsChatUserService.kickUser(userSession,cuser)
@@ -127,7 +127,7 @@ class WsChatRoomService extends WsChatConfService {
 		}
 		def dbrooms
 		def finalList = [:]
-		if (dbSupport()) {
+		if (hasDBSupport()) {
 			//ChatRoomList.withTransaction {
 			//def rooms = ChatRoomList?.findAllByRoomType('chat')
 			//if (rooms) {

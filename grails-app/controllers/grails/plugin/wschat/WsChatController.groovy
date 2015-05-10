@@ -1,13 +1,9 @@
 package grails.plugin.wschat
 
 import grails.converters.JSON
-import groovy.time.TimeCategory
+import org.grails.plugins.web.taglib.ApplicationTagLib
 
-import java.text.SimpleDateFormat
-import java.util.Map;
-
-import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
-
+import java.util.Map
 
 class WsChatController extends WsChatConfService {
 
@@ -25,7 +21,7 @@ class WsChatController extends WsChatConfService {
 		if (room == chatuser) {
 			sender = true
 		}
-		[sender:sender, room:room, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
+		render view: 'sendfile', model: [sender:sender, room:room, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
 			addAppName:wsconf.addAppName]
 	}
 	
@@ -35,7 +31,7 @@ class WsChatController extends WsChatConfService {
 		if (room == chatuser) {
 			sender = true
 		}
-		[sender:sender, room:room, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
+		render view: 'sendmedia', model: [sender:sender, room:room, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
 			addAppName:wsconf.addAppName]
 	}
 
@@ -50,7 +46,7 @@ class WsChatController extends WsChatConfService {
 			render "Default sign in page disabled"
 		}
 
-		[chatTitle:wsconf.chatTitle,chatHeader:wsconf.chatHeader,room:room]
+		render view: 'index', model: [chatTitle:wsconf.chatTitle,chatHeader:wsconf.chatHeader,room:room]
 	}
 
 	def login(String username,String room) {
@@ -77,7 +73,7 @@ class WsChatController extends WsChatConfService {
 		if (!room) {
 			room = wsChatRoomService.returnRoom(wsconf.dbSupport as String)
 		}
-		[showtitle:wsconf.showtitle.toLowerCase(), dbsupport:wsconf.dbSupport.toLowerCase() , room:room,
+		render view: 'chat', model: [showtitle:wsconf.showtitle.toLowerCase(), dbsupport:wsconf.dbSupport.toLowerCase() , room:room,
 			chatuser:chatuser, chatTitle:wsconf.chatTitle,chatHeader:wsconf.chatHeader,
 			now:new Date(), hostname:wsconf.hostname, addAppName: wsconf.addAppName, debug:debug]
 	}
@@ -107,7 +103,7 @@ class WsChatController extends WsChatConfService {
 	def uploadPhoto(String username) {
 		def chatuser = ChatUser.findByUsername(username)
 		def profile = ChatUserProfile.findByChatuser(chatuser)
-		ApplicationTagLib g = new org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib()
+		ApplicationTagLib g = new ApplicationTagLib()
 		def photoFile= g.createLink(controller: 'wsChat', action: 'photo', params: [username:username],  absolute: 'true' )
 		def model = [photoFile:photoFile,profile:profile,chatuser:chatuser,username:username]
 		if (wsChatContService.verifyUser(username)) {
@@ -148,28 +144,28 @@ class WsChatController extends WsChatConfService {
 
 	def confirmBan(String username,String duration,String period) {
 		if (isAdmin) {
-			[username:username,duration:duration,period:period]
+			render view: 'confirmBan', model: [username:username,duration:duration,period:period]
 		}
 	}
 
 	def camsend(String user) {
-		[user:user, chatTitle:wsconf.chatTitle, hostname:wsconf.hostname, addAppName:wsconf.addAppName]
+		render view: 'camsend', model: [user:user, chatTitle:wsconf.chatTitle, hostname:wsconf.hostname, addAppName:wsconf.addAppName]
 	}
 
 	def webrtcsend(String user, String rtc) {
-		[user:user, chatTitle:wsconf.chatTitle, hostname:wsconf.hostname, iceservers:wsconf.iceservers,
+		render view: 'webrtcsend', model: [user:user, chatTitle:wsconf.chatTitle, hostname:wsconf.hostname, iceservers:wsconf.iceservers,
 			addAppName:wsconf.addAppName, rtc:rtc]
 	}
 
 	def webrtcrec(String user, String rtc) {
 		def chatuser = session.wschatuser
-		[user:user, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
+		render view: 'webrtcrec', model: [user:user, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
 			iceservers:wsconf.iceservers, addAppName:wsconf.addAppName, rtc:rtc]
 	}
 
 	def camrec(String user) {
 		def chatuser = session.wschatuser
-		[user:user, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
+		render view: 'camrec', model: [user:user, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
 			addAppName:wsconf.addAppName]
 	}
 
@@ -249,7 +245,7 @@ class WsChatController extends WsChatConfService {
 			session.wschatroom = room
 			redirect(controller: "wsChat", action: "chat")
 		}
-		[startDate:startDate, endDate:endDate]
+		render view: 'joinBooking', model:  [startDate:startDate, endDate:endDate]
 	}
 
 	def addBooking(){

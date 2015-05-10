@@ -134,7 +134,7 @@ class WsChatUserService extends WsChatConfService  {
 				def finalList = [:]
 				def blocklist
 				def friendslist
-				if (dbSupport()) {
+				if (hasDBSupport()) {
 					blocklist = ChatBlockList.findAllByChatuser(currentUser(uiterator))
 					friendslist = ChatFriendList.findAllByChatuser(currentUser(uiterator))
 				}
@@ -245,7 +245,7 @@ class WsChatUserService extends WsChatConfService  {
 
 	@Transactional
 	private void unblockUser(String username,String urecord) {
-		if (dbSupport()) {
+		if (hasDBSupport()) {
 			def cuser = currentUser(username)
 			def found = ChatBlockList.findByChatuserAndUsername(cuser,urecord)
 			found.delete(flush: true)
@@ -281,7 +281,7 @@ class WsChatUserService extends WsChatConfService  {
 
 	@Transactional
 	private void blockUser(String username,String urecord) {
-		if (dbSupport()) {
+		if (hasDBSupport()) {
 			def cuser = currentUser(username)
 			def found = ChatBlockList.findByChatuserAndUsername(cuser,urecord)
 			if (!found) {
@@ -299,7 +299,7 @@ class WsChatUserService extends WsChatConfService  {
 
 	@Transactional
 	private void addUser(String username,String urecord) {
-		if (dbSupport()) {
+		if (hasDBSupport()) {
 			def cuser = currentUser(username)
 			def found = ChatFriendList.findByChatuserAndUsername(cuser, urecord)
 
@@ -318,7 +318,7 @@ class WsChatUserService extends WsChatConfService  {
 
 	@Transactional
 	private void removeUser(String username,String urecord) {
-		if (dbSupport()) {
+		if (hasDBSupport()) {
 			def cuser = currentUser(username)
 			def found = ChatFriendList.findByChatuserAndUsername(cuser,urecord)
 			found.delete(flush: true)

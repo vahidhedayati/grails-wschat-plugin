@@ -1,8 +1,8 @@
-import grails.plugin.wschat.WsCamEndpoint
-import grails.plugin.wschat.WsChatEndpoint
-import grails.plugin.wschat.WsChatFileEndpoint
+package wschat
 
-class WschatGrailsPlugin {
+import grails.plugins.Plugin
+
+class WschatGrailsPlugin extends Plugin {
     def version = "1.17-SNAPSHOT1"
     def grailsVersion = "2.0 > *"
     def title = "Websocket Chat Plugin"
@@ -12,19 +12,10 @@ class WschatGrailsPlugin {
     def developers = [name: 'Vahid Hedayati', email: 'badvad@gmail.com']
     def issueManagement = [system: 'GITHUB', url: 'https://github.com/vahidhedayati/grails-wschat-plugin/issues']
     def scm = [url: 'https://github.com/vahidhedayati/grails-wschat-plugin']
-	
-	def doWithWebDescriptor = { xml ->
-		def listenerNode = xml.'listener'
-		listenerNode[listenerNode.size() - 1] + {
-			listener {
-				'listener-class'(WsChatEndpoint.name)
-			}
-			listener {
-				'listener-class'(WsCamEndpoint.name)
-			}
-			listener {
-				'listener-class'(WsChatFileEndpoint.name)
-			}
-		}
+
+	Closure doWithSpring() {
+        {->
+            wsChatConfig DefaultWsChatConfig
+        }
 	}
 }

@@ -95,7 +95,7 @@ function adminOptions(isAdmin,user) {
 
 function adminRooms(isAdmin) {
 	if (isAdmin=="true") {
-		var strUrl = "/"+getApp()+"/wsChat/adminMenu", strReturn = "";
+		var strUrl = "/wsChat/adminMenu", strReturn = "";
 		  jQuery.ajax({
 		    url: strUrl,
 		    success: function(html) {
@@ -671,7 +671,7 @@ function banuser(user) {
 
 function viewUsers(user) {
 	if (isAdmin=="true") {
-		$.get("/"+getApp()+"/wsChat/viewUsers",function(data){
+		$.get("/wsChat/viewUsers",function(data){
 			$('#adminsContainer').hide().html(data).fadeIn('slow');
 		});
 		$('#admincontainer').show();
@@ -680,7 +680,7 @@ function viewUsers(user) {
 
 function createConference(user) {
 	if (isAdmin=="true") {
-		$.get("/"+getApp()+"/wsChat/createConference",function(data){
+		$.get("/wsChat/createConference",function(data){
 			$('#adminsContainer').hide().html(data).fadeIn('slow');
 		});
 		$('#admincontainer').show();
@@ -689,7 +689,7 @@ function createConference(user) {
 
 function createEmail(user,newuser) {
 	if (isAdmin=="true") {
-		$.get("/"+getApp()+"/wsChat/addEmail?username="+newuser,function(data){
+		$.get("/wsChat/addEmail?username="+newuser,function(data){
 			$('#inviteUserContainer').hide().html(data).fadeIn('slow');
 		});
 		$('#invitecontainer').show();
@@ -698,7 +698,7 @@ function createEmail(user,newuser) {
 
 function addUser(user,newuser) {
 	if (isAdmin=="true") {
-		$.get("/"+getApp()+"/wsChat/addUser?username="+newuser,function(data){
+		$.get("/wsChat/addUser?username="+newuser,function(data){
 			$('#inviteUserContainer').hide().html(data).fadeIn('slow');
 		});
 		$('#invitecontainer').show();
@@ -706,7 +706,7 @@ function addUser(user,newuser) {
 }
 function addaRoom(user) {
 	if (isAdmin=="true") {
-		$.get("/"+getApp()+"/wsChat/addaRoom",function(data){
+		$.get("/wsChat/addaRoom",function(data){
 			$('#roomsContainer').hide().html(data).fadeIn('slow');
 		});
 		$('#roomcontainer').show();
@@ -715,7 +715,7 @@ function addaRoom(user) {
 
 function delaRoom(user) {
 	if (isAdmin=="true") {
-		$.get("/"+getApp()+"/wsChat/delaRoom",function(data){
+		$.get("/wsChat/delaRoom",function(data){
 			$('#roomsContainer').hide().html(data).fadeIn('slow');
 		});
 		$('#roomcontainer').show();
@@ -723,27 +723,27 @@ function delaRoom(user) {
 }
 
 function userprofile(user) {
-	$.get("/"+getApp()+"/wsChat/verifyprofile?username="+user,function(data){
+	$.get("/wsChat/verifyprofile?username="+user,function(data){
 		$('#profileContainer').hide().html(data).fadeIn('slow');
 	});
 	$('#userprofile').show();
 }
 
 function uploadPhoto(user) {
-	$.get("/"+getApp()+"/wsChat/uploadPhoto?username="+user,function(data){
+	$.get("/wsChat/uploadPhoto?username="+user,function(data){
 		$('#profileContainer').hide().html(data).fadeIn('slow');
 	});
 
 }
 
 function editProfile(username) {
-	$.get("/"+getApp()+"/wsChat/editprofile?username="+user,function(data){
+	$.get("/wsChat/editprofile?username="+user,function(data){
 		$('#profileContainer').hide().html(data).fadeIn('slow');
 	});
 }
 
 function fullPhoto(photoId) {
-	$.get("/"+getApp()+"/wsChat/realPhoto?photoId="+photoId,function(data){
+	$.get("/wsChat/realPhoto?photoId="+photoId,function(data){
 		$('#photoContainer').hide().html(data).fadeIn('slow');
 	});
 	$('#userphoto').show();
@@ -894,20 +894,20 @@ function disableAV() {
 /*
 function discoCam(user) {
 	console.log('camsend: '+user)
-	$.get("/"+getApp()+"/wsChat/camsend?user="+user+"&disco=true",function(data){
+	$.get("/wsChat/camsend?user="+user+"&disco=true",function(data){
 		$('#myCamContainer').html(data);
 	});
 }
 */
 
 function getFile(user) {
-	$.get("/"+getApp()+"/wsChat/sendfile?room="+user,function(data){
+	$.get("/wsChat/sendfile?room="+user,function(data){
 		$('#camViewContainer').html(data);
 	});
 }
 
 function sendFile() {
-	$.get("/"+getApp()+"/wsChat/sendfile?room="+user,function(data){
+	$.get("/wsChat/sendfile?room="+user,function(data){
 		$('#myCamContainer').html(data);
 	});
 	webSocket.send("/fileenabled "+user);
@@ -921,13 +921,13 @@ function disableFile() {
 
 
 function getMedia(user) {
-	$.get("/"+getApp()+"/wsChat/sendmedia?room="+user,function(data){
+	$.get("/wsChat/sendmedia?room="+user,function(data){
 		$('#camViewContainer').html(data);
 	});
 }
 
 function sendMedia() {
-	$.get("/"+getApp()+"/wsChat/sendmedia?room="+user,function(data){
+	$.get("/wsChat/sendmedia?room="+user,function(data){
 		$('#myCamContainer').html(data);
 	});
 	webSocket.send("/mediaenabled "+user);
@@ -941,25 +941,25 @@ function disableMedia() {
 
 
 function getCam(user) {
-	$.get("/"+getApp()+"/wsChat/camrec?user="+user,function(data){
+	$.get("/wsChat/camrec?user="+user,function(data){
 		$('#camViewContainer').html(data);
 	});
 }
 function sendCam() {
-	$.get("/"+getApp()+"/wsChat/camsend?user="+user,function(data){
+	$.get("/wsChat/camsend?user="+user,function(data){
 		$('#myCamContainer').html(data);
 	});
 	webSocket.send("/camenabled "+user);
 }
 
 function getWebrtc(user,rtcType) {
-	$.get("/"+getApp()+"/wsChat/webrtcrec?user="+user+"&rtc="+rtcType,function(data){
+	$.get("/wsChat/webrtcrec?user="+user+"&rtc="+rtcType,function(data){
 		$('#camViewContainer').html(data);
 	});
 }
 
 function sendWebrtc(rtcType) {
-	$.get("/"+getApp()+"/wsChat/webrtcsend?user="+user+"&rtc="+rtcType,function(data){
+	$.get("/wsChat/webrtcsend?user="+user+"&rtc="+rtcType,function(data){
 		$('#myCamContainer').html(data);
 	});
 	webSocket.send("/webrtcenabled "+user);
@@ -968,13 +968,13 @@ function sendWebrtc(rtcType) {
 
 /*
 function getWebrtc(user) {
-	$.get("/"+getApp()+"/wsChat/webrtcrec?user="+user,function(data){
+	$.get("/wsChat/webrtcrec?user="+user,function(data){
 		$('#camViewContainer').html(data);
 	});
 }
 
 function sendWebrtc() {
-	$.get("/"+getApp()+"/wsChat/webrtcsend?user="+user,function(data){
+	$.get("/wsChat/webrtcsend?user="+user,function(data){
 		$('#myCamContainer').html(data);
 	});
 	webSocket.send("/webrtcenabled "+user);

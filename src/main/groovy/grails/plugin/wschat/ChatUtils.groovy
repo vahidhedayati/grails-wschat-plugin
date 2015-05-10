@@ -6,13 +6,17 @@ import grails.plugin.wschat.file.WsFileService
 import grails.plugin.wschat.messaging.WsChatMessagingService
 import grails.plugin.wschat.rooms.WsChatRoomService
 import grails.plugin.wschat.users.WsChatUserService
+import grails.core.GrailsApplication
+import grails.core.support.GrailsApplicationAware
 
 import javax.websocket.Session
 
 
 class ChatUtils extends WsChatConfService {
+	//implements GrailsApplicationAware  {
 
-	ConfigObject config
+
+	//GrailsApplication grailsApplication
 
 	WsChatAuthService wsChatAuthService
 	WsChatUserService wsChatUserService
@@ -34,14 +38,17 @@ class ChatUtils extends WsChatConfService {
 		return loggedin
 	}
 
+	/*public ConfigObject getConfig() {
+		return grailsApplication.config.wschat ?: ''
+
+	}
+*/
 	private void privateMessage(Session userSession , String username, String user,String msg) {
 		def myMap = [msgFrom:username, msgTo:user,privateMessage:msg ]
 		wsChatMessagingService.privateMessage(user,myMap,userSession)
 	}
 	private void verifyAction(Session userSession,String message) {
-		if (config.debug == "on") {
-			println "@OnMessage: ${message}"
-		}
+
 		def myMsg = [:]
 		String username = userSession.userProperties.get("username") as String
 		String room  =  userSession.userProperties.get("room") as String
@@ -56,11 +63,6 @@ class ChatUtils extends WsChatConfService {
 			}
 		}else{
 			if (message.startsWith("DISCO:-")) {
-				String dbsup = config.logleavers ?: 'no'
-
-				if (dbsup == 'yes') {
-					log.error "Room: >${room}< | User: >${username}<  "
-				}
 				wsChatUserService.removeUser(username)
 				wsChatUserService.sendUsers(userSession,username)
 				userSession.close()
@@ -120,7 +122,7 @@ class ChatUtils extends WsChatConfService {
 				privateMessage(userSession, user,person,msg)
 			}else if (message.startsWith("/joinRoom")) {
 
-				String sendjoin = config.send.joinroom  ?: 'yes'
+				//String sendjoin = config.send.joinroom  ?: 'yes'
 				def values = parseInput("/joinRoom ",message)
 				String user = values.user as String
 				String rroom = values.msg as String
@@ -129,14 +131,14 @@ class ChatUtils extends WsChatConfService {
 					room = rroom
 					myMsg.put("currentRoom", "${room}")
 					wsChatMessagingService.messageUser(userSession,myMsg)
-					if (sendjoin == 'yes') {
+					//if (sendjoin == 'yes') {
 						myMsg = [:]
 						wsChatUserService.sendUsers(userSession,user)
 						myMsg.put("message", "${user} has joined ${room}")
 						wsChatMessagingService.broadcast(userSession,myMsg)
 						//broadcast(userSession,["message", "${user} has joined ${room}"])
 						wsChatRoomService.sendRooms(userSession)
-					}
+					//}
 				}
 			}else if (message.startsWith("/listRooms")) {
 				wsChatRoomService.listRooms()

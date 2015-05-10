@@ -1,29 +1,17 @@
 package grails.plugin.wschat.client
 
-
-import grails.converters.JSON
+import grails.plugin.wschat.ChatUtils
 import grails.plugin.wschat.users.WsChatUserService
-
-import javax.websocket.ClientEndpoint
-import javax.websocket.CloseReason
-import javax.websocket.ContainerProvider
-import javax.websocket.EndpointConfig
-import javax.websocket.OnClose
-import javax.websocket.OnError
-import javax.websocket.OnMessage
-import javax.websocket.OnOpen
-import javax.websocket.Session
-import javax.websocket.WebSocketContainer
-import javax.websocket.server.PathParam
-
-import org.codehaus.groovy.grails.web.context.ServletContextHolder as SCH
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes as GA
+import grails.util.Holders
+import org.apache.xml.serializer.utils.URI
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import javax.websocket.*
+import javax.websocket.server.PathParam
+
 @ClientEndpoint
-public class WsChatClientEndpoint {
+public class WsChatClientEndpoint extends ChatUtils {
 
 	private final Logger log = LoggerFactory.getLogger(getClass().name)
 
@@ -32,7 +20,6 @@ public class WsChatClientEndpoint {
 	private MessageHandler messageHandler
 	private WsClientProcessService  wsClientProcessService
 	private WsChatUserService  wsChatUserService
-	private ConfigObject config
 
 
 	public WsChatClientEndpoint(final URI endpointURI) {
@@ -48,13 +35,10 @@ public class WsChatClientEndpoint {
 	@OnOpen
 	public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) {
 		this.userSession = userSession
-		def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
-		def grailsApplication = ctx.grailsApplication
+		//def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
+		def ctx = Holders.applicationContext
 		wsClientProcessService = ctx.wsClientProcessService
 		wsChatUserService = ctx.wsChatUserService
-		
-		config = grailsApplication.config.wschat
-
 	}
 
 

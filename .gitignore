@@ -1,15 +1,38 @@
-/web-app/WEB-INF
+# Grails
+logs/
+prodDb.h2.db
+prodDb.lock.db
+# Gradle
+build/
+.gradle/
+.gradletasknamecache
+# Eclipse
+.project
+.metadata
+bin/**
+.classpath
+.settings/
+# IDEA
+*.iml
+*.ipr
+*.iws
+.idea/
+# target
+target/
+.DS_Store
+/*.log
+/*.sha1
+/*.zip
 /.classpath
 /.project
 /.settings
-*.log
-/*.zip
-plugin.xml
-/target
-/target-eclipse
-*.iws
+/cobertura.ser
+stacktrace.log
+*Db.properties
+*Db.script
+/plugin.xml
+/*DB.*
+/.gradle
 /.idea
-*.iml
-*.iws
-.DS_Store
-/log
+/.link_to_grails_plugins
+/build

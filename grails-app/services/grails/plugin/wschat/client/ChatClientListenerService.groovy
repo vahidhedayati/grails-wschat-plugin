@@ -6,11 +6,11 @@ import grails.plugin.wschat.WsChatConfService
 import javax.websocket.ContainerProvider
 import javax.websocket.Session
 
+
 public class ChatClientListenerService extends WsChatConfService {
 	
 	static transactional  =  false
-	
-	def grailsApplication
+
 	def wsChatRoomService
 	def wsChatUserService
 	def chatClientOverrideService
