@@ -70,10 +70,21 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 ###### Plugin will work with tomcat 7.0.54 + (inc. 8) running java 1.7+
 
 
-###### Dependency :
+###### Dependency (Grails 2.X) :
 ```groovy
-	compile ":wschat:1.17-SNAPSHOT1" 
+        compile ":wschat:1.18"          
 ```
+
+[codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/tree/grails2)
+
+
+###### Dependency (Grails 3.X) :
+```groovy
+        compile "org.grails.plugins:wschat:3.0.1"
+```
+
+[codebase for grails 3.X](https://github.com/vahidhedayati/grails-wschat-plugin/)
+
 
 This plugin provides  basic chat page, once installed you can access
 ```
