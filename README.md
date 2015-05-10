@@ -83,7 +83,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 	compile "org.grails.plugins:wschat:3.0.1"
 ```
 
-[codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/)
+[codebase for grails 3.X](https://github.com/vahidhedayati/grails-wschat-plugin/)
 
 
 This plugin provides  basic chat page, once installed you can access
