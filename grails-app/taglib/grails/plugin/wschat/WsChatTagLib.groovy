@@ -33,7 +33,9 @@ class WsChatTagLib extends WsChatConfService {
 		String chatuser = attrs.remove('chatuser')?.toString()
 		String room = attrs.remove('room')?.toString()
 		String template = attrs.remove('template')?.toString()
-
+		String wschatjs = attrs.remove('wschatjs')?.toString()
+		String usermenujs = attrs.remove('usermenujs')?.toString()
+		
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String chatHeader = config.heading ?: 'Grails websocket chat'
 		String hostname = config.hostname ?: 'localhost:8080'
@@ -60,7 +62,8 @@ class WsChatTagLib extends WsChatConfService {
 		
 		def model = [ dbsupport: dbSupport.toLowerCase() , showtitle: showtitle.toLowerCase(),
 			room: room, chatuser: chatuser, chatTitle: chatTitle, chatHeader: chatHeader,
-			now: new Date(), hostname: hostname, addAppName: addAppName, debug:debug ]
+			now: new Date(), hostname: hostname, addAppName: addAppName, debug:debug, 
+			wschatjs:wschatjs,usermenujs:usermenujs ]
 
 		if (template) {
 			out << g.render(template:template, model:model)

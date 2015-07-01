@@ -7,7 +7,18 @@
 <asset:stylesheet src="jquery-ui.min.css" />
 <asset:javascript src="bootstrap.min.js" />
 <asset:stylesheet href="bootstrap.min.css" />
-<asset:javascript src="wschat.js" />
+<g:if test="${wschatjs }">
+	<asset:javascript src="${wschat}" />
+</g:if>
+<g:else>
+	<asset:javascript src="wschat.js" />
+</g:else>
+<g:if test="${usermenujs }">
+	<asset:javascript src="${usermenujs}" />
+</g:if>
+<g:else>
+	<asset:javascript src="usermenu.js" />
+</g:else>
 <asset:javascript src="camclient.js" />
 <asset:javascript src="client.js" />
 <asset:javascript src="jquery.ui.chatbox.js" />
