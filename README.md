@@ -72,7 +72,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency (Grails 2.X) :
 ```groovy
-        compile ":wschat:1.18"          
+        compile ":wschat:1.18-SNAPSHOT1"          
 ```
 
 [codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/tree/grails2)
