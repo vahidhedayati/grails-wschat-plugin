@@ -2,7 +2,6 @@ package grails.plugin.wschat
 
 import grails.converters.JSON
 import grails.plugin.wschat.client.WsChatClientEndpoint
-
 import javax.websocket.Session
 
 class WsChatTagLib extends WsChatConfService {
@@ -20,16 +19,15 @@ class WsChatTagLib extends WsChatConfService {
 		out << g.render(contextPath: pluginContextPath, template : "/${CHATVIEW}/includes")
 	}
 	
-	def includeStyle = {
-		 if (pluginbuddyService.returnAppVersion().equals('assets')) { 
-			 out << g.render(contextPath: pluginContextPath, template : "/assets")
-		 }else{
-		 	out << g.render(contextPath: pluginContextPath, template : "/resources")
-		 }
+	def includeStyle = { 
+		if (pluginbuddyService.returnAppVersion().equals('assets')) { 
+			out << g.render(contextPath: pluginContextPath, template : "/assetsTop")
+		} else {
+			out << g.render(contextPath: pluginContextPath, template : "/resourcesTop")
+		}
 	}
 	
 	def connect  =   { attrs ->
-
 		String chatuser = attrs.remove('chatuser')?.toString()
 		String room = attrs.remove('room')?.toString()
 		String template = attrs.remove('template')?.toString()
@@ -43,6 +41,7 @@ class WsChatTagLib extends WsChatConfService {
 		String dbSupport = config.dbsupport ?: 'yes'
 		String debug = config.debug ?: 'off'
 		
+		boolean addLayouts = attrs.remove('addLayouts')?.toBoolean() ?: false
 		String addAppName = config.add.appName ?: 'yes'
 		
 		chatuser = chatuser.replace(' ', '_').replace('.', '_')
@@ -63,7 +62,7 @@ class WsChatTagLib extends WsChatConfService {
 		def model = [ dbsupport: dbSupport.toLowerCase() , showtitle: showtitle.toLowerCase(),
 			room: room, chatuser: chatuser, chatTitle: chatTitle, chatHeader: chatHeader,
 			now: new Date(), hostname: hostname, addAppName: addAppName, debug:debug, 
-			wschatjs:wschatjs,usermenujs:usermenujs ]
+			wschatjs:wschatjs,usermenujs:usermenujs,addLayouts:addLayouts ]
 
 		if (template) {
 			out << g.render(template:template, model:model)

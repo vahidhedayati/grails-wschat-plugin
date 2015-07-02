@@ -7,7 +7,7 @@
 		<meta name='layout' content="achat" />
 	</g:if>
 	<g:else>
-		<g:render template="/assets" />
+		<g:render template="/assetsTop" />
 	</g:else>
 </g:if>
 <g:else>
@@ -15,7 +15,7 @@
 		<meta name='layout' content="chat" />
 	</g:if>
 	<g:else>
-		<g:render template="/resources" />
+		<g:render template="/resourcesTop" />
 	</g:else>
 </g:else>
 

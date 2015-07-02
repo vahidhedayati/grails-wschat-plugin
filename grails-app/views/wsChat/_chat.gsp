@@ -2,13 +2,20 @@
 <html>
 <head>
 
+
 <g:if test="${enduser?.verifyAppVersion().equals('assets')}">
+	<g:if test="${addLayouts}">
+		<g:render template="/assetsTop" />
+	</g:if>
 	<g:render template="/assets" />
 </g:if>
 <g:else>
+	<g:if test="${addLayouts}">
+		<g:render template="/resourcesTop" />
+	</g:if>	
 	<g:render template="/resources" />
 </g:else>
-
+	
 <title>
 	${chatTitle }
 </title>
