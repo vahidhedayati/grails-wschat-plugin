@@ -14,19 +14,14 @@ import javax.websocket.Session
 class WsChatMessagingService extends WsChatConfService {
 
 	def sendMsg(Session userSession,String msg) throws Exception {
-
 		try {
 			if (userSession && userSession.isOpen()) {
-
 				String urecord = userSession.userProperties.get("username") as String
-				if (config.debug == "on") {
-					println "sendMsg ${urecord}: ${msg}"
-				}
+				log.debug "sendMsg ${urecord}: ${msg}"
 				boolean isEnabled = boldef(config.dbstore_user_messages)
 				if (isEnabled) {
 					persistMessage(msg ,urecord)
 				}
-
 				userSession.basicRemote.sendText(msg)
 			}
 		} catch (Exception e) {
@@ -98,13 +93,10 @@ class WsChatMessagingService extends WsChatConfService {
 		def myMsgj = msg as JSON
 		String room = userSession.userProperties.get("room") as String
 		String urecord = userSession.userProperties.get("username") as String
-
 		boolean isEnabled = boldef(config.dbstore_room_messages)
 		if (isEnabled) {
-
 			persistMessage(myMsgj as String,urecord)
 		}
-
 		chatNames.each { String cuser, Session crec ->
 			if (crec && crec.isOpen() && room.equals(crec.userProperties.get("room"))) {
 				crec.basicRemote.sendText(myMsgj as String);
@@ -156,9 +148,7 @@ class WsChatMessagingService extends WsChatConfService {
 			if (chat) {
 				def cm = new OffLineMessage(user: username, contents: message, offlog: chat?.offlog, readMsg: false)
 				if (!cm.save(flush:true)) {
-					if (config.debug == "on") {
-						cm.errors.allErrors.each{println it}
-					}
+					log.error "verifyOfflinePM issue:  ${cm.errors}"
 				}
 				messageUser(userSession,["message": "--> OFFLINE MSG sent to ${user}"])
 			} else{
@@ -176,9 +166,7 @@ class WsChatMessagingService extends WsChatConfService {
 			def chat = ChatUser.findByUsername(user)
 			def cm = new ChatMessage(user: username, contents: message, log: chat?.log)
 			if (!cm.save(flush:true)) {
-				if (config.debug == "on") {
-					cm.errors.allErrors.each{println it}
-				}
+				log.error "Persist Message issue: ${cm.errors}"
 			}
 		}
 	}
@@ -194,5 +182,4 @@ class WsChatMessagingService extends WsChatConfService {
 		}
 		return isEnabled
 	}
-
 }

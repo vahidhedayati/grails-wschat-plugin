@@ -56,7 +56,6 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 // Place your Spring DSL code here
 beans = {
 	wsClientProcessService(MyOverrideService){
-		grailsApplication = ref('grailsApplication')
 		chatClientListenerService = ref('chatClientListenerService')
 		wsChatUserService = ref('wsChatUserService')
 	}
@@ -81,7 +80,7 @@ public class WsClientProcessService extends WsChatConfService {
 	public void processResponse(Session userSession, String message) {
 		String username = userSession.userProperties.get("username") as String
 
-		//println "DEBUG ${username}: $message"
+		log.debug "DEBUG ${username}: $message"
 
 		// Disconnect automatically
 		// set to false (commented out) in this example when a command is receieved
@@ -113,8 +112,8 @@ public class WsClientProcessService extends WsChatConfService {
 				def jsonData = (data as JSON).toString()
 
 
-				//println "${event} ${context} ${jsonData}"
-				//println "${strictMode} ${masterNode} ${autodisco} ${frontenduser}"
+				log.debug "${event} ${context} ${jsonData}"
+				log.debug "${strictMode} ${masterNode} ${autodisco} ${frontenduser}"
 
 				if ( (event == "open_session")  || (autodisco == false)){
 					disco = false
@@ -199,17 +198,13 @@ public class WsClientProcessService extends WsChatConfService {
 	//OVERRIDE AND SET CUSTOM ACTIONS
 	// CLIENT SERVER CHAT VIA WsChatClientService method aka
 	// <chat:clientConnect gsp call
-	public void processAct(String user, boolean pm,String actionthis, String sendThis,
-			String divId, String msgFrom, boolean strictMode, boolean masterNode) {
-			Session userSession=wsChatUserService.usersSession(user)
-			
+	public void processAct(String user, boolean pm,String actionthis, String sendThis, String divId, String msgFrom, 
+		boolean strictMode, boolean masterNode) {
+		
+		Session userSession=wsChatUserService.usersSession(user)
 		String username = userSession.userProperties.get("username") as String
-		
 		String addon="[PROCESS]"
-		
-		def myMap=[pm:pm, actionThis: actionthis, sendThis: sendThis, divId:divId,
-			msgFrom:msgFrom, strictMode:strictMode, masterNode:masterNode ]
-
+		def myMap=[pm:pm, actionThis: actionthis, sendThis: sendThis, divId:divId,msgFrom:msgFrom, strictMode:strictMode, masterNode:masterNode]
 		if (masterNode) {
 			addon="[PROCESSED]"
 			if (saveClients) {
@@ -226,13 +221,13 @@ public class WsClientProcessService extends WsChatConfService {
 		if (masterNode) {
 			if (actionthis== 'do_task_1') {
 				// TODO something on master node that has mappings to do_task_1
-				println "something on master node that has mappings to do_task_1 TASK1"
+				log.info "something on master node that has mappings to do_task_1 TASK1"
 			}else if (actionthis== 'do_task_2') {
 				// TODO something on master node that has mappings to do_task_2
-				println "something on master node that has mappings to do_task_2 TASK2"
+				log.info "something on master node that has mappings to do_task_2 TASK2"
 			}else if (actionthis== 'do_task_3') {
 				// TODO something on master node that has mappings to do_task_3
-				println "something on master node that has mappings to do_task_3 TASK3"
+				log.info "something on master node that has mappings to do_task_3 TASK3"
 			}
 		}
 		*/	

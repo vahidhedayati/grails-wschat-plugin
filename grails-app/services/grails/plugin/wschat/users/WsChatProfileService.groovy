@@ -42,8 +42,7 @@ class WsChatProfileService  {
 		paramsMap.put('chatuser', "${found}")
 		def profileInstance = new ChatUserProfile(paramsMap)
 		if (!profileInstance.save(flush: true)) {
-			//profileInstance.errors.allErrors.each{println it}
-			log.error "Error saving profile ${paramsMap}"
+			log.error "Error saving profile ${paramsMap} ${profileInstance.errors}"
 		}
 	}
 }

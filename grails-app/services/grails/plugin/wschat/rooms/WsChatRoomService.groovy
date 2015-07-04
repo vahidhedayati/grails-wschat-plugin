@@ -21,22 +21,20 @@ class WsChatRoomService extends WsChatConfService {
 	}
 
 	@Transactional
-	def returnRoom(String dbSupport) {
-		def dbrooms
-		def crooms = config.rooms as ArrayList
-		def room
-		if (crooms) {
-			room = crooms[0]
+	def returnRoom(boolean dbSupport, Boolean displayString=null) {
+		ArrayList dbrooms = config.rooms as ArrayList
+		if (!dbrooms && dbSupport) {
+			ChatRoomList dbroom = ChatRoomList?.findAllByRoomType('chat')
+			dbrooms = dbroom.room
 		}
-		if (dbSupport.toLowerCase().equals('yes')) {
-			dbrooms = ChatRoomList?.findByRoomType('chat', [max:1])*.room?.unique()
+		if (!dbrooms) {
+			dbrooms = ['wschat']
 		}
-		if (dbrooms) {
-			room = dbrooms
-		} else if (!room && !dbrooms) {
-			room = 'wschat'
+		if (displayString) {
+			return dbrooms[0] as String
+		}else{
+			return dbrooms
 		}
-		return room
 	}
 
 	@Transactional
@@ -48,12 +46,7 @@ class WsChatRoomService extends WsChatConfService {
 				nr.roomType = roomType
 			}
 			if (!nr.save(flush:true)) {
-				log.error "Error saving ${roomName}"
-				if (!nr.save(flush:true)) {
-					if (config.debug == "on") {
-						nr.errors.allErrors.each{println it}
-					}
-				}
+				log.error "Error saving ${roomName} ${nr.errors}"
 			}
 		}
 		listRooms()
@@ -73,12 +66,7 @@ class WsChatRoomService extends WsChatConfService {
 					nr.roomType = roomType
 				}
 				if (!nr.save(flush:true)) {
-					log.error "Error saving ${roomName}"
-					if (!nr.save(flush:true)) {
-						if (config.debug == "on") {
-							nr.errors.allErrors.each{println it}
-						}
-					}
+					log.error "Error saving ${roomName} ${nr.errors}"
 				}
 			}
 		}
@@ -100,16 +88,15 @@ class WsChatRoomService extends WsChatConfService {
 	void delRoom(Session userSession,String roomName) {
 		if ((dbSupport()) && (isAdmin(userSession)) ) {
 			chatNames.each { String cuser, Session crec ->
-						if (crec && crec.isOpen() && roomName.equals(crec.userProperties.get("room"))) {
-							wsChatUserService.kickUser(userSession,cuser)
-						}
-					}
-					def nr = ChatRoomList?.findByRoomAndRoomType(roomName,'chat')
-					if (nr) {
-						nr.delete(flush: true)
-					}
-					listRooms()
-			
+				if (crec && crec.isOpen() && roomName.equals(crec.userProperties.get("room"))) {
+					wsChatUserService.kickUser(userSession,cuser)
+				}
+			}
+			def nr = ChatRoomList?.findByRoomAndRoomType(roomName,'chat')
+			if (nr) {
+				nr.delete(flush: true)
+			}
+			listRooms()
 		}
 	}
 
@@ -128,22 +115,15 @@ class WsChatRoomService extends WsChatConfService {
 		def dbrooms
 		def finalList = [:]
 		if (dbSupport()) {
-			//ChatRoomList.withTransaction {
-			//def rooms = ChatRoomList?.findAllByRoomType('chat')
-			//if (rooms) {
 			dbrooms = ChatRoomList?.findAllByRoomType('chat')*.room?.unique()
-			//	dbrooms =rooms.room
-			//}
 		}
 		if (dbrooms) {
-			//uList = []
 			dbrooms.each {
 				def myMsg = [:]
 				myMsg.put("room",it)
 				uList.add(myMsg)
 			}
 		}
-		//}
 		if (!room && !dbrooms) {
 			room = 'wschat'
 			def myMsg = [:]

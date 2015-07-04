@@ -2,6 +2,7 @@ package grails.plugin.wschat.client
 
 import grails.converters.JSON
 import grails.plugin.wschat.WsChatConfService
+import grails.plugin.wschat.beans.ConfigBean
 
 import javax.websocket.Session
 
@@ -14,20 +15,11 @@ public class WsChatClientService extends WsChatConfService {
 	def grailsApplication
 	def wsChatUserService
 
-	private Session userSession = null
-	
 	public WsChatClientEndpoint conn(String hostname, String appName, String room, String user ) {
-		String addAppName = config.add.appName ?: 'yes'
-		
-		String uri="ws://${hostname}/${appName}/${CHATAPP}/${room}"
-		if (addAppName=="no") {
-			uri="ws://${hostname}/${CHATAPP}/${room}"
-		}
-		
+		ConfigBean bean = new ConfigBean()
 		WsChatClientEndpoint clientEndPoint =
-				new WsChatClientEndpoint(new URI(uri))
+				new WsChatClientEndpoint(new URI(bean.uri))
 		clientEndPoint.connectClient(user)
-		
 		return clientEndPoint
 	}
 
@@ -36,12 +28,13 @@ public class WsChatClientService extends WsChatConfService {
 	}
 
 	def sendArrayPM(WsChatClientEndpoint clientEndPoint, ArrayList pmuser, String message) {
+		ConfigBean bean = new ConfigBean()
 		pmuser.each { cuser ->
 			boolean found
-			if (!cuser.toString().endsWith(frontend)) {
-				found=wsChatUserService.findUser(cuser+frontend)
+			if (cuser && !cuser.toString().endsWith(bean.frontUser)) {
+				found=wsChatUserService.findUser(cuser+bean.frontUser)
 				if (found) {
-					clientEndPoint.sendMessage("/pm ${cuser+frontend},${message}")
+					clientEndPoint.sendMessage("/pm ${cuser+bean.frontUser},${message}")
 				}
 			}
 			found=wsChatUserService.findUser(cuser)
@@ -53,10 +46,11 @@ public class WsChatClientService extends WsChatConfService {
 	}
 	def sendPM(WsChatClientEndpoint clientEndPoint, String pmuser, String message) {
 		boolean found
-		if (!pmuser.endsWith(frontend)) {
-			found=wsChatUserService.findUser(pmuser+frontend)
+		ConfigBean bean = new ConfigBean()
+		if (!pmuser.endsWith(bean.frontUser)) {
+			found=wsChatUserService.findUser(pmuser+bean.frontUser)
 			if (found) {
-				clientEndPoint.sendMessage("/pm ${pmuser+frontend},${message}")
+				clientEndPoint.sendMessage("/pm ${pmuser+bean.frontUser},${message}")
 			}
 		}
 		found=wsChatUserService.findUser(pmuser)

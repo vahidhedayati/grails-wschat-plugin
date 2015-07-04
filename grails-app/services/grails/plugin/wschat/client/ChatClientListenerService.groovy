@@ -2,6 +2,7 @@ package grails.plugin.wschat.client
 
 import grails.converters.JSON
 import grails.plugin.wschat.WsChatConfService
+import grails.plugin.wschat.beans.ConfigBean
 
 import javax.websocket.ContainerProvider
 import javax.websocket.Session
@@ -16,16 +17,17 @@ public class ChatClientListenerService extends WsChatConfService {
 	def chatClientOverrideService
 
 	def sendArrayPM(Session userSession, ArrayList user,String message) {
+		ConfigBean bean = new ConfigBean()
 		user.each { cuser ->
 			boolean found
 			found=wsChatUserService.findUser(cuser)
 			if (found) {
 				userSession.basicRemote.sendText("/pm ${cuser},${message}")
 			}
-			if (!cuser.toString().endsWith(frontend)) {
-				found=wsChatUserService.findUser(cuser+frontend)
+			if (!cuser.toString().endsWith(bean.frontUser)) {
+				found=wsChatUserService.findUser(cuser+bean.frontUser)
 				if (found) {
-					userSession.basicRemote.sendText("/pm ${cuser+frontend},${message}")
+					userSession.basicRemote.sendText("/pm ${cuser+bean.frontUser},${message}")
 				}
 			}
 		}
@@ -35,15 +37,15 @@ public class ChatClientListenerService extends WsChatConfService {
 	def sendPM(Session userSession, String user,String message) {
 		String username = userSession.userProperties.get("username") as String
 		boolean found
-
+		ConfigBean bean = new ConfigBean()
 		found=wsChatUserService.findUser(user)
 		if (found) {
 			userSession.basicRemote.sendText("/pm ${user},${message}")
 		}
-		if (!user.endsWith(frontend)) {
-			found=wsChatUserService.findUser(user+frontend)
+		if (user && !user.endsWith(bean.frontUser)) {
+			found=wsChatUserService.findUser(user+bean.frontUser)
 			if (found) {
-				userSession.basicRemote.sendText("/pm ${user+frontend},${message}")
+				userSession.basicRemote.sendText("/pm ${user+bean.frontUser},${message}")
 			}
 		}
 	}
@@ -54,11 +56,11 @@ public class ChatClientListenerService extends WsChatConfService {
 
 	public connectUserRoom  = {  String user, String room,  Closure closure ->
 
-		String wshostname = config.hostname ?: 'localhost:8080'
-		String uri="ws://${wshostname}/${applicationName}${CHATAPP}/"
+		//String wshostname = config.hostname ?: 'localhost:8080'
+		//String uri="ws://${wshostname}/${applicationName}${CHATAPP}/"
+		ConfigBean bean = new ConfigBean()
 
-
-		Session oSession = p_connect( uri, user, room)
+		Session oSession = p_connect( bean.uri, user, room)
 
 		try{
 			closure(oSession)
@@ -72,11 +74,12 @@ public class ChatClientListenerService extends WsChatConfService {
 
 	public connectRoom  = { String room,  Closure closure ->
 
-		String wshostname = config.hostname ?: 'localhost:8080'
-		String uri="ws://${wshostname}/${applicationName}${CHATAPP}/"
-
+		//String wshostname = config.hostname ?: 'localhost:8080'
+		//String uri="ws://${wshostname}/${applicationName}${CHATAPP}/"
+		ConfigBean bean = new ConfigBean()
+		
 		String oUsername = config.app.id ?: "[${(Math.random()*1000).intValue()}]-$room";
-		Session oSession = p_connect( uri, oUsername, room)
+		Session oSession = p_connect( bean.uri, oUsername, room)
 
 		try{
 			closure(oSession)
@@ -89,12 +92,10 @@ public class ChatClientListenerService extends WsChatConfService {
 	}
 
 	Session connect() {
-		String dbSupport = config.dbsupport ?: 'yes'
-		String wshostname = config.hostname ?: 'localhost:8080'
-		String uri = "ws://${wshostname}/${applicationName}${CHATAPP}/"
-		def room = wsChatRoomService.returnRoom(dbSupport as String)
+		ConfigBean bean = new ConfigBean()
+		def room = wsChatRoomService.returnRoom(bean.dbSupport, true)
 		String oUsername = config.app.id ?: "[${(Math.random()*1000).intValue()}]-$room";
-		Session csession = p_connect( uri, oUsername, room)
+		Session csession = p_connect( bean.uri, oUsername, room)
 		return csession
 	}
 
@@ -125,7 +126,20 @@ public class ChatClientListenerService extends WsChatConfService {
 	public Session disconnect(Session _oSession){
 		try{
 			if(_oSession && _oSession.isOpen()){
-				sendMessage(_oSession, DISCONNECTOR)
+				String user = _oSession.userProperties.get("username") as String
+				if (user) {
+					ConfigBean bean = new ConfigBean()
+					sendMessage(_oSession, DISCONNECTOR)
+					Session nsess
+					if (user.endsWith(bean.frontUser)) {
+						nsess =wsChatUserService.usersSession(user.substring(0,user.indexOf(bean.frontUser)))
+					}else{
+						nsess =wsChatUserService.usersSession(user+bean.frontUser)
+					}
+					if (nsess) {
+						sendMessage(nsess, DISCONNECTOR)
+					}
+				}
 			}
 		}catch (Exception e){
 			e.printStackTrace()
