@@ -40,7 +40,7 @@ class ChatUtils extends WsChatConfService {
 	}
 	private void verifyAction(Session userSession,String message) {
 		if (config.debug == "on") {
-			println "@OnMessage: ${message}"
+			log.debug "@OnMessage: ${message}"
 		}
 		def myMsg = [:]
 		String username = userSession.userProperties.get("username") as String
@@ -80,6 +80,11 @@ class ChatUtils extends WsChatConfService {
 					myMsg.put("message","Private message self?")
 					wsChatMessagingService.messageUser(userSession,myMsg)
 				}
+			}else if (message.startsWith("/verifyAdmin")) {
+				Boolean useris = isAdmin(userSession)
+				def myMsg1 = [:]
+				myMsg1.put("isAdmin", useris.toString())
+				wsChatMessagingService.messageUser(userSession,myMsg1)
 			}else if (message.startsWith("/block")) {
 				def values = parseInput("/block ",message)
 				String user = values.user as String

@@ -82,7 +82,7 @@ class WsChatFileEndpoint extends ChatUtils implements ServletContextListener {
 			log.error "could not find chat user ! ${viewer}"
 		}
 	}
-
+	
 	@OnMessage
 	public void handleMessage(String message,Session userSession) throws IOException {
 		wsFileService.verifyFileAction(userSession,message)

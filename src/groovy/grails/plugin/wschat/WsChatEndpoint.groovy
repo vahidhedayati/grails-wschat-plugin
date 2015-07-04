@@ -57,18 +57,14 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnOpen
 	public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) {
-		
 		userSession.userProperties.put("room", room)
-
 		def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 		def grailsApplication = ctx.grailsApplication
-
 		wsChatAuthService = ctx.wsChatAuthService
 		wsChatUserService = ctx.wsChatUserService
 		wsChatMessagingService = ctx.wsChatMessagingService
 		wsChatRoomService = ctx.wsChatRoomService
 		config = grailsApplication.config.wschat
-
 	}
 
 	@OnMessage
@@ -78,11 +74,18 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnClose
 	public void handeClose(Session userSession) throws SocketException {
-		String username = userSession?.userProperties?.get("username")
-		if (dbSupport()&&username) {
-			wsChatAuthService.validateLogOut(username as String)
+		if (userSession) {
+			String username = userSession?.userProperties?.get("username")
+			// null users issue in badly formatted _process.gsp 
+			// when client/server tests where being done as part of 1.20 release
+			// left for similar issues - usually should not occur
+			if (username && username!='null') {
+				if (dbSupport()) {
+					wsChatAuthService.validateLogOut(username as String)
+				}
+				destroyChatUser(username)			
+			}
 		}
-		destroyChatUser(username)
 	}
 
 	@OnError

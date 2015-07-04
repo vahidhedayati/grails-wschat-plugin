@@ -52,11 +52,8 @@ public class WsChatClientEndpoint {
 		def grailsApplication = ctx.grailsApplication
 		wsClientProcessService = ctx.wsClientProcessService
 		wsChatUserService = ctx.wsChatUserService
-		
 		config = grailsApplication.config.wschat
-
 	}
-
 
 	@OnClose
 	public void onClose(final Session userSession, final CloseReason reason) {
@@ -99,7 +96,6 @@ public class WsChatClientEndpoint {
 		userSession.basicRemote.sendText(message)
 	}
 	
-	
 	public Session returnSession() {
 		return userSession
 	}
@@ -111,7 +107,5 @@ public class WsChatClientEndpoint {
 	@OnError
 	public void handleError(Throwable t) {
 		t.printStackTrace()
-		///log.error t.printStackTrace()
 	}
-
 }
