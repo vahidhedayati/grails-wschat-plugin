@@ -10,7 +10,7 @@
 </g:else>
 
 <title>
-	${chatTitle }
+	${bean.chatTitle }
 </title>
 </head>
 <body>
@@ -31,28 +31,16 @@
 		$("#pageHeader").html(msg);
 	}
 	
-	/*
-	 *	Open Websocket-Connection
-	 */
+	/*Open Websocket-Connection*/
 	// create new WebRTC-Object
 	var WebCamRec = new WebCamRec();
-
 	// connect to websocket server
-	
-	
-		<g:if test="${addAppName=='no'}">
-			var uri="ws://"+getHostName()+"/WsCamEndpoint/${user}/"+getUser();
-		</g:if>
-		<g:else>
-			var uri="ws://"+getHostName()+"/"+getApp()+"/WsCamEndpoint/${user}/"+getUser();
-		</g:else>
-
-	
-		//console.log(uri);
-		WebCamRec.getFromSocket(uri);
-	
-
-		window.onbeforeunload = function() {
+	var uri="${bean.camEndpoint}/${bean.user}/"+getUser();
+	if (debug == "on") {
+		console.log('Connecting to '+uri);
+	}
+	WebCamRec.getFromSocket(uri);
+	window.onbeforeunload = function() {
 		//WebCam.send("DISCO:-");
 		WebCamRec.onclose = function() { }
 		WebCamRec.close();

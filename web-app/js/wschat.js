@@ -118,16 +118,17 @@ function actOnEachLine(textarea, func) {
 	var newLines, newValue, i;
 	// Use the map() method of Array where available
 	if (typeof lines.map != "undefined") {
-	newLines = lines.map(func);
+		newLines = lines.map(func);
 	} else {
-	newLines = [];
-	i = lines.length;
-	while (i--) {
-	newLines[i] = func(lines[i]);
-	}
+		newLines = [];
+		i = lines.length;
+		while (i--) {
+			newLines[i] = func(lines[i]);
+		}
 	}
 	textarea.value = newLines.join("\r\n");
-	}
+}
+
 function processChatMessage(message) {
 	var jsonData=JSON.parse(message.data);
 	if (jsonData.system!=null) {

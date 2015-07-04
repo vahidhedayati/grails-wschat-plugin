@@ -5,19 +5,12 @@
 
 <g:javascript>
 	var loggedInUsers=[];
-	var user="${user }";
-	var receivers="${receivers}"
+	var user="${bean.user}";
+	var receivers="${bean.receivers}"
 	var arrayLength = receivers.length;
 	// Connect websocket and set up processes 
-	
-	<g:if test="${addAppName=='no'}">
-		var uri="ws://${hostname}/${chatApp }/${room}";
-	</g:if>
-	<g:else>
-		var uri="ws://${hostname}/${appName}/${chatApp }/${room}";
-	</g:else>
-	
-	var webSocket=new WebSocket(uri);
+	console.log('${bean.uri}${bean.room}  @@ ${bean.user}  >> ${bean.receivers} ');
+	var webSocket=new WebSocket('${bean.uri}${bean.room}');
  	webSocket.onopen=function(message) {processOpen(message);};
  	webSocket.onclose=function(message) {processClose(message);};
     webSocket.onerror=function(message) {processError(message);};
@@ -27,7 +20,7 @@
 	var userList=[];
 	
 	function processMessage( message) {
-	
+	console.log('Message '+message)
 		//Create internal users list
 		// and log out front end user when backend - real user has logged out
 		var jsonData = JSON.parse(message.data);
@@ -135,10 +128,12 @@
 	
 	function processCommands(jsonCommand) {
 		var jsonCommands=JSON.parse(jsonCommand)
+		
 		if(jsonCommands !== undefined){
 			jsonCommands.forEach(function(entry) {
 	   		 if(entry.content !== undefined){
 	    		var content=entry.content;
+	    		console.log('--'+content+'---'+content.arguments)
 		        switch(content.command){
 	        	case "flipflop":
 	        		$('#flipflop').html(content.arguments);
@@ -199,18 +194,23 @@
 	}
 	
 	function processClose(message) {
+		console.log('closing');
 		webSocket.send("DISCO:-"+user);
-		$('#chatMessages').append(user+" disconnecting from server... \n");
+			 webSocket.send("DISCO:-${bean.user}${bean.frontUser}");
+		//$('#chatMessages').append(user+" disconnecting from server... \n");
 		webSocket.close();
 	}
 
 
 	// Open connection only if we have frontuser variable    
  	function processOpen(message) {
-    	<g:if test="${frontuser}">
-    		webSocket.send("CONN:-${frontuser}");
+ 		//webSocket.send("CONN:-${bean.user}");
+    	<g:if test="${bean.frontUser}">
+    		console.log('connecting');
+    		webSocket.send("CONN:-${bean.user}${bean.frontUser}");
        	</g:if>
-	<g:else>
+		<g:else>
+			console.log('denied');
        		$('#chatMessages').append("Chat denied no username \n");
        		webSocket.send("DISCO:-");
        	 	webSocket.close();
@@ -221,7 +221,8 @@
 
      window.onbeforeunload = function() {
     	 webSocket.send('/pm '+user+',close_connection');
-    	 webSocket.send("DISCO:-");
+    	 webSocket.send("DISCO:-${bean.user}");
+    	 webSocket.send("DISCO:-${bean.user}${bean.frontUser}");
        	webSocket.onclose = function() { }
        	webSocket.close();
      }
