@@ -354,6 +354,282 @@ color: $main-color;
 #search_chat_contact_flexselect_dropdown li:hover {
 background: $separation-color;
 }
+#cmessage{
+	float: right;
+	width: 100%;
+	min-height: 25em;
+	height: 25em;
+	text-align: left;
+	font-family: monospace;
+	position: relative;
+	display: block;
+	overflow: auto;
+	margin-top: 2px;
+	white-space: pre-line;
+	border-style: solid;
+	border-width: thin;
+	border-color: #AAA;
+	font-size: 1em;
+	word-wrap: break-word;
+	resize:both;
+}
+#chatterBox {
+	left: auto;
+	right: auto;
+}
+#colourthemes{
+	position: absolute;
+	right: 2em;
+	top: 4em;	
+	float:right;
+}
+/* webrtc style sheet */
+.section {
+	width: 100%;
+	margin: auto;
+	padding: 2em 1em;
+	color: #525252;
+}
+.section.login,
+.section.room {
+	display: block;
+}
+
+/* Video-Stuff */
+.video-wrapper {
+	width: 100%;
+	max-width: 50em;
+	margin: auto;
+	position: relative;
+}
+.own-video,
+.other-video {
+	background-color: #F5F5F5;
+	border: 4px solid #2C5651;
+	border-radius: 6px;
+}
+.own-video {
+	width: 100%;
+	max-width: 6em;
+	max-height: 5em;
+	position: absolute;
+	right: 1em;
+	bottom: 1em;
+}
+.other-video {
+	height: 100%;
+	max-height: 30em;
+	max-width: 100%;
+}
+
+#userInputError {
+	display:inline-block;
+	*display:inline;
+	*zoom:1;
+} 
+#userInput{
+	display:inline-block;
+	*display:inline;
+	*zoom:1;
+	width: 180px;
+}
+#response_image{
+	display:inline-block;
+	*display:inline;
+	*zoom:1;
+	width: 24px;
+	
+}
+.online {
+	width: 16px;
+	height: 16px;
+    background: url(../images/accept.png) no-repeat 100% 100%;
+}
+
+.offline {
+	width: 16px;
+	height: 16px;
+    background: url(../images/reject.png) no-repeat 100% 100%;
+}
+
+#accept {
+	width: 16px;
+	height: 16px;
+    background: url(../images/accept.png) no-repeat 100% 100%;
+	display:inline-block;
+	*display:inline;
+	*zoom:1;
+	float:right;
+}
+
+#reject {
+	width: 16px;
+	height: 16px;
+    background: url(../images/reject.png) no-repeat 100% 100%;
+   	display:inline-block;
+	*display:inline;
+	*zoom:1;
+	float:right;
+}
+#question {
+	width: 16px;
+	height: 16px;
+    background: url(../images/exclamation.png) no-repeat 100% 100%;
+   	display:inline-block;
+	*display:inline;
+	*zoom:1;
+	float:right;
+}
+.fixTable {
+	width: 40em;
+	height: 30em;
+	background: #FFF;
+}
+
+
+#user_spot {
+  display: inline-block;
+  text-decoration: none;    
+  z-index:5;
+  padding:0;
+ margin-left: 9px;
+ margin-top: 9px;
+}
+ul#user_spot li {
+	list-style-type:none;
+    position:relative;
+    padding: 5px;
+   
+    text-decoration: none;  
+    margin-left: -5px;
+}
+ul#user_spot li a{
+  	text-decoration: none;
+}
+ul#user_spot_links {
+  list-style-type:none;
+  position:absolute;
+  top:20px;
+  left:-25px;
+  display:none;
+  z-index: 6;
+}
+ul#user_spot_links li {
+  list-style-type:none;
+  float: left;
+  clear:both;
+  min-width: 140px;
+  
+  display: inline-block;
+  position: relative;
+  background-color: #EFEFEF;
+  border: 1px solid #EFEFEF;
+  white-space: nowrap;
+  z-index: 7;
+ text-decoration: none; 
+}
+ul#user_spot_links li a{
+  text-decoration: none;    
+  
+}
+ul#user_spot:hover ul#user_spot_links {
+    display:block;
+}
+
+
+/* PAGINATION */
+
+.pagination {
+	border-top: 0;
+	margin: 0;
+	padding: 0.3em 0.2em;
+	text-align: center;
+	-moz-box-shadow: 0 0 3px 1px #AAAAAA;
+	-webkit-box-shadow: 0 0 3px 1px #AAAAAA;
+	box-shadow: 0 0 3px 1px #AAAAAA;
+	background-color: #EFEFEF;
+}
+
+.pagination a,
+.pagination .currentStep {
+	color: #666666;
+	display: inline-block;
+	margin: 0 0.1em;
+	padding: 0.25em 0.7em;
+	text-decoration: none;
+	-moz-border-radius: 0.3em;
+	-webkit-border-radius: 0.3em;
+	border-radius: 0.3em;
+}
+
+.pagination a:hover, .pagination a:focus,
+.pagination .currentStep {
+	background-color: #999999;
+	color: #ffffff;
+	outline: none;
+	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+}
+.bold {
+  font-weight: bold;
+  background-color: #CFCFCF;
+}
+.ui-autocomplete-input, .ui-menu, .ui-menu-item {  z-index: 2006; }
+
+div[class*="bttn"] { 
+	box-sizing: content-box !important;
+	width: auto;
+	display: inline-block;
+    *zoom: 1;
+    *display: inline;
+	text-align: center;
+	outline: none; 
+}
+	
+.bttn-xs a {
+		 border-radius:0.31px; 
+	-moz-border-radius:0.31px; 
+	-webkit-border-radius:0.31px;
+	 border:1px	inset #fff;
+	  list-style-type:none;	 
+}
+#onlineUsers >li ,#friendsList > li {  text-align: left; list-style-type:none; cursor: pointer; cursor: hand; }
+
+
+.page-header2{padding-bottom:1px;margin:2px 0 3px;border-bottom:1px solid #eeeeee;}
+#fixmenu {
+	padding-top: 10px;
+}
+.dropdown-submenu{position:relative;  z-index: 21;}
+.dropdown-submenu>.dropdown-menu{top:0;left:100%;margin-top:-6px;margin-left:-1px;-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px;}
+.dropdown-submenu:hover>.dropdown-menu{display:block;}
+.dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;}
+.dropdown-submenu:hover>a:after{border-left-color:#ffffff;}
+.dropdown-submenu{float:none; }.dropdown-submenu>.dropdown-menu{right:-100%;margin-left:0px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
+.sidebar{float:right;margin-right:1px;}
+
+#chatFriend{
+  background-color: #FEF5CA;
+}
+#chatOffline{
+	background-color: #FEF5CA;
+}
+#chatOnline{
+	background-color: #FDF2EE;
+}
+#chatBlocked{
+	background-color: #FF4040;
+}
+#chatUser{
+	background-color: #FFFFFE;
+}
+#chatRooms{
+	
+}
+
+.btn-inverse {
+  color: #ffffff;
+  background-color: #000000;
+}
 
 Omniref.com Logo
 HomeBlogContact Us
