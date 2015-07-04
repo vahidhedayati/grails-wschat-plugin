@@ -93,8 +93,8 @@ class WsChatConfService implements UserMaps{
 	public String CHATAPP = "WsChatEndpoint"
 	public String CHATVIEW = "wsChat"
 
-	static final Set<HashMap<String[],String[]>> clientMaster = ([:] as Set).asSynchronized()
-	static final Set<HashMap<String[],String[]>> clientSlave = ([:] as Set).asSynchronized()
+	//static final Set<HashMap<String[],String[]>> clientMaster = ([:] as Set).asSynchronized()
+	//static final Set<HashMap<String[],String[]>> clientSlave = ([:] as Set).asSynchronized()
 
 
 
