@@ -11,15 +11,23 @@ class WsChatClientController extends WsChatConfService {
 	def index() { 
 		[ clientMaster:clientMaster, clientSlave:clientSlave]
 	}
-	
+
 	def masterList() {
-		render clientMaster as JSON
+		if (clientMaster) {
+			render clientMaster as JSON
+		}else{
+			render ''
+		}
 	}
-	
+
 	def slaveList() {
-		render clientSlave as JSON
+		if (clientSlave) {
+			render clientSlave as JSON
+		}else{
+			render ''
+		}
 	}
-	
+
 	def showMasters() {
 		render (view: 'index', model: [clientMaster:clientMaster])
 	}

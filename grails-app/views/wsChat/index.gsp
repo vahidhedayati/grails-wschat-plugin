@@ -27,7 +27,7 @@
 				<div class="nickname">Nickname:</div>
 				<input type="text" name="username">
 				
-				<g:select name="room" from="${rooms}" />
+				<g:select name="room" from="${bean.rooms}" />
 				
 				<input type="submit" value="login">
 

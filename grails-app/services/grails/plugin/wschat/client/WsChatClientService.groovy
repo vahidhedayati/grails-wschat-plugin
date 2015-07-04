@@ -14,10 +14,8 @@ public class WsChatClientService extends WsChatConfService {
 
 	def wsChatUserService
 
-	public WsChatClientEndpoint conn(String hostname, String appName, String room, String user ) {
-		ConfigBean bean = new ConfigBean()
-		WsChatClientEndpoint clientEndPoint =
-				new WsChatClientEndpoint(new URI(bean.uri))
+	public WsChatClientEndpoint conn(String uri, String user ) {
+		WsChatClientEndpoint clientEndPoint = new WsChatClientEndpoint(new URI(uri))
 		clientEndPoint.connectClient(user)
 		return clientEndPoint
 	}

@@ -17,17 +17,11 @@ class DefaultWsChatConfig {
 		return new ServletContextInitializer() {
 			@Override
 			public void onStartup(ServletContext servletContext) throws ServletException {
+				servletContext.addListener(WsChatEndpoint)
 				servletContext.addListener(WsCamEndpoint)
 				servletContext.addListener(WsChatFileEndpoint)
-
 			}
 		}
 	}
 
-	// Alternative way
-	@Bean
-	public ServletListenerRegistrationBean<WsChatEndpoint>  httpSessionEventPublisher() {
-		return new ServletListenerRegistrationBean<WsChatEndpoint>(new WsChatEndpoint())
-
-	}
 }

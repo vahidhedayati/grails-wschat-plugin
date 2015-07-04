@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory
 
 import javax.websocket.*
 import javax.websocket.server.PathParam
+import javax.websocket.ContainerProvider
 
 @ClientEndpoint
 public class WsChatClientEndpoint extends ChatUtils {
@@ -31,6 +32,7 @@ public class WsChatClientEndpoint extends ChatUtils {
 			//throw new RuntimeException(e)
 		}
 	}
+
 
 	@OnOpen
 	public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) {

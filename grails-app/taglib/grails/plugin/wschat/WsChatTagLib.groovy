@@ -58,11 +58,14 @@ class WsChatTagLib extends WsChatConfService {
 			}
 		}
 		if (!bean.room) {
-			bean.room = wsChatRoomService.returnRoom(bean.dbSupport, true)
+			bean.setRoom(wsChatRoomService.returnRoom(bean.dbSupport, true))
 		}
 
-		Map model = [bean:bean]
-		WsChatClientEndpoint clientEndPoint = wsChatClientService.conn(bean.hostname, bean.appName, bean.room, bean.user)
+		String uri = "${bean.uri}${bean.room}"
+
+		println "---> $uri ---> @@ "
+
+		WsChatClientEndpoint clientEndPoint = wsChatClientService.conn(uri, bean.user)
 		if (bean.receivers) {
 			//if (strictMode==false) {
 			//	wsChatClientService.sendMessage(clientEndPoint, ">>"+message)
@@ -78,6 +81,8 @@ class WsChatTagLib extends WsChatConfService {
 			//Session userSess = wsChatClientService.returnSession()
 			//Session userSession = clientEndPoint.returnSession()
 			wsChatClientService.handMessage(clientEndPoint, bean.user, bean.receivers, bean.actionMap, bean.strictMode, bean.divId, bean.masterNode)
+			Map model = [bean:bean, uri:uri]
+
 			if (bean.frontenduser) {
 				if (bean.template) {
 					out << g.render(template:bean.template, model:model)
@@ -96,9 +101,9 @@ class WsChatTagLib extends WsChatConfService {
 			}
 		}
 		if (!bean.room) {
-			bean.room = wsChatRoomService.returnRoom(bean.dbSupport, true)
+			bean.setRoom(wsChatRoomService.returnRoom(bean.dbSupport, true))
 		}
-		Map model = [bean:bean]
+
 		Session oSession = chatClientListenerService.p_connect(bean.uri, bean.user, bean.room)
 		try{
 			//closure(session)
@@ -120,6 +125,8 @@ class WsChatTagLib extends WsChatConfService {
 		}catch(e){
 			//log.error e
 		}
+		String uri = "${bean.uri}${bean.room}"
+		Map model = [bean:bean, uri:uri]
 		if (bean.frontenduser) {
 			if (bean.template) {
 				out << g.render(template:bean.template, model:model)

@@ -22,16 +22,16 @@ class WsChatController extends WsChatConfService {
 
 	def index(ConnectTagBean bean) {
 		bean.addLayouts=true
-		bean.rooms = config.rooms as ArrayList
+		bean.setRooms(config.rooms as ArrayList)
 
 		if (!bean.rooms && (bean.dbSupport)) {
-			bean.rooms = wsChatRoomService.returnRoom(bean.dbSupport)
+			bean.setRooms(wsChatRoomService.returnRoom(bean.dbSupport))
 		}
 		if (bean.process) {
 			render "Default sign in page disabled"
 			return
 		}
-		[bean:bean, rooms:bean.rooms]
+		[bean:bean]
 	}
 
 	def chat(ConnectTagBean bean) {

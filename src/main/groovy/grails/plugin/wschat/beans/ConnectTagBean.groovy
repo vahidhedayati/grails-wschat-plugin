@@ -14,12 +14,6 @@ class ConnectTagBean extends InitiationBean implements Validateable {
 		super
 	}
 
-	/*
-	Boolean setAddLayouts(String addLayouts) {
-		this.addLayouts = addLayouts
-		return addLayouts
-	}
-	*/
 	Boolean getUpdateProfile() {
 		return validateBool(updateProfile)
 	}
