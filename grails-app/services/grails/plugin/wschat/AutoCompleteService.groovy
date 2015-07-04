@@ -20,7 +20,7 @@ class AutoCompleteService {
 				order('username', 'asc')
 			}
 		}
-		results = results?.collect {     [label:it.username] }?.unique()
+		results = results?.collect {[label:it.username]}?.unique()
 		return results as JSON
 	}
 	

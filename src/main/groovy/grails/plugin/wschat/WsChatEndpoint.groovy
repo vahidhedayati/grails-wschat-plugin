@@ -66,12 +66,18 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnClose
 	public void handeClose(Session userSession) throws SocketException {
-		String username = userSession?.userProperties?.get("username")
-		if (username) {
-			wsChatAuthService.validateLogOut(username)
-			destroyChatUser(username)
+		if (userSession) {
+			String username = userSession?.userProperties?.get("username")
+			// null users issue in badly formatted _process.gsp
+			// when client/server tests where being done as part of 1.20 release
+			// left for similar issues - usually should not occur
+			if (username && username!='null') {
+				//if (hasDBSupport()) {
+					wsChatAuthService.validateLogOut(username as String)
+				//}
+				destroyChatUser(username)
+			}
 		}
-
 	}
 
 	@OnError

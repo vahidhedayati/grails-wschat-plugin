@@ -6,18 +6,11 @@ import grails.plugin.wschat.file.WsFileService
 import grails.plugin.wschat.messaging.WsChatMessagingService
 import grails.plugin.wschat.rooms.WsChatRoomService
 import grails.plugin.wschat.users.WsChatUserService
-import grails.core.GrailsApplication
-import grails.core.support.GrailsApplicationAware
 
 import javax.websocket.Session
 
-
 class ChatUtils extends WsChatConfService {
-	//implements GrailsApplicationAware  {
-
-
-	//GrailsApplication grailsApplication
-
+	
 	WsChatAuthService wsChatAuthService
 	WsChatUserService wsChatUserService
 	WsChatRoomService wsChatRoomService
@@ -65,7 +58,7 @@ class ChatUtils extends WsChatConfService {
 			if (message.startsWith("DISCO:-")) {
 				wsChatUserService.removeUser(username)
 				wsChatUserService.sendUsers(userSession,username)
-				userSession.close()
+				//userSession.close()
 			}else if (message.startsWith("/pm")) {
 				def values = parseInput("/pm ",message)
 				String user = values.user as String

@@ -94,8 +94,8 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 	public String CHATAPP = "WsChatEndpoint"
 	public String CHATVIEW = "wsChat"
 
-	static final Set<HashMap<String[],String[]>> clientMaster = ([:] as Set).asSynchronized()
-	static final Set<HashMap<String[],String[]>> clientSlave = ([:] as Set).asSynchronized()
+	//static final Set<HashMap<String[],String[]>> clientMaster = ([:] as Set).asSynchronized()
+	//static final Set<HashMap<String[],String[]>> clientSlave = ([:] as Set).asSynchronized()
 
 	//private String dbSupport
 	//private JSON iceservers
@@ -172,8 +172,4 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 	//	return grailsApplication?.config?.wschat ?: ''
 		//return wschat
 	//}
-
-
-
-
 }

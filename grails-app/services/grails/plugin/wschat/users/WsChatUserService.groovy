@@ -158,12 +158,10 @@ class WsChatUserService extends WsChatConfService  {
 				def myUser = [:]
 				vList.add(cuser)
 				if (room.equals(crec.userProperties.get("room"))) {
-					//def cuser = crec.userProperties.get("username").toString()
 					def av = crec.userProperties.get("av").toString()
 					def rtc = crec.userProperties.get("rtc").toString()
 					def file = crec.userProperties.get("file").toString()
 					def media = crec.userProperties.get("media").toString()
-					
 					def addav = ""
 					if (listType=="generic") {
 						if (av.equals("on")) {
@@ -265,16 +263,12 @@ class WsChatUserService extends WsChatConfService  {
 			newEntry.username = username
 			newEntry.period = current
 			if (!newEntry.save(flush:true)) {
-				if (config.debug == "on") {
-					newEntry.errors.allErrors.each{println it}
-				}
+				log.error "Error saving ${newEntry.errors}"
 			}
 		}else{
 			found.period = current
 			if (!found.save(flush:true)) {
-				if (config.debug == "on") {
-					found.errors.allErrors.each{println it}
-				}
+				log.error "Error saving ${found.errors}"
 			}
 		}
 	}
@@ -289,9 +283,7 @@ class WsChatUserService extends WsChatConfService  {
 				newEntry.chatuser = cuser
 				newEntry.username = urecord
 				if (!newEntry.save(flush:true)) {
-					if (config.debug == "on") {
-						newEntry.errors.allErrors.each{println it}
-					}
+					log.error "Error saving ${newEntry.errors}"
 				}
 			}
 		}
@@ -308,9 +300,7 @@ class WsChatUserService extends WsChatConfService  {
 				newEntry.chatuser = cuser
 				newEntry.username = urecord
 				if (!newEntry.save(flush:true)) {
-					if (config.debug == "on") {
-						newEntry.errors.allErrors.each{println it}
-					}
+					log.error "Error saving ${newEntry.errors}"
 				}
 			}
 		}

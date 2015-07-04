@@ -20,7 +20,6 @@ class WsChatAuthService extends WsChatConfService   {
 	def wsChatUserService
 	def wsChatRoomService
 
-
 	private void verifyOffLine(Session userSession, String username) {
 		def chat = ChatUser?.findByUsername(username)
 		def pms=OffLineMessage?.findAllByOfflog(chat.offlog)
@@ -40,7 +39,6 @@ class WsChatAuthService extends WsChatConfService   {
 		if (!perm) {
 			perm = ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
 		}
-
 		user = ChatUser.findByUsername(username)
 		if (!user) {
 			def addlog = addLog()
@@ -53,9 +51,7 @@ class WsChatAuthService extends WsChatConfService   {
 	private ChatLog addLog() {
 		ChatLog logInstance = new ChatLog(messages: [])
 		if (!logInstance.save(flush:true)) {
-			if (config.debug == "on") {
-				logInstance.errors.allErrors.each{println it}
-			}
+			log.debug "${logInstance.errors}"
 		}
 		return logInstance
 	}
@@ -72,16 +68,11 @@ class WsChatAuthService extends WsChatConfService   {
 			logit.username = username
 			logit.loggedIn = true
 			logit.loggedOut = false
-
 			if (!logit.save(flush:true)) {
-				if (config.debug == "on") {
-					logit.errors.allErrors.each{println it}
-				}
+				log.error "${logit.errors}"
 			}
-
 			defaultPerm = user.permissions.name as String
 		}
-
 		[permission: defaultPerm, user: user]
 	}
 
@@ -93,9 +84,7 @@ class WsChatAuthService extends WsChatConfService   {
 			logit.loggedIn = false
 			logit.loggedOut = true
 			if (!logit.save(flush:true)) {
-				if (config.debug == "on") {
-					logit.errors.allErrors.each{println it}
-				}
+				log.error "${logit.errors}"
 			}
 		}
 	}
@@ -127,7 +116,7 @@ class WsChatAuthService extends WsChatConfService   {
 				def myMsg2 = [:]
 				myMsg2.put("currentRoom", "${room}")
 				wsChatMessagingService.messageUser(userSession,myMsg2)
-
+				wsChatUserService.sendUsers(userSession,username)
 				String sendjoin = config.send.joinroom  ?: 'yes'
 
 				if (sendjoin == 'yes') {
@@ -135,9 +124,6 @@ class WsChatAuthService extends WsChatConfService   {
 					//wsChatMessagingService.messageUser(userSession,myMsg)
 				}
 				wsChatRoomService.sendRooms(userSession)
-				wsChatUserService.sendUsers(userSession,username)
-
-
 			}else{
 				def myMsg1 = [:]
 				myMsg1.put("isBanned", "user ${username} is banned being disconnected")
@@ -149,6 +135,7 @@ class WsChatAuthService extends WsChatConfService   {
 		}
 
 		if ((myMsg)&&(!isuBanned)) {
+
 			wsChatMessagingService.broadcast(userSession,myMsg)
 		}
 		if (hasDBSupport()) {
@@ -162,17 +149,14 @@ class WsChatAuthService extends WsChatConfService   {
 		if (hasDBSupport()) {
 			def now = new Date()
 			def current  =  new SimpleDateFormat('EEE, d MMM yyyy HH:mm:ss').format(now)
-			//ChatBanList.withTransaction {
 			def found = ChatBanList.findAllByUsernameAndPeriodGreaterThan(username,current)
 			def dd = ChatBanList.findAllByUsername(username)
 			if (found) {
 				yesis = true
 			}
-			//}
 		}
 		return yesis
 	}
-
 
 	Boolean loggedIn(String user) {
 		return chatUserExists(user)

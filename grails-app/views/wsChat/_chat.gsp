@@ -1,24 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-
-
-<g:render template="/assets" />
-
+<g:render template="/assets" model="${[bean:bean]}"/>
 <title>
-	${chatTitle }
+	${bean.chatTitle }
 </title>
-</head>
-<body>
 	<div class="container">
-
-
-		<g:if test="${showtitle.equals('yes') }">
+		<g:if test="${bean.showtitle}">
 			<div class="page-header">
 				<h2>
-					${chatHeader }
+					${bean.chatHeader}
 				</h2>
-				<small> ${now}
+				<small> ${bean.now}
 				</small>
 			</div>
 		</g:if>
@@ -33,7 +23,7 @@
 		<div id="profileconfirmation"></div>
 
 		<div id="banuser" style="display: none;">
-			<g:render template="/banuser" />
+			<g:render template="/banuser"/>
 		</div>
 
 		<div id="userprofile" style="display: none;">
@@ -48,7 +38,7 @@
 		</div>
 
 		<div id="admincontainer" style="display: none;">
-			<g:render template="/admin/master" />
+			<g:render template="/admin/master"/>
 		</div>
 
 
@@ -151,15 +141,15 @@
 
 
 	<g:javascript>
-	$("#roomBlock").resizable();
- 	$("#friendsBlock").resizable();
+	$( "#roomBlock" ).resizable();
+ 	$( "#friendsBlock" ).resizable();
  	
- 	var baseapp="${meta(name:'app.name')}";
+ 	var baseapp="${bean.appName}";
 	function getApp() {
 		return baseapp;
 	}
  	
- 	<g:if test="${addAppName=='no'}">
+ 	<g:if test="${bean.addAppName=='no'}">
 		var themeuri="/assets/"
 	</g:if>
 	<g:else>
@@ -189,8 +179,8 @@
 	}
 
 	// Convert grails variable values to javascript format
-	var user="${chatuser}";
-	var hostname="${hostname}";
+	var user="${bean.chatuser}";
+	var hostname="${bean.hostname}";
 
 	function getHostName() {
 		return hostname;
@@ -207,8 +197,8 @@
 	var fileOn = new Array();
 	var mediaOn = new Array();
 	var rtcOn = new Array();
-	var isAdmin="false";
-	var debug = "${debug }";
+	var isAdmin="${'false' }";
+	var debug = "${bean.debug}";
 			
 	var video = $("#live").get()[0];
 	var canvas = $("#canvas");
@@ -223,13 +213,7 @@
 		audio:true
 	};
 	
-	<g:if test="${addAppName=='no'}">
-		var uri="ws://${hostname}/WsChatEndpoint/${room}";
-	</g:if>
-		<g:else>
-		var uri="ws://${hostname}/${meta(name:'app.name')}/WsChatEndpoint/${room}"
-	</g:else>
-
+	var uri="${bean.uri}${bean.room}";
 	if (debug == "on") {
 		console.log('Connecting to '+uri);
 	}
@@ -245,9 +229,9 @@
 		
    function processOpen(message) {
    		if (debug == "on") {
-			console.log('Openning  connection for to ${chatuser}');
+			console.log('Openning  connection for to ${bean.chatuser}');
 		}
-    	<g:if test="${!chatuser}">
+    	<g:if test="${!bean.chatuser}">
        		$('#chatMessages').append("Chat denied no username \n");
        		webSocket.send("DISCO:-"+user);
        	 	webSocket.close();
@@ -281,6 +265,3 @@
      }
 </g:javascript>
 
-
-</body>
-</html>

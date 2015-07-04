@@ -1,4 +1,4 @@
-<meta name='layout' content="achat"/>
+
 	<div id="photobox1" class="modal fade">
 	
 	<div id="photoContainer">

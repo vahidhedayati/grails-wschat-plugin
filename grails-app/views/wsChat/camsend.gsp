@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <g:render template="/assets" />
 <title>
 	${chatTitle }
@@ -22,24 +23,14 @@
 			$("#pageHeader").html(msg);
 		}
 
-		/*
-		 *	Open Websocket-Connection
-		 */
-
+		/*	Open Websocket-Connection */
 		// create new WebRTC-Object
 		var WebCam = new WebCam();
-
-		// connect to websocket server
-		<g:if test="${addAppName=='no'}">
-			var uri="ws://"+getHostName()+"/WsCamEndpoint/"+getUser()+"/"+getUser();
-		</g:if>
-		<g:else>
-			var uri="ws://"+getHostName()+"/"+getApp()+"/WsCamEndpoint/"+getUser()+"/"+getUser();
-		</g:else>
-		
+		var uri="${bean.camEndpoint}/"+getUser()+"/"+getUser();
+		if (debug == "on") {
+			console.log('Connecting to '+uri);
+		}
 		WebCam.connectToSocket(uri);
-		
-	
 		window.onbeforeunload = function() {
 			WebCam.send("DISCO:-");
 			WebCam.onclose = function() { }

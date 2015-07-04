@@ -2,6 +2,8 @@
 <html>
 <head>
 <meta name='layout' content="achat"/>
+
+
 </head>
 <body>
 	<div class="modal-body">

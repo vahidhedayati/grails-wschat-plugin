@@ -11,15 +11,14 @@ import java.rmi.server.UID
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.text.SimpleDateFormat
-import org.grails.plugins.web.taglib.ApplicationTagLib
-import org.springframework.transaction.annotation.Transactional
 
+import org.springframework.transaction.annotation.Transactional
+import org.grails.plugins.web.taglib.ApplicationTagLib
 
 class WsChatBookingService  extends WsChatConfService {
 
 	def mailService
 	def wsChatRoomService
-	def messageSource
 
 	static prng = new SecureRandom()
 	
@@ -84,30 +83,19 @@ class WsChatBookingService  extends WsChatConfService {
 		conference = conference+"_"+current
 		def dateTime = df.parse(startDate)
 		def endDateTime = df.parse(endDate)
-		def myConference
-		//ChatBooking.withTransaction {
-		myConference = ChatBooking.findOrSaveWhere(conferenceName: conference, dateTime:dateTime, endDateTime:endDateTime)
-		//}
+		def myConference = ChatBooking.findOrSaveWhere(conferenceName: conference, dateTime:dateTime, endDateTime:endDateTime)
 		String defaultsubject = "You have a chat Scheduled for ${startDate} "
-
-		ApplicationTagLib g = new ApplicationTagLib()
-
-
-
+		ApplicationTagLib  g = new ApplicationTagLib()
 		String defaultbody = """Dear [PERSON],
 A request has been made to join chat room ${conference}, scheduled between (${startDate}/${endDate}.
-
 The following members have also been invited ${invites}.
 
 Please book the request in your calendar and click the following link on date/time of booking.
-
 The room will be only be available during set period and a 5 minutes  pre and post schedule date.
-
 Please join chat on [CHATURL]
 """
 		String body  = 	config?.msgbody ?: defaultbody
 		String subject = config?.subject ?: defaultsubject
-
 		wsChatRoomService.addManualRoom(conference,'booking')
 		invites.each { user->
 			def found=ChatUser.findByUsername(user)
@@ -127,12 +115,11 @@ Please join chat on [CHATURL]
 					token: parsedToken, booking:myConference]
 				def inviteInstance = new ChatBookingInvites(myMap)
 				if (!inviteInstance.save(flush: true)) {
-					//inviteInstance.errors.allErrors.each{println it}
-					log.error "Error saving Booking"
+					log.error "Error saving Booking ${inviteInstance.errors}"
 				}else{
 					String sendbody = body.replace('[PERSON]', found.username).replace('[CHATURL]', chaturl)
 					if (config.debug) {
-						println "MSG: ${subject}\n${sendbody}"
+						log.debug "MSG: ${subject}\n${sendbody}"
 					}
 					SendMail(foundprofile.email,'',subject,sendbody)
 				}
@@ -149,7 +136,7 @@ Please join chat on [CHATURL]
 		doSendMail toconfig, mycc, mysubject, mybody, true
 	}
 
-	private void doSendMail(toconfig, mycc, mysubject, mybody, boolean html) {
+	private void doSendMail(toconfig, mycc, mysubject, mybody, boolean html) throws Exception {
 		List<String> recipients = []
 		String email = calculateAddresses(recipients, toconfig)
 		List<String> ccrecipients = []
@@ -186,7 +173,8 @@ Please join chat on [CHATURL]
 			}
 		}
 		catch (e) {
-			log.error messageSource.getMessage('default.issue.sending.email.label', ["${e.message}"].toArray(), "Problem sending email ${e.message}", LCH.getLocale()),e
+			throw new Exception(e.message)
+			//log.error messageSource.getMessage('default.issue.sending.email.label', ["${e.message}"].toArray(), "Problem sending email ${e.message}", LCH.getLocale()),e
 		}
 	}
 

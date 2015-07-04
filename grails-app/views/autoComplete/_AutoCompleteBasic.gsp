@@ -1,20 +1,21 @@
 
 <div id="userInputError">
 <div id="userInput">
-<input type='text' ${clazz} id='${attrs.id}' value = '${attrs.value}' ${required} ${styles} ${name }   onClick="this.value='';resetMsg();"  onchange="verifyValue(this.value);" />
+	<input type='text' class="${bean.clazz}" id='${bean.id}' value='${bean.value}' required="${bean.required?required:''}
+	 style='${bean.styles}' name='${bean.name}' onClick="this.value='';resetMsg();"  onchange="verifyValue(this.value);" />
 </div>
 <div id="response_image"></div>
 </div>
 <div id="return_result"></div>
 
 <g:javascript>
-	$('#${attrs.id}').autocomplete({ 
-		source: '<g:createLink action='${attrs.action}' controller="${attrs.controller}"
-	 	params="[domain: ''+attrs.domain+'', searchField: ''+attrs.searchField+'', max: ''+attrs.max+'', order: ''+attrs.order+'', collectField: ''+attrs.collectField+'']"/>',
+	$('#${bean.id}').autocomplete({ 
+		source: '<g:createLink action='${bean.action}' controller="${bean.controller}"
+	 	params="[ searchField: ''+bean.searchField+'', max: ''+bean.max+'', order: ''+bean.order+'', collectField: ''+bean.collectField+'']"/>',
 		dataType: 'json',
 		select: function(event, ui){
         if (ui.item && ui.item.value){
-        	//$('${attrs.id}_auto').val(ui.item.value);
+        	//$('${bean.id}_auto').val(ui.item.value);
             titleinput = ui.item.value;
             ui.item.value= $.trim(titleinput);
             verifyValue(ui.item.value);
@@ -33,7 +34,7 @@
 	
 	function verifyValue(data) {
 		if (data!='') {
-			$.getJSON('${createLink(controller:"${attrs.controller}", action: "findUser")}?uid='+data,function(e){
+			$.getJSON('${createLink(controller:"${bean.controller}", action: "findUser")}?uid='+data,function(e){
 			var found=e.status;
 			var semail=e.email;
 		
@@ -43,7 +44,7 @@
 					$('#return_result').html('Email address found: '+semail);
 					addSelection(semail, data);
 					
-					$('#${attrs.id }').val(" ");
+					$('#${bean.id }').val(" ");
 					resetMsg();
 				}else{
 					$('#response_image').html('<div id="question"></div>');

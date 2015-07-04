@@ -1,15 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My WebRTC file sharing application</title>
-<g:if test="${!request.xhr }">
-	<meta name='layout' content="achat" />
-</g:if>
-<g:else>
-	<g:render template="/assets" />
-</g:else>
-<asset:javascript src="media/rtclib.js" />
-<asset:javascript src="media/adapter.js" />
+    <title>	${bean.chatTitle}</title>
+	<g:render template="includes" model="${[bean:bean]}"/>
+	<asset:javascript src="rtcmedia/rtclib.js" />
+	<asset:javascript src="rtcmedia/adapter.js" />
     <style type="text/css">
         video {
             width: 384px;
@@ -22,9 +17,6 @@
             margin: 0 auto;
         }
     </style>
-    
-
-
 </head>
 <body>
 
@@ -43,34 +35,22 @@
 </div>
 <script>
     var filelist;
-	var hostname="${hostname}";
-
-	var sender="${sender}";
-
+	var hostname="${bean.hostname}";
+	var sender="${bean.sender}";
 	function getHostName() {
 		return hostname;
 	}
- 	var room = "${room }";
- 	var baseapp="${meta(name:'app.name')}";
- 	
+ 	var room = "${bean.room}";
  	function getUser() {
- 		return "${chatuser}";
+ 		return "${bean.chatuser}";
  	}
- 	
  	function getUser1() {
- 		return "${room }" 
+ 		return "${bean.room}" 
  	}
 	function getApp() {
 		return baseapp;
 	}
- 	
-    <g:if test="${addAppName=='no'}">
-	var uri="ws://${hostname}/WsChatFileEndpoint/${room}/${chatuser}";
-</g:if>
-<g:else>
-	var uri="ws://${hostname}/${meta(name:'app.name')}/WsChatFileEndpoint/${room}/${chatuser}";
-</g:else>
-    
+    var uri="${bean.fileEndpoint}/${bean.room}/${bean.chatuser}";
     $(function() {
     	videoScreen = document.getElementById("videoscreen");
     	if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -102,6 +82,5 @@ function handleFileSelect(evt) {
 };
 
 </script>
-
 </body>
 </html>

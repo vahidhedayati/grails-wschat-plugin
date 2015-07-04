@@ -2,6 +2,12 @@ package grails.plugin.wschat
 
 import grails.converters.JSON
 import org.grails.plugins.web.taglib.ApplicationTagLib
+import grails.plugin.wschat.beans.ConnectTagBean
+import grails.plugin.wschat.beans.InitiationBean
+import grails.plugin.wschat.beans.LoginBean
+import grails.plugin.wschat.beans.RoomBean
+import grails.plugin.wschat.beans.SearchBean
+import grails.plugin.wschat.beans.UserBean
 
 import java.util.Map
 
@@ -14,68 +20,60 @@ class WsChatController extends WsChatConfService {
 	def wsChatBookingService
 	def wsChatContService
 
+	def index(ConnectTagBean bean) {
+		bean.addLayouts=true
+		bean.rooms = config.rooms as ArrayList
 
-	def sendfile(String room) {
-		def chatuser = session.wschatuser
-		boolean sender = false
-		if (room == chatuser) {
-			sender = true
+		if (!bean.rooms && (bean.dbSupport)) {
+			bean.rooms = wsChatRoomService.returnRoom(bean.dbSupport)
 		}
-		render view: 'sendfile', model: [sender:sender, room:room, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
-			addAppName:wsconf.addAppName]
-	}
-	
-	def sendmedia(String room) {
-		def chatuser = session.wschatuser
-		boolean sender = false
-		if (room == chatuser) {
-			sender = true
-		}
-		render view: 'sendmedia', model: [sender:sender, room:room, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
-			addAppName:wsconf.addAppName]
-	}
-
-	def index() {
-		def room = config.rooms
-		if (!room && (wsconf.dbSupport=='yes')) {
-			room = wsChatRoomService.returnRoom(wsconf.dbSupport as String)
-		} else if (!room && (wsconf.dbSupport=='no')) {
-			room = ['wschat']
-		}
-		if (wsconf.process.toLowerCase().equals('yes')) {
+		if (bean.process) {
 			render "Default sign in page disabled"
+			return
 		}
-
-		render view: 'index', model: [chatTitle:wsconf.chatTitle,chatHeader:wsconf.chatHeader,room:room]
+		[bean:bean, rooms:bean.rooms]
 	}
 
-	def login(String username,String room) {
-		String errors
-		if (wsconf.process.toLowerCase().equals('yes')) {
-			render "Default sign in page disabled"
+	def chat(ConnectTagBean bean) {
+		bean.setAddLayouts(true)
+		bean.chatuser = session.wschatuser
+		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(bean.dbSupport, true)
+		[bean:bean]
+	}
+
+	def sendfile(RoomBean bean) {
+		bean.chatuser = session.wschatuser
+		boolean sender = false
+		if (bean.room == bean.chatuser) {
+			bean.sender = true
 		}
-		username = username.trim().replace(' ', '_').replace('.', '_')
-		if (errors) {
-			flash.message = errors
+		[bean:bean]
+	}
+
+	def sendmedia(RoomBean bean) {
+		bean.chatuser = session.wschatuser
+		boolean sender = false
+		if (bean.room == bean.chatuser) {
+			bean.sender = true
+		}
+		[bean:bean]
+	}
+
+	def login(LoginBean bean) {
+		if (bean.process) {
+			render "Default sign in page disabled"
+			return
+		}
+		if (!bean.validate()) {
+			flash.message = bean.errors
 			redirect(controller: "wsChat",action: "index")
+			return
 		}else{
-			session.wschatuser = username
-			session.wschatroom = room
+			session.wschatuser = bean.username
+			session.wschatroom = bean.room
 			redirect(controller: "wsChat", action: "chat")
+			return
 		}
-		//redirect (uri : "/wsChat/chat/${room}")
-	}
-
-	def chat() {
-		def chatuser = session.wschatuser
-		def room = session.wschatroom
-		String debug = config.debug ?: 'off'
-		if (!room) {
-			room = wsChatRoomService.returnRoom(wsconf.dbSupport as String)
-		}
-		render view: 'chat', model: [showtitle:wsconf.showtitle.toLowerCase(), dbsupport:wsconf.dbSupport.toLowerCase() , room:room,
-			chatuser:chatuser, chatTitle:wsconf.chatTitle,chatHeader:wsconf.chatHeader,
-			now:new Date(), hostname:wsconf.hostname, addAppName: wsconf.addAppName, debug:debug]
 	}
 
 	def verifyprofile(String username) {
@@ -144,29 +142,26 @@ class WsChatController extends WsChatConfService {
 
 	def confirmBan(String username,String duration,String period) {
 		if (isAdmin) {
-			render view: 'confirmBan', model: [username:username,duration:duration,period:period]
+			[username:username,duration:duration,period:period]
 		}
 	}
 
-	def camsend(String user) {
-		render view: 'camsend', model: [user:user, chatTitle:wsconf.chatTitle, hostname:wsconf.hostname, addAppName:wsconf.addAppName]
+	def camsend(UserBean bean) {
+		[bean:bean]
 	}
 
-	def webrtcsend(String user, String rtc) {
-		render view: 'webrtcsend', model: [user:user, chatTitle:wsconf.chatTitle, hostname:wsconf.hostname, iceservers:wsconf.iceservers,
-			addAppName:wsconf.addAppName, rtc:rtc]
+	def webrtcsend(UserBean bean) {
+		[bean:bean]
 	}
 
-	def webrtcrec(String user, String rtc) {
-		def chatuser = session.wschatuser
-		render view: 'webrtcrec', model: [user:user, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
-			iceservers:wsconf.iceservers, addAppName:wsconf.addAppName, rtc:rtc]
+	def webrtcrec(UserBean bean) {
+		bean.chatuser = session.wschatuser
+		[bean:bean]
 	}
 
-	def camrec(String user) {
-		def chatuser = session.wschatuser
-		render view: 'camrec', model: [user:user, hostname:wsconf.hostname, chatuser:chatuser, chatTitle:wsconf.chatTitle,
-			addAppName:wsconf.addAppName]
+	def camrec(UserBean bean) {
+		bean.chatuser = session.wschatuser
+		[bean:bean]
 	}
 
 	def autocomplete() {
@@ -174,24 +169,15 @@ class WsChatController extends WsChatConfService {
 	}
 
 
-	def viewUsers(Integer max, String s) {
+	def viewUsers(SearchBean bean) {
 		if (isAdmin) {
-			params.order = params.order ?: 'desc'
-			int total = 0
-			String pageSizes = params.pageSizes ?: '10'
-			String order = params.order ?: "desc"
-			String sortby = params.sortby ?: "lastUpdated"
-			int offset = (params.offset ?: '0') as int
-			def inputid = params.id
-			params.max = Math.min(max ?: 10, 1000)
-			def uList = wsChatUserService.genAllUsers()
-			Map vu = wsChatContService.viewUsers(s ?: '', sortby, order, offset, params.max , inputid)
-			s = vu.s
-			def foundRec = vu.foundRec
-			total = vu.total
-			def model = [userList: foundRec, userListCount: total, divupdate: 'adminsContainer',
-				pageSizes: pageSizes, offset: offset,inputid: inputid, s: s, order: order,
-				sortby:sortby, action: 'list', allcat:ChatUser.list(), max:max, params:params, uList:uList]
+			bean.uList = wsChatUserService.genAllUsers()
+			def gUsers = wsChatContService.viewUsers(bean.s ?: '', bean.sortby, bean.order, bean.offset, bean.max , bean.inputid)
+			bean.s = gUsers.s
+			bean.userList = gUsers.foundRec
+			bean.userListCount = gUsers.total
+			bean.allcat=ChatUser.list()
+			Map model = [bean:bean]
 			if (request.xhr) {
 				render (template: '/admin/viewUsers', model: model)
 			}
@@ -205,7 +191,7 @@ class WsChatController extends WsChatConfService {
 	def search(String mq) {
 		if (isAdmin) {
 			Map ss = wsChatUserService.search(mq)
-			render (template: '/admin/userList', model: [ userList: ss.userList,uList:ss.uList])
+			render (template: '/admin/userList', model: [bean:[userList:ss.userList, uList:ss.uList]])
 		}
 		render ''
 	}
@@ -215,13 +201,13 @@ class WsChatController extends WsChatConfService {
 			def returnResult = wsChatUserService.findaUser(uid)
 			render returnResult as JSON
 		}
-		render ''
 	}
 
 	def addUser(String username) {
 		if (isAdmin) {
 			render (template: '/admin/addUser', model: [ username:username])
 		}
+		render ''
 	}
 
 	def addEmail(String username) {
@@ -249,7 +235,7 @@ class WsChatController extends WsChatConfService {
 			session.wschatroom = room
 			redirect(controller: "wsChat", action: "chat")
 		}
-		render view: 'joinBooking', model:  [startDate:startDate, endDate:endDate]
+		[startDate:startDate, endDate:endDate]
 	}
 
 	def addBooking(){
@@ -275,7 +261,6 @@ class WsChatController extends WsChatConfService {
 		if (isAdmin) {
 			render template : '/room/addaRoom'
 		}
-		render ''
 	}
 
 	def delaRoom() {
