@@ -171,11 +171,12 @@ bootstrap="true"
  usermenujs="${params.chatType}.js"
  profile="[email: '${params.username}2@example.com']" 
  />
-```gsp
+```
 
 [chatTypes which are Javascripts can be found here](https://github.com/vahidhedayati/testwschat/tree/master/grails-app/assets/javascripts)
 
-This now loads in a specific style of menus for the end chat user, you can customise further 
+This now loads in a specific style of menus for the end chat user, you can customise further
+ 
 ```
 wschatjs="${params.wschatjs}.js"
 ```
