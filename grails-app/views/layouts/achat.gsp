@@ -9,7 +9,6 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<title><g:layoutTitle default="Grails"/></title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<g:render template="/assetsTop"/>
     	<g:layoutHead/>
 	</head>
 	<body>

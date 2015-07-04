@@ -1,7 +1,12 @@
 package grails.plugin.wschat
 
-import grails.converters.JSON
+import grails.plugin.wschat.beans.AutoCompleteBean
+import grails.plugin.wschat.beans.ClientTagBean
+import grails.plugin.wschat.beans.ConnectTagBean
+import grails.plugin.wschat.beans.InitiationBean
+import grails.plugin.wschat.beans.WsConnectTagBean
 import grails.plugin.wschat.client.WsChatClientEndpoint
+
 import javax.websocket.Session
 
 class WsChatTagLib extends WsChatConfService {
@@ -15,57 +20,35 @@ class WsChatTagLib extends WsChatConfService {
 	def pluginbuddyService
 	
 	
-	def includeAllStyle = { 
-		out << g.render(contextPath: pluginContextPath, template : "/${CHATVIEW}/includes")
+	def includeAllStyle = { attrs->
+		def bean = new InitiationBean(attrs)
+		Map model = [bean:bean]
+		out << g.render(contextPath: pluginContextPath, template : "/${CHATVIEW}/includes", model: model)
 	}
 	
-	def includeStyle = { 
-		if (pluginbuddyService.returnAppVersion().equals('assets')) { 
-			out << g.render(contextPath: pluginContextPath, template : "/assetsTop")
-		} else {
-			out << g.render(contextPath: pluginContextPath, template : "/resourcesTop")
+	def includeStyle = { attrs->
+		def bean = new InitiationBean(attrs)
+		Map model = [bean:bean]
+		String template='/resourcesTop'
+		if (pluginbuddyService.returnAppVersion().equals('assets')) {
+			template='/assetsTop'
 		}
+		out << g.render(contextPath: pluginContextPath, template : template, model: model)
 	}
 	
 	def connect  =   { attrs ->
-		String chatuser = attrs.remove('chatuser')?.toString()
-		String room = attrs.remove('room')?.toString()
-		String template = attrs.remove('template')?.toString()
-		String wschatjs = attrs.remove('wschatjs')?.toString()
-		String usermenujs = attrs.remove('usermenujs')?.toString()
-		
-		String chatTitle = config.title ?: 'Grails Websocket Chat'
-		String chatHeader = config.heading ?: 'Grails websocket chat'
-		String hostname = config.hostname ?: 'localhost:8080'
-		String showtitle = config.showtitle ?: 'yes'
-		String dbSupport = config.dbsupport ?: 'yes'
-		String debug = config.debug ?: 'off'
-		
-		boolean addLayouts = attrs.remove('addLayouts')?.toBoolean() ?: false
-		String addAppName = config.add.appName ?: 'yes'
-		
-		chatuser = chatuser.replace(' ', '_').replace('.', '_')
-		
-		def profile= attrs.remove('profile')
-		boolean updateProfile = attrs.remove('updateProfile')?.toBoolean() ?: false
-		if (profile) {
-			profile=profile as Map
-			wsChatProfileService.addProfile(chatuser, profile, updateProfile)
+		def bean = new ConnectTagBean(attrs)
+		if (bean.profile) {
+			wsChatProfileService.addProfile(bean.chatuser, bean.profile, bean.updateProfile)
 		}
-
-		if (!room) {
-			room = wsChatRoomService.returnRoom(dbSupport as String)
+		if (!bean.room) {
+			bean.room = wsChatRoomService.returnRoom(bean.dbSupport, true)
 		}
-		session.wschatroom = room
-		session.wschatuser = chatuser
-		
-		def model = [ dbsupport: dbSupport.toLowerCase() , showtitle: showtitle.toLowerCase(),
-			room: room, chatuser: chatuser, chatTitle: chatTitle, chatHeader: chatHeader,
-			now: new Date(), hostname: hostname, addAppName: addAppName, debug:debug, 
-			wschatjs:wschatjs,usermenujs:usermenujs,addLayouts:addLayouts ]
-
-		if (template) {
-			out << g.render(template:template, model:model)
+		session.wschatroom = bean.room
+		session.wschatuser = bean.chatuser
+		Map model = [bean:bean]
+		if (bean.template) {
+			out << g.render(template:bean.template, model:model)
 		}else{
 			out << g.render(contextPath: pluginContextPath, template : "/${CHATVIEW}/chat", model: model)
 		}
@@ -73,6 +56,7 @@ class WsChatTagLib extends WsChatConfService {
 
 
 	def clientConnect  =  { attrs ->
+		/*
 		def room = attrs.remove('room')?.toString()
 		def actionMap = attrs.remove('actionMap')
 		def receivers = attrs.remove('receivers')
@@ -113,7 +97,7 @@ class WsChatTagLib extends WsChatConfService {
 		}
 
 		if (!room) {
-			room = wsChatRoomService.returnRoom(dbSupport as String)
+			room = wsChatRoomService.returnRoom(dbSupport, true)
 		}
 
 		if (!message) {
@@ -123,26 +107,38 @@ class WsChatTagLib extends WsChatConfService {
 		Map model = [  message : message, room: room, hostname: hostname, actionMap: actionMap,
 			appName: appName, frontuser:frontuser,  user: user, receivers: receivers, divId: divId,
 			chatApp: CHATAPP, addAppName: addAppName ]
+       */
 
-		WsChatClientEndpoint clientEndPoint = wsChatClientService.conn(hostname, appName, room, user)
-		if (receivers) {
+		def bean = new ClientTagBean(attrs)
+		if (!bean.validate()) {
+			bean.errors.allErrors.each {err ->
+				throwTagError("Tag [clientConnect] is missing required attribute [${err.field}]")
+			}
+		}
+		if (!bean.room) {
+			bean.room = wsChatRoomService.returnRoom(bean.dbSupport, true)
+		}
+		
+		Map model = [bean:bean]
+		WsChatClientEndpoint clientEndPoint = wsChatClientService.conn(bean.hostname, bean.appName, bean.room, bean.user)
+		if (bean.receivers) {
 			//if (strictMode==false) {
 			//	wsChatClientService.sendMessage(clientEndPoint, ">>"+message)
 			//}
-			wsChatClientService.sendArrayPM(clientEndPoint, receivers, message)
+			wsChatClientService.sendArrayPM(clientEndPoint, bean.receivers, bean.message)
 		} else {
-			wsChatClientService.sendMessage(clientEndPoint, message)
+			wsChatClientService.sendMessage(clientEndPoint, bean.message)
 		}
 
-		if (autodisco) {
-			wsChatClientService.disco(clientEndPoint, user)
+		if (bean.autodisco) {
+			wsChatClientService.disco(clientEndPoint, bean.user)
 		}else{
 			//Session userSess = wsChatClientService.returnSession()
 			//Session userSession = clientEndPoint.returnSession()
-			wsChatClientService.handMessage(clientEndPoint, user, receivers, actionMap, strictMode, divId, masterNode)
-			if (frontenduser) {
-				if (template) {
-					out << g.render(template:template, model:model)
+			wsChatClientService.handMessage(clientEndPoint, bean.user, bean.receivers, bean.actionMap, bean.strictMode, bean.divId, bean.masterNode)
+			if (bean.frontenduser) {
+				if (bean.template) {
+					out << g.render(template:bean.template, model:model)
 				}else{
 					out << g.render(contextPath: pluginContextPath, template:"/${CHATVIEW}/process", model: model)
 				}
@@ -151,9 +147,15 @@ class WsChatTagLib extends WsChatConfService {
 	}
 
 	def clientWsConnect  =  { attrs ->
+		/*
 		def room = attrs.remove('room')?.toString()
 		def actionMap = attrs.remove('actionMap')
+		
 		def jsonData = attrs.remove('jsonData')
+		String sendType = attrs.remove('sendType')?.toString() ?: 'message'
+		String event =  attrs.remove('event')?.toString()
+		String context = attrs.remove('context')?.toString()
+		
 		def receivers = attrs.remove('receivers')
 		boolean strictMode = attrs.remove('strictMode')?.toBoolean() ?: false
 		boolean autodisco = attrs.remove('autodisco')?.toBoolean() ?: false
@@ -165,9 +167,7 @@ class WsChatTagLib extends WsChatConfService {
 		String message = attrs.remove('message')?.toString()
 		String divId = attrs.remove('divId')?.toString() ?: ''
 		String template = attrs.remove('template')?.toString()
-		String sendType = attrs.remove('sendType')?.toString() ?: 'message'
-		String event =  attrs.remove('event')?.toString()
-		String context = attrs.remove('context')?.toString()
+
 		String addAppName = config.add.appName ?: 'yes'
 		if (receivers) {
 			receivers = receivers as ArrayList
@@ -199,7 +199,7 @@ class WsChatTagLib extends WsChatConfService {
 		}
 
 		if (!room) {
-			room = wsChatRoomService.returnRoom(dbSupport as String)
+			room = wsChatRoomService.returnRoom(dbSupport,true)
 		}
 
 		if (!message) {
@@ -211,24 +211,36 @@ class WsChatTagLib extends WsChatConfService {
 			uri="ws://${hostname}/${CHATAPP}/"
 		}
 		
-		
-		Session oSession = chatClientListenerService.p_connect(uri, user, room)
+		*/
+		WsConnectTagBean bean = new WsConnectTagBean(attrs)
+		if (!bean.validate()) {
+			bean.errors.allErrors.each {err ->
+				throwTagError("Tag [clientWsConnect] is missing required attribute [${err.field}]")
+			}
+		}
+		if (!bean.room) {
+			bean.room = wsChatRoomService.returnRoom(bean.dbSupport, true)
+		}
+		Map model = [bean:bean]
+		Session oSession = chatClientListenerService.p_connect(bean.uri, bean.user, bean.room)
+		/*
 		Map model = [  message : message, room: room, hostname: hostname, actionMap: actionMap,
 			appName: appName, frontuser:frontuser,  user: user, receivers: receivers, divId: divId,
 			chatApp: CHATAPP, addAppName: addAppName ]
+		*/
 		try{
 			//closure(session)
-			if (sendType == 'message') {
-				if (receivers) {
-					chatClientListenerService.sendArrayPM(oSession, receivers, message)
+			if (bean.sendType == 'message') {
+				if (bean.receivers) {
+					chatClientListenerService.sendArrayPM(oSession, bean.receivers, bean.message)
 				}else{
-					chatClientListenerService.sendMessage( oSession,  message)
+					chatClientListenerService.sendMessage( oSession,  bean.message)
 				}
-			}else if (sendType == 'event') {
-				chatClientListenerService.alertEvent(oSession, event, context, jsonData, receivers, masterNode, strictMode, autodisco, frontenduser)
+			}else if (bean.sendType == 'event') {
+				chatClientListenerService.alertEvent(oSession, bean.event, bean.context, bean.jsonData, bean.receivers, bean.masterNode, bean.strictMode, bean.autodisco, bean.frontenduser)
 			}
 
-			if (autodisco) {
+			if (bean.autodisco) {
 				chatClientListenerService.disconnect(oSession)
 			}else{
 
@@ -236,9 +248,9 @@ class WsChatTagLib extends WsChatConfService {
 		}catch(e){
 			//log.error e
 		}
-		if (frontenduser) {
-			if (template) {
-				out << g.render(template:template, model:model)
+		if (bean.frontenduser) {
+			if (bean.template) {
+				out << g.render(template:bean.template, model:model)
 			}else{
 				out << g.render(contextPath: pluginContextPath, template:"/${CHATVIEW}/process", model: model)
 			}
@@ -246,6 +258,7 @@ class WsChatTagLib extends WsChatConfService {
 	}
 
 	def complete = {attrs ->
+		/*
 		def clazz,name,cid,styles = ""
 		if (attrs.id == null) {
 			throwTagError("Tag [autoComplete] is missing required attribute [id]")
@@ -279,16 +292,16 @@ class WsChatTagLib extends WsChatConfService {
 		if (!attrs.collectField) {
 			attrs.collectField = attrs.searchField
 		}
-		if (attrs.class) {
-			clazz = " class='${attrs.class}'"
-		}
+		
+			clazz = attrs.class
+		
 		if (attrs.style) {
-			styles = " styles='${attrs.style}'"
+			styles = attrs.style
 		}
-		if (attrs.name) {
-			name = " name ='${attrs.name}'"
-		} else {
-			name = " name ='${attrs.id}'"
+		if (!attrs.name) {
+			name = ${attrs.id}
+		}else{
+		name=attrs.name
 		}
 	
 		def  required=""
@@ -307,13 +320,20 @@ class WsChatTagLib extends WsChatConfService {
 		def template='/autoComplete/AutoCompleteBasic'
 		
 		def userTemplate=attrs.remove('userTemplate') ?: config.autocomplete
-		
-		def model = [attrs:attrs, clazz:clazz, styles:styles,name:name,required:required ]
+		*/
+		AutoCompleteBean bean = new AutoCompleteBean(attrs)
+		if (!bean.validate()) {
+			bean.errors.allErrors.each {err ->
+				throwTagError("Tag [complete] is missing required attribute [${err.field}]")
+			}
+		}
+		Map model = [bean:bean]
+		//def model = [attrs:attrs, clazz:clazz, styles:styles,name:name,required:required ]
 		 
-		if (userTemplate) {
-			out << g.render(template:userTemplate, model: model)
+		if (bean.userTemplate) {
+			out << g.render(template:bean.userTemplate, model: model)
 		}else{
-			out << g.render(contextPath: pluginContextPath, template: template, model:model)
+			out << g.render(contextPath: pluginContextPath, template: bean.template, model:model)
 		}
 		
 	}
