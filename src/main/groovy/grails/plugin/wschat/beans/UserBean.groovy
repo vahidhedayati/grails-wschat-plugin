@@ -9,6 +9,11 @@ class UserBean extends ConfigBean implements Validateable {
 	String user
 	String rtc
 	String chatuser
+
+	String template
+	String wschatjs
+	String usermenujs
+
 	def iceservers =getConf('stunServers')
 	//JSON iceservers = grailsApplication.config.stunServers as JSON
 	//= getConfig('iceservers') as ArrayList
@@ -22,6 +27,9 @@ class UserBean extends ConfigBean implements Validateable {
 		rtc(nullable:true)
 		chatuser(nullable:true)
 		iceservers(nullable:true)
+		template(nullable:true)
+		wschatjs(nullable:true)
+		usermenujs(nullable:true)
 	}
 	
 	String getUser() {

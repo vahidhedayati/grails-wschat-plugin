@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
+
     <title>${bean.chatTitle}</title>
 	<g:render template="includes" model="${[bean:bean]}"/>
 	<asset:javascript src="rtcfile/rtclib.js" />
 	<asset:javascript src="rtcfile/adapter.js" />
-</head>
-<body>
 <div id='status'></div>
     <input  class="btn btn-danger btn-xs" type="file" id="files" name="files[]" multiple />
     <output id="list"></output>

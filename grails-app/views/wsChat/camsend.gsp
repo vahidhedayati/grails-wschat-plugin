@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-
 <g:render template="/assets" />
-<title>
-	${chatTitle }
-</title>
-</head>
-<body>
 	<div id="pageHeader">
 		<video id="live" width="300" height="240" autoplay="autoplay"
 			style="display: inline;"></video>

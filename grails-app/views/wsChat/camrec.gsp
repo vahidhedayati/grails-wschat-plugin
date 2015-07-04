@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-
-<g:if test="${enduser?.verifyAppVersion().equals('assets')}">
 	<g:render template="/assets" />
-</g:if>
-<g:else>
-	<g:render template="/resources" />
-</g:else>
-
-<title>
-	${bean.chatTitle }
-</title>
-</head>
-<body>
-
-
 	<div id="pageHeader"></div>
 	<div style="visibility: hidden; width: 0; height: 0;">
 		<canvas width="320" id="canvas" height="240"></canvas>
