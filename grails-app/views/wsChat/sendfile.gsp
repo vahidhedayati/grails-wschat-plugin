@@ -1,68 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My WebRTC file sharing application</title>
-<g:if test="${enduser?.verifyAppVersion().equals('assets')}">
-	<g:if test="${!request.xhr }">
-		<meta name='layout' content="achat" />
-	</g:if>
-	<g:else>
-		<g:render template="/assets" />
-	</g:else>
-</g:if>
-<g:else>
-	<g:if test="${!request.xhr }">
-		<meta name='layout' content="chat" />
-	</g:if>
-	<g:else>
-		<g:render template="/resources" />
-	</g:else>
-</g:else>
-<asset:javascript src="rtc/rtclib.js" />
-<asset:javascript src="rtc/adapter.js" />
-
-
+    <title>${bean.chatTitle}</title>
+	<g:render template="includes" model="${[bean:bean]}"/>
+	<asset:javascript src="rtcfile/rtclib.js" />
+	<asset:javascript src="rtcfile/adapter.js" />
 </head>
 <body>
 <div id='status'></div>
-<div>
-    <input type="file" id="files" name="files[]" multiple />
+    <input  class="btn btn-danger btn-xs" type="file" id="files" name="files[]" multiple />
     <output id="list"></output>
-</div>
-<div>
-    <button onclick="onSendBtnClick()">Send</button>
-</div>
+    <button  class="btn btn-primary btn-xl" onclick="onSendBtnClick()">Send</button>
+
 <g:javascript>
     var filelist;
-	var hostname="${hostname}";
-
-	var sender="${sender}";
-
+	var hostname="${bean.hostname}";
+	var sender="${bean.sender}";
 	function getHostName() {
 		return hostname;
 	}
- 	var room = "${room }";
- 	var baseapp="${meta(name:'app.name')}";
- 	
+ 	var room = "${bean.room}";
  	function getUser() {
- 		return "${chatuser}";
+ 		return "${bean.chatuser}";
  	}
- 	
  	function getUser1() {
- 		return "${room }" 
+ 		return "${bean.room}" 
  	}
 	function getApp() {
 		return baseapp;
 	}
- 	
-    <g:if test="${addAppName=='no'}">
-	var uri="ws://${hostname}/WsChatFileEndpoint/${room}/${chatuser}";
-</g:if>
-<g:else>
-	var uri="ws://${hostname}/${meta(name:'app.name')}/WsChatFileEndpoint/${room}/${chatuser}";
-</g:else>
-    
-$(function() {
+    var uri="${bean.fileEndpoint}/${bean.room}/${bean.chatuser}";
+	$(function() {
     if (window.File && window.FileReader && window.FileList && window.Blob) {
     } else {
         alert('The File APIs are not fully supported in this browser.');
@@ -91,7 +59,7 @@ function onSendBtnClick() {
 
 function OnRoomReceived(room) {
     var st = document.getElementById("status");
-    st.innerHTML = "Someone can join this by going over your name and choosing fileSharing";
+    st.innerHTML = "Someone can join this by going over your<br> chat name and choosing fileSharing<br><br>";
 };
 
 function onFileReceived(name,size,data) {
@@ -114,6 +82,5 @@ function handleFileSelect(evt) {
     document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
 };
 </g:javascript>
-
 </body>
 </html>
