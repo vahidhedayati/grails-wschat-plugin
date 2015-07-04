@@ -60,11 +60,8 @@ class WsChatTagLib extends WsChatConfService {
 		if (!bean.room) {
 			bean.setRoom(wsChatRoomService.returnRoom(bean.dbSupport, true))
 		}
-
+		// This method does not appear to work under grails 3
 		String uri = "${bean.uri}${bean.room}"
-
-		println "---> $uri ---> @@ "
-
 		WsChatClientEndpoint clientEndPoint = wsChatClientService.conn(uri, bean.user)
 		if (bean.receivers) {
 			//if (strictMode==false) {
