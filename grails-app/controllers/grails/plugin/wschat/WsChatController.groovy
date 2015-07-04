@@ -1,6 +1,7 @@
 package grails.plugin.wschat
 
 import grails.converters.JSON
+import grails.plugin.wschat.beans.ConnectTagBean
 import grails.plugin.wschat.beans.InitiationBean
 import grails.plugin.wschat.beans.LoginBean
 import grails.plugin.wschat.beans.RoomBean
@@ -32,7 +33,14 @@ class WsChatController extends WsChatConfService {
 		}
 		[bean:bean]
 	}
-
+	
+	def chat(ConnectTagBean bean) {
+		bean.addLayouts=true
+		bean.chatuser = session.wschatuser
+		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(bean.dbSupport, true)
+		[bean:bean]
+	}
+	
 	def sendfile(RoomBean bean) {
 		bean.chatuser = session.wschatuser
 		boolean sender = false
@@ -66,13 +74,6 @@ class WsChatController extends WsChatConfService {
 			redirect(controller: "wsChat", action: "chat")
 			return
 		}
-	}
-
-	def chat(InitiationBean bean) {
-		bean.addLayouts=true
-		bean.chatuser = session.wschatuser
-		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(bean.dbSupport, true)
-		[bean:bean]
 	}
 
 	def verifyprofile(String username) {
