@@ -5,22 +5,17 @@ import grails.plugin.wschat.ChatBanList
 import grails.plugin.wschat.ChatBlockList
 import grails.plugin.wschat.ChatFriendList
 import grails.plugin.wschat.ChatUser
-import grails.plugin.wschat.ChatUserPics
 import grails.plugin.wschat.ChatUserProfile
 import grails.plugin.wschat.WsChatConfService
 import grails.transaction.Transactional
 import groovy.time.TimeCategory
-
 import java.text.SimpleDateFormat
-
 import javax.websocket.Session
-
 
 
 class WsChatUserService extends WsChatConfService  {
 
 	def wsChatMessagingService
-
 
 	void kickUser(Session userSession,String username) {
 		Boolean useris = isAdmin(userSession)
@@ -67,40 +62,42 @@ class WsChatUserService extends WsChatConfService  {
 	private void logoutUser(String username) {
 		def myMsg = [:]
 		myMsg.put("message", "${username} about to be kicked off")
-		chatNames.each { String cuser, Session crec ->
-			if (crec && crec.isOpen()) {
-				def uList = []
-				def finalList = [:]
-				if (cuser.equals(username)) {
-					def myMsg1 = [:]
-					myMsg1.put("system","disconnect")
-					wsChatMessagingService.messageUser(crec,myMsg1)
+		chatNames.each { String cuser,Map<String,Session> records ->
+			records?.each { String room, Session crec ->
+				if (crec && crec.isOpen()) {
+					def uList = []
+					def finalList = [:]
+					if (cuser.equals(username)) {
+						def myMsg1 = [:]
+						myMsg1.put("system", "disconnect")
+						wsChatMessagingService.messageUser(crec, myMsg1)
+					}
 				}
 			}
 		}
 	}
-
 
 	private void logoutUser(Session userSession,String username) {
 		def myMsg = [:]
 		myMsg.put("message", "${username} about to be kicked off")
 		wsChatMessagingService.broadcast(userSession,myMsg)
-		chatNames.each { String cuser, Session crec ->
+		String room = userSession.userProperties.get("room") as String
+		chatNames.each { String cuser, Map<String, Session> records ->
+			Session crec = records.find { it.key == room }?.value
 			if (crec && crec.isOpen()) {
 				def uList = []
 				def finalList = [:]
 				if (cuser.equals(username)) {
 					def myMsg1 = [:]
-					myMsg1.put("system","disconnect")
-					wsChatMessagingService.messageUser(crec,myMsg1)
+					myMsg1.put("system", "disconnect")
+					wsChatMessagingService.messageUser(crec, myMsg1)
 				}
 			}
 		}
 	}
 
-
-	Session usersSession(String username) {
-		return getChatUser(username)
+	Session usersSession(String username, String room) {
+		return getChatUser(username, room)
 	}
 
 	boolean findUser(String username) {
@@ -109,9 +106,11 @@ class WsChatUserService extends WsChatConfService  {
 
 	public ArrayList genAllUsers() {
 		def uList = []
-		chatNames.each { String cuser, Session crec ->
-			if (crec && crec.isOpen()) {
-				uList.add(cuser)
+		chatNames.each { String cuser,Map<String,Session> records ->
+			records?.each { String room, Session crec ->
+				if (crec && crec.isOpen()) {
+					uList.add(cuser)
+				}
 			}
 		}
 		return uList
@@ -121,30 +120,28 @@ class WsChatUserService extends WsChatConfService  {
 		userListGen(userSession, username, "flat")
 	}
 
-	def sendUsers(Session userSession,String username) {
+	def sendUsers(Session userSession,String username, String room) {
 		String uiterator = userSession.userProperties.get("username").toString()
-		userListGen(userSession, username, "generic")
+		userListGen(userSession, username, "generic", room)
 	}
 
 	@Transactional
-	private void userListGen(Session userSession,String username, String listType) {
-		String room  =  userSession.userProperties.get("room") as String
-		chatNames.each { String uiterator, Session crec2 ->
-			if (crec2 && crec2.isOpen()) {
-				def finalList = [:]
-				def blocklist
-				def friendslist
-				if (hasDBSupport()) {
-					blocklist = ChatBlockList.findAllByChatuser(currentUser(uiterator))
-					friendslist = ChatFriendList.findAllByChatuser(currentUser(uiterator))
+	private void userListGen(Session userSession,String username, String listType, String room) {
+		String existingRoom  =  userSession.userProperties.get("room") as String
+		chatNames.each { String uiterator, Map<String,Session>records ->
+			records?.each { String userRoom, Session crec2 ->
+				if (userRoom == room && crec2 && crec2.isOpen()) {
+					def finalList = [:]
+					def	blocklist = ChatBlockList.findAllByChatuser(currentUser(uiterator))
+					def	friendslist = ChatFriendList.findAllByChatuser(currentUser(uiterator))
+					def uList = genUserMenu(friendslist, blocklist, room, uiterator, listType)
+					if (listType == "generic") {
+						finalList.put("users", uList)
+					} else {
+						finalList.put("flatusers", uList)
+					}
+					sendUserList(uiterator, finalList, room)
 				}
-				def	uList = genUserMenu(friendslist, blocklist, room, uiterator, listType)
-				if (listType=="generic") {
-					finalList.put("users", uList)
-				}else{
-					finalList.put("flatusers", uList)
-				}
-				sendUserList(uiterator,finalList)
 			}
 		}
 	}
@@ -153,7 +150,8 @@ class WsChatUserService extends WsChatConfService  {
 	private ArrayList genUserMenu(ArrayList friendslist, ArrayList blocklist, String room, String uiterator, String listType ) {
 		def uList = []
 		def vList = []
-		chatNames.each { String cuser, Session crec ->
+		chatNames.each { String cuser, Map<String,Session> records ->
+			Session crec = records.find{it.key==room}?.value
 			if (crec && crec.isOpen()) {
 				def myUser = [:]
 				vList.add(cuser)
@@ -213,7 +211,6 @@ class WsChatUserService extends WsChatConfService  {
 		return uList
 	}
 
-
 	Boolean validateAdmin(String username) {
 		boolean useris = false
 		def found=ChatUser.findByUsername(username)
@@ -225,12 +222,17 @@ class WsChatUserService extends WsChatConfService  {
 		return useris
 	}
 
+	@Transactional
+	ChatUser currentUser(String username) {
+			ChatUser cu =  ChatUser.findByUsername(username)
+			return cu
+	}
 
-	private void sendUserList(String iuser,Map msg) {
+	private void sendUserList(String iuser,Map msg, String room) {
 		String sendUserList = config.send.userList  ?: 'yes'
 		if ( sendUserList == 'yes') {
 			def myMsgj = msg as JSON
-			Session crec = getChatUser(iuser)
+			Session crec = getChatUser(iuser,room)
 			if (crec && crec.isOpen()) {
 				crec.basicRemote.sendText(myMsgj as String)
 			}
@@ -243,11 +245,9 @@ class WsChatUserService extends WsChatConfService  {
 
 	@Transactional
 	private void unblockUser(String username,String urecord) {
-		if (hasDBSupport()) {
-			def cuser = currentUser(username)
-			def found = ChatBlockList.findByChatuserAndUsername(cuser,urecord)
-			found.delete(flush: true)
-		}
+		def cuser = currentUser(username)
+		def found = ChatBlockList.findByChatuserAndUsername(cuser,urecord)
+		found.delete(flush: true)
 	}
 
 	@Transactional
@@ -275,47 +275,38 @@ class WsChatUserService extends WsChatConfService  {
 
 	@Transactional
 	private void blockUser(String username,String urecord) {
-		if (hasDBSupport()) {
-			def cuser = currentUser(username)
-			def found = ChatBlockList.findByChatuserAndUsername(cuser,urecord)
-			if (!found) {
-				def newEntry = new ChatBlockList()
-				newEntry.chatuser = cuser
-				newEntry.username = urecord
-				if (!newEntry.save(flush:true)) {
-					log.error "Error saving ${newEntry.errors}"
-				}
+		def cuser = currentUser(username)
+		def found = ChatBlockList.findByChatuserAndUsername(cuser,urecord)
+		if (!found) {
+			def newEntry = new ChatBlockList()
+			newEntry.chatuser = cuser
+			newEntry.username = urecord
+			if (!newEntry.save(flush:true)) {
+				log.error "Error saving ${newEntry.errors}"
 			}
 		}
 	}
 
 	@Transactional
 	private void addUser(String username,String urecord) {
-		if (hasDBSupport()) {
-			def cuser = currentUser(username)
-			def found = ChatFriendList.findByChatuserAndUsername(cuser, urecord)
-
-			if (!found) {
-				def newEntry = new ChatFriendList()
-				newEntry.chatuser = cuser
-				newEntry.username = urecord
-				if (!newEntry.save(flush:true)) {
-					log.error "Error saving ${newEntry.errors}"
-				}
+		def cuser = currentUser(username)
+		def found = ChatFriendList.findByChatuserAndUsername(cuser, urecord)
+		if (!found) {
+			def newEntry = new ChatFriendList()
+			newEntry.chatuser = cuser
+			newEntry.username = urecord
+			if (!newEntry.save(flush:true)) {
+				log.error "Error saving ${newEntry.errors}"
 			}
 		}
 	}
 
 	@Transactional
 	private void removeUser(String username,String urecord) {
-		if (hasDBSupport()) {
-			def cuser = currentUser(username)
-			def found = ChatFriendList.findByChatuserAndUsername(cuser,urecord)
-			found.delete(flush: true)
-		}
+		def cuser = currentUser(username)
+		def found = ChatFriendList.findByChatuserAndUsername(cuser,urecord)
+		found.delete(flush: true)
 	}
-
-
 
 	private String getCurrentUserName(Session userSession) {
 		def myMsg = [:]
@@ -323,7 +314,6 @@ class WsChatUserService extends WsChatConfService  {
 		if (!username) {
 			myMsg.put("message","Access denied no username defined")
 			wsChatMessagingService.messageUser(userSession,myMsg)
-			//chatroomUsers.remove(userSession)
 		}else{
 			return username
 		}

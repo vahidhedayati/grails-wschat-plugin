@@ -72,9 +72,7 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 			// when client/server tests where being done as part of 1.20 release
 			// left for similar issues - usually should not occur
 			if (username && username!='null') {
-				//if (hasDBSupport()) {
-					wsChatAuthService.validateLogOut(username as String)
-				//}
+				wsChatAuthService.validateLogOut(username as String)
 				destroyChatUser(username)
 			}
 		}

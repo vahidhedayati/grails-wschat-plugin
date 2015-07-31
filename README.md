@@ -59,9 +59,8 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
     				(transmits just video from cam)
     				Or run
     				chromium-browser --allow-http-screen-capture --enable-usermedia-screen-capturing
-    														 
-										
-					
+
+1.20 / 3.0.3 		Multiple login with same user but must be different rooms - removal of dbSupport check
 ```
 
 
@@ -72,7 +71,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency (Grails 2.X) :
 ```groovy
-	compile ":wschat:1.19"
+	compile ":wschat:1.20"
 ```
 
 [codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/tree/grails2)
@@ -80,16 +79,22 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency (Grails 3.X) :
 ```groovy
-	compile "org.grails.plugins:wschat:3.0.2"
+	compile "org.grails.plugins:wschat:3.0.3"
 ```
 
 [codebase for grails 3.X](https://github.com/vahidhedayati/grails-wschat-plugin/)
 
 
-This plugin provides  basic chat page, once installed you can access
+This plugin provides  basic chat page, once installed you can access Grails 2:
+
 ```
 http://localhost:8080/yourapp/wsChat/
 ```
+
+Grails 3:
+```
+http://localhost:8080/wsChat/
+````
 
 
 Memory Configuration (SHOULD NOT be required under Grails 3 under development)
@@ -238,4 +243,3 @@ Since 0.20+ ui.videobox has been added, earlier versions and even current versio
 [Demo of customised chat views and client/server Grails 2.4.4](https://github.com/vahidhedayati/testwschat)
 
 [Demo of customised chat views and client/server Grails 3.0.1](https://github.com/vahidhedayati/testwschat3)
-

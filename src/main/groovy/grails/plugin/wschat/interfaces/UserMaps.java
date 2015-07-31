@@ -7,9 +7,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Map;
 
 public interface UserMaps {
-	static final ConcurrentMap<String, Session> chatroomUsers = new ConcurrentHashMap<String, Session>();
+	static final ConcurrentMap<String, Map<String, Session>> chatroomUsers = new ConcurrentHashMap<String, Map<String,Session>>();
 	static final ConcurrentMap<String, Session> camUsers = new ConcurrentHashMap<String, Session>();
 	static final ConcurrentMap<String, Session> fileroomUsers = new ConcurrentHashMap<String, Session>();
 

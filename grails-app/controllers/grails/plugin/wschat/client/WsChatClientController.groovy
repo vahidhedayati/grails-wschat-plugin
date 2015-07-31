@@ -15,17 +15,17 @@ class WsChatClientController extends WsChatConfService {
 	def masterList() {
 		if (clientMaster) {
 			render clientMaster as JSON
-		}else{
-			render ''
+			return
 		}
+		render ''
 	}
 
 	def slaveList() {
 		if (clientSlave) {
 			render clientSlave as JSON
-		}else{
-			render ''
+			return
 		}
+		render ''
 	}
 
 	def showMasters() {
@@ -45,6 +45,4 @@ class WsChatClientController extends WsChatConfService {
 		clientMaster.clear()
 		render "clientMaster truncated"
 	}
-	
-		
 }

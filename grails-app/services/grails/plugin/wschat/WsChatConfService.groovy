@@ -18,28 +18,22 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 	/*
 	 * ChatUser ConcurrentHashMap
 	 */
-	public ConcurrentMap<String, Session> getChatNames() {
+	public ConcurrentMap<String, Map<String,Session>> getChatNames() {
 		return chatroomUsers
 	}
-
 	public Collection<String> getChatUsers() {
 		return Collections.unmodifiableSet(chatroomUsers.keySet())
 	}
-
-	public Session getChatUser(String username) {
-		Session userSession = chatroomUsers.get(username)
-		return userSession
+	public Session getChatUser(String username,String room) {
+		Map<String,Session> records = chatroomUsers.get(username)
+		return (records.find{it.key==room}?.value as Session)
 	}
-
 	public boolean chatUserExists(String username) {
 		return chatUsers.contains(username)
 	}
-
 	public boolean destroyChatUser(String username) {
 		return chatroomUsers.remove(username) != null
 	}
-
-
 
 	/*
 	 * CamUser ConcurrentHashMap
@@ -54,16 +48,12 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 		Session userSession = camUsers.get(username)
 		return userSession
 	}
-
 	public boolean camUserExists(String username) {
 		return avUsers.contains(username)
 	}
-
 	public boolean destroyCamUser(String username) {
 		return camUsers.remove(username) != null
 	}
-
-
 
 	/*
 	 * fileroomUser ConcurrentHashMap
@@ -78,16 +68,12 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 		Session userSession = fileroomUsers.get(username)
 		return userSession
 	}
-
 	public boolean fileUserExists(String username) {
 		return fileUsers.contains(username)
 	}
-
 	public boolean destroyFileUser(String username) {
 		return fileroomUsers.remove(username) != null
 	}
-
-
 
 	public String CONNECTOR = "CONN:-"
 	public String DISCONNECTOR = "DISCO:-"
@@ -97,10 +83,7 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 	//static final Set<HashMap<String[],String[]>> clientMaster = ([:] as Set).asSynchronized()
 	//static final Set<HashMap<String[],String[]>> clientSlave = ([:] as Set).asSynchronized()
 
-	//private String dbSupport
-	//private JSON iceservers
 	Map getWsconf() {
-		String dbSupport = config.dbsupport ?: 'yes'
 		String process = config.disable.login ?: 'no'
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String chatHeader = config.heading ?: 'Grails websocket chat'
@@ -109,7 +92,7 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 		String addAppName = config.add.appName ?: 'no'
 		JSON iceservers  = cfg.stunServers as JSON
 		String showtitle = config.showtitle ?: 'yes'
-		return [dbSupport:dbSupport, process:process, chatTitle:chatTitle,
+		return [process:process, chatTitle:chatTitle,
 			chatHeader:chatHeader,  hostname:hostname, addAppName:addAppName,
 			iceservers:iceservers, showtitle:showtitle]
 	}
@@ -124,25 +107,6 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 		return isConfigEnabled(config.storeForFrontEnd ?: 'false')
 	}
 
-	Boolean hasDBSupport() {
-		Boolean dbsupport = false
-		String dbsup = config.dbsupport  ?: 'yes'
-
-		if ((dbsup.toLowerCase().equals('yes'))||(dbsup.toLowerCase().equals('true'))) {
-			dbsupport = true
-		}
-		return dbsupport
-	}
-
-	ChatUser currentUser(String username) {
-		ChatUser cu
-		if (hasDBSupport()) {
-			ChatUser.withTransaction {
-				cu =  ChatUser.findByUsername(username)
-			}
-		}
-		return cu
-	}
 
 	public Boolean isAdmin(Session userSession) {
 		Boolean useris = false
@@ -153,23 +117,16 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 		return useris
 	}
 
-
 	public String getApplicationName() {
 		return grailsApplication.metadata['app.name']
 	}
 
 	public String getFrontend() {
 		return config.frontenduser ?: '_frontend'
-		//return cuser
 	}
 
 	void setGrailsApplication(GrailsApplication ga) {
 		cfg = ga.config
 		config = cfg.wschat
 	}
-
-	//def getConfig() {
-	//	return grailsApplication?.config?.wschat ?: ''
-		//return wschat
-	//}
 }

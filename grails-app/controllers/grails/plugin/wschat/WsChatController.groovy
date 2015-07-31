@@ -24,8 +24,8 @@ class WsChatController extends WsChatConfService {
 		bean.addLayouts=true
 		bean.setRooms(config.rooms as ArrayList)
 
-		if (!bean.rooms && (bean.dbSupport)) {
-			bean.setRooms(wsChatRoomService.returnRoom(bean.dbSupport))
+		if (!bean.rooms) {
+			bean.setRooms(wsChatRoomService.returnRoom())
 		}
 		if (bean.process) {
 			render "Default sign in page disabled"
@@ -37,7 +37,7 @@ class WsChatController extends WsChatConfService {
 	def chat(ConnectTagBean bean) {
 		bean.setAddLayouts(true)
 		bean.chatuser = session.wschatuser
-		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(bean.dbSupport, true)
+		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(true)
 		[bean:bean]
 	}
 
@@ -167,7 +167,6 @@ class WsChatController extends WsChatConfService {
 	def autocomplete() {
 		render autoCompleteService.autocomplete(params)
 	}
-
 
 	def viewUsers(SearchBean bean) {
 		if (isAdmin) {

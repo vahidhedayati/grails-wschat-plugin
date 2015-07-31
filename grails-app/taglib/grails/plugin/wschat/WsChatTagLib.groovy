@@ -37,7 +37,7 @@ class WsChatTagLib extends WsChatConfService {
 			wsChatProfileService.addProfile(bean.chatuser, bean.profile, bean.updateProfile)
 		}
 		if (!bean.room) {
-			bean.room = wsChatRoomService.returnRoom(bean.dbSupport, true)
+			bean.room = wsChatRoomService.returnRoom(true)
 		}
 		session.wschatroom = bean.room
 		session.wschatuser = bean.chatuser
@@ -58,15 +58,12 @@ class WsChatTagLib extends WsChatConfService {
 			}
 		}
 		if (!bean.room) {
-			bean.setRoom(wsChatRoomService.returnRoom(bean.dbSupport, true))
+			bean.setRoom(wsChatRoomService.returnRoom(true))
 		}
 		// This method does not appear to work under grails 3
 		String uri = "${bean.uri}${bean.room}"
 		WsChatClientEndpoint clientEndPoint = wsChatClientService.conn(uri, bean.user)
 		if (bean.receivers) {
-			//if (strictMode==false) {
-			//	wsChatClientService.sendMessage(clientEndPoint, ">>"+message)
-			//}
 			wsChatClientService.sendArrayPM(clientEndPoint, bean.receivers, bean.message)
 		} else {
 			wsChatClientService.sendMessage(clientEndPoint, bean.message)
@@ -75,8 +72,6 @@ class WsChatTagLib extends WsChatConfService {
 		if (bean.autodisco) {
 			wsChatClientService.disco(clientEndPoint, bean.user)
 		}else{
-			//Session userSess = wsChatClientService.returnSession()
-			//Session userSession = clientEndPoint.returnSession()
 			wsChatClientService.handMessage(clientEndPoint, bean.user, bean.receivers, bean.actionMap, bean.strictMode, bean.divId, bean.masterNode)
 			Map model = [bean:bean, uri:uri]
 
@@ -98,7 +93,7 @@ class WsChatTagLib extends WsChatConfService {
 			}
 		}
 		if (!bean.room) {
-			bean.setRoom(wsChatRoomService.returnRoom(bean.dbSupport, true))
+			bean.setRoom(wsChatRoomService.returnRoom(true))
 		}
 
 		Session oSession = chatClientListenerService.p_connect(bean.uri, bean.user, bean.room)

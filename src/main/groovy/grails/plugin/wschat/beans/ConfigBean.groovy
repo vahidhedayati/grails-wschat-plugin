@@ -11,7 +11,6 @@ class ConfigBean implements Validateable {
 	static final String fileEndPoint = 'WsChatFileEndpoint'
 	final String hostname = getConfig('hostname') ?: 'localhost:8080'
 	final def addAppName = getConfig('add.appName') ?: false
-	def dbSupport = getConfig('dbsupport') ?: true
 	final def showtitle = getConfig('showtitle') ?: true
 	final def debug = getConfig('debug ')?: false
 	final process = getConfig('disable.login')?:false
@@ -24,8 +23,7 @@ class ConfigBean implements Validateable {
 	String room
 	ArrayList rooms
 	String chatuser
-	
-	
+
 	String getChatuser() {
 		if (chatuser) {
 			chatuser=chatuser.replace(' ', '_').replace('.', '_')
@@ -38,9 +36,6 @@ class ConfigBean implements Validateable {
 	Boolean getAddLayouts() {
 		return validateBool(addLayouts)
 	}
-	Boolean getDbSupport() {
-		return validateBool(dbSupport)
-	}
 
 	Boolean getDebug() {
 		return validateBool(debug)
@@ -49,12 +44,12 @@ class ConfigBean implements Validateable {
 	Boolean getShowtitle() {
 		return validateBool(showtitle)
 	}
-	
+
 	String getAppName() {
 		String appName= grails.util.Metadata.current.applicationName ?: Holders.grailsApplication.metadata['app.name']
 		return appName
 	}
-	
+
 	Boolean getAddAppName() {
 		return validateBool(addAppName)
 	}

@@ -21,9 +21,9 @@ class WsChatRoomService extends WsChatConfService {
 	}
 
 	@Transactional
-	def returnRoom(boolean dbSupport, Boolean displayString=null) {
+	def returnRoom(Boolean displayString=null) {
 		ArrayList dbrooms = config.rooms as ArrayList
-		if (!dbrooms && dbSupport) {
+		if (!dbrooms ) {
 			ChatRoomList dbroom = ChatRoomList?.findAllByRoomType('chat')
 			dbrooms = dbroom.room
 		}
@@ -39,7 +39,7 @@ class WsChatRoomService extends WsChatConfService {
 
 	@Transactional
 	public void addRoom(Session userSession,String roomName, String roomType) {
-		if ((hasDBSupport()) && (isAdmin(userSession)) ) {
+		if (isAdmin(userSession)) {
 			def nr = new ChatRoomList()
 			nr.room = roomName
 			if (roomType) {
@@ -57,17 +57,15 @@ class WsChatRoomService extends WsChatConfService {
 		if (!roomType) {
 			roomType = 'chat'
 		}
-		if 	(hasDBSupport())  {
-			def record = ChatRoomList?.findByRoomAndRoomType(roomName, roomType)
-			if (!record) {
-				def nr = new ChatRoomList()
-				nr.room = roomName
-				if (roomType) {
-					nr.roomType = roomType
-				}
-				if (!nr.save(flush:true)) {
-					log.error "Error saving ${roomName} ${nr.errors}"
-				}
+		def record = ChatRoomList?.findByRoomAndRoomType(roomName, roomType)
+		if (!record) {
+			def nr = new ChatRoomList()
+			nr.room = roomName
+			if (roomType) {
+				nr.roomType = roomType
+			}
+			if (!nr.save(flush:true)) {
+				log.error "Error saving ${roomName} ${nr.errors}"
 			}
 		}
 	}
@@ -77,7 +75,6 @@ class WsChatRoomService extends WsChatConfService {
 		if (!roomType) {
 			roomType = 'chat'
 		}
-
 		def record = ChatRoomList?.findByRoomAndRoomType(roomName, roomType)
 		if (record) {
 			record.delete(flush:true)
@@ -86,8 +83,9 @@ class WsChatRoomService extends WsChatConfService {
 
 	@Transactional
 	void delRoom(Session userSession,String roomName) {
-		if ((hasDBSupport()) && (isAdmin(userSession)) ) {
-			chatNames.each { String cuser, Session crec ->
+		if ((isAdmin(userSession)) ) {
+			chatNames.each { String cuser, Map<String,Session> records ->
+				Session crec = records.find{it.key==roomName}?.value
 				if (crec && crec.isOpen() && roomName.equals(crec.userProperties.get("room"))) {
 					wsChatUserService.kickUser(userSession,cuser)
 				}
@@ -112,11 +110,8 @@ class WsChatRoomService extends WsChatConfService {
 				uList.add(myMsg)
 			}
 		}
-		def dbrooms
 		def finalList = [:]
-		if (hasDBSupport()) {
-			dbrooms = ChatRoomList?.findAllByRoomType('chat')*.room?.unique()
-		}
+		def	dbrooms = ChatRoomList?.findAllByRoomType('chat')*.room?.unique()
 		if (dbrooms) {
 			dbrooms.each {
 				def myMsg = [:]

@@ -94,7 +94,7 @@ public class ChatClientListenerService extends WsChatConfService {
 
 	Session connect() {
 		ConfigBean bean = new ConfigBean()
-		def room = wsChatRoomService.returnRoom(bean.dbSupport, true)
+		def room = wsChatRoomService.returnRoom(true)
 		String oUsername = config.app.id ?: "[${(Math.random()*1000).intValue()}]-$room";
 		Session csession = p_connect( bean.uri, oUsername, room)
 		return csession
@@ -128,14 +128,15 @@ public class ChatClientListenerService extends WsChatConfService {
 		try{
 			if(_oSession && _oSession.isOpen()){
 				String user = _oSession.userProperties.get("username") as String
+				String room = userSession.userProperties.get("room") as String
 				if (user) {
 					ConfigBean bean = new ConfigBean()
 					sendMessage(_oSession, DISCONNECTOR)
 					Session nsess
 					if (user.endsWith(bean.frontUser)) {
-						nsess =wsChatUserService.usersSession(user.substring(0,user.indexOf(bean.frontUser)))
+						nsess =wsChatUserService.usersSession(user.substring(0,user.indexOf(bean.frontUser)),room)
 					}else{
-						nsess =wsChatUserService.usersSession(user+bean.frontUser)
+						nsess =wsChatUserService.usersSession(user+bean.frontUser,room)
 					}
 					if (nsess) {
 						sendMessage(nsess, DISCONNECTOR)
