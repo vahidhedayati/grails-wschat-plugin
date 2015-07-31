@@ -38,13 +38,15 @@ class WsChatMessagingService extends WsChatConfService {
 		def myMsg = [:]
 		def myMsgj = msg as JSON
 		String urecord = userSession.userProperties.get("username") as String
+		String room = userSession.userProperties.get("room") as String
 		Boolean found = false
 		boolean isEnabled = boldef(config.dbstore_pm_messages)
 		if (isEnabled) {
 			persistMessage(myMsgj as String,user,urecord)
 			persistMessage(myMsgj as String,urecord,urecord)
 		}
-		chatNames.each { String cuser, Session crec ->
+		chatNames.each { String cuser, Map<String,Session> records ->
+			Session crec = records.find{it.key==room}?.value
 			if (crec && crec.isOpen()) {
 				if (cuser.equals(user)) {
 					boolean sendIt = checkPM(urecord,user)
@@ -70,21 +72,22 @@ class WsChatMessagingService extends WsChatConfService {
 	@Transactional
 	Boolean checkPM(String username, String urecord) {
 		boolean result = true
-		if (dbSupport()) {
-			def found = ChatBlockList.findByChatuserAndUsername(currentUser(username),urecord)
-			if (found) {
-				result = false
-			}
+		def found = ChatBlockList.findByChatuserAndUsername(currentUser(username),urecord)
+		if (found) {
+			result = false
 		}
+
 		return result
 	}
 
 
 	def broadcast2all(Map msg) {
 		def myMsgj = msg as JSON
-		chatNames.each { String cuser, Session crec ->
-			if (crec && crec.isOpen()) {
-				crec.basicRemote.sendText(myMsgj as String);
+		chatNames.each { String cuser,Map<String,Session> records ->
+			records?.each { String room, Session crec ->
+				if (crec && crec.isOpen()) {
+					crec.basicRemote.sendText(myMsgj as String);
+				}
 			}
 		}
 	}
@@ -97,7 +100,8 @@ class WsChatMessagingService extends WsChatConfService {
 		if (isEnabled) {
 			persistMessage(myMsgj as String,urecord)
 		}
-		chatNames.each { String cuser, Session crec ->
+		chatNames.each { String cuser, Map<String,Session> records ->
+			Session crec = records.find{it.key==room}?.value
 			if (crec && crec.isOpen() && room.equals(crec.userProperties.get("room"))) {
 				crec.basicRemote.sendText(myMsgj as String);
 			}
@@ -169,6 +173,13 @@ class WsChatMessagingService extends WsChatConfService {
 				log.error "Persist Message issue: ${cm.errors}"
 			}
 		}
+	}
+
+
+	@Transactional
+	ChatUser currentUser(String username) {
+		ChatUser cu =  ChatUser.findByUsername(username)
+		return cu
 	}
 
 	private Boolean boldef(def input) {

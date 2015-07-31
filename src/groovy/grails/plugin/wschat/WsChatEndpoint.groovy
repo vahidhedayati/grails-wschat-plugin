@@ -39,9 +39,7 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 			}
 
 			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
-
 			def grailsApplication = ctx.grailsApplication
-
 			config = grailsApplication.config.wschat
 			int defaultMaxSessionIdleTimeout = config.timeout ?: 0
 			serverContainer.defaultMaxSessionIdleTimeout = defaultMaxSessionIdleTimeout
@@ -76,14 +74,12 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 	public void handeClose(Session userSession) throws SocketException {
 		if (userSession) {
 			String username = userSession?.userProperties?.get("username")
-			// null users issue in badly formatted _process.gsp 
+			// null users issue in badly formatted _process.gsp
 			// when client/server tests where being done as part of 1.20 release
 			// left for similar issues - usually should not occur
 			if (username && username!='null') {
-				if (dbSupport()) {
-					wsChatAuthService.validateLogOut(username as String)
-				}
-				destroyChatUser(username)			
+				wsChatAuthService.validateLogOut(username as String)
+				destroyChatUser(username)
 			}
 		}
 	}

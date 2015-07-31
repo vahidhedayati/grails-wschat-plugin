@@ -12,7 +12,6 @@ class ConfigBean {
 	static final String fileEndPoint = 'WsChatFileEndpoint'
 	final String hostname = getConfig('hostname') ?: 'localhost:8080'
 	final def addAppName = getConfig('add.appName') ?: true
-	def dbSupport = getConfig('dbsupport') ?: true
 	final def showtitle = getConfig('showtitle') ?: true
 	final def debug = getConfig('debug ')?: false
 	final process = getConfig('disable.login')?:false
@@ -20,28 +19,26 @@ class ConfigBean {
 	final String chatHeader = getConfig('heading') ?: 'Grails websocket chat'
 	String frontUser = getConfig('frontend') ?: '_frontend'
 	static final Date now = new Date()
-	
+
 	Boolean addLayouts = false
 	String room
 	ArrayList rooms
 	String chatuser
-	
-	
+
+
 	String getChatuser() {
 		if (chatuser) {
 			chatuser=chatuser.replace(' ', '_').replace('.', '_')
 		}
 		return chatuser
 	}
-	Boolean getProcess() { 
+	Boolean getProcess() {
 		return validateBool(process)
 	}
 	Boolean getAddLayouts() {
 		return validateBool(addLayouts)
 	}
-	Boolean getDbSupport() {
-		return validateBool(dbSupport)
-	}
+
 
 	Boolean getDebug() {
 		return validateBool(debug)
@@ -50,12 +47,12 @@ class ConfigBean {
 	Boolean getShowtitle() {
 		return validateBool(showtitle)
 	}
-	
+
 	String getAppName() {
 		String appName= grails.util.Metadata.current.applicationName ?: Holders.grailsApplication.metadata['app.name']
 		return appName
 	}
-	
+
 	Boolean getAddAppName() {
 		return validateBool(addAppName)
 	}
@@ -99,17 +96,17 @@ class ConfigBean {
 			return input.toBoolean()
 		}
 	}
-	
+
 	static def validateInput={value,object,errors->
 		if (!value) {
 			return errors.rejectValue(propertyName,"invalid.$propertyName",[''] as Object[],'')
 		}
 	}
-	
+
 	def getConf(String configProperty) {
 		Holders.config[configProperty] ?: ''
 	}
-	
+
 	def getConfig(String configProperty) {
 		Holders.config.wschat[configProperty] ?: ''
 	}

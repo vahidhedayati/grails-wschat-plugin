@@ -20,12 +20,12 @@ class WsChatController extends WsChatConfService {
 	def wsChatProfileService
 	def wsChatBookingService
 	def wsChatContService
-	
-	def index(InitiationBean bean) {
+
+	def index(ConnectTagBean bean) {
 		bean.addLayouts=true
-		bean.rooms = config.rooms as ArrayList
-		if (!bean.rooms && (bean.dbSupport)) {
-			bean.rooms = wsChatRoomService.returnRoom(bean.dbSupport)
+		bean.setRooms(config.rooms as ArrayList)
+		if (!bean.rooms) {
+			bean.setRooms(wsChatRoomService.returnRoom())
 		}
 		if (bean.process) {
 			render "Default sign in page disabled"
@@ -33,14 +33,14 @@ class WsChatController extends WsChatConfService {
 		}
 		[bean:bean]
 	}
-	
+
 	def chat(ConnectTagBean bean) {
 		bean.addLayouts=true
 		bean.chatuser = session.wschatuser
-		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(bean.dbSupport, true)
+		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(true)
 		[bean:bean]
 	}
-	
+
 	def sendfile(RoomBean bean) {
 		bean.chatuser = session.wschatuser
 		boolean sender = false
@@ -49,7 +49,7 @@ class WsChatController extends WsChatConfService {
 		}
 		[bean:bean]
 	}
-	
+
 	def sendmedia(RoomBean bean) {
 		bean.chatuser = session.wschatuser
 		boolean sender = false

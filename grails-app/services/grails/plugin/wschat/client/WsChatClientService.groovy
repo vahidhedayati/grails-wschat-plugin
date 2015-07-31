@@ -9,16 +9,14 @@ import javax.websocket.Session
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 public class WsChatClientService extends WsChatConfService {
-	
+
 	static transactional  =  false
-	
+
 	def grailsApplication
 	def wsChatUserService
 
-	public WsChatClientEndpoint conn(String hostname, String appName, String room, String user ) {
-		ConfigBean bean = new ConfigBean()
-		WsChatClientEndpoint clientEndPoint =
-				new WsChatClientEndpoint(new URI(bean.uri))
+	public WsChatClientEndpoint conn(String uri, String user ) {
+		WsChatClientEndpoint clientEndPoint = new WsChatClientEndpoint(new URI(uri))
 		clientEndPoint.connectClient(user)
 		return clientEndPoint
 	}
@@ -66,68 +64,68 @@ public class WsChatClientService extends WsChatConfService {
 
 	def handMessage(WsChatClientEndpoint clientEndPoint, String user,
 			ArrayList pmuser, Map aMap, boolean strictMode,String divId, boolean masterNode) {
-			
+
 		clientEndPoint.addMessageHandler(
 				new WsChatClientEndpoint.MessageHandler() {
 					public void handleMessage(String message) {
 						if (message.startsWith('{"')) {
-						JSONObject rmesg=JSON?.parse(message)
-						String actionthis=''
-						String msgFrom = rmesg.msgFrom
-						String disconnect = rmesg.system
-						if (disconnect && disconnect == "disconnect") {
-							clientEndPoint.sendMessage("DISCO:-"+user)
-						}
-						boolean pm = false
-						if (strictMode) {
-							pmuser?.each { cuser ->
-								if (msgFrom && msgFrom == cuser) {
+							JSONObject rmesg=JSON?.parse(message)
+							String actionthis=''
+							String msgFrom = rmesg.msgFrom
+							String disconnect = rmesg.system
+							if (disconnect && disconnect == "disconnect") {
+								clientEndPoint.sendMessage("DISCO:-"+user)
+							}
+							boolean pm = false
+							if (strictMode) {
+								pmuser?.each { cuser ->
+									if (msgFrom && msgFrom == cuser) {
+										actionthis = rmesg.privateMessage
+										pm = true
+									}
+								}
+							}else{
+								if (msgFrom ) {
 									actionthis = rmesg.privateMessage
 									pm = true
 								}
 							}
-						}else{
-							if (msgFrom ) {
-								actionthis = rmesg.privateMessage
-								pm = true
-							}
-						}
-						def rmessage = rmesg.message
-						if (rmessage) {
-							def matcher = (rmessage =~ /(.*): (.*)/)
-							if (matcher.matches()){
-								msgFrom = matcher[0][1]
-								if (strictMode) {
-									pmuser?.each { cuser ->
-										if (msgFrom && msgFrom == cuser) {
+							def rmessage = rmesg.message
+							if (rmessage) {
+								def matcher = (rmessage =~ /(.*): (.*)/)
+								if (matcher.matches()){
+									msgFrom = matcher[0][1]
+									if (strictMode) {
+										pmuser?.each { cuser ->
+											if (msgFrom && msgFrom == cuser) {
+												actionthis = matcher[0][2]
+											}
+										}
+									}else{
+										if (msgFrom) {
 											actionthis = matcher[0][2]
 										}
 									}
+								}
+							}
+
+							if (actionthis) {
+								if ( (actionthis == 'close_connection')
+								|| (actionthis.startsWith('DISCO:-')) ) {
+									clientEndPoint.sendMessage("DISCO:-"+user)
 								}else{
-									if (msgFrom) {
-										actionthis = matcher[0][2]
+									if (aMap.containsKey(actionthis)) {
+										String sendThis=aMap[actionthis]
+										clientEndPoint.processAction( user, pm, actionthis, sendThis, divId ?: '',msgFrom,strictMode,masterNode)
+
 									}
 								}
 							}
-						}
 
-						if (actionthis) {
-							if ( (actionthis == 'close_connection')
-							|| (actionthis.startsWith('DISCO:-')) ) {
-								clientEndPoint.sendMessage("DISCO:-"+user)
-							}else{
-								if (aMap.containsKey(actionthis)) {
-									String sendThis=aMap[actionthis]
-									clientEndPoint.processAction( user, pm, actionthis, sendThis, divId ?: '',msgFrom,strictMode,masterNode)
-
-								}
-							}
+						}else{
+							clientEndPoint.sendMessage("${message}")
 						}
-						
-					}else{
-						clientEndPoint.sendMessage("${message}")
 					}
-				  }
 				})
 	}
 

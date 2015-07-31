@@ -9,9 +9,14 @@ import grails.plugin.wschat.users.WsChatUserService
 
 import javax.websocket.Session
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 
 class ChatUtils extends WsChatConfService {
-
+	
+	private final Logger log = LoggerFactory.getLogger(getClass().name)
+	
 	ConfigObject config
 
 	WsChatAuthService wsChatAuthService
@@ -21,17 +26,8 @@ class ChatUtils extends WsChatConfService {
 	WsFileService wsFileService
 	WsCamService wsCamService
 
-
-	public Boolean loggedIn(String user) {
-		Boolean loggedin = false
-		chatNames.each { String cuser, Session crec ->
-			if (crec && crec.isOpen()) {
-				if (cuser.equals(user)) {
-					loggedin = true
-				}
-			}
-		}
-		return loggedin
+	Boolean loggedIn(String user) {
+		return chatUserExists(user)
 	}
 
 	private void privateMessage(Session userSession , String username, String user,String msg) {
@@ -58,11 +54,9 @@ class ChatUtils extends WsChatConfService {
 			if (message.startsWith("DISCO:-")) {
 				String dbsup = config.logleavers ?: 'no'
 
-				if (dbsup == 'yes') {
-					log.error "Room: >${room}< | User: >${username}<  "
-				}
+				log.debug "Room: >${room}< | User: >${username}<  "
 				wsChatUserService.removeUser(username)
-				wsChatUserService.sendUsers(userSession,username)
+				wsChatUserService.sendUsers(userSession,username, room)
 				userSession.close()
 			}else if (message.startsWith("/pm")) {
 				def values = parseInput("/pm ",message)
@@ -90,7 +84,7 @@ class ChatUtils extends WsChatConfService {
 				String user = values.user as String
 				String person = values.msg as String
 				wsChatUserService.blockUser(user,person)
-				wsChatUserService.sendUsers(userSession,user)
+				wsChatUserService.sendUsers(userSession,user, room)
 			}else if (message.startsWith("/kickuser")) {
 				def p1 = "/kickuser "
 				def user = message.substring(p1.length(),message.length())
@@ -106,13 +100,13 @@ class ChatUtils extends WsChatConfService {
 				String user = values.user as String
 				String person = values.msg as String
 				wsChatUserService.unblockUser(user,person)
-				wsChatUserService.sendUsers(userSession,user)
+				wsChatUserService.sendUsers(userSession,user, room)
 			}else if (message.startsWith("/add")) {
 				def values = parseInput("/add ",message)
 				String user = values.user as String
 				String person = values.msg as String
 				wsChatUserService.addUser(user,person)
-				wsChatUserService.sendUsers(userSession,user)
+				wsChatUserService.sendUsers(userSession,user, room)
 				String msg = "${user} has added you to their Friends List"
 				privateMessage(userSession, user,person,msg)
 			}else if (message.startsWith("/removefriend")) {
@@ -120,7 +114,7 @@ class ChatUtils extends WsChatConfService {
 				String user = values.user as String
 				String person = values.msg as String
 				wsChatUserService.removeUser(user,person)
-				wsChatUserService.sendUsers(userSession,user)
+				wsChatUserService.sendUsers(userSession,user, room)
 				String msg = "${user} has removed you from their Friends List"
 				privateMessage(userSession, user,person,msg)
 			}else if (message.startsWith("/joinRoom")) {
@@ -130,17 +124,30 @@ class ChatUtils extends WsChatConfService {
 				String user = values.user as String
 				String rroom = values.msg as String
 				if (wsChatRoomService.roomList().toMapString().contains(rroom)) {
-					userSession.userProperties.put("room", rroom)
-					room = rroom
-					myMsg.put("currentRoom", "${room}")
-					wsChatMessagingService.messageUser(userSession,myMsg)
-					if (sendjoin == 'yes') {
-						myMsg = [:]
-						wsChatUserService.sendUsers(userSession,user)
-						myMsg.put("message", "${user} has joined ${room}")
-						wsChatMessagingService.broadcast(userSession,myMsg)
-						//broadcast(userSession,["message", "${user} has joined ${room}"])
-						wsChatRoomService.sendRooms(userSession)
+					Map<String,Session> records = chatroomUsers.get(username)
+					def currentRoom = records.find{it.key==room}
+					
+					Session crec2 = records.find{it.key==rroom}?.value
+					if (!crec2) {
+						if (currentRoom) {
+							records.remove("${room}")
+							wsChatUserService.sendUsers(userSession,user, room)
+							records << ["${rroom}":userSession]
+						}
+						userSession.userProperties.put("room", rroom)
+						room = rroom
+						myMsg.put("currentRoom", "${room}")
+						wsChatMessagingService.messageUser(userSession,myMsg)
+						if (sendjoin == 'yes') {
+							myMsg = [:]
+							wsChatUserService.sendUsers(userSession,user, rroom)
+							myMsg.put("message", "${user} has joined ${room}")
+							wsChatMessagingService.broadcast(userSession,myMsg)
+							//	broadcast(userSession,["message", "${user} has joined ${room}"])
+							wsChatRoomService.sendRooms(userSession)
+						}
+					} else {
+						wsChatMessagingService.messageUser(userSession, ["message":"${username} is already loggged in to ${rroom}, action denied"])
 					}
 				}
 			}else if (message.startsWith("/listRooms")) {
@@ -160,7 +167,7 @@ class ChatUtils extends WsChatConfService {
 				userSession.userProperties.put("av", "on")
 				myMsg.put("message", "${camuser} has enabled webcam")
 				wsChatMessagingService.broadcast(userSession,myMsg)
-				wsChatUserService.sendUsers(userSession,camuser)
+				wsChatUserService.sendUsers(userSession,camuser,room)
 			}else if (message.startsWith("/camdisabled")) {
 				def p1 = "/camdisabled "
 				def camuser = message.substring(p1.length(),message.length())
@@ -168,7 +175,7 @@ class ChatUtils extends WsChatConfService {
 				userSession.userProperties.put("av", "off")
 				myMsg.put("message", "${camuser} has disabled webcam")
 				wsChatMessagingService.broadcast(userSession,myMsg)
-				wsChatUserService.sendUsers(userSession,camuser)
+				wsChatUserService.sendUsers(userSession,camuser,room)
 				// Usual chat messages bound for all
 			}else if (message.startsWith("/webrtcenabled")) {
 				def p1 = "/webrtcenabled "
@@ -177,7 +184,7 @@ class ChatUtils extends WsChatConfService {
 				userSession.userProperties.put("rtc", "on")
 				myMsg.put("message", "${camuser} has enabled WebrRTC")
 				wsChatMessagingService.broadcast(userSession,myMsg)
-				wsChatUserService.sendUsers(userSession,camuser)
+				wsChatUserService.sendUsers(userSession,camuser,room)
 			}else if (message.startsWith("/webrtcdisabled")) {
 				def p1 = "/webrtcdisabled "
 				def camuser = message.substring(p1.length(),message.length())
@@ -185,7 +192,7 @@ class ChatUtils extends WsChatConfService {
 				userSession.userProperties.put("rtc", "off")
 				myMsg.put("message", "${camuser} has disabled WebrRTC")
 				wsChatMessagingService.broadcast(userSession,myMsg)
-				wsChatUserService.sendUsers(userSession,camuser)
+				wsChatUserService.sendUsers(userSession,camuser,room)
 			}else if (message.startsWith("/fileenabled")) {
 				def p1 = "/fileenabled "
 				def camuser = message.substring(p1.length(),message.length())
@@ -193,7 +200,7 @@ class ChatUtils extends WsChatConfService {
 				userSession.userProperties.put("file", "on")
 				myMsg.put("message", "${camuser} has enabled fileSharing")
 				wsChatMessagingService.broadcast(userSession,myMsg)
-				wsChatUserService.sendUsers(userSession,camuser)
+				wsChatUserService.sendUsers(userSession,camuser,room)
 			}else if (message.startsWith("/filedisabled")) {
 				def p1 = "/filedisabled "
 				def camuser = message.substring(p1.length(),message.length())
@@ -201,23 +208,23 @@ class ChatUtils extends WsChatConfService {
 				userSession.userProperties.put("file", "off")
 				myMsg.put("message", "${camuser} has disabled fileSharing")
 				wsChatMessagingService.broadcast(userSession,myMsg)
-				wsChatUserService.sendUsers(userSession,camuser)
+				wsChatUserService.sendUsers(userSession,camuser,room)
 			}else if (message.startsWith("/mediaenabled")) {
-			def p1 = "/mediaenabled "
-			def camuser = message.substring(p1.length(),message.length())
-			//	addCamUser(userSession,camuser)
-			userSession.userProperties.put("media", "on")
-			myMsg.put("message", "${camuser} has enabled fileSharing")
-			wsChatMessagingService.broadcast(userSession,myMsg)
-			wsChatUserService.sendUsers(userSession,camuser)
-		}else if (message.startsWith("/mediadisabled")) {
-			def p1 = "/mediadisabled "
-			def camuser = message.substring(p1.length(),message.length())
-			//	addCamUser(userSession,camuser)
-			userSession.userProperties.put("media", "off")
-			myMsg.put("message", "${camuser} has disabled fileSharing")
-			wsChatMessagingService.broadcast(userSession,myMsg)
-			wsChatUserService.sendUsers(userSession,camuser)
+				def p1 = "/mediaenabled "
+				def camuser = message.substring(p1.length(),message.length())
+				//	addCamUser(userSession,camuser)
+				userSession.userProperties.put("media", "on")
+				myMsg.put("message", "${camuser} has enabled fileSharing")
+				wsChatMessagingService.broadcast(userSession,myMsg)
+				wsChatUserService.sendUsers(userSession,camuser,room)
+			}else if (message.startsWith("/mediadisabled")) {
+				def p1 = "/mediadisabled "
+				def camuser = message.substring(p1.length(),message.length())
+				//	addCamUser(userSession,camuser)
+				userSession.userProperties.put("media", "off")
+				myMsg.put("message", "${camuser} has disabled fileSharing")
+				wsChatMessagingService.broadcast(userSession,myMsg)
+				wsChatUserService.sendUsers(userSession,camuser,room)
 			}else if (message.startsWith("/flatusers")) {
 				wsChatUserService.sendFlatUsers(userSession,username)
 				// Usual chat messages bound for all

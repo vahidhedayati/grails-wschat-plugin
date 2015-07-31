@@ -200,8 +200,8 @@ public class WsClientProcessService extends WsChatConfService {
 	// <chat:clientConnect gsp call
 	public void processAct(String user, boolean pm,String actionthis, String sendThis, String divId, String msgFrom, 
 		boolean strictMode, boolean masterNode) {
-		
-		Session userSession=wsChatUserService.usersSession(user)
+		//TODO - ROOM ?
+		Session userSession=wsChatUserService.usersSession(user,'SOME_ROOM')
 		String username = userSession.userProperties.get("username") as String
 		String addon="[PROCESS]"
 		def myMap=[pm:pm, actionThis: actionthis, sendThis: sendThis, divId:divId,msgFrom:msgFrom, strictMode:strictMode, masterNode:masterNode]

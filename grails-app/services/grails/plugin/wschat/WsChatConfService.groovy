@@ -14,10 +14,11 @@ class WsChatConfService implements UserMaps{
 
 	def grailsApplication
 
+
 	/*
 	 * ChatUser ConcurrentHashMap
 	 */
-	public ConcurrentMap<String, Session> getChatNames() {
+	public ConcurrentMap<String, Map<String,Session>> getChatNames() {
 		return chatroomUsers
 	}
 
@@ -25,9 +26,9 @@ class WsChatConfService implements UserMaps{
 		return Collections.unmodifiableSet(chatroomUsers.keySet())
 	}
 
-	public Session getChatUser(String username) {
-		Session userSession = chatroomUsers.get(username)
-		return userSession
+	public Session getChatUser(String username,String room) {
+		Map<String,Session> records = chatroomUsers.get(username)
+		return (records.find{it.key==room}?.value as Session)
 	}
 
 	public boolean chatUserExists(String username) {
@@ -37,9 +38,6 @@ class WsChatConfService implements UserMaps{
 	public boolean destroyChatUser(String username) {
 		return chatroomUsers.remove(username) != null
 	}
-
-
-
 	/*
 	 * CamUser ConcurrentHashMap
 	 */
@@ -61,9 +59,6 @@ class WsChatConfService implements UserMaps{
 	public boolean destroyCamUser(String username) {
 		return camUsers.remove(username) != null
 	}
-
-
-
 	/*
 	 * fileroomUser ConcurrentHashMap
 	 */
@@ -86,8 +81,6 @@ class WsChatConfService implements UserMaps{
 		return fileroomUsers.remove(username) != null
 	}
 
-
-
 	public String CONNECTOR = "CONN:-"
 	public String DISCONNECTOR = "DISCO:-"
 	public String CHATAPP = "WsChatEndpoint"
@@ -95,11 +88,7 @@ class WsChatConfService implements UserMaps{
 
 	//static final Set<HashMap<String[],String[]>> clientMaster = ([:] as Set).asSynchronized()
 	//static final Set<HashMap<String[],String[]>> clientSlave = ([:] as Set).asSynchronized()
-
-
-
 	Map getWsconf() {
-		String dbSupport = config.dbsupport ?: 'yes'
 		String process = config.disable.login ?: 'no'
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String chatHeader = config.heading ?: 'Grails websocket chat'
@@ -108,12 +97,10 @@ class WsChatConfService implements UserMaps{
 		String addAppName = config.add.appName ?: 'yes'
 		JSON iceservers = grailsApplication.config.stunServers as JSON
 		String showtitle = config.showtitle ?: 'yes'
-		return [dbSupport:dbSupport, process:process, chatTitle:chatTitle,
+		return [process:process, chatTitle:chatTitle,
 			chatHeader:chatHeader,  hostname:hostname, addAppName:addAppName,
 			iceservers:iceservers, showtitle:showtitle]
 	}
-
-
 
 	boolean isConfigEnabled(String input) {
 		return Boolean.valueOf(input ?: false)
@@ -121,25 +108,6 @@ class WsChatConfService implements UserMaps{
 
 	boolean getSaveClients() {
 		return isConfigEnabled(config.storeForFrontEnd ?: 'false')
-	}
-
-	Boolean dbSupport() {
-		Boolean dbsupport = false
-		String dbsup = config.dbsupport  ?: 'yes'
-		if ((dbsup.toLowerCase().equals('yes'))||(dbsup.toLowerCase().equals('true'))) {
-			dbsupport = true
-		}
-		return dbsupport
-	}
-
-	ChatUser currentUser(String username) {
-		ChatUser cu
-		if (dbSupport()) {
-			ChatUser.withTransaction {
-				cu =  ChatUser.findByUsername(username)
-			}
-		}
-		return cu
 	}
 
 	Boolean isAdmin(Session userSession) {
@@ -151,14 +119,12 @@ class WsChatConfService implements UserMaps{
 		return useris
 	}
 
-
 	String getApplicationName() {
 		return grailsApplication.metadata['app.name']
 	}
 
 	String getFrontend() {
 		return config.frontenduser ?: '_frontend'
-		//return cuser
 	}
 
 	def getConfig() {

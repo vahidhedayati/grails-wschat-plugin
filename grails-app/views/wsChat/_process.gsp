@@ -9,8 +9,8 @@
 	var receivers="${bean.receivers}"
 	var arrayLength = receivers.length;
 	// Connect websocket and set up processes 
-	console.log('${bean.uri}${bean.room}  @@ ${bean.user}  >> ${bean.receivers} ');
-	var webSocket=new WebSocket('${bean.uri}${bean.room}');
+	//console.log('${bean.uri}${bean.room}  @@ ${bean.user}  >> ${bean.receivers} ');
+	var webSocket=new WebSocket('${uri}');
  	webSocket.onopen=function(message) {processOpen(message);};
  	webSocket.onclose=function(message) {processClose(message);};
     webSocket.onerror=function(message) {processError(message);};

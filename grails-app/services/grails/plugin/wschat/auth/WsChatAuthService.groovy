@@ -60,32 +60,28 @@ class WsChatAuthService extends WsChatConfService   {
 	Map validateLogin(String username) {
 		def defaultPerm = 'user'
 		def user
-		if (dbSupport()) {
-			def au=addUser(username)
-			user=au.user
-			def perm=au.perm
-			def logit = new ChatAuthLogs()
-			logit.username = username
-			logit.loggedIn = true
-			logit.loggedOut = false
-			if (!logit.save(flush:true)) {
-				log.error "${logit.errors}"
-			}
-			defaultPerm = user.permissions.name as String
+		def au=addUser(username)
+		user=au.user
+		def perm=au.perm
+		def logit = new ChatAuthLogs()
+		logit.username = username
+		logit.loggedIn = true
+		logit.loggedOut = false
+		if (!logit.save(flush:true)) {
+			log.error "${logit.errors}"
 		}
+		defaultPerm = user.permissions.name as String
 		[permission: defaultPerm, user: user]
 	}
 
 	@Transactional
 	void validateLogOut(String username) {
-		if (dbSupport()) {
-			def logit = new ChatAuthLogs()
-			logit.username = username
-			logit.loggedIn = false
-			logit.loggedOut = true
-			if (!logit.save(flush:true)) {
-				log.error "${logit.errors}"
-			}
+		def logit = new ChatAuthLogs()
+		logit.username = username
+		logit.loggedIn = false
+		logit.loggedOut = true
+		if (!logit.save(flush:true)) {
+			log.error "${logit.errors}"
 		}
 	}
 
@@ -96,64 +92,53 @@ class WsChatAuthService extends WsChatConfService   {
 		String connector = "CONN:-"
 		def user
 		def username = message.substring(message.indexOf(connector)+connector.length(),message.length()).trim().replace(' ', '_').replace('.', '_')
+
+		userSession.userProperties.put("username", username)
+		isuBanned = isBanned(username)
+		if (isuBanned){
+			wsChatMessagingService.messageUser(userSession,["isBanned":"user ${username} is banned being disconnected"])
+			return
+		}
+		def userRec = validateLogin(username)
+		def userLevel = userRec.permission
+		user = userRec.user
+		userSession.userProperties.put("userLevel", userLevel)
+		String rooma = userSession?.userProperties?.get("room")
 		if (loggedIn(username)==false) {
-			userSession.userProperties.put("username", username)
-			isuBanned = isBanned(username)
-			if (!isuBanned){
-				if (dbSupport()) {
-					def userRec = validateLogin(username)
-					def userLevel = userRec.permission
-					user = userRec.user
-					userSession.userProperties.put("userLevel", userLevel)
-					String rooma = userSession?.userProperties?.get("room")
-					chatroomUsers.putIfAbsent(username, userSession)
-					Boolean useris = isAdmin(userSession)
-					def myMsg1 = [:]
-					myMsg1.put("isAdmin", useris.toString())
-					wsChatMessagingService.messageUser(userSession,myMsg1)
-
-				}
-				def myMsg2 = [:]
-				myMsg2.put("currentRoom", "${room}")
-				wsChatMessagingService.messageUser(userSession,myMsg2)
-				wsChatUserService.sendUsers(userSession,username)
-				String sendjoin = config.send.joinroom  ?: 'yes'
-
-				if (sendjoin == 'yes') {
-					myMsg.put("message", "${username} has joined ${room}")
-					//wsChatMessagingService.messageUser(userSession,myMsg)
-				}
-				wsChatRoomService.sendRooms(userSession)
-			}else{
-				def myMsg1 = [:]
-				myMsg1.put("isBanned", "user ${username} is banned being disconnected")
-				wsChatMessagingService.messageUser(userSession,myMsg1)
-				//chatroomUsers.remove(userSession)
+			chatroomUsers.putIfAbsent(username, ["${room}":userSession])
+		} else {
+			Map<String,Session> records= chatroomUsers.get(username)
+			Session crec = records.find{it.key==room}?.value
+			if (crec) {
+				wsChatMessagingService.messageUser(userSession, ["message":"${username} is already loggged in to ${room}, action denied"])
+				return
+			} else {
+				records << ["${room}":userSession]
 			}
-		}else{
-			myMsg.put("message", "${username} is already loggged in elsewhere, action denied")
 		}
-
-		if ((myMsg)&&(!isuBanned)) {
-
-			wsChatMessagingService.broadcast(userSession,myMsg)
+		Boolean useris = isAdmin(userSession)
+		wsChatMessagingService.messageUser(userSession, ["isAdmin":useris as String])
+		def myMsg2 = [:]
+		myMsg2.put("currentRoom", "${room}")
+		wsChatMessagingService.messageUser(userSession,myMsg2)
+		wsChatUserService.sendUsers(userSession,username,room)
+		String sendjoin = config.send.joinroom  ?: 'yes'
+		wsChatRoomService.sendRooms(userSession)
+		if (sendjoin == 'yes') {
+			wsChatMessagingService.broadcast(userSession,["message": "${username} has joined ${room}"])
 		}
-		if (dbSupport()) {
-			verifyOffLine(userSession,username)
-		}
+		verifyOffLine(userSession,username)
 	}
 
 	@Transactional
 	Boolean isBanned(String username) {
 		Boolean yesis = false
-		if (dbSupport()) {
-			def now = new Date()
-			def current  =  new SimpleDateFormat('EEE, d MMM yyyy HH:mm:ss').format(now)
-			def found = ChatBanList.findAllByUsernameAndPeriodGreaterThan(username,current)
-			def dd = ChatBanList.findAllByUsername(username)
-			if (found) {
-				yesis = true
-			}
+		def now = new Date()
+		def current  =  new SimpleDateFormat('EEE, d MMM yyyy HH:mm:ss').format(now)
+		def found = ChatBanList.findAllByUsernameAndPeriodGreaterThan(username,current)
+		def dd = ChatBanList.findAllByUsername(username)
+		if (found) {
+			yesis = true
 		}
 		return yesis
 	}
