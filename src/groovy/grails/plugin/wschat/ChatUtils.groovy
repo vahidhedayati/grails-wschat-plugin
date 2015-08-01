@@ -52,11 +52,13 @@ class ChatUtils extends WsChatConfService {
 			}
 		}else{
 			if (message.startsWith("DISCO:-")) {
-				String dbsup = config.logleavers ?: 'no'
-
 				log.debug "Room: >${room}< | User: >${username}<  "
 				wsChatUserService.removeUser(username)
 				wsChatUserService.sendUsers(userSession,username, room)
+				String sendleave = config.send.leaveroom  ?: 'yes'
+				if (sendleave == 'yes') {
+					wsChatMessagingService.broadcast(userSession,["message": "${username} has left ${room}"])
+				}
 				userSession.close()
 			}else if (message.startsWith("/pm")) {
 				def values = parseInput("/pm ",message)
@@ -126,10 +128,13 @@ class ChatUtils extends WsChatConfService {
 				if (wsChatRoomService.roomList().toMapString().contains(rroom)) {
 					Map<String,Session> records = chatroomUsers.get(username)
 					def currentRoom = records.find{it.key==room}
-					
 					Session crec2 = records.find{it.key==rroom}?.value
 					if (!crec2) {
 						if (currentRoom) {
+							String sendleave = config.send.leaveroom  ?: 'yes'
+							if (sendleave == 'yes') {
+								wsChatMessagingService.broadcast(userSession,["message": "${username} has left ${room}"])
+							}
 							records.remove("${room}")
 							wsChatUserService.sendUsers(userSession,user, room)
 							records << ["${rroom}":userSession]
@@ -143,7 +148,6 @@ class ChatUtils extends WsChatConfService {
 							wsChatUserService.sendUsers(userSession,user, rroom)
 							myMsg.put("message", "${user} has joined ${room}")
 							wsChatMessagingService.broadcast(userSession,myMsg)
-							//	broadcast(userSession,["message", "${user} has joined ${room}"])
 							wsChatRoomService.sendRooms(userSession)
 						}
 					} else {
