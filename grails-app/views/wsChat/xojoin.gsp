@@ -1,17 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-<g:if test="${enduser?.verifyAppVersion().equals('assets')}">
-	<asset:stylesheet href="twitter-bootstrap.min.css" />
-	<asset:stylesheet href="ticTacToe.css" />
-	<asset:javascript src="twitter-bootstrap.min.js" />
-</g:if>
-<g:else>
-<link rel="stylesheet"	href="${resource(dir: 'css', file: 'twitter-bootstrap.min.css')}" type="text/css">
-<link rel="stylesheet" href="${resource(dir: 'css', file: 'ticTacToe.css')}" type="text/css">
-<script type="text/javascript"	src="${resource(dir: 'js', file: 'twitter-bootstrap.min.js')}"></script>
-</g:else>
-   <title>${chatTitle}</title>
+<asset:stylesheet href="twitter-bootstrap.min.css" />
+<asset:stylesheet href="ticTacToe.css" />
+<asset:javascript src="twitter-bootstrap.min.js" />
+<title>${chatTitle}</title>
 </head>
 <body>
 	<div class="modal-dialog">
