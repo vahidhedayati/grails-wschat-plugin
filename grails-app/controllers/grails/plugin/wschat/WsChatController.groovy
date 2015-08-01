@@ -3,7 +3,6 @@ package grails.plugin.wschat
 import grails.converters.JSON
 import org.grails.plugins.web.taglib.ApplicationTagLib
 import grails.plugin.wschat.beans.ConnectTagBean
-import grails.plugin.wschat.beans.InitiationBean
 import grails.plugin.wschat.beans.LoginBean
 import grails.plugin.wschat.beans.RoomBean
 import grails.plugin.wschat.beans.SearchBean
@@ -146,6 +145,20 @@ class WsChatController extends WsChatConfService {
 		}
 	}
 
+	def xo(ConnectTagBean bean) {
+		bean.chatuser = session.wschatuser
+		ChatUser cu = wsChatUserService.currentUser(bean.chatuser)
+		String uri="ws://${bean.hostname}${bean.addAppName?'/'+bean.appName:''}/ticTacToe/start/${cu.id}/${bean.chatuser}"
+		[bean:bean, uri:uri]
+	}
+
+	def xojoin(UserBean bean) {
+		bean.chatuser = session.wschatuser
+		ChatUser cu = wsChatUserService.currentUser(bean.user)
+		String uri="ws://${bean.hostname}${bean.addAppName?'/'+bean.appName:''}/ticTacToe/join/${cu.id}/${bean.chatuser}"
+		[bean:bean, uri:uri]
+	}
+
 	def camsend(UserBean bean) {
 		[bean:bean]
 	}
@@ -183,6 +196,7 @@ class WsChatController extends WsChatConfService {
 			else {
 				render (view: '/admin/viewUsers', model: model)
 			}
+			return
 		}
 		render ''
 	}
@@ -191,6 +205,7 @@ class WsChatController extends WsChatConfService {
 		if (isAdmin) {
 			Map ss = wsChatUserService.search(mq)
 			render (template: '/admin/userList', model: [bean:[userList:ss.userList, uList:ss.uList]])
+			return
 		}
 		render ''
 	}
@@ -205,6 +220,7 @@ class WsChatController extends WsChatConfService {
 	def addUser(String username) {
 		if (isAdmin) {
 			render (template: '/admin/addUser', model: [ username:username])
+			return
 		}
 		render ''
 	}
@@ -212,6 +228,7 @@ class WsChatController extends WsChatConfService {
 	def addEmail(String username) {
 		if (isAdmin) {
 			render (template: '/admin/addEmail', model: [ username:username])
+			return
 		}
 		render ''
 	}
@@ -252,6 +269,7 @@ class WsChatController extends WsChatConfService {
 			String conferenceName =  params.conferenceName
 			Map results = wsChatBookingService.addBooking(invites, conferenceName, dateTime, endDateTime)
 			render "Added: ${results.conference} : Returned Booking ID: ${results.confirmation}"
+			return
 		}
 		render ''
 	}
@@ -266,6 +284,7 @@ class WsChatController extends WsChatConfService {
 		if (isAdmin) {
 			def roomList = ChatRoomList?.findAllByRoomType('chat')*.room?.unique()
 			render template : '/room/delaRoom' , model:[ roomList:roomList ]
+			return
 		}
 		render ''
 	}
@@ -274,6 +293,7 @@ class WsChatController extends WsChatConfService {
 		if (isAdmin) {
 			wsChatRoomService.addManualRoom(room,'chat')
 			render "Room ${room} added"
+			return
 		}
 		render ''
 	}
@@ -282,6 +302,7 @@ class WsChatController extends WsChatConfService {
 		if (isAdmin) {
 			wsChatRoomService.delaRoom(room,'chat')
 			render "Room ${room} removed"
+			return
 		}
 		render ''
 	}
@@ -289,6 +310,7 @@ class WsChatController extends WsChatConfService {
 	def createConference() {
 		if (isAdmin) {
 			render (template: '/admin/book')
+			return
 		}
 		render ''
 	}
@@ -296,6 +318,7 @@ class WsChatController extends WsChatConfService {
 	def adminMenu() {
 		if (isAdmin) {
 			render template: '/admin/admin'
+			return
 		}
 		render ''
 	}

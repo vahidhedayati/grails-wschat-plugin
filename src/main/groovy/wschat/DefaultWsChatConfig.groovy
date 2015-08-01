@@ -1,10 +1,10 @@
 package wschat
 
+import grails.plugin.wschat.TicTacToeServer
 import grails.plugin.wschat.WsCamEndpoint
 import grails.plugin.wschat.WsChatEndpoint
 import grails.plugin.wschat.WsChatFileEndpoint
 import org.springframework.boot.context.embedded.ServletContextInitializer
-import org.springframework.boot.context.embedded.ServletListenerRegistrationBean
 import org.springframework.context.annotation.Bean
 
 import javax.servlet.ServletContext
@@ -20,6 +20,7 @@ class DefaultWsChatConfig {
 				servletContext.addListener(WsChatEndpoint)
 				servletContext.addListener(WsCamEndpoint)
 				servletContext.addListener(WsChatFileEndpoint)
+				servletContext.addListener(TicTacToeServer)
 			}
 		}
 	}

@@ -151,7 +151,20 @@ class ChatUtils extends WsChatConfService {
 				myMsg.put("message", "${camuser} has disabled webcam")
 				wsChatMessagingService.broadcast(userSession,myMsg)
 				wsChatUserService.sendUsers(userSession,camuser,room)
-				// Usual chat messages bound for all
+			}else if (message.startsWith("/gameenabled")) {
+				def p1 = "/gameenabled "
+				def camuser = message.substring(p1.length(),message.length())
+				userSession.userProperties.put("game", "on")
+				myMsg.put("message", "${camuser} has enabled TicTacToe")
+				wsChatMessagingService.broadcast(userSession,myMsg)
+				wsChatUserService.sendUsers(userSession,camuser,room)
+			}else if (message.startsWith("/gamedisabled")) {
+				def p1 = "/gamedisabled "
+				def camuser = message.substring(p1.length(),message.length())
+				userSession.userProperties.put("game", "off")
+				myMsg.put("message", "${camuser} has disabled TicTacToe")
+				wsChatMessagingService.broadcast(userSession,myMsg)
+				wsChatUserService.sendUsers(userSession,camuser,room)
 			}else if (message.startsWith("/webrtcenabled")) {
 				def p1 = "/webrtcenabled "
 				def camuser = message.substring(p1.length(),message.length())

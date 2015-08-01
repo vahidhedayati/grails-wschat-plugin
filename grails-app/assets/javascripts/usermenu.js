@@ -77,6 +77,16 @@ function processMessage(message) {
 				sb.push('</ul>\n</li>\n\n\n');
 			}
 			
+			if (entry.owner_game!=null) {
+				sb.push('\n<li class="dropdown-submenu bttn-xs" id="ownerBar">\n<a tabindex="-1" id="user-title" class="user-title glyphicon glyphicon-tower" >'+entry.owner_game+'</a>\n');
+				sb.push('<ul class="dropdown-menu">\n');
+				sb.push('<li class="btn-xs" id="sideBar">\n');
+				sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.owner_game)+');">'+entry.owner_game+'\'s profile</a>\n');
+				sb.push('</li>\n');
+				addGame(entry.owner_game);
+				sb.push('</ul>\n</li>\n\n\n');
+			}
+			
 			if (entry.owner_mediastream!=null) {
 				sb.push('\n<li class="dropdown-submenu bttn-xs" id="ownerBar">\n<a tabindex="-1" id="user-title" class="user-title glyphicon glyphicon-film" >'+entry.owner_mediastream+'</a>\n');
 				sb.push('<ul class="dropdown-menu">\n');
@@ -124,6 +134,9 @@ function processMessage(message) {
 				sb.push('</li>\n');
 				sb.push('<li class="btn-xs" id="sideBar">\n');
 				sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry.owner)+','+wrapIt('send')+','+wrapIt('mediastream')+');">Enable Media Streaming</a>\n');
+				sb.push('</li>\n');
+				sb.push('<li class="btn-xs" id="sideBar">\n');
+				sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry.owner)+','+wrapIt('send')+','+wrapIt('game')+');">Start TicTacToe</a>\n');
 				sb.push('</li>\n');
 				fileshareoff(entry.owner);
 				camoff(entry.owner);
@@ -179,7 +192,27 @@ function processMessage(message) {
 				sb1.push(admintool);
 				sb1.push('</ul>\n</li>\n\n\n');
 			}
+			if (entry.friends_game!=null) {
+				sb1.push('\n<li class="dropdown-submenu bttn-xs" id="chatFriend"><a tabindex="-1"  id="user-title" class="user-title glyphicon glyphicon-tower">'+entry.friends_game+'</a>\n');
+				sb1.push('<ul class="dropdown-menu">\n');
+				sb1.push('<li class="btn-xs" id="sideBar">\n');
+				sb1.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.friends_game)+');">'+entry.friends_game+'\'s profile</a>\n');
+				sb1.push('</li>\n');
+				sb1.push('<li class="btn-xs" id="sideBar">\n');
+				sb1.push('<a onclick="javascript:pmuser('+wrapIt(entry.friends_game)+', '+wrapIt(user)+');">PM  '+entry.friends_game+'</a>\n');
+				sb1.push('\n</li> \n');
 
+				sb1.push('<li class="btn-xs" id="sideBar"><a onclick="javascript:removefriend('+wrapIt(entry.friends_game)+', '+wrapIt(user)+');">Del from friends list</a>\n');
+				sb1.push('\n</li> ');
+				camon(entry.friends_game);
+				rtcoff(entry.friends_game);
+				sb1.push('<li class="btn-xs" id="sideBar">\n');
+				sb1.push('<a onclick="javascript:enableCam('+wrapIt(entry.friends_game)+','+wrapIt('view')+','+wrapIt('game')+');">Play TicTacToe</a>\n');
+				sb1.push('</li>\n');
+				var admintool=adminOptions(isAdmin,entry.friends_game)
+				sb1.push(admintool);
+				sb1.push('</ul>\n</li>\n\n\n');
+			}
 			
 			if (entry.friends_file!=null) {
 				sb1.push('\n<li class="dropdown-submenu bttn-xs" id="chatFriend"><a tabindex="-1"  id="user-title" class="user-title glyphicon glyphicon-file">'+entry.friends_file+'</a>\n');
@@ -303,6 +336,31 @@ function processMessage(message) {
 				sb2.push('</ul>\n</li>\n\n\n');
 			}
 
+			if (entry.user_game!=null) {
+				sb2.push('\n<li class="dropdown-submenu bttn-xs" id="chatUser"><a tabindex="-1" id="user-title" class="user-title glyphicon glyphicon-tower">'+entry.user_game+'</a>\n');
+				sb2.push('<ul class="dropdown-menu">\n');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry.user_game)+');">'+entry.user_game+'\'s profile</a>\n');
+				sb2.push('</li>\n');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a onclick="javascript:pmuser('+wrapIt(entry.user_game)+', '+wrapIt(user)+');">PM  '+entry.user_game+'</a>\n');
+				sb2.push('\n</li> ');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a onclick="javascript:adduser('+wrapIt(entry.user_game)+', '+wrapIt(user)+');">Add  '+entry.user_game+'</a>\n');
+				sb2.push('</li>\n');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a onclick="javascript:blockuser('+wrapIt(entry.user_game)+', '+wrapIt(user)+');">Block  '+entry.user_game+'</a>\n');
+				sb2.push('</li>\n');
+				sb2.push('<li class="btn-xs" id="sideBar">\n');
+				sb2.push('<a onclick="javascript:enableCam('+wrapIt(entry.user_game)+','+wrapIt('view')+','+wrapIt('game')+');">Play TicTacToe</a>\n');
+				sb2.push('</li>\n');
+				camon(entry.user_game);
+				rtcoff(entry.user_game);
+				var admintool=adminOptions(isAdmin,entry.user_game)
+				sb2.push(admintool);
+				sb2.push('</ul>\n</li>\n\n\n');
+			}
+			
 			if (entry.user_mediastream!=null) {
 				sb2.push('\n<li class="dropdown-submenu bttn-xs" id="chatUser"><a tabindex="-1" id="user-title" class="user-title glyphicon glyphicon-film">'+entry.user_mediastream+'</a>\n');
 				sb2.push('<ul class="dropdown-menu">\n');

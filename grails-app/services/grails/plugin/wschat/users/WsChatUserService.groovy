@@ -173,17 +173,21 @@ class WsChatUserService extends WsChatConfService  {
 			if (crec && crec.isOpen()) {
 				def myUser = [:]
 				if (room.equals(crec.userProperties.get("room"))) {
-					def av = crec.userProperties.get("av").toString()
-					def rtc = crec.userProperties.get("rtc").toString()
-					def file = crec.userProperties.get("file").toString()
-					def media = crec.userProperties.get("media").toString()
-					def addav = ""
+					String av = crec.userProperties.get("av").toString()
+					String rtc = crec.userProperties.get("rtc").toString()
+					String file = crec.userProperties.get("file").toString()
+					String media = crec.userProperties.get("media").toString()
+					String game = crec.userProperties.get("game").toString()
+					String addav = ""
 					if (listType=="generic") {
 						if (av.equals("on")) {
 							addav = "_av"
 						}
 						if (rtc.equals("on")) {
 							addav = "_rtc"
+						}
+						if (game.equals('on')) {
+							addav = "_game"
 						}
 						if (file.equals('on')) {
 							addav = "_file"

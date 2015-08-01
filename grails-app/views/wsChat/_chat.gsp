@@ -196,6 +196,7 @@
 	var camOn = new Array();
 	var fileOn = new Array();
 	var mediaOn = new Array();
+	var gameOn = new Array();
 	var rtcOn = new Array();
 	var isAdmin="${'false' }";
 	var debug = "${bean.debug}";

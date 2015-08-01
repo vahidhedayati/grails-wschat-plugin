@@ -293,6 +293,46 @@ function removefriend(addid,user) {
 	$('#chatMessages').append(addid+" has been removed to "+user+"'s friends list\n");
 }
 
+function isGameOn(uid) {
+ 	var camadded="false";
+ 	var idx = gameOn.indexOf(uid);
+ 	if (idx != -1) {
+		camadded="true";
+ 	}
+	return camadded;
+}
+function delGame(uid) {
+ 	var i = gameOn.indexOf(uid);
+ 	if(i != -1) {
+ 		mediaOn.splice(i, 1);
+	}
+}
+function addGame(uid) {
+ 	var idx = gameOn.indexOf(uid);
+	if(idx == -1) {
+ 		mediaOn.push(uid);
+	}
+}
+
+function getGame(user) {
+ 	$.get("/wsChat/xojoin?user="+user,function(data){
+ 		$('#camViewContainer').html(data);
+ 	});
+ }
+
+function sendGame() {
+	$.get("/wsChat/xo",function(data){
+ 		$('#myCamContainer').html(data);
+	});
+ 	webSocket.send("/gameenabled "+user);
+}
+
+function disableGame() {
+ 	delGame(user);
+ 	webSocket.send("/gamedisabled "+user);
+}
+
+
 function verifyCam(uid) {
 	var camadded="false";
 	var idx = camList.indexOf(uid);
@@ -589,6 +629,12 @@ function enableCam(camuser, camaction,viewtype){
 			disablertc();
 		} else if (viewtype=="webcam") {
 			disableAV();
+		} else if (viewtype=="fileshare") {
+       		disableFile();
+       	} else if (viewtype=="mediastream") {
+       		disableMedia();
+       	} else if (viewtype=="game") {
+       		disableGame();
 		}
 	}
 }
