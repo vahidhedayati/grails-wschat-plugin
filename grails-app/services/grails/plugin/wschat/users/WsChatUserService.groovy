@@ -127,34 +127,51 @@ class WsChatUserService extends WsChatConfService  {
 
 	@Transactional
 	private void userListGen(Session userSession,String username, String listType, String room) {
-		String existingRoom  =  userSession.userProperties.get("room") as String
+		///String sessionRoom  =  userSession.userProperties.get("room") as String
 		chatNames.each { String uiterator, Map<String,Session>records ->
 			records?.each { String userRoom, Session crec2 ->
 				if (userRoom == room && crec2 && crec2.isOpen()) {
 					def finalList = [:]
 					def	blocklist = ChatBlockList.findAllByChatuser(currentUser(uiterator))
 					def	friendslist = ChatFriendList.findAllByChatuser(currentUser(uiterator))
-					def uList = genUserMenu(friendslist, blocklist, room, uiterator, listType)
-					if (listType == "generic") {
+					def	uList = genUserMenu(friendslist, blocklist, room, uiterator, listType)
+					if (listType=="generic") {
 						finalList.put("users", uList)
-					} else {
+					}else{
 						finalList.put("flatusers", uList)
 					}
-					sendUserList(uiterator, finalList, room)
+					sendUserList(uiterator,finalList,room)
+				}
+			}
+			// Additional work to ensure friends that are in a different room get an updated list
+			// this is done to update friends list which is part of over all user listing
+			def	friendslist = ChatFriendList.findAllByChatuser(currentUser(username))
+			friendslist?.each { ChatFriendList fl->
+				Map<String,Session> friendRecords = chatroomUsers.get(fl.username)
+				def	blocklist = ChatBlockList.findAllByChatuser(currentUser(fl.username))
+				def	otherlist = ChatFriendList.findAllByChatuser(currentUser(fl.username))
+				friendRecords.each {String friendRoom, Session friendSession ->
+					def finalList = [:]
+					def	fList = genUserMenu(otherlist, blocklist, friendRoom, fl.username, listType)
+					if (listType=="generic") {
+						finalList.put("users", fList)
+					}else{
+						finalList.put("flatusers", fList)
+					}
+					sendUserList(fl.username,finalList,friendRoom)
 				}
 			}
 		}
 	}
 
-
 	private ArrayList genUserMenu(ArrayList friendslist, ArrayList blocklist, String room, String uiterator, String listType ) {
 		def uList = []
 		def vList = []
 		chatNames.each { String cuser, Map<String,Session> records ->
+			vList.add(cuser)
 			Session crec = records.find{it.key==room}?.value
 			if (crec && crec.isOpen()) {
 				def myUser = [:]
-				vList.add(cuser)
 				if (room.equals(crec.userProperties.get("room"))) {
 					def av = crec.userProperties.get("av").toString()
 					def rtc = crec.userProperties.get("rtc").toString()

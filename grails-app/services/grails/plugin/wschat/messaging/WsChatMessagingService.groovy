@@ -38,7 +38,6 @@ class WsChatMessagingService extends WsChatConfService {
 		def myMsg = [:]
 		def myMsgj = msg as JSON
 		String urecord = userSession.userProperties.get("username") as String
-		String room = userSession.userProperties.get("room") as String
 		Boolean found = false
 		boolean isEnabled = boldef(config.dbstore_pm_messages)
 		if (isEnabled) {
@@ -46,26 +45,26 @@ class WsChatMessagingService extends WsChatConfService {
 			persistMessage(myMsgj as String,urecord,urecord)
 		}
 		chatNames.each { String cuser, Map<String,Session> records ->
-			Session crec = records.find{it.key==room}?.value
-			if (crec && crec.isOpen()) {
-				if (cuser.equals(user)) {
-					boolean sendIt = checkPM(urecord,user)
-					boolean sendIt2 = checkPM(user,urecord)
-					found = true
-					if (sendIt&&sendIt2) {
-						crec.basicRemote.sendText(myMsgj as String)
-						myMsg.put("message","--> PM sent to ${user}")
-						messageUser(userSession,myMsg)
-					}else{
-						myMsg.put("message","--> PM NOT sent to ${user}, you have been blocked !")
-						messageUser(userSession,myMsg)
+			if (cuser.equals(user)) {
+				records?.eachWithIndex { String room, Session crec, i ->
+					if (crec && crec.isOpen() && i==0) {
+						boolean sendIt = checkPM(urecord,user)
+						boolean sendIt2 = checkPM(user,urecord)
+						found = true
+						if (sendIt&&sendIt2) {
+							crec.basicRemote.sendText(myMsgj as String)
+							myMsg.put("message","Private Message sent to ${user}")
+							messageUser(userSession,myMsg)
+						}else{
+							myMsg.put("message","Private Message NOT sent to ${user}, you have been blocked !")
+							messageUser(userSession,myMsg)
+						}
 					}
 				}
 			}
 		}
 		if (found == false) {
 			verifyOfflinePM(user, myMsgj as String, userSession, urecord)
-
 		}
 	}
 
@@ -152,12 +151,12 @@ class WsChatMessagingService extends WsChatConfService {
 				if (!cm.save(flush:true)) {
 					log.error "verifyOfflinePM issue:  ${cm.errors}"
 				}
-				messageUser(userSession,["message": "--> OFFLINE MSG sent to ${user}"])
+				messageUser(userSession,["message": "Offline message sent to ${user}"])
 			} else{
 				messageUser(userSession,["message": "Error: ${user} not found - unable to send PM"])
 			}
 		}else{
-			messageUser(userSession,["message": "Error: ${user} not found :- unable to send PM"])
+			messageUser(userSession,["message": "Error: offline messaging not enabled. Message not sent"])
 		}
 	}
 
@@ -174,7 +173,7 @@ class WsChatMessagingService extends WsChatConfService {
 	}
 
 	private Boolean boldef(def input) {
-		boolean isEnabled = false
+		boolean isEnabled = true
 		if (input) {
 			if (input instanceof String) {
 				isEnabled = isConfigEnabled(input)

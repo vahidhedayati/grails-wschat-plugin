@@ -42,6 +42,7 @@ class ChatUtils extends WsChatConfService {
 			}
 		}else{
 			if (message.startsWith("DISCO:-")) {
+				wsChatMessagingService.broadcast(userSession,["message": "${username} has left ${room}"])
 				wsChatUserService.removeUser(username)
 				wsChatUserService.sendUsers(userSession,username, room)
 				userSession.close()
@@ -108,6 +109,7 @@ class ChatUtils extends WsChatConfService {
 					Session crec2 = records.find{it.key==rroom}?.value
 					if (!crec2) {
 						if (currentRoom) {
+							wsChatMessagingService.broadcast(userSession,["message": "${username} has left ${room}"])
 							records.remove("${room}")
 							wsChatUserService.sendUsers(userSession,user, room)
 							records << ["${rroom}":userSession]
