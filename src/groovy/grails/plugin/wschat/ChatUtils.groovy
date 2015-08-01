@@ -52,13 +52,12 @@ class ChatUtils extends WsChatConfService {
 			}
 		}else{
 			if (message.startsWith("DISCO:-")) {
-				log.debug "Room: >${room}< | User: >${username}<  "
-				wsChatUserService.removeUser(username)
-				wsChatUserService.sendUsers(userSession,username, room)
 				String sendleave = config.send.leaveroom  ?: 'yes'
 				if (sendleave == 'yes') {
 					wsChatMessagingService.broadcast(userSession,["message": "${username} has left ${room}"])
 				}
+				wsChatUserService.removeUser(username)
+				wsChatUserService.sendUsers(userSession,username, room)
 				userSession.close()
 			}else if (message.startsWith("/pm")) {
 				def values = parseInput("/pm ",message)
