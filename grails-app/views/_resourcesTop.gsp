@@ -14,3 +14,4 @@
 </g:if>
 <script type="text/javascript"	src="${resource(dir: 'js', file: 'jquery-ui-timepicker-addon.js')}"></script>
 <script type="text/javascript"	src="${resource(dir: 'js', file: 'jquery-ui-timepicker-addon-i18n.min.js')}"></script>
+<link rel="stylesheet"	href="${resource(dir: 'css', file: 'ticTacToe.css')}" type="text/css">

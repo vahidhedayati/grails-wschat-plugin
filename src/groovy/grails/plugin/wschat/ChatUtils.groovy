@@ -64,12 +64,6 @@ class ChatUtils extends WsChatConfService {
 				String user = values.user as String
 				String msg = values.msg as String
 				if (!user.equals(username)) {
-
-					/*myMsg.put("msgFrom", username)
-					 myMsg.put("msgTo", user)
-					 myMsg.put("privateMessage", "${msg}")
-					 wsChatMessagingService.privateMessage(user,myMsg,userSession)
-					 */
 					privateMessage(userSession, username,user,msg)
 				}else{
 					myMsg.put("message","Private message self?")
@@ -119,7 +113,6 @@ class ChatUtils extends WsChatConfService {
 				String msg = "${user} has removed you from their Friends List"
 				privateMessage(userSession, user,person,msg)
 			}else if (message.startsWith("/joinRoom")) {
-
 				String sendjoin = config.send.joinroom  ?: 'yes'
 				def values = parseInput("/joinRoom ",message)
 				String user = values.user as String
@@ -166,7 +159,6 @@ class ChatUtils extends WsChatConfService {
 			}else if (message.startsWith("/camenabled")) {
 				def p1 = "/camenabled "
 				def camuser = message.substring(p1.length(),message.length())
-				//addCamUser(userSession,camuser)
 				userSession.userProperties.put("av", "on")
 				myMsg.put("message", "${camuser} has enabled webcam")
 				wsChatMessagingService.broadcast(userSession,myMsg)
@@ -174,16 +166,27 @@ class ChatUtils extends WsChatConfService {
 			}else if (message.startsWith("/camdisabled")) {
 				def p1 = "/camdisabled "
 				def camuser = message.substring(p1.length(),message.length())
-				//addCamUser(userSession,camuser)
 				userSession.userProperties.put("av", "off")
 				myMsg.put("message", "${camuser} has disabled webcam")
 				wsChatMessagingService.broadcast(userSession,myMsg)
 				wsChatUserService.sendUsers(userSession,camuser,room)
-				// Usual chat messages bound for all
+			}else if (message.startsWith("/gameenabled")) {
+				def p1 = "/gameenabled "
+				def camuser = message.substring(p1.length(),message.length())
+				userSession.userProperties.put("game", "on")
+				myMsg.put("message", "${camuser} has enabled TicTacToe")
+				wsChatMessagingService.broadcast(userSession,myMsg)
+				wsChatUserService.sendUsers(userSession,camuser,room)
+			}else if (message.startsWith("/gamedisabled")) {
+				def p1 = "/gamedisabled "
+				def camuser = message.substring(p1.length(),message.length())
+				userSession.userProperties.put("game", "off")
+				myMsg.put("message", "${camuser} has disabled TicTacToe")
+				wsChatMessagingService.broadcast(userSession,myMsg)
+				wsChatUserService.sendUsers(userSession,camuser,room)
 			}else if (message.startsWith("/webrtcenabled")) {
 				def p1 = "/webrtcenabled "
 				def camuser = message.substring(p1.length(),message.length())
-				//addCamUser(userSession,camuser)
 				userSession.userProperties.put("rtc", "on")
 				myMsg.put("message", "${camuser} has enabled WebrRTC")
 				wsChatMessagingService.broadcast(userSession,myMsg)
@@ -191,7 +194,6 @@ class ChatUtils extends WsChatConfService {
 			}else if (message.startsWith("/webrtcdisabled")) {
 				def p1 = "/webrtcdisabled "
 				def camuser = message.substring(p1.length(),message.length())
-				//addCamUser(userSession,camuser)
 				userSession.userProperties.put("rtc", "off")
 				myMsg.put("message", "${camuser} has disabled WebrRTC")
 				wsChatMessagingService.broadcast(userSession,myMsg)
@@ -199,7 +201,6 @@ class ChatUtils extends WsChatConfService {
 			}else if (message.startsWith("/fileenabled")) {
 				def p1 = "/fileenabled "
 				def camuser = message.substring(p1.length(),message.length())
-				//	addCamUser(userSession,camuser)
 				userSession.userProperties.put("file", "on")
 				myMsg.put("message", "${camuser} has enabled fileSharing")
 				wsChatMessagingService.broadcast(userSession,myMsg)
@@ -207,7 +208,6 @@ class ChatUtils extends WsChatConfService {
 			}else if (message.startsWith("/filedisabled")) {
 				def p1 = "/filedisabled "
 				def camuser = message.substring(p1.length(),message.length())
-				//	addCamUser(userSession,camuser)
 				userSession.userProperties.put("file", "off")
 				myMsg.put("message", "${camuser} has disabled fileSharing")
 				wsChatMessagingService.broadcast(userSession,myMsg)
@@ -215,7 +215,6 @@ class ChatUtils extends WsChatConfService {
 			}else if (message.startsWith("/mediaenabled")) {
 				def p1 = "/mediaenabled "
 				def camuser = message.substring(p1.length(),message.length())
-				//	addCamUser(userSession,camuser)
 				userSession.userProperties.put("media", "on")
 				myMsg.put("message", "${camuser} has enabled fileSharing")
 				wsChatMessagingService.broadcast(userSession,myMsg)
@@ -223,7 +222,6 @@ class ChatUtils extends WsChatConfService {
 			}else if (message.startsWith("/mediadisabled")) {
 				def p1 = "/mediadisabled "
 				def camuser = message.substring(p1.length(),message.length())
-				//	addCamUser(userSession,camuser)
 				userSession.userProperties.put("media", "off")
 				myMsg.put("message", "${camuser} has disabled fileSharing")
 				wsChatMessagingService.broadcast(userSession,myMsg)

@@ -1,9 +1,10 @@
+import grails.plugin.wschat.TicTacToeServer
 import grails.plugin.wschat.WsCamEndpoint
 import grails.plugin.wschat.WsChatEndpoint
 import grails.plugin.wschat.WsChatFileEndpoint
 
 class WschatGrailsPlugin {
-    def version = "1.20"
+    def version = "1.21"
     def grailsVersion = "2.0 > *"
     def title = "Websocket Chat Plugin"
     def description = 'Default WebSocket Multi-chat room plugin, supports Admin privilages, kicking banning users. Webcam support for chrome/firefox. WebRTC (audio/video & screen) support 0.24+'
@@ -24,6 +25,9 @@ class WschatGrailsPlugin {
 			}
 			listener {
 				'listener-class'(WsChatFileEndpoint.name)
+			}
+			listener {
+				'listener-class'(TicTacToeServer.name)
 			}
 		}
 	}

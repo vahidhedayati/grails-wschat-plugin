@@ -400,6 +400,27 @@ function delMediaList(uid) {
 		mediaOn.splice(i, 1);
 	}
 }
+function isGameOn(uid) {
+	var camadded="false";
+	var idx = gameOn.indexOf(uid);
+	if (idx != -1) {
+		camadded="true";
+	}
+	return camadded;
+}	
+function delGame(uid) {
+	var i = gameOn.indexOf(uid);
+	if(i != -1) {
+		mediaOn.splice(i, 1);
+	}
+}
+function addGame(uid) {
+	var idx = gameOn.indexOf(uid);
+	if(idx == -1) {
+		mediaOn.push(uid);
+	}	
+}
+
 function isCamOn(uid) {
 	var camadded="false";
 	var idx = camOn.indexOf(uid);
@@ -477,6 +498,25 @@ function sendCam() {
 		$('#myCamContainer').html(data);
 	});
 	webSocket.send("/camenabled "+user);
+}
+
+
+function getGame(user) {
+	$.get("/"+getApp()+"/wsChat/xojoin?user="+user,function(data){
+		$('#camViewContainer').html(data);
+	});
+}
+
+function sendGame() {
+	$.get("/"+getApp()+"/wsChat/xo",function(data){
+		$('#myCamContainer').html(data);
+	});
+	webSocket.send("/gameenabled "+user);
+}
+
+function disableGame() {
+	delGame(user);
+	webSocket.send("/gamedisabled "+user);
 }
 
 function getWebrtc(user,rtcType) {
@@ -591,6 +631,12 @@ function enableCam(camuser, camaction,viewtype){
 			disablertc();
 		} else if (viewtype=="webcam") {
 			disableAV();
+		} else if (viewtype=="fileshare") {
+			disableFile();
+		} else if (viewtype=="mediastream") {
+			disableMedia();	
+		} else if (viewtype=="game") {
+			disableGame();	
 		}
 	}
 }

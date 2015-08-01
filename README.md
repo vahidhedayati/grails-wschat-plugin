@@ -61,7 +61,9 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
     				chromium-browser --allow-http-screen-capture --enable-usermedia-screen-capturing
 
 
-1.20 				Long overdue and popular request - Same user logging in twice in two different rooms					
+1.20 				Long overdue and popular request - Same user logging in twice in two different rooms		
+
+1.21 				Websocket TicTacToe game added			
 ```
 
 
@@ -72,7 +74,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency (Grails 2.X) :
 ```groovy
-        compile ":wschat:1.20"          
+        compile ":wschat:1.21"          
 ```
 
 [codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/tree/grails2)

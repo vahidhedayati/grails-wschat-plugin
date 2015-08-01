@@ -16,7 +16,7 @@ grails.project.dependency.resolution = {
 	dependencies {
 		build ('javax.websocket:javax.websocket-api:1.0') { export = false }
 		//TicTacToe requirements
-		//compile 'org.codehaus.jackson:jackson-core-asl:1.9.8',		'org.codehaus.jackson:jackson-mapper-asl:1.9.8'
+		compile 'org.codehaus.jackson:jackson-core-asl:1.9.13' ,'org.codehaus.jackson:jackson-mapper-asl:1.9.13', { export = false }
 	}
 
 	plugins {

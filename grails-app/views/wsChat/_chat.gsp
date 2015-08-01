@@ -202,6 +202,7 @@
 	var fileOn = new Array();
 	var mediaOn = new Array();
 	var rtcOn = new Array();
+	var gameOn = new Array();
 	var isAdmin="${'false' }";
 	var debug = "${bean.debug}";
 			
@@ -222,7 +223,7 @@
 	if (debug == "on") {
 		console.log('Connecting to '+uri);
 	}
-	
+	console.log('Connecting to '+uri);
 	var webSocket=new WebSocket(uri);
     var chatMessages=document.getElementById("chatMessages");
     var onlineUsers=document.getElementById("onlineUsers");

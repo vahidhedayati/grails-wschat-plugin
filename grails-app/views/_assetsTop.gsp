@@ -14,3 +14,4 @@
 <asset:javascript src="jquery.ui.videobox.js" />
 <asset:javascript src="jquery-ui-timepicker-addon.js" />
 <asset:javascript src="jquery-ui-timepicker-addon-i18n.min.js" />
+<asset:stylesheet href="ticTacToe.css" />
