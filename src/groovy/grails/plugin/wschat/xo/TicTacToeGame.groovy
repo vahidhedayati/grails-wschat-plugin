@@ -52,24 +52,27 @@ public class TicTacToeGame {
 
 	@JsonIgnore
 	public synchronized void move(Player player, int row, int column) {
-		if(player != this.nextMove)
+		if(player != this.nextMove) {
 			throw new IllegalArgumentException("It is not your turn!")
+		}	
 
-		if(row > 2 || column > 2)
+		if(row > 2 || column > 2) {
 			throw new IllegalArgumentException("Row and column must be 0-3.")
+		}	
 
-		if(this.grid[row][column] != null)
-			throw new IllegalArgumentException("Move already made at " + row + ","
-			+ column)
+		if(this.grid[row][column] != null) {
+			throw new IllegalArgumentException("Move already made at " + row + ","+ column)
+		}	
 
 		this.grid[row][column] = player
-		this.nextMove =
-				this.nextMove == Player.PLAYER1 ? Player.PLAYER2 : Player.PLAYER1
+		this.nextMove =	this.nextMove == Player.PLAYER1 ? Player.PLAYER2 : Player.PLAYER1
 		this.winner = this.calculateWinner()
-		if(this.getWinner() != null || this.isDraw())
+		if(this.getWinner() != null || this.isDraw()) {
 			this.over = true
-		if(this.isOver())
+		}	
+		if(this.isOver()) {
 			activeGames.remove(this.id)
+		}	
 	}
 
 	public synchronized void forfeit(Player player){
@@ -81,8 +84,7 @@ public class TicTacToeGame {
 	private Player calculateWinner() {
 		boolean draw = true
 		// horizontal wins
-		for(int i = 0; i < 3; i++)
-		{
+		for(int i = 0; i < 3; i++) {
 			if(this.grid[i][0] == null || this.grid[i][1] == null ||
 			this.grid[i][2] == null)
 				draw = false
@@ -90,25 +92,20 @@ public class TicTacToeGame {
 			this.grid[i][0] == this.grid[i][2])
 				return this.grid[i][0]
 		}
-
 		// vertical wins
-		for(int i = 0; i < 3; i++)
-		{
+		for(int i = 0; i < 3; i++) {
 			if(this.grid[0][i] != null && this.grid[0][i] == this.grid[1][i] &&
 			this.grid[0][i] == this.grid[2][i])
 				return this.grid[0][i]
 		}
-
 		// diagonal wins
-		if(this.grid[0][0] != null && this.grid[0][0] == this.grid[1][1] &&
-		this.grid[0][0] == this.grid[2][2])
+		if(this.grid[0][0] != null && this.grid[0][0] == this.grid[1][1] && this.grid[0][0] == this.grid[2][2]) {
 			return this.grid[0][0]
-		if(this.grid[0][2] != null && this.grid[0][2] == this.grid[1][1] &&
-		this.grid[0][2] == this.grid[2][0])
+		}	
+		if(this.grid[0][2] != null && this.grid[0][2] == this.grid[1][1] && this.grid[0][2] == this.grid[2][0]) {
 			return this.grid[0][2]
-
+		}	
 		this.draw = draw
-
 		return null
 	}
 
@@ -118,7 +115,7 @@ public class TicTacToeGame {
 	}
 
 	public static long queueGame(String user1) {
-		long id = TicTacToeGame.gameIdSequence++
+		long id = gameIdSequence++
 		pendingGames.put(id, user1)
 		return id
 	}
@@ -129,7 +126,7 @@ public class TicTacToeGame {
 
 	public static TicTacToeGame startGame(long queuedId, String user2,String user1) {
 		TicTacToeGame game = new TicTacToeGame(queuedId, user1, user2)
-		TicTacToeGame.activeGames.put(queuedId, game)
+		activeGames.put(queuedId, game)
 		return game
 	}
 

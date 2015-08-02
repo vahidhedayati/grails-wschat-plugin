@@ -502,6 +502,7 @@ function sendCam() {
 
 
 function getGame(user) {
+	console.log('----game gettting '+user);
 	$.get("/"+getApp()+"/wsChat/xojoin?user="+user,function(data){
 		$('#camViewContainer').html(data);
 	});
@@ -533,35 +534,12 @@ function sendWebrtc(rtcType) {
 }
 
 
-/*
-function getWebrtc(user) {
-	$.get("/"+getApp()+"/wsChat/webrtcrec?user="+user,function(data){
-		$('#camViewContainer').html(data);
-	});
-}
-
-function sendWebrtc() {
-	$.get("/"+getApp()+"/wsChat/webrtcsend?user="+user,function(data){
-		$('#myCamContainer').html(data);
-	});
-	webSocket.send("/webrtcenabled "+user);
-}
-*/
 function disablertc() {
 	delCamList(user);
 	webSocket.send("/webrtcdisabled "+user);
-	//WebCam.send("DISCO:-");
-	//WebCam.onclose = function() { }
-	//WebCam.close();
 }
 
 function verifyCamPosition(uid) {
-	/*
-	var idx = camList.indexOf(uid);
-	if(idx == -1) {
-		camList.push(uid);
-	}	
-	 */
 	if (camList.length>1) { 
 		var getNextOffset = function() {
 			return (config.width + config.gap) * camList.length;
@@ -717,5 +695,4 @@ function processError(message) {
 
 function scrollToBottom() {
 	$('#cmessage').scrollTop($('#cmessage')[0].scrollHeight);
-
 }
