@@ -1,7 +1,12 @@
 /*[class^="icon-"],[class*=" icon-"] {
     background-image:url("../img/glyphicons-halflings.png");
 }*/
-
+.modal-dialog {
+  width: 340px;
+}
+.modal-content {
+  width: 333px;
+}
 #gameContainer .row {
     margin: 4px 0 4px 0;
 }
