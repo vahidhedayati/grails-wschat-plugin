@@ -72,7 +72,7 @@
 		</div>
 		<div class="modal-body" id="modalGameOverBody">&nbsp;</div>
 		<div class="modal-footer">
-			<button onclick="playAgain()" class="btn btn-success" data-dismiss="modal">PLAY AGAIN</button>
+			<button onclick="playAgain()" id="playAgain" class="btn btn-success" data-dismiss="modal">PLAY AGAIN</button>
 			<button class="btn btn-primary" data-dismiss="modal">CLOSE</button>
 			
 			
@@ -89,11 +89,16 @@
            if (room == username) {
         	   	$('body').removeClass('modal-open');
       			$('.modal-backdrop').remove();
-        	   	sendGame();
+      			sendGame();
+        	   	webSocket.send("/restartOpponent "+opponentUsername);
+        	   	
            } else {
         	   	$('body').removeClass('modal-open');
        			$('.modal-backdrop').remove();
-        	   	getGame(room);
+       			webSocket.send("/restartGame "+room);
+       			setTimeout(function(){
+    				getGame(room);
+    			}, 700);
            }
        }
        $(document).ready(function() {
@@ -152,6 +157,7 @@
                   modalWaiting.modal('hide');
                   modalErrorBody.text('Code ' + event.code + ': ' +event.reason);
                   modalError.modal('show');
+                  $('#playAgain').hide();
               }
           };
 
@@ -191,6 +197,7 @@
                   toggleTurn(false, 'Your opponent forfeited!');
                   modalGameOverBody.text('User "' + opponentUsername +'" forfeited the game. You win!');
                   modalGameOver.modal('show');
+                  $('#playAgain').hide();
               }
           };
 

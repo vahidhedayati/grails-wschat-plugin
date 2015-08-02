@@ -1,12 +1,10 @@
 function processMessage(message) {
 	
-	
 	var jsonData=JSON.parse(message.data);
 
 	if (debug == "on") {
 		console.log('@onMessage: '+JSON.stringify(message.data));
 	}
-		
 		
 	if (jsonData.message!=null) {
 		$('#chatMessages').append(htmlEncode(jsonData.message)+"\n");
@@ -23,7 +21,21 @@ function processMessage(message) {
 		messageBox.value="";
 		webSocket.close();
 	}
-
+	if (jsonData.game!=null) {
+		if (jsonData.game=="restartGame") {
+			$('body').removeClass('modal-open');
+  			$('.modal-backdrop').remove();
+			sendGame();
+		}
+		if (jsonData.game=="restartOpponent") {
+			$('body').removeClass('modal-open');
+  			$('.modal-backdrop').remove();
+			
+			setTimeout(function(){
+				getGame(room);
+			}, 500);
+		}
+	}	
 	if (jsonData.system!=null) {
 		if (jsonData.system=="disconnect") { 
 			webSocket.send("DISCO:-"+user);
