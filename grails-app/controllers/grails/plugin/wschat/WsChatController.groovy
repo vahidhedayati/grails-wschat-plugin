@@ -147,6 +147,7 @@ class WsChatController extends WsChatConfService {
 
 	def xo(ConnectTagBean bean) {
 		bean.chatuser = session.wschatuser
+		bean.room = bean.chatuser
 		ChatUser cu = wsChatUserService.currentUser(bean.chatuser)
 		String uri="ws://${bean.hostname}${bean.addAppName?'/'+bean.appName:''}/ticTacToe/start/${cu.id}/${bean.chatuser}"
 		[bean:bean, uri:uri]
@@ -155,8 +156,9 @@ class WsChatController extends WsChatConfService {
 	def xojoin(UserBean bean) {
 		bean.chatuser = session.wschatuser
 		ChatUser cu = wsChatUserService.currentUser(bean.user)
+		bean.room = bean.user
 		String uri="ws://${bean.hostname}${bean.addAppName?'/'+bean.appName:''}/ticTacToe/join/${cu.id}/${bean.chatuser}"
-		[bean:bean, uri:uri]
+		render view: 'xo', model: [bean:bean, uri:uri]
 	}
 
 	def camsend(UserBean bean) {

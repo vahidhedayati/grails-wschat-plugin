@@ -73,7 +73,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency (Grails 2.X) :
 ```groovy
-	compile ":wschat:1.21"
+	compile ":wschat:1.22"
 ```
 
 [codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/tree/grails2)
@@ -149,7 +149,7 @@ before running grails run-app
 
 5. [Video: 1.12 Chat room booking/reservations](https://www.youtube.com/watch?v=ZQ86b6zN4aE)
 
-
+6. [Video: 1.22 Multiple login with same Chat user and TicTacToe](https://www.youtube.com/watch?v=aib29xIMkwU)
 
 
 ##### WebtRTC WebCam walk through

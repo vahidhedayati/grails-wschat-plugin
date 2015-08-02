@@ -38,6 +38,21 @@ function processMessage(message) {
 		}
 	}
 
+	if (jsonData.game!=null) {
+		if (jsonData.game=="restartGame") {
+			$('body').removeClass('modal-open');
+  			$('.modal-backdrop').remove();
+			sendGame();
+		}
+		if (jsonData.game=="restartOpponent") {
+			$('body').removeClass('modal-open');
+  			$('.modal-backdrop').remove();
+
+			setTimeout(function(){
+				getGame(room);
+			}, 500);
+		}
+	}
 
 	if (jsonData.users!=null) {
 		$('#onlineUsers').html("");

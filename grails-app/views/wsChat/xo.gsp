@@ -3,68 +3,93 @@
 <head>
 <asset:stylesheet href="twitter-bootstrap.min.css" />
 <asset:stylesheet href="ticTacToe.css" />
-<asset:javascript src="twitter-bootstrap.min.js" />
-<title>${chatTitle}</title>
+<title>
+	${chatTitle}
+</title>
 </head>
 <body>
 	<div class="modal-dialog">
-	<div class="modal-content">
-<span class="player-label">You:</span> ${username}<br />
-   <span class="player-label">Opponent:</span>
-   <span id="opponent"><i>Waiting</i></span>
-   <div id="status">&nbsp;</div>
-   <div id="gameContainer">
-       <div class="row">
-           <div id="r0c0" class="game-cell" onclick="move(0, 0);">&nbsp;</div>
-           <div id="r0c1" class="game-cell" onclick="move(0, 1);">&nbsp;</div>
-           <div id="r0c2" class="game-cell" onclick="move(0, 2);">&nbsp;</div>
-       </div>
-       <div class="row">
-           <div id="r1c0" class="game-cell" onclick="move(1, 0);">&nbsp;</div>
-           <div id="r1c1" class="game-cell" onclick="move(1, 1);">&nbsp;</div>
-           <div id="r1c2" class="game-cell" onclick="move(1, 2);">&nbsp;</div>
-       </div>
-       <div class="row">
-           <div id="r2c0" class="game-cell" onclick="move(2, 0);">&nbsp;</div>
-           <div id="r2c1" class="game-cell" onclick="move(2, 1);">&nbsp;</div>
-           <div id="r2c2" class="game-cell" onclick="move(2, 2);">&nbsp;</div>
-       </div>
-   </div>
+		<div class="modal-content">
+			<span class="player-label">You:</span>
+			${bean.chatuser}<br /> <span class="player-label">Opponent:</span> <span
+				id="opponent"><i>Waiting</i></span>
+			<div id="status">&nbsp;</div>
+			<div id="gameContainer">
+				<div class="row">
+					<div id="r0c0" class="game-cell" onclick="move(0, 0);">&nbsp;</div>
+					<div id="r0c1" class="game-cell" onclick="move(0, 1);">&nbsp;</div>
+					<div id="r0c2" class="game-cell" onclick="move(0, 2);">&nbsp;</div>
+				</div>
+				<div class="row">
+					<div id="r1c0" class="game-cell" onclick="move(1, 0);">&nbsp;</div>
+					<div id="r1c1" class="game-cell" onclick="move(1, 1);">&nbsp;</div>
+					<div id="r1c2" class="game-cell" onclick="move(1, 2);">&nbsp;</div>
+				</div>
+				<div class="row">
+					<div id="r2c0" class="game-cell" onclick="move(2, 0);">&nbsp;</div>
+					<div id="r2c1" class="game-cell" onclick="move(2, 1);">&nbsp;</div>
+					<div id="r2c2" class="game-cell" onclick="move(2, 2);">&nbsp;</div>
+				</div>
+			</div>
 
-   <div id="modalWaiting" class="modal hide fade" role="dialog">
-   
-       <div class="modal-header"><h3>Please Wait...</h3></div>
-       <div class="modal-body" id="modalWaitingBody">&nbsp;</div>
-   </div>
-   
-   <div id="modalError" class="modal hide">
-       <div class="modal-header">
-           <button type="button" class="close" data-dismiss="modal">&times;
-           </button>
-           <h3>Error</h3>
-       </div>
-       <div class="modal-body" id="modalErrorBody">A blah error occurred.
-       </div>
-       <div class="modal-footer">
-           <button class="btn btn-primary" data-dismiss="modal">OK</button>
-       </div>
-   </div>
-   
-   <div id="modalGameOver" class="modal hide fade">
-       <div class="modal-header">
-           <button type="button" class="close" data-dismiss="modal">&times;
-           </button>
-           <h3>Game Over</h3>
-       </div>
-       <div class="modal-body" id="modalGameOverBody">&nbsp;</div>
-       <div class="modal-footer">
-           <button class="btn btn-primary" data-dismiss="modal">OK</button>
-       </div>
-   </div>
-     </div>
-   </div>
-   <script type="text/javascript" language="javascript">
+		</div>
+	</div>
+
+	<div class="modal fade" id="modalWaiting">
+		<div class="modal-header">
+			<h3>Please Wait...</h3>
+		</div>
+		<div class="modal-body" id="modalWaitingBody">&nbsp;</div>
+	</div>
+
+
+	<div id="modalError" class="modal fade">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+			<h3>Error</h3>
+		</div>
+		<div class="modal-body" id="modalErrorBody">Some error occurred.</div>
+		<div class="modal-footer">
+			<button class="btn btn-primary" data-dismiss="modal">OK</button>
+		</div>
+	</div>
+
+	<div id="modalGameOver" class="modal  fade">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;
+			</button>
+			<h3>Game Over</h3>
+		</div>
+		<div class="modal-body" id="modalGameOverBody">&nbsp;</div>
+		<div class="modal-footer">
+			<button onclick="playAgain()" id="playAgain" class="btn btn-success" data-dismiss="modal">PLAY AGAIN</button>
+			<button class="btn btn-primary" data-dismiss="modal">CLOSE</button>
+			
+			
+		</div>
+	</div>
+
+	<script type="text/javascript" language="javascript">
        var move;
+       var opponentUsername;
+       var username = "${bean.chatuser}";
+       var room = "${bean.room}";
+       function playAgain() { 
+           if (room == username) {
+        	   	$('body').removeClass('modal-open');
+      			$('.modal-backdrop').remove();
+      			sendGame();
+        	   	webSocket.send("/restartOpponent "+opponentUsername);
+        	   	
+           } else {
+        	   	$('body').removeClass('modal-open');
+       			$('.modal-backdrop').remove();
+       			webSocket.send("/restartGame "+room);
+       			setTimeout(function(){
+    				getGame(room);
+    			}, 700);
+           }
+       }
        $(document).ready(function() {
           var modalError = $("#modalError");
           var modalErrorBody = $("#modalErrorBody");
@@ -74,23 +99,27 @@
           var modalGameOverBody = $("#modalGameOverBody");
           var opponent = $("#opponent");
           var status = $("#status");
-          var opponentUsername;
-          var username = "${bean.chatuser}";
+          
           var myTurn = false;
-
           $('.game-cell').addClass('span1');
-
-          if(!("WebSocket" in window))
-          {
-              modalErrorBody.text('WebSockets are not supported in this ' +
-                      'browser. Try Internet Explorer 10 or the latest ' +
-                      'versions of Mozilla Firefox or Google Chrome.');
+          $(".modal").css('position','absolute');
+          $(".modal").css('left','-240px');
+          $(".modal").css('height','190px');
+          $(".modal").css('margin-left','auto');
+          $(".modal").css('margin-right','auto');
+          $(".modal-body").css('margin-left','auto');
+          $(".modal-body").css('margin-right','auto');
+          
+          if(!("WebSocket" in window)) {
+              modalErrorBody.text('WebSockets are not supported in this ' + 'browser. Try Internet Explorer 10 or the latest ' + 'versions of Mozilla Firefox or Google Chrome.');
               modalError.modal('show');
               return;
           }
 
+         
           modalWaitingBody.text('Connecting to the server.');
           modalWaiting.modal({ keyboard: false, show: true });
+          
           var server;
           try {
         	  var uri="${uri}";
@@ -115,9 +144,9 @@
               if(!event.wasClean || event.code != 1000) {
                   toggleTurn(false, 'Game over due to error!');
                   modalWaiting.modal('hide');
-                  modalErrorBody.text('Code ' + event.code + ': ' +
-                          event.reason);
+                  modalErrorBody.text('Code ' + event.code + ': ' +event.reason);
                   modalError.modal('show');
+                  $('#playAgain').hide();
               }
           };
 
@@ -130,39 +159,34 @@
           server.onmessage = function(event) {
               var message = JSON.parse(event.data);
               if(message.action == 'gameStarted') {
-                  if(message.game.player1 == username)
+                  if(message.game.player1 == username) {
                       opponentUsername = message.game.player2;
-                  else
+                  } else {
                       opponentUsername = message.game.player1;
+                  }   
                   opponent.text(opponentUsername);
                   toggleTurn(message.game.nextMoveBy == username);
                   modalWaiting.modal('hide');
               } else if(message.action == 'opponentMadeMove') {
-                  $('#r' + message.move.row + 'c' + message.move.column)
-                          .unbind('click')
-                          .removeClass('game-cell-selectable')
-                          .addClass('game-cell-opponent game-cell-taken');
+                  $('#r' + message.move.row + 'c' + message.move.column).unbind('click').removeClass('game-cell-selectable').addClass('game-cell-opponent game-cell-taken');
                   toggleTurn(true);
               } else if(message.action == 'gameOver') {
                   toggleTurn(false, 'Game Over!');
                   if(message.winner) {
                       modalGameOverBody.text('Congratulations, you won!');
                   } else {
-                      modalGameOverBody.text('User "' + opponentUsername +
-                              '" won the game.');
+                      modalGameOverBody.text('User "' + opponentUsername +'" won the game.');
                   }
                   modalGameOver.modal('show');
               } else if(message.action == 'gameIsDraw') {
-                  toggleTurn(false, 'The game is a draw. ' +
-                          'There is no winner.');
-                  modalGameOverBody.text('The game ended in a draw. ' +
-                          'Nobody wins!');
+                  toggleTurn(false, 'The game is a draw. ' + 'There is no winner.');
+                  modalGameOverBody.text('The game ended in a draw. ' + 'Nobody wins!');
                   modalGameOver.modal('show');
               } else if(message.action == 'gameForfeited') {
                   toggleTurn(false, 'Your opponent forfeited!');
-                  modalGameOverBody.text('User "' + opponentUsername +
-                          '" forfeited the game. You win!');
+                  modalGameOverBody.text('User "' + opponentUsername +'" forfeited the game. You win!');
                   modalGameOver.modal('show');
+                  $('#playAgain').hide();
               }
           };
 
@@ -170,12 +194,10 @@
               myTurn = isMyTurn;
               if(myTurn) {
                   status.text(message || 'It\'s your move!');
-                  $('.game-cell:not(.game-cell-taken)')
-                          .addClass('game-cell-selectable');
+                  $('.game-cell:not(.game-cell-taken)').addClass('game-cell-selectable');
               } else {
                   status.text(message ||'Waiting on your opponent to move.');
-                  $('.game-cell-selectable')
-                          .removeClass('game-cell-selectable');
+                  $('.game-cell-selectable').removeClass('game-cell-selectable');
               }
           };
 
@@ -187,9 +209,7 @@
               }
               if(server != null) {
                   server.send(JSON.stringify({ row: row, column: column }));
-                  $('#r' + row + 'c' + column).unbind('click')
-                          .removeClass('game-cell-selectable')
-                          .addClass('game-cell-player game-cell-taken');
+                  $('#r' + row + 'c' + column).unbind('click').removeClass('game-cell-selectable').addClass('game-cell-player game-cell-taken');
                   toggleTurn(false);
               } else {
                   modalErrorBody.text('Not connected to came server.');

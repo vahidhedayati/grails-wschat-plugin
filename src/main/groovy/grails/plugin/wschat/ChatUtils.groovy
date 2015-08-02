@@ -151,6 +151,16 @@ class ChatUtils extends WsChatConfService {
 				myMsg.put("message", "${camuser} has disabled webcam")
 				wsChatMessagingService.broadcast(userSession,myMsg)
 				wsChatUserService.sendUsers(userSession,camuser,room)
+			}else if (message.startsWith("/restartOpponent")) {
+				def p1 = "/restartOpponent "
+				def gameuser = message.substring(p1.length(),message.length())
+				Session currentSession = wsChatUserService.usersSession(gameuser, room)
+				wsChatMessagingService.messageUser(currentSession, ["game":"restartOpponent"])
+			}else if (message.startsWith("/restartGame")) {
+				def p1 = "/restartGame "
+				def gameuser = message.substring(p1.length(),message.length())
+				Session currentSession = wsChatUserService.usersSession(gameuser, room)
+				wsChatMessagingService.messageUser(currentSession, ["game":"restartGame"])
 			}else if (message.startsWith("/gameenabled")) {
 				def p1 = "/gameenabled "
 				def camuser = message.substring(p1.length(),message.length())

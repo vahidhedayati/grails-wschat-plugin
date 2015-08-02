@@ -611,7 +611,7 @@ function enableCam(camuser, camaction,viewtype){
 					}
 				});
 				if (camaction=="view") {
-					webSocket.send("/pm "+camuser+", "+user+"is now viewing your "+viewtype);
+					webSocket.send("/pm "+camuser+", "+user+" is now viewing your "+viewtype);
 				}
 				//else{
 				//	webSocket.send("/pm "+user+", "+user+" you cam is now active");
