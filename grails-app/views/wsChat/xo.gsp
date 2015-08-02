@@ -6,18 +6,14 @@
 	<asset:stylesheet href="ticTacToe.css" />
 </g:if>
 <g:else>
-	<link rel="stylesheet"
-		href="${resource(dir: 'css', file: 'twitter-bootstrap.min.css')}"
-		type="text/css">
-	<link rel="stylesheet"
-		href="${resource(dir: 'css', file: 'ticTacToe.css')}" type="text/css">
+	<link rel="stylesheet" href="${resource(dir: 'css', file: 'twitter-bootstrap.min.css')}" type="text/css">
+	<link rel="stylesheet" href="${resource(dir: 'css', file: 'ticTacToe.css')}" type="text/css">
 </g:else>
 <title>
 	${chatTitle}
 </title>
 </head>
 <body>
-
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<span class="player-label">You:</span>
@@ -78,7 +74,6 @@
 			
 		</div>
 	</div>
-
 
 	<script type="text/javascript" language="javascript">
        var move;
