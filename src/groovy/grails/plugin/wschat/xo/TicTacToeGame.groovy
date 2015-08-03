@@ -1,6 +1,7 @@
 package grails.plugin.wschat.xo
 
-import org.codehaus.jackson.annotate.JsonIgnore
+import grails.plugin.wschat.exceptions.AlreadyPlayedException
+
 
 public class TicTacToeGame {
 
@@ -50,8 +51,7 @@ public class TicTacToeGame {
 		return winner
 	}
 
-	@JsonIgnore
-	public synchronized void move(Player player, int row, int column) {
+	public synchronized void move(Player player, int row, int column) throws Exception {
 		if(player != this.nextMove) {
 			throw new IllegalArgumentException("It is not your turn!")
 		}	
@@ -61,7 +61,8 @@ public class TicTacToeGame {
 		}	
 
 		if(this.grid[row][column] != null) {
-			throw new IllegalArgumentException("Move already made at " + row + ","+ column)
+			//throw new AlreadyPlayedException("Move already made at " + row + ","+ column)
+			throw new AlreadyPlayedException()
 		}	
 
 		this.grid[row][column] = player
@@ -85,18 +86,18 @@ public class TicTacToeGame {
 		boolean draw = true
 		// horizontal wins
 		for(int i = 0; i < 3; i++) {
-			if(this.grid[i][0] == null || this.grid[i][1] == null ||
-			this.grid[i][2] == null)
+			if(this.grid[i][0] == null || this.grid[i][1] == null || this.grid[i][2] == null) {
 				draw = false
-			if(this.grid[i][0] != null && this.grid[i][0] == this.grid[i][1] &&
-			this.grid[i][0] == this.grid[i][2])
+			}	
+			if(this.grid[i][0] != null && this.grid[i][0] == this.grid[i][1] && this.grid[i][0] == this.grid[i][2]) {
 				return this.grid[i][0]
+			}	
 		}
 		// vertical wins
 		for(int i = 0; i < 3; i++) {
-			if(this.grid[0][i] != null && this.grid[0][i] == this.grid[1][i] &&
-			this.grid[0][i] == this.grid[2][i])
+			if(this.grid[0][i] != null && this.grid[0][i] == this.grid[1][i] && this.grid[0][i] == this.grid[2][i]) {
 				return this.grid[0][i]
+			}	
 		}
 		// diagonal wins
 		if(this.grid[0][0] != null && this.grid[0][0] == this.grid[1][1] && this.grid[0][0] == this.grid[2][2]) {
@@ -109,7 +110,7 @@ public class TicTacToeGame {
 		return null
 	}
 
-	@SuppressWarnings("unchecked")
+
 	public static Map<Long, String> getPendingGames() {
 		return (Map<Long, String>)pendingGames.clone()
 	}

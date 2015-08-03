@@ -547,9 +547,11 @@ function verifyCamPosition(uid) {
 	} 		
 }
 
+
 function enableCam(camuser, camaction,viewtype){
 	var goahead=false;
-	var cmuser=camuser+'_webcam'
+	//var cmuser=camuser+'_webcam'
+	var cmuser=camuser+'_'+viewtype
 	if (camaction!="disable") {
 		var camonn=verifyCam(cmuser);
 		if (camonn=="false") {
@@ -562,9 +564,8 @@ function enableCam(camuser, camaction,viewtype){
 	if (goahead==true) { 
 		$(function(event, ui) {
 			var vbox = null;
-			//console.log('no vbox'+camaction+'--'+viewtype+'--'+cmuser);
 			if(vbox) {
-				if (camaction=="disable") {
+				if (camaction=="disable"){
 					vbox.videobox("option", "vidManager").closeBox();
 				}else{
 					vbox.videobox("option", "vidManager").toggleBox();
@@ -630,8 +631,12 @@ function closeChatPMs()  {
 	for	(index = 0; index < idList.length; index++) {
 		$("#"+idList[index]).chatbox("option", "boxManager").toggleBox();
 
-	} 
-	
+	} 	
+}
+function closeVideos()  {
+	for	(index = 0; index < camList.length; index++) {
+		$("#"+camList[index]).videobox("option", "vidManager").toggleBox();
+	} 		
 }
 
 function pmuser(suser,sender) {

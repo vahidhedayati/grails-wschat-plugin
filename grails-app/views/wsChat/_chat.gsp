@@ -19,34 +19,25 @@
 		</g:if>
 
 		<div id="chat_div"></div>
-
 		<div id="userList"></div>
-
 		<div id="camcom"></div>
 		<div id="bannedconfirmation"></div>
-
 		<div id="profileconfirmation"></div>
-
 		<div id="banuser" style="display: none;">
 			<g:render template="/banuser"/>
 		</div>
-
 		<div id="userprofile" style="display: none;">
 			<g:render template="/profile/profile" />
 		</div>
-
 		<div id="userphoto" style="display: none;">
 			<g:render template="/profile/photomb" />
 		</div>
 		<div id="roomcontainer" style="display: none;">
 			<g:render template="/room/room" />
 		</div>
-
 		<div id="admincontainer" style="display: none;">
 			<g:render template="/admin/master"/>
 		</div>
-
-
 		<div id="chatterBox">
 			<div class='row' id="themeChoice">
 
@@ -78,20 +69,13 @@
 					
 					</div>
 				</nav>
-
-				
-	<div class='col-sm-2'>
+				<div class='col-sm-2'>
 					<div id="friendsBlock">
-
-
-
 						<div class="btn btn-warning btn-xs btn-block">
 							<b><g:message code="wschat.friends.label" default="FRIENDS" /></b>
 						</div>
 						<ul class="nav nav-stacked" >
-							<ul class="dropdown-menu" id='friendsList'
-								style="display: inline-block; position: relative; padding:0px; ">
-
+							<ul class="dropdown-menu" id='friendsList' style="display: inline-block; position: relative; padding:0px; ">
 								<span id="friendsList1" />
 							</ul>
 						</ul>
@@ -107,25 +91,18 @@
 							<b><g:message code="wschat.room.users.label" default="ROOM USERS" /></b>
 						</div>
 						<ul class="nav nav-stacked" >
-							<ul class="dropdown-menu" id='onlineUsers'
-								style="display: inline-block; position: relative; padding:0px;">
+							<ul class="dropdown-menu" id='onlineUsers' style="display: inline-block; position: relative; padding:0px;">
 								<span id="onlineUsers1" />
 							</ul>
 						</ul>
-
 						<div class="clearfix"></div>
 					</div>
-
 				</div>
-
-
 				<div class='col-sm-10'>
-
 					<div id="cmessage">
 						<div id="fixyflow">
 							<div id="fixflow">
 								<div id="chatMessages"></div>
-
 							</div>
 						</div>
 					</div>
@@ -138,14 +115,11 @@
 						</div>
 					</div>
 				</div>
-
 			</div>
 		</div>
-
 	</div>
 
-
-	<g:javascript>
+<g:javascript>
 	$( "#roomBlock" ).resizable();
  	$( "#friendsBlock" ).resizable();
  	

@@ -1,5 +1,7 @@
 package grails.plugin.wschat
 
+import grails.converters.JSON
+import grails.plugin.wschat.exceptions.AlreadyPlayedException
 import grails.plugin.wschat.xo.TicTacToeGame
 import grails.util.Environment
 
@@ -16,7 +18,6 @@ import javax.websocket.server.PathParam
 import javax.websocket.server.ServerContainer
 import javax.websocket.server.ServerEndpoint
 
-import org.codehaus.jackson.map.ObjectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -46,7 +47,7 @@ public class TicTacToeServer  implements ServletContextListener {
 	public void contextDestroyed(ServletContextEvent servletContextEvent) {
 	}
 	private static Map<Long, Game> games = new Hashtable<>()
-	private static ObjectMapper mapper = new ObjectMapper()
+
 	
 	@OnOpen
 	public void onOpen(Session session,  @PathParam("action") String action, @PathParam("gameId") long gameId, @PathParam("username") String username) {
@@ -69,7 +70,6 @@ public class TicTacToeServer  implements ServletContextListener {
 				this.sendJsonMessage(game.player1, game,new GameStartedMessage(game.ticTacToeGame))
 				this.sendJsonMessage(game.player2, game,new GameStartedMessage(game.ticTacToeGame))
 			}
-		
 		} catch(IOException e) {
 			e.printStackTrace()
 			try	{
@@ -83,34 +83,26 @@ public class TicTacToeServer  implements ServletContextListener {
 		Game game = TicTacToeServer.games.get(gameId)
 		boolean isPlayer1 = session == game.player1
 		try {
-			Move move = TicTacToeServer.mapper.readValue(message, Move.class)
-			game.ticTacToeGame.move(
-					isPlayer1 ? TicTacToeGame.Player.PLAYER1 :
-							TicTacToeGame.Player.PLAYER2,
-					move.getRow(),
-					move.getColumn()
-			)
+			Move move = new Move(JSON.parse(message))
+			game.ticTacToeGame.move(isPlayer1 ? TicTacToeGame.Player.PLAYER1:TicTacToeGame.Player.PLAYER2, move.row, move.column)
 			this.sendJsonMessage((isPlayer1 ? game.player2 : game.player1), game, new OpponentMadeMoveMessage(move))
 			if(game.ticTacToeGame.isOver()) {
 				if(game.ticTacToeGame.isDraw()) {
-					this.sendJsonMessage(game.player1, game,
-							new GameIsDrawMessage())
-					this.sendJsonMessage(game.player2, game,
-							new GameIsDrawMessage())
+					this.sendJsonMessage(game.player1, game,new GameIsDrawMessage())
+					this.sendJsonMessage(game.player2, game,new GameIsDrawMessage())
 				} else {
-					boolean wasPlayer1 = game.ticTacToeGame.getWinner() ==
-							TicTacToeGame.Player.PLAYER1
-					this.sendJsonMessage(game.player1, game,
-							new GameOverMessage(wasPlayer1))
-					this.sendJsonMessage(game.player2, game,
-							new GameOverMessage(!wasPlayer1))
+					boolean wasPlayer1 = game.ticTacToeGame.getWinner() == TicTacToeGame.Player.PLAYER1
+					this.sendJsonMessage(game.player1, game,new GameOverMessage(wasPlayer1))
+					this.sendJsonMessage(game.player2, game,new GameOverMessage(!wasPlayer1))
 				}
 				game.player1.close()
 				game.player2.close()
 			}
+		} catch(AlreadyPlayedException e) {
+			this.sendJsonMessage((isPlayer1 ? game.player1 : game.player2), game, new AlreadyPlayedMessage())
 		} catch(IOException e) {
 			this.handleException(e, game)
-		}
+		} 
 	}
 
 	@OnClose
@@ -137,7 +129,7 @@ public class TicTacToeServer  implements ServletContextListener {
 
 	private void sendJsonMessage(Session session, Game game, Message message) {
 		try {
-			session.getBasicRemote().sendText(TicTacToeServer.mapper.writeValueAsString(message))
+			session.getBasicRemote().sendText((message as JSON).toString())
 		} catch(IOException e) {
 			this.handleException(e, game)
 		}
@@ -205,6 +197,7 @@ public class TicTacToeServer  implements ServletContextListener {
 		}
 	}
 
+	
 	public static class OpponentMadeMoveMessage extends Message {
 		private final Move move
 
@@ -234,6 +227,12 @@ public class TicTacToeServer  implements ServletContextListener {
 	public static class GameIsDrawMessage extends Message {
 		public GameIsDrawMessage() {
 			super("gameIsDraw")
+		}
+	}
+	
+	public static class AlreadyPlayedMessage extends Message {
+		public AlreadyPlayedMessage() {
+			super("SquarePlayedAlready")
 		}
 	}
 

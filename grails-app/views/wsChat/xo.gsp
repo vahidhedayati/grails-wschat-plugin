@@ -2,13 +2,14 @@
 <html>
 <head>
 <g:if test="${enduser?.verifyAppVersion().equals('assets')}">
-	<asset:stylesheet href="twitter-bootstrap.min.css" />
 	<asset:stylesheet href="ticTacToe.css" />
 </g:if>
 <g:else>
-	<link rel="stylesheet" href="${resource(dir: 'css', file: 'twitter-bootstrap.min.css')}" type="text/css">
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'ticTacToe.css')}" type="text/css">
 </g:else>
+<style>
+
+</style>
 <title>
 	${chatTitle}
 </title>
@@ -46,6 +47,9 @@
 			<h3>Please Wait...</h3>
 		</div>
 		<div class="modal-body" id="modalWaitingBody">&nbsp;</div>
+		<div class="modal-footer">
+			<button onclick="endGame()" id="endGame" class="btn btn-success"  data-dismiss="modal">End Game</button>
+		</div>	
 	</div>
 
 
@@ -69,9 +73,8 @@
 		<div class="modal-body" id="modalGameOverBody">&nbsp;</div>
 		<div class="modal-footer">
 			<button onclick="playAgain()" id="playAgain" class="btn btn-success" data-dismiss="modal">PLAY AGAIN</button>
+			<button onclick="endGame()" id="endGame" class="btn btn-success"  data-dismiss="modal">End Game</button>
 			<button class="btn btn-primary" data-dismiss="modal">CLOSE</button>
-			
-			
 		</div>
 	</div>
 
@@ -80,6 +83,7 @@
        var opponentUsername;
        var username = "${bean.chatuser}";
        var room = "${bean.room}";
+       var server;
        function playAgain() { 
            if (room == username) {
         	   	$('body').removeClass('modal-open');
@@ -96,6 +100,16 @@
     			}, 700);
            }
        }
+       function endGame() { 
+    	   if (room == username) {
+    		   	webSocket.send("/gamedisabled ");
+   		 		$('body').removeClass('modal-open');
+     			$('.modal-backdrop').remove();
+     			///closeVideos();
+     			$('#myCamContainer').hide();
+     			server.close();
+    	   }
+       }
        $(document).ready(function() {
           var modalError = $("#modalError");
           var modalErrorBody = $("#modalErrorBody");
@@ -105,7 +119,6 @@
           var modalGameOverBody = $("#modalGameOverBody");
           var opponent = $("#opponent");
           var status = $("#status");
-          
           var myTurn = false;
           $('.game-cell').addClass('span1');
           $(".modal").css('position','absolute');
@@ -115,7 +128,8 @@
           $(".modal").css('margin-right','auto');
           $(".modal-body").css('margin-left','auto');
           $(".modal-body").css('margin-right','auto');
-          
+          $(".modal-header").css('margin-top','-30px');
+          $(".modal-header").css('height','60px');
           if(!("WebSocket" in window)) {
               modalErrorBody.text('WebSockets are not supported in this ' + 'browser. Try Internet Explorer 10 or the latest ' + 'versions of Mozilla Firefox or Google Chrome.');
               modalError.modal('show');
@@ -126,7 +140,7 @@
           modalWaitingBody.text('Connecting to the server.');
           modalWaiting.modal({ keyboard: false, show: true });
           
-          var server;
+          
           try {
         	  var uri="${uri}";
               server = new WebSocket(uri);
@@ -140,6 +154,7 @@
           server.onopen = function(event) {
         	  modalWaitingBody.text('Waiting on your opponent to join the game.');
               modalWaiting.modal({ keyboard: false, show: true });
+              $('#endGame').show();
           };
 
           window.onbeforeunload = function() {
@@ -152,14 +167,15 @@
                   modalWaiting.modal('hide');
                   modalErrorBody.text('Code ' + event.code + ': ' +event.reason);
                   modalError.modal('show');
-                  $('#playAgain').hide();
               }
+              $('#playAgain').show();
           };
 
           server.onerror = function(event) {
               modalWaiting.modal('hide');
               modalErrorBody.text(event.data);
               modalError.modal('show');
+              $('#playAgain').show();
           };
 
           server.onmessage = function(event) {
@@ -184,15 +200,21 @@
                       modalGameOverBody.text('User "' + opponentUsername +'" won the game.');
                   }
                   modalGameOver.modal('show');
+                  $('#playAgain').show();
               } else if(message.action == 'gameIsDraw') {
                   toggleTurn(false, 'The game is a draw. ' + 'There is no winner.');
                   modalGameOverBody.text('The game ended in a draw. ' + 'Nobody wins!');
                   modalGameOver.modal('show');
+                  $('#playAgain').show();
+              } else if(message.action == 'SquarePlayedAlready') {
+            	  modalErrorBody.text('Square already played, try another one!');
+                  modalError.modal('show');
+                  toggleTurn(true);
               } else if(message.action == 'gameForfeited') {
                   toggleTurn(false, 'Your opponent forfeited!');
                   modalGameOverBody.text('User "' + opponentUsername +'" forfeited the game. You win!');
                   modalGameOver.modal('show');
-                  $('#playAgain').hide();
+                  $('#playAgain').show();
               }
           };
 

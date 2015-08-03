@@ -146,7 +146,7 @@ function WebCamRec() {
 		connection = new WebSocket(wsUrl);
 		// connection was successful
 		connection.onopen = function(event){
-			console.log((new Date())+' Connection successfully established');
+			console.log((new Date())+' Connection successfully established to '+wsUrl);
 		};
 		// connection couldn't be established
 		connection.onerror = function(error){
