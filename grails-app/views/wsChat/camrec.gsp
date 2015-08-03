@@ -18,7 +18,7 @@
 	// create new WebRTC-Object
 	var WebCamRec = new WebCamRec();
 	// connect to websocket server
-	var uri="${bean.camEndpoint}/${bean.user}/"+getUser();
+	var uri="${bean.camEndpoint}${bean.user}/"+getUser();
 	if (debug == "on") {
 		console.log('Connecting to '+uri);
 	}

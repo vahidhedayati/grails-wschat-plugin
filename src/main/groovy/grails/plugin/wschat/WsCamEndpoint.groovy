@@ -84,13 +84,11 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 		String realCamUser = wsCamService.realCamUser(camuser)
 		ByteBuffer buf = ByteBuffer.wrap(imageData)
 		camNames.each { String chuser, Session crec ->
-			if (crec && crec.isOpen()) {
-				if (chuser && chuser.startsWith(realCamUser)) {
-					crec.basicRemote.sendBinary(buf)
-				}
+			String camViewers = crec.userProperties.get("camuser") as String
+			if (camViewers && camViewers.startsWith(realCamUser) && (chuser!=realCamUser) &&  (crec && crec.isOpen())) {
+				crec.basicRemote.sendBinary(buf)
 			}
 		}
-
 	}
 
 	@OnClose
@@ -106,6 +104,4 @@ class WsCamEndpoint extends ChatUtils implements ServletContextListener {
 	public void handleError(Throwable t) {
 		t.printStackTrace()
 	}
-
-
 }

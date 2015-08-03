@@ -570,7 +570,8 @@ function verifyCamPosition(uid) {
 
 function enableCam(camuser, camaction,viewtype){
 	var goahead=false;
-	var cmuser=camuser+'_webcam'
+	//var cmuser=camuser+'_webcam'
+	var cmuser=camuser+'_'+viewtype
 	if (camaction!="disable") {
 		var camonn=verifyCam(cmuser);
 		if (camonn=="false") {
@@ -651,8 +652,12 @@ function closeChatPMs()  {
 	for	(index = 0; index < idList.length; index++) {
 		$("#"+idList[index]).chatbox("option", "boxManager").toggleBox();
 
-	} 
-	
+	}
+}
+function closeVideos()  {
+	for	(index = 0; index < camList.length; index++) {
+		$("#"+camList[index]).videobox("option", "vidManager").toggleBox();
+	}
 }
 
 function pmuser(suser,sender) {
