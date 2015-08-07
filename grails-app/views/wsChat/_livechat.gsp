@@ -66,36 +66,6 @@
 						</button>
 					</div>
 				</nav>
-				<div class='col-sm-2'>
-					<div id="friendsBlock">
-						<div class="btn btn-warning btn-xs btn-block">
-							<b><g:message code="wschat.friends.label" default="FRIENDS" /></b>
-						</div>
-						<ul class="nav nav-stacked" >
-							<ul class="dropdown-menu" id='friendsList' style="display: inline-block; position: relative; padding:0px; ">
-								<span id="friendsList1" />
-							</ul>
-						</ul>
-
-						<div class="clearfix"></div>
-					</div>
-					<div class="clearall"></div>
-
-			
-					<div id="roomBlock">
-						<div class="btn btn-success btn-xs btn-block">
-							<b><g:message code="wschat.room.users.label" default="ROOM USERS" /></b>
-						</div>
-						
-						<ul class="nav nav-stacked">
-							<ul class="dropdown-menu" id='onlineUsers' style="display: inline-block; position: relative; padding:0px;">
-								<span id="onlineUsers1" />
-							</ul>
-						</ul>
-						
-						<div class="clearfix"></div>
-					</div>
-				</div>
 				<div class='col-sm-10'>
 					<div id="cmessage">
 						<div id="fixyflow">
@@ -114,6 +84,36 @@
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
+	<div class='col-sm-2'>
+		<div id="friendsBlock">
+			<div class="btn btn-warning btn-xs btn-block">
+				<b><g:message code="wschat.friends.label" default="FRIENDS" /></b>
+			</div>
+			<ul class="nav nav-stacked" >
+				<ul class="dropdown-menu" id='friendsList' style="display: inline-block; position: relative; padding:0px; ">
+					<span id="friendsList1" />
+				</ul>
+			</ul>
+
+			<div class="clearfix"></div>
+		</div>
+		<div class="clearall"></div>
+
+
+		<div id="roomBlock">
+			<div class="btn btn-success btn-xs btn-block">
+				<b><g:message code="wschat.room.users.label" default="ROOM USERS" /></b>
+			</div>
+			
+			<ul class="nav nav-stacked">
+				<ul class="dropdown-menu" id='onlineUsers' style="display: inline-block; position: relative; padding:0px;">
+					<span id="onlineUsers1" />
+				</ul>
+			</ul>
+			
+			<div class="clearfix"></div>
 		</div>
 	</div>
 <g:javascript>

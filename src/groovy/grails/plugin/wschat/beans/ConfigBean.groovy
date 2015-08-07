@@ -7,6 +7,7 @@ import grails.validation.Validateable
 class ConfigBean {
 
 	//Declare end points
+	static final String chatPoint = 'wsChat'
 	static final String chatEndPoint = 'WsChatEndpoint'
 	static final String camEndPoint = 'WsCamEndpoint'
 	static final String fileEndPoint = 'WsChatFileEndpoint'
@@ -57,6 +58,13 @@ class ConfigBean {
 		return validateBool(addAppName)
 	}
 
+	def getUrl() { 
+		String url="http://${hostname}/${appName}/${chatPoint}/"
+		if (!addAppName) {
+			url="http://${hostname}/${chatPoint}/"
+		}
+		return url
+	}
 	def getUri() {
 		String uri="ws://${hostname}/${appName}/${chatEndPoint}/"
 		if (!addAppName) {

@@ -8,9 +8,9 @@ import javax.websocket.ContainerProvider
 import javax.websocket.Session
 
 public class ChatClientListenerService extends WsChatConfService {
-	
+
 	static transactional  =  false
-	
+
 	def grailsApplication
 	def wsChatRoomService
 	def wsChatUserService
@@ -32,8 +32,7 @@ public class ChatClientListenerService extends WsChatConfService {
 			}
 		}
 	}
-	
-	
+
 	def sendPM(Session userSession, String user,String message) {
 		String username = userSession.userProperties.get("username") as String
 		boolean found
@@ -49,19 +48,21 @@ public class ChatClientListenerService extends WsChatConfService {
 			}
 		}
 	}
+	public void sendDelayedMessage(Session userSession,final String message, int delay) {
+		def asyncProcess = new Thread({
+			sleep(delay)
+			userSession.basicRemote.sendText(message)
+		} as Runnable )
+			asyncProcess.start()
+	}
 
 	public void sendMessage(Session userSession,final String message) {
 		userSession.basicRemote.sendText(message)
 	}
 
 	public connectUserRoom  = {  String user, String room,  Closure closure ->
-
-		//String wshostname = config.hostname ?: 'localhost:8080'
-		//String uri="ws://${wshostname}/${applicationName}${CHATAPP}/"
 		ConfigBean bean = new ConfigBean()
-
 		Session oSession = p_connect( bean.uri, user, room)
-
 		try{
 			closure(oSession)
 		}catch(e){
@@ -73,14 +74,9 @@ public class ChatClientListenerService extends WsChatConfService {
 	}
 
 	public connectRoom  = { String room,  Closure closure ->
-
-		//String wshostname = config.hostname ?: 'localhost:8080'
-		//String uri="ws://${wshostname}/${applicationName}${CHATAPP}/"
 		ConfigBean bean = new ConfigBean()
-		
 		String oUsername = config.app.id ?: "[${(Math.random()*1000).intValue()}]-$room";
 		Session oSession = p_connect( bean.uri, oUsername, room)
-
 		try{
 			closure(oSession)
 		}catch(e){
@@ -100,7 +96,6 @@ public class ChatClientListenerService extends WsChatConfService {
 	}
 
 	Session p_connect(String _uri, String _username, String _room){
-		//WsChatClientEndpoint wsChatClientEndpoint=new WsChatClientEndpoint()
 		String oRoom = _room ?: config.room
 		URI oUri
 		if(_uri){
@@ -121,13 +116,12 @@ public class ChatClientListenerService extends WsChatConfService {
 		oSession.userProperties.put("username", _username)
 		return  oSession
 	}
-
-
+	
 	public Session disconnect(Session _oSession){
 		try{
 			if(_oSession && _oSession.isOpen()){
 				String user = _oSession.userProperties.get("username") as String
-				String room = userSession.userProperties.get("room") as String
+				String room = _oSession.userProperties.get("room") as String
 				if (user) {
 					ConfigBean bean = new ConfigBean()
 					sendMessage(_oSession, DISCONNECTOR)

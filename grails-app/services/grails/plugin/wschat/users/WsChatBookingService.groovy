@@ -2,9 +2,11 @@ package grails.plugin.wschat.users
 
 import grails.plugin.wschat.ChatBooking
 import grails.plugin.wschat.ChatBookingInvites
+import grails.plugin.wschat.ChatCustomerBooking
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.ChatUserProfile
 import grails.plugin.wschat.WsChatConfService
+import grails.plugin.wschat.beans.CustomerChatTagBean
 import groovy.time.TimeCategory
 
 import java.rmi.server.UID
@@ -21,6 +23,25 @@ class WsChatBookingService  extends WsChatConfService {
 	def wsChatRoomService
 
 	static prng = new SecureRandom()
+	
+	@Transactional 
+	def saveCustomerBooking(CustomerChatTagBean bean, String controller, String action) {
+		ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(bean.user)
+		if (!ccb) {
+			ccb = new ChatCustomerBooking()
+		}
+		ccb.username = bean.user
+		ccb.roomName = bean.roomName
+		ccb.controller = controller
+		ccb.action = action
+		ccb.startTime = new Date()
+		ccb.active = true
+		ccb.guestUser = ccb?false:true
+		//if (inputParams) {
+		//	ccb.params = inputParams
+		//}
+		ccb.save(flush:true)
+	}
 	
 	@Transactional
 	public Map verifyJoin(String token,String username)	{
@@ -39,6 +60,7 @@ class WsChatBookingService  extends WsChatConfService {
 		}
 		return [goahead: goahead, room: room, startDate:startDate, endDate:endDate]
 	}
+	
 
 	Boolean isValid(String startDate,String endDate ) {
 		Boolean yesis = false
@@ -68,18 +90,36 @@ class WsChatBookingService  extends WsChatConfService {
 		return yesis
 	}
 
+	public void liveChatRequest(ChatCustomerBooking ccb, String url, String thisUser, String room, String contactEmail, String contactName, String adminUsername) {
+		def now = new Date().format("dd_MM_yyyy_HH_mm")
+		String defaultsubject = "You have a live chat ${now} "
+		String defaultbody = """Dear ${contactName},
+			A live chat request has been made ${now}
+			----------------------------------------------------------------------------
+			${ccb?.name} 
+			Controller: ${ccb?.controller}
+			Action: ${ccb?.action}
+
+			They are logged into ${room} with the id of ${thisUser} .
+			----------------------------------------------------------------------------
+
+			Please can you go to:
+ 
+			${url}joinLiveChat?roomName=${room}&username=${adminUsername}
+
+
+			Where the user is waiting for your help 
+		"""
+		String body  = 	config?.liveChatBody ?: defaultbody
+		String subject = config?.liveChatSubject ?: defaultsubject
+		SendMail(contactEmail,'',subject,body)
+	}
+	
 	@Transactional
 	public Map addBooking(ArrayList invites, String conference, String startDate, String endDate) {
-
-		def curr = new Date()
+		def current = new Date().format("dd_MM_yyyy_HH_mm")
 		def dFormat = "dd/MM/yyyy HH:mm"
-		def cFormat = "dd_MM_yyyy_HH_mm"
-
 		SimpleDateFormat df = new SimpleDateFormat(dFormat)
-		SimpleDateFormat cf = new SimpleDateFormat(cFormat)
-
-		def current = cf.format(curr)
-
 		conference = conference+"_"+current
 		def dateTime = df.parse(startDate)
 		def endDateTime = df.parse(endDate)
@@ -149,7 +189,9 @@ Please join chat on [CHATURL]
 				else {
 					to email
 				}
-
+				if (config.emailFrom) {
+					from "${config.emailFrom}"
+				}
 				if (ccrecipients) {
 					cc ccrecipients
 				}

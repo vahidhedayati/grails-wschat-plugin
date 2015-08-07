@@ -3,6 +3,7 @@ package grails.plugin.wschat
 import grails.plugin.wschat.beans.AutoCompleteBean
 import grails.plugin.wschat.beans.ClientTagBean
 import grails.plugin.wschat.beans.ConnectTagBean
+import grails.plugin.wschat.beans.CustomerChatTagBean
 import grails.plugin.wschat.beans.InitiationBean
 import grails.plugin.wschat.beans.WsConnectTagBean
 import grails.plugin.wschat.client.WsChatClientEndpoint
@@ -18,7 +19,8 @@ class WsChatTagLib extends WsChatConfService {
 	def wsChatRoomService
 	def wsChatProfileService
 	def pluginbuddyService
-	
+	def randomService
+	def wsChatBookingService
 	
 	def includeAllStyle = { attrs->
 		def bean = new InitiationBean(attrs)
@@ -65,8 +67,6 @@ class WsChatTagLib extends WsChatConfService {
 		if (!bean.room) {
 			bean.room = wsChatRoomService.returnRoom(true)
 		}
-		
-
 		String uri = "${bean.uri}${bean.room}"
 		WsChatClientEndpoint clientEndPoint = wsChatClientService.conn(uri, bean.user)
 		if (bean.receivers) {
@@ -137,6 +137,43 @@ class WsChatTagLib extends WsChatConfService {
 		}
 	}
 
+	def customerChatButton= { attrs->
+		attrs << [controller:controllerName, action: actionName, params: params ]
+		Map model = [attrs:attrs]
+		out << g.render(contextPath: pluginContextPath,template: 'customerChat/chatButton', model:model)
+	}
+	
+	def customerChat = { attrs ->
+		attrs << [controller:controllerName, action: actionName, params: params ]
+		CustomerChatTagBean bean = new CustomerChatTagBean(attrs)
+		if (!bean.roomName) {
+			bean.roomName = randomService.shortRand(controllerName+actionName)
+			//bean.roomName = 'fred'
+		}
+		// if a username has not been provided so far -
+		// set the username to be Guest{SessionID}
+		// this now means if the user is using same session and is on another page
+		// chat system will recognise them
+		if (!bean.user) {
+			bean.guestUser = true
+			bean.user = 'Guest'+session.id
+		} else {
+			bean.guestUser = false
+		}
+		String uri = "${bean.uri}${bean.roomName}"
+		
+		wsChatBookingService.saveCustomerBooking(bean, controllerName, actionName)
+		Map model = [bean:bean, uri:uri]
+		if (bean.template) {
+			out << g.render(template:bean.template, model:model)
+		}else{
+			out << g.render(contextPath: pluginContextPath, template:"/customerChat/chatPage", model: model)
+		}
+		bean.message="Welcome, this is an automated message, attempting to retrieve a member of staff for you. Please wait"
+		Session oSession = chatClientListenerService.p_connect(bean.uri, bean.user+"_"+bean.assistant, bean.roomName)
+		chatClientListenerService.sendDelayedMessage(oSession, bean.message,1000)
+	}
+	
 	def complete = {attrs ->
 		AutoCompleteBean bean = new AutoCompleteBean(attrs)
 		if (!bean.validate()) {

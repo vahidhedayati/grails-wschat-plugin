@@ -122,8 +122,7 @@ class WsChatConfService implements UserMaps{
 		return config.frontenduser ?: '_frontend'
 	}
 
-	def getConfig() {
-		grailsApplication?.config?.wschat ?: ''
+	public ConfigObject getConfig() {
+		return grailsApplication.config.wschat ?: ''
 	}
-
 }

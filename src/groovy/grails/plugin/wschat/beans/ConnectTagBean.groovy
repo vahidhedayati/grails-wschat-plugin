@@ -11,7 +11,6 @@ class ConnectTagBean extends InitiationBean {
 	def updateProfile = false
 	def profile
 
-
 	Boolean getUpdateProfile() {
 		return validateBool(updateProfile)
 	}
@@ -28,6 +27,5 @@ class ConnectTagBean extends InitiationBean {
 		wschatjs(nullable:true)
 		usermenujs(nullable:true)
 		profile(nullable:true)
-
 	}
 }
