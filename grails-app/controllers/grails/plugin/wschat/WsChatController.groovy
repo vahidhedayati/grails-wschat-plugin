@@ -7,6 +7,8 @@ import grails.plugin.wschat.beans.LoginBean
 import grails.plugin.wschat.beans.RoomBean
 import grails.plugin.wschat.beans.SearchBean
 import grails.plugin.wschat.beans.UserBean
+import grails.plugin.wschat.beans.CustomerChatTagBean
+import grails.plugin.wschat.beans.LiveChatBean
 
 import java.util.Map
 
@@ -273,7 +275,46 @@ class WsChatController extends WsChatConfService {
 			render "Added: ${results.conference} : Returned Booking ID: ${results.confirmation}"
 			return
 		}
-		render ''
+		render 'Not Authorized'
+	}
+
+	/* liveChat */
+	def loadChat(String user, String controller, String action) {
+		CustomerChatTagBean bean = new CustomerChatTagBean()
+		if (user) {
+			bean.user = user
+		}
+		bean.controller = controller
+		bean.action = action
+		render  view: '/customerChat/chatPage', model: [bean:bean]
+	}
+
+	def joinLiveChat(String roomName,String username) {
+		boolean goahead = false
+		if (config.liveChatUsername && config.liveChatUsername==username) {
+			goahead = true
+		} else {
+			def cu = ChatUser.findByUsername(username)
+			if (cu) {
+				goahead = true
+			}
+		}
+		if (goahead) {
+			session.wschatuser = username
+			session.wschatroom = roomName
+			session.livechat = true
+			redirect(controller: "wsChat", action: "liveChat")
+			return
+		}
+		render 'Not Authorized'
+	}
+
+	def liveChat(LiveChatBean bean) {
+		bean.addLayouts=true
+		bean.chatuser = session.wschatuser
+		bean.livechat = session.livechat
+		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(true)
+		render view: 'livechat', model: [bean:bean]
 	}
 
 	def addaRoom() {

@@ -1,0 +1,79 @@
+#cmessage{
+	float: right;
+	width: 100%;
+	min-height: 25em;
+	height: 25em;
+	text-align: left;
+	font-family: monospace;
+	position: relative;
+	display: block;
+	overflow: auto;
+	margin-top: 2px;
+	white-space: pre-line;
+	border-style: solid;
+	border-width: thin;
+	border-color: #AAA;
+	font-size: 1em;
+	word-wrap: break-word;
+	resize:both;
+}
+#chatterBox {
+	left: auto;
+	right: auto;
+}
+.nickname {
+    color: #f00;
+    font-weight: bold;
+}
+.msg {
+    color: #444;
+    font-weight: normal;
+}
+
+.inline-right {
+	display:inline-block;
+	*display:inline;
+	*zoom:1;
+	float:right;
+	
+}
+.inline-left {
+	display:inline-block;
+	*display:inline;
+	*zoom:1;
+	float:left;
+	
+}
+#sendBtn { 
+	display:inline-block;
+	*display:inline;
+	*zoom:1;
+	float:right;
+	
+	padding:8px 13px; 
+	font-family:'Helvetica Neue',sans-serif; 
+	font-size:17px; 
+	border-radius:4px; 
+	-moz-border-radius:4px; 
+	-webkit-border-radius:4px;
+	 border:1px solid #1A87B9 
+} 
+#sendMessage  textarea {
+	height: 3em;
+	width: 91%;
+}
+#sendMessage #sendBtn {
+	position: absolute;
+}
+#sendMessage  textarea {
+	height: 3em;
+	width: 80%;
+	color:#000; 
+}
+.ui-widget-header, .ui-state-default, ui-button {
+	background: #b9cd6d;
+	border: 1px solid #b9cd6d;
+	color: #FFFFFF;
+	font-weight: bold;
+}
+

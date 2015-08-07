@@ -62,7 +62,9 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 1.20 / 3.0.3 		Multiple login with same user but must be different rooms - removal of dbSupport check
 
-1.21 / 3.0.3 		Websocket TicTacToe game added
+1.21 / 3.0.3 		Websocket TicTacToe game added (Watch video 6)
+
+1.23 / 3.0.3 		Live Chat feature added as part of the plugin(watch video 7)
 ```
 
 
@@ -73,7 +75,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency (Grails 2.X) :
 ```groovy
-	compile ":wschat:1.22-SNAPSHOT1"
+	compile ":wschat:1.23"
 ```
 
 [codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/tree/grails2)
@@ -151,6 +153,7 @@ before running grails run-app
 
 6. [Video: 1.22 Multiple login with same Chat user and TicTacToe](https://www.youtube.com/watch?v=aib29xIMkwU)
 
+7. [Video 1.23 Add Live chat to your grails application](https://www.youtube.com/watch?v=VrvJNPQ-K7M)
 
 ##### WebtRTC WebCam walk through
 [WebtRTC WebCam walk through](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebtRTC-WebCam-walk-through)
@@ -234,6 +237,30 @@ It will work when this is enabled in your Config.groovy
 ```
 wschat.offline_pm=true
 ```
+
+
+#### 1.24 Live chat:
+```gsp
+<chat:customerChatButton user="${session.user}"/>
+<!-- OR -->
+<chat:customerChatButton />
+
+```
+If  user is not defined it will default their username to be Guest{sessionID} so their username will default to something like: GuestH5d4F9SDF943JGFHSD9DS
+
+Config
+```groovy
+wschat.liveChatAssistant='assistant' // the chat client assistant name.. so if userx requests chat .. userx_assistant = this what this is .
+wschat.liveChatPerm='admin'  // this is the group of users that livechat belongs to and if those uses have an email address in profile they will also be emailed
+wschat.liveContactEmail='youremail@gmail.com' // this is the hard coded live chat email
+wschat.liveChatUsername='masterv'  // this is the nickname upon them joining a live request
+wschat.liveContactName='Mr V'  // this is the person that email title is set to
+wschat.emailFrom="me@domain.com"  //this is for sending emails
+```
+
+With this all set - upon someone clicking live chat on the page with that taglib call an email is sent, follow the email link to join that user in the chat room to help them. Watch part 7 of the videos above to understand better.
+
+
 
 
 ### Known issues/work arounds:
