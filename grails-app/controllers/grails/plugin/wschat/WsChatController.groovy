@@ -277,16 +277,21 @@ class WsChatController extends WsChatConfService {
 		}
 		render 'Not Authorized'
 	}
-
-	/* liveChat */
-	def loadChat(String user, String controller, String action) {
+/* liveChat */
+	def loadChat(String user, String controller, String action,String roomName) {
 		CustomerChatTagBean bean = new CustomerChatTagBean()
 		if (user) {
 			bean.user = user
+			bean.guestUser = false
+		} else {
+			bean.guestUser = true
+			bean.user = 'Guest'+session.id
 		}
 		bean.controller = controller
 		bean.action = action
-		render  view: '/customerChat/chatPage', model: [bean:bean]
+		bean.roomName = roomName
+		wsChatBookingService.saveCustomerBooking(bean)
+		render view: '/customerChat/chatPage', model: [bean:bean]
 	}
 
 	def joinLiveChat(String roomName,String username) {
@@ -314,7 +319,43 @@ class WsChatController extends WsChatConfService {
 		bean.chatuser = session.wschatuser
 		bean.livechat = session.livechat
 		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(true)
-		render view: 'livechat', model: [bean:bean]
+		render view: '/customerChat/livechat', model: [bean:bean]
+	}
+
+	def viewLiveChats(CustomerChatTagBean bean) {
+		if (isAdmin) {
+			bean.uList = ChatCustomerBooking.list()
+			Map model = [bean:bean]
+			if (request.xhr) {
+				render (template: '/customerChat/viewUsers', model: model)
+			}
+			else {
+				render (view: '/customerChat/viewUsers', model: model)
+			}
+			return
+		}
+		render 'Not Authorized'
+	}
+
+	def viewLiveLogs(String username) {
+		def livelogs = wsChatBookingService.findLiveLogs(username)
+		render view: '/customerChat/viewLiveLogs', model: [livelogs:livelogs]
+	}
+
+	/* end live chat */
+
+	def viewLogs(String username) {
+		def chatlogs = wsChatUserService.findLogs(username)
+		render view: '/admin/viewLogs', model: [chatlogs:chatlogs]
+	}
+
+	def searchLiveChat(String mq) {
+		if (isAdmin) {
+			Map ss = wsChatUserService.search(mq)
+			render (template: '/admin/userList', model: [bean:[userList:ss.userList, uList:ss.uList]])
+			return
+		}
+		render ''
 	}
 
 	def addaRoom() {

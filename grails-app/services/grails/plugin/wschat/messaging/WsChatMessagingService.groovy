@@ -6,6 +6,7 @@ import grails.plugin.wschat.ChatMessage
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.OffLineMessage
 import grails.plugin.wschat.WsChatConfService
+import grails.plugin.wschat.ChatCustomerBooking
 import grails.transaction.Transactional
 
 import javax.websocket.Session

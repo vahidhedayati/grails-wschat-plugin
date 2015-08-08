@@ -9,6 +9,11 @@ import grails.plugin.wschat.ChatUserProfile
 import javax.websocket.Session
 import grails.plugin.wschat.beans.ConfigBean
 import grails.transaction.Transactional
+import grails.plugin.wschat.ChatAI
+import grails.plugin.wschat.ChatCustomerBooking
+import grails.plugin.wschat.ChatMessage
+
+import javax.websocket.Session
 
 /*
  * Vahid Hedayati
@@ -73,30 +78,27 @@ public class WsClientProcessService extends WsChatConfService {
 	def chatClientListenerService
 	def wsChatUserService
 	def wsChatBookingService
+	def wsChatMessagingService
 
+	// DO NOT Disconnect automatically - required for live chat!
+	static boolean disco = false
 
 	// CLIENT SERVER CHAT VIA ChatClientListenerService method aka
 	// This is server processing of taglib call:
 	// <chat:clientWsConnect gsp
 	// A demo and for you to change to what you want your backend to do
 	// I have commented out a disco = false
-	static boolean disco = false
 	@Transactional
 	public void processResponse(Session userSession, String message) {
 		String username = userSession.userProperties.get("username") as String
 		//String room = userSession.userProperties.get("room") as String
 		log.debug "DEBUG ${username}: $message"
 
-		// Disconnect automatically
-		// set to false (commented out) in this example when a command is receieved
-
 		String assistant = config.liveChatAssistant ?: 'assistant'
 		JSONObject rmesg=JSON.parse(message)
-
 		String actionthis=''
 		String msgFrom = rmesg.msgFrom
 		boolean pm = false
-
 		String disconnect = rmesg.system
 		if (rmesg.privateMessage) {
 			JSONObject rmesg2=JSON.parse(rmesg.privateMessage)
@@ -111,7 +113,6 @@ public class WsClientProcessService extends WsChatConfService {
 					context = args.context
 					data = args.data
 				}
-
 				def jsonData = (data as JSON).toString()
 				log.debug "${event} ${context} ${jsonData}"
 				log.debug "${strictMode} ${masterNode} ${autodisco} ${frontenduser}"
@@ -174,6 +175,10 @@ public class WsClientProcessService extends WsChatConfService {
 
 		if (actionthis == 'close_connection') {
 			chatClientListenerService.disconnect(userSession)
+		} else if (actionthis == 'deactive_me') {
+			ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(msgFrom)
+			ccb.active=false
+			ccb.save(flush:true)
 		} else if (actionthis == 'close_my_connection') {
 			if (pm) {
 				chatClientListenerService.sendPM(userSession, msgFrom,"close_connection")
@@ -184,7 +189,7 @@ public class WsClientProcessService extends WsChatConfService {
 			}else{
 				chatClientListenerService.sendMessage(userSession, ">>HAVE DONE \n"+actionthis)
 			}
-		}  else if (actionthis =~ /Welcome/) {
+		}  else if (actionthis =~ /Welcome/ && (msgFrom == username)) {
 			currentSession = returnSession(thisUser)
 			this.disco = false
 			if (thisUser.endsWith('_'+assistant)) {
@@ -216,13 +221,18 @@ public class WsClientProcessService extends WsChatConfService {
 					e.printStackTrace()
 				}
 
-				if (!ccb.name) {  //if (ccb.username == thisUser) {
+				if (!ccb.name && !ccb.guestUser) {  //if (ccb.username == thisUser) {
 					chatClientListenerService.sendMessage(userSession, "Hi new user, what is your name ?")
 					if (currentSession) {
 						currentSession.userProperties.put("nameRequired", true)
 					}
 				} else {
-					chatClientListenerService.sendMessage(userSession, "Greetings ${ccb.name}! you appear to have used this whilst on this site")
+					boolean doAi = wsChatMessagingService.boldef(config.enable_AI)
+					String additional = ', please wait'
+					if (doAi) {
+						additional = '. Feel free to ask a question and maybe the bot can help whilst you are waiting'
+					}
+					chatClientListenerService.sendMessage(userSession, "Greetings ${ccb.name}! you appear to be an existing user ${additional}")
 				}
 				ccb.active=true
 				ccb.save(flush:true)
@@ -243,9 +253,8 @@ public class WsClientProcessService extends WsChatConfService {
 					ccb.save(flush:true)
 					chatClientListenerService.sendMessage(userSession, "Thanks ${name}, just incase we get cut off what is your email?")
 					currentSession.userProperties.put("emailedRequired", true)
-				}
-				//verify users email input
-				if (emailedRequired && currentSession && actionthis && !nameRequired ) {
+					//verify users email input //&& !nameRequired
+				} else 	if (emailedRequired && currentSession && actionthis ) {
 					String email = actionthis
 					ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(thisUser)
 					ccb.emailAddress=email
@@ -257,13 +266,84 @@ public class WsClientProcessService extends WsChatConfService {
 						ccb.save(flush:true)
 						chatClientListenerService.sendMessage(userSession, "Thanks ${ccb.name}, I have ${email} as your email now")
 					}
+				} else {
+					checkArtificialIntelligence(userSession,actionthis, thisUser, msgFrom)
 				}
 			}
-			// DISCONNECTING HERE OTHERWISE WE WILL GET A LOOP OF REPEATED MESSAGES
+			// DISCONNECTING HERE OTHERWISE WE WILL GET A LOOP OF REPEATED MESSAGES {unsure of its accuracy now after all new changes}
 			if (disco) {
 				chatClientListenerService.disconnect(userSession)
 			}
 		}
+	}
+
+
+	// Stephen Hawking is doing 10 min disapproving head shake https://www.youtube.com/watch?v=-U3R-g4pfNk
+	private void checkArtificialIntelligence(Session userSession, String actionthis, String thisUser,String messageFrom) {
+		//record logs
+		boolean isEnabled = boldef(config.store_live_messages)
+		if (isEnabled) {
+			messageFrom = (messageFrom == thisUser)?'': messageFrom
+			persistLiveMessage(actionthis,thisUser,messageFrom)
+		}
+		boolean doAi = boldef(config.enable_AI)
+		if (doAi) {
+			String output
+			//straight up look match for match
+			def ai = ChatAI.findByInput(actionthis)
+			if (ai) {
+				output = ai.output
+			}
+			//ok lets try a pattern match of input from user
+			if (!ai) {
+				ai = ChatAI.findByInputLike("%${actionthis}%")
+				if (ai) {
+					output = ai.output
+				}
+			}
+			//no ok
+			if (!ai) {
+				//look up sentence in ChatAI if matching two word split at a time respond with output
+				def words = actionthis.split(" ")
+				for (int i=0; i < words.size(); i++) {
+					if (i==0 && words.size()>1) {
+						ai = ChatAI.findByInput("${words[i]} ${words[i+1]}")
+					} else {
+						ai = ChatAI.findByInput("${words[i-1]} ${words[i]}")
+					}
+					if (ai) {
+						output = ai.output
+					}
+				}
+			}
+			if (output) {
+				chatClientListenerService.sendMessage(userSession, output)
+			}
+		}
+	}
+	@Transactional
+	void persistLiveMessage(String message, String user, String username=null) {
+		boolean isEnabled = boldef(config.dbstore)
+		if (isEnabled) {
+			def chat = ChatCustomerBooking.findByUsername(user)
+			def cm = new ChatMessage(user: username, contents: message, log: chat?.log)
+			if (!cm.save(flush:true)) {
+				log.error "Persist Message issue: ${cm.errors}"
+			}
+		}
+	}
+
+
+	private Boolean boldef(def input) {
+		boolean isEnabled = true
+		if (input) {
+			if (input instanceof String) {
+				isEnabled = isConfigEnabled(input)
+			}else{
+				isEnabled = input
+			}
+		}
+		return isEnabled
 	}
 
 	private String returnRoom(String thisUser) {

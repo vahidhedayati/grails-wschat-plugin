@@ -133,7 +133,8 @@ class WsChatTagLib extends WsChatConfService {
 
 	def customerChatButton= { attrs->
 		attrs << [controller:controllerName, action: actionName, params: params ]
-		Map model = [attrs:attrs]
+		CustomerChatTagBean bean = new CustomerChatTagBean(attrs)
+		Map model = [bean:bean]
 		out << g.render(contextPath: pluginContextPath,template: '/customerChat/chatButton', model:model)
 	}
 
@@ -156,7 +157,7 @@ class WsChatTagLib extends WsChatConfService {
 		}
 		String uri = "${bean.uri}${bean.roomName}"
 
-		wsChatBookingService.saveCustomerBooking(bean, controllerName, actionName)
+		wsChatBookingService.saveCustomerBooking(bean)
 		Map model = [bean:bean, uri:uri]
 		if (bean.template) {
 			out << g.render(template:bean.template, model:model)

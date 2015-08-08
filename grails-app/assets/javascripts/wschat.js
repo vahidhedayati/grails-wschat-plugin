@@ -212,6 +212,32 @@ function createConference(user) {
 	}
 }
 
+function viewLiveChats(user) {
+	if (isAdmin=="true") {
+		$.get("/wsChat/viewLiveChats",function(data){
+			$('#adminsContainer').hide().html(data).fadeIn('slow');
+		});
+		$('#admincontainer').show();
+	}
+}
+function viewLiveLogs(user) {
+	if (isAdmin=="true") {
+		$.get("/wsChat/viewLiveLogs?username="+user,function(data){
+			$('#logContainer').hide().html(data).fadeIn('slow');
+		});
+		$('#liveChatLogcontainer').show();
+	}
+}
+
+function viewLogs(user) {
+	if (isAdmin=="true") {
+		$.get("/wsChat/viewLogs?username="+user,function(data){
+			$('#logContainer').hide().html(data).fadeIn('slow');
+		});
+		$('#liveChatLogcontainer').show();
+	}
+}
+
 function createEmail(user,newuser) {
 	if (isAdmin=="true") {
 		$.get("/wsChat/addEmail?username="+newuser,function(data){

@@ -23,12 +23,11 @@ class AutoCompleteBean extends ConfigBean implements Validateable {
 	
 	String userTemplate=getConfig('autocomplete')
 	
-	Boolean getRequire() {
-		return validateBool(require)
-	}
-	Boolean getRequired() {
-		return validateBool(required)
-	}
+
+	//Boolean getRequired() {
+	//	return validateBool(required)
+	//}
+
 	String getName() { 
 		if (!name) {
 			name=id

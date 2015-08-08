@@ -43,6 +43,12 @@ onclick="javascript:delaRoom('+wrapIt(user)+');" title="Remove a Room"></a>
 				<g:message code="wschat.create.conference.default" default="Create Conference"/>
 				</a>
 			</li>
+			<li>
+            	<a data-toggle="modal" href="#admincontainer1"
+            	onclick="javascript:viewLiveChats('+wrapIt(user)+');" >
+            	<g:message code="wschat.view.liveChats.default" default="View Live Chat Requests"/>
+            	</a>
+            </li>
 		</ul>
 	</li>
 </ul>

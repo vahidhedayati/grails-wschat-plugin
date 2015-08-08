@@ -1,10 +1,5 @@
-<html>
-<head>
 <g:render template="/assets" model="${[bean:bean]}"/>
 <g:render template="/assetsTop" model="${[bean:bean]}"/>
-
-</head>
-<body>
 <title>
 	${bean.chatTitle }
 </title>
@@ -242,5 +237,3 @@
      }
 </g:javascript>
 
-</body>
-</html>
