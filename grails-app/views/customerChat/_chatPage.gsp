@@ -1,13 +1,24 @@
-<div id="chatDialog" title="Customer Chat">
+ <g:if test="${enduser?.verifyAppVersion().equals('assets')}">
+<asset:javascript src="jquery.min.js" />
+<asset:javascript src="jquery-ui.min.js" />
+<asset:stylesheet src="jquery-ui.min.css" />
+<asset:stylesheet href="customer-chat.css" id="chat_theme" />
+<asset:javascript src="wschat.js" />
+</g:if>
+<g:else>
+<script type="text/javascript"	src="${resource(dir: 'js', file: 'jquery.min.js')}"></script>
+<script type="text/javascript"	src="${resource(dir: 'js', file: 'jquery-ui.min.js')}"></script>
+<link rel="stylesheet"	href="${resource(dir: 'css', file: 'jquery-ui.min.css')}" type="text/css" media="screen" />
+<link rel="stylesheet"	href="${resource(dir: 'css', file: 'customer-chat.css')}" type="text/css" media="screen" />
+<script type="text/javascript" src="${resource(dir: 'js', file: 'wschat.js')}"></script>
+</g:else>	
+
+<div id="chatDialog" title="${bean.liveChatTitle}">
 	<div id="chat_div"></div>
 	<div class='col-sm-10'>
 		<div id="cmessage">
-			<div id="fixyflow">
-				<div id="fixflow">
-				<div id="chatMessages"></div>
-			</div>
+			<div id="chatMessages"></div>
 		</div>
-	</div>
 	<div class="message-thread">
 		<div id="sendMessage">
 			<textarea id="messageBox" name="message"></textarea>
@@ -32,11 +43,12 @@
                 at: "left center"
             },
              close: function(ev, ui) {
+             	webSocket.send("deactive_me");
              	webSocket.send("close_connection");
              	$(this).dialog("close");
              	$('#chatReturn').hide();
-             	$(this).dialog("close");
              	$(this).dialog("destroy");
+             	$(this).hide();
              }
          });
     });
@@ -46,7 +58,6 @@
 		return baseapp;
 	}
  	
-	
 	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
 		$("#pageHeader").html(msg);
@@ -118,10 +129,10 @@
 	});
 	
      window.onbeforeunload = function() {
-     	//webSocket.send("close_connection");
-     	//webSocket.send("close_my_connection");
-       webSocket.send("DISCO:-"+user);
-       //webSocket.onclose = function() { }
-       //webSocket.close();
+		webSocket.send("deactive_me");
+        webSocket.send("close_connection");
+       //	webSocket.send("DISCO:-"+user);
+       webSocket.onclose = function() { }
+       webSocket.close();
      }
 </g:javascript>

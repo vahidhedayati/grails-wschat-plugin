@@ -2,6 +2,7 @@ package grails.plugin.wschat.messaging
 
 import grails.converters.JSON
 import grails.plugin.wschat.ChatBlockList
+import grails.plugin.wschat.ChatCustomerBooking
 import grails.plugin.wschat.ChatMessage
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.OffLineMessage
@@ -163,7 +164,7 @@ class WsChatMessagingService extends WsChatConfService {
 	}
 
 	@Transactional
-	private void persistMessage(String message, String user, String username=null) {
+	void persistMessage(String message, String user, String username=null) {
 		boolean isEnabled = boldef(config.dbstore)
 		if (isEnabled) {
 			def chat = ChatUser.findByUsername(user)
@@ -173,7 +174,6 @@ class WsChatMessagingService extends WsChatConfService {
 			}
 		}
 	}
-
 
 	@Transactional
 	ChatUser currentUser(String username) {

@@ -55,6 +55,7 @@
 				</g:if>
 				<li><a onclick="javascript:blockuser('${users?.username}', ''+user+'');closeAdminModal();">Block  ${users?.username}</a></li>
 				<li><a  data-toggle="modal" href="#banuser1"  onclick="closeAdminModal();javascript:banuser('${users?.username}');">Ban  ${users?.username}</a></li>
+				<li><a  data-toggle="modal" href="#liveChatLogcontainer1"  onclick="javascript:viewLogs('${users?.username}');">View logs</a></li>
 			</ul>
 		</li>
 	</ul>

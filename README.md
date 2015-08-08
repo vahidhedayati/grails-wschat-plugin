@@ -77,7 +77,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency (Grails 2.X) :
 ```groovy
-        compile ":wschat:1.23"          
+        compile ":wschat:1.23-SNAPSHOT1"          
 ```
 
 [codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/tree/grails2)
@@ -139,6 +139,7 @@ http://localhost:8080/yourapp/wsChat/
 
 7. [Video 1.23 Add Live chat to your grails application](https://www.youtube.com/watch?v=VrvJNPQ-K7M)
 
+8. [Video 1.23-SNAPSHOT1 Live chat Logs BOT Artificial Intelligence and more](https://www.youtube.com/watch?v=fUIckOntais)
 
 ##### WebtRTC WebCam walk through
 [WebtRTC WebCam walk through](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebtRTC-WebCam-walk-through)
@@ -241,11 +242,27 @@ wschat.liveContactEmail='youremail@gmail.com' // this is the hard coded live cha
 wschat.liveChatUsername='masterv'  // this is the nickname upon them joining a live request
 wschat.liveContactName='Mr V'  // this is the person that email title is set to
 wschat.emailFrom="me@domain.com"  //this is for sending emails
+wschat.store_live_messages=true  // store records of offline messaging
+wschat.enable_AI=true  // enable Aritificial Intelligence ? refer to ChatAI.groovy for example and understanding
+wschat.liveChatTitle="My Live chat"
 ```
 
 With this all set - upon someone clicking live chat on the page with that taglib call an email is sent, follow the email link to join that user in the chat room to help them. Watch part 7 of the videos above to understand better.
 
-
+As described in video 8, the customerChatButton is far from secure, for a more secure method build your own button, like this:
+ 
+```gsp
+<g:if test="${params.chat}">
+	we have params
+	<chat:customerChat user="myuser" />
+</g:if>
+<g:else>
+	<g:form name="something" action="livechat">
+		<g:hiddenField name="chat" value="yes"/>
+		<g:submitButton name="Chat" value="chat"/>
+	</g:form>
+</g:else>
+```
 
 
 ### Known issues/work arounds:

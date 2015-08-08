@@ -1,8 +1,10 @@
 <g:if test="${enduser?.verifyAppVersion().equals('assets')}">
 	<g:render template="/assets" model="${[bean:bean]}"/>
+	<g:render template="/assetsTop" model="${[bean:bean]}"/>
 </g:if>
 <g:else>	
 	<g:render template="/resources" model="${[bean:bean]}"/>
+	<g:render template="/resourcesTop" model="${[bean:bean]}"/>
 </g:else>
 <title>
 	${bean.chatTitle }

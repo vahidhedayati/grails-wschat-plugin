@@ -4,12 +4,15 @@ import grails.converters.JSON
 import grails.plugin.wschat.ChatBanList
 import grails.plugin.wschat.ChatBlockList
 import grails.plugin.wschat.ChatFriendList
+import grails.plugin.wschat.ChatMessage
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.ChatUserProfile
 import grails.plugin.wschat.WsChatConfService
 import grails.transaction.Transactional
 import groovy.time.TimeCategory
+
 import java.text.SimpleDateFormat
+
 import javax.websocket.Session
 
 class WsChatUserService extends WsChatConfService  {
@@ -22,6 +25,23 @@ class WsChatUserService extends WsChatConfService  {
 			logoutUser(userSession,username)
 		}
 	}
+	
+	@Transactional
+	public ArrayList findLogs(String username) {
+		ChatUser ccb = ChatUser.findByUsername(username)
+		Map resultSet = [:]
+		ArrayList finalResults=[]
+		if (ccb) {
+			def cm = ChatMessage.findAllByLog(ccb.log)
+			cm?.each {
+				resultSet = [:]
+				resultSet << [ message: it.contents, date: it.dateCreated, user: it.user ]
+				finalResults << resultSet
+			}
+		}
+		return finalResults
+	}
+	
 
 	public Map findaUser(String uid) {
 		def returnResult=[:]

@@ -215,10 +215,9 @@
 		<g:else>
        		webSocket.send("CONN:-"+user);
            	scrollToBottom();
+           	webSocket.send("/listRooms");
        </g:else>
  	}
-	
-	
 	
 	$('#messageBox').keypress(function(e){
 	if (e.keyCode == 13 && !e.shiftKey) {
@@ -234,7 +233,7 @@
 	}
 	});
 	
-     window.onbeforeunload = function() {
+	window.onbeforeunload = function() {
        webSocket.send("DISCO:-"+user);
        //webSocket.onclose = function() { }
        //webSocket.close();

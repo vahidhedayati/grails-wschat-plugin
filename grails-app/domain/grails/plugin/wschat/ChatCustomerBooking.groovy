@@ -3,7 +3,9 @@ package grails.plugin.wschat
 
 /*
  * @author: Vahid Hedayati
- * used for chat to a person through website solution 
+ * ChatCustomerBooking class is designed to capture CUSTOMER LIVE CHAT
+ * request and work with your agents to be able to interact with a live chat request
+ *  
  */
 class ChatCustomerBooking {
 	
@@ -14,7 +16,7 @@ class ChatCustomerBooking {
 	String controller
 	String action
 	//String params
-	
+	ChatLog log
 	Date startTime
 	Boolean active=true
 	Boolean guestUser=true

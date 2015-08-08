@@ -3,6 +3,8 @@ package grails.plugin.wschat.users
 import grails.plugin.wschat.ChatBooking
 import grails.plugin.wschat.ChatBookingInvites
 import grails.plugin.wschat.ChatCustomerBooking
+import grails.plugin.wschat.ChatLog;
+import grails.plugin.wschat.ChatMessage
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.ChatUserProfile
 import grails.plugin.wschat.WsChatConfService
@@ -13,6 +15,7 @@ import java.rmi.server.UID
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.text.SimpleDateFormat
+import java.util.Date;
 
 import org.springframework.transaction.annotation.Transactional
 
@@ -21,19 +24,39 @@ class WsChatBookingService  extends WsChatConfService {
 
 	def mailService
 	def wsChatRoomService
-
+	def wsChatAuthService
+	
 	static prng = new SecureRandom()
+
+
+	@Transactional
+	public ArrayList findLiveLogs(String username) {
+		ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(username)
+		Map resultSet = [:]
+		ArrayList finalResults=[]
+		if (ccb) {
+			def cm = ChatMessage.findAllByLog(ccb.log)
+			cm?.each {
+				resultSet = [:]
+				resultSet << [ message: it.contents, date: it.dateCreated, user: it.user ]
+				finalResults << resultSet
+			}
+		}
+		return finalResults
+	}
 	
 	@Transactional 
-	def saveCustomerBooking(CustomerChatTagBean bean, String controller, String action) {
+	def saveCustomerBooking(CustomerChatTagBean bean) {
 		ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(bean.user)
 		if (!ccb) {
 			ccb = new ChatCustomerBooking()
+			ccb.username = bean.user
+			ccb.log = wsChatAuthService.addLog()
+			ccb.guestUser = bean.guestUser
 		}
-		ccb.username = bean.user
 		ccb.roomName = bean.roomName
-		ccb.controller = controller
-		ccb.action = action
+		ccb.controller = bean.controller
+		ccb.action = bean.action
 		ccb.startTime = new Date()
 		ccb.active = true
 		ccb.guestUser = ccb?false:true
@@ -220,7 +243,6 @@ Please join chat on [CHATURL]
 		}
 	}
 
-
 	private String calculateAddresses(List<String> recipients, config) {
 		String address = ''
 		if (config) {
@@ -239,5 +261,4 @@ Please join chat on [CHATURL]
 		}
 		return address
 	}
-
 }
