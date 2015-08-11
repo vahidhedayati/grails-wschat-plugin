@@ -267,7 +267,7 @@ public class WsClientProcessService extends WsChatConfService {
 						chatClientListenerService.sendMessage(userSession, "Thanks ${ccb.name}, I have ${email} as your email now")
 					}	
 				} else {
-					checkArtificialIntelligence(userSession,actionthis, thisUser, msgFrom)
+					checkAI(userSession,actionthis, thisUser, msgFrom)
 				}
 			}
 			// DISCONNECTING HERE OTHERWISE WE WILL GET A LOOP OF REPEATED MESSAGES {unsure of its accuracy now after all new changes}
@@ -276,51 +276,61 @@ public class WsClientProcessService extends WsChatConfService {
 			}
 		}
 	}
-
-	
-	// Stephen Hawking is doing 10 min disapproving head shake https://www.youtube.com/watch?v=-U3R-g4pfNk
-	private void checkArtificialIntelligence(Session userSession, String actionthis, String thisUser,String messageFrom) { 
+	//Improved AI lookup 
+	private void checkAI(Session userSession, String actionthis, String thisUser,String messageFrom) { 
 		//record logs
 		boolean isEnabled = boldef(config.store_live_messages)
 		if (isEnabled) {
 			messageFrom = (messageFrom == thisUser)?'': messageFrom
 			persistLiveMessage(actionthis,thisUser,messageFrom)
 		}
+		List dbList = []
 		boolean doAi = boldef(config.enable_AI)
 		if (doAi) {
 			String output
-			//straight up look match for match
-			def ai = ChatAI.findByInput(actionthis)
-			if (ai) {
-				output = ai.output
-			}
-			//ok lets try a pattern match of input from user
-			if (!ai) {
-				ai = ChatAI.findByInputLike("%${actionthis}%")
-				if (ai) {
-					output = ai.output
-				}
-			}
-			//no ok
-			if (!ai) {
-				//look up sentence in ChatAI if matching two word split at a time respond with output
-				def words = actionthis.split(" ")
-				for (int i=0; i < words.size(); i++) {
-					if (i==0 && words.size()>1) {
-						ai = ChatAI.findByInput("${words[i]} ${words[i+1]}")
+			dbList << actionthis
+			def words = actionthis.split(" ")
+			List wordList = []
+			List singleWords = []
+			if (words.size()>1) {
+				String lastWord=''
+				words.eachWithIndex { String c, int i ->
+					wordList << c
+					singleWords << c
+					if (i>0) {
+						lastWord = "${lastWord} ${c}"
+						wordList << lastWord
 					} else {
-						ai = ChatAI.findByInput("${words[i-1]} ${words[i]}")
-					}
-					if (ai) {
-						output = ai.output
-					}
+						lastWord = c
+					}	
 				}
 			}
-			if (output) {
-				chatClientListenerService.sendMessage(userSession, output)
+			dbList.addAll(wordList)
+			List likeList = dbList.collect { "  or ai.input  like '%${it}%' "}
+			String query = "select new map(ai.input as input, ai.output as output) FROM ChatAI ai where (ai.input in (:rawList)  "+ likeList.join() +")"
+			Map inputParams = [rawList:dbList]
+			def results = ChatAI.executeQuery(query,inputParams,[readonly:true,timeout:20,max:-1])
+			if (results) {
+				def finalResult = [:].withDefault { [] }
+				results.each { 
+					def inputWords = it.input.split(" ")
+					int closest = 0 
+					inputWords.each { 
+						if (singleWords.contains(it)) { 
+							closest++
+						}
+					}
+					finalResult["${closest}"] <<  it.output
+					//finalResult["${it.output}"] <<  closest
+				}
+				def mostRelated =  finalResult.max { a, b ->a.key.size() <=> b.key.size()}?.value
+				mostRelated?.each { 
+					chatClientListenerService.sendMessage(userSession, it)
+				}
 			}
 		}
 	}	
+	
 	@Transactional
 	void persistLiveMessage(String message, String user, String username=null) {
 		boolean isEnabled = boldef(config.dbstore)
