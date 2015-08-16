@@ -4,7 +4,7 @@ import grails.plugin.wschat.WsChatEndpoint
 import grails.plugin.wschat.WsChatFileEndpoint
 
 class WschatGrailsPlugin {
-    def version = "1.23-SNAPSHOT2"
+    def version = "1.24"
     def grailsVersion = "2.0 > *"
     def title = "Websocket Chat Plugin"
     def description = 'Default WebSocket Multi-chat room plugin, supports Admin privilages, kicking banning users. Webcam support for chrome/firefox. WebRTC (audio/video & screen) support 0.24+. Websocket TicTacToe. Grails application Live Chat'

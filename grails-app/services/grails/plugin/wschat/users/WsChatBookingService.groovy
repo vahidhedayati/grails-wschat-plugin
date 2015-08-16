@@ -30,7 +30,7 @@ class WsChatBookingService  extends WsChatConfService {
 
 
 	@Transactional
-	public ArrayList findLiveLogs(String username) {
+	ArrayList findLiveLogs(String username) {
 		ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(username)
 		Map resultSet = [:]
 		ArrayList finalResults=[]
@@ -46,7 +46,7 @@ class WsChatBookingService  extends WsChatConfService {
 	}
 	
 	@Transactional 
-	def saveCustomerBooking(CustomerChatTagBean bean) {
+	ChatCustomerBooking saveCustomerBooking(CustomerChatTagBean bean) {
 		ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(bean.user)
 		if (!ccb) {
 			ccb = new ChatCustomerBooking()
@@ -63,11 +63,11 @@ class WsChatBookingService  extends WsChatConfService {
 		//if (inputParams) {
 		//	ccb.params = inputParams
 		//}
-		ccb.save(flush:true)
+		ccb.save()
 	}
 	
 	@Transactional
-	public Map verifyJoin(String token,String username)	{
+	Map verifyJoin(String token,String username)	{
 		boolean goahead = false
 		def found = ChatBookingInvites.findByTokenAndUsername(token,username)
 		String room,startDate,endDate
@@ -113,7 +113,7 @@ class WsChatBookingService  extends WsChatConfService {
 		return yesis
 	}
 
-	public void liveChatRequest(ChatCustomerBooking ccb, String url, String thisUser, String room, String contactEmail, String contactName, String adminUsername) {
+	void liveChatRequest(ChatCustomerBooking ccb, String url, String thisUser, String room, String contactEmail, String contactName, String adminUsername) {
 		def now = new Date().format("dd_MM_yyyy_HH_mm")
 		String defaultsubject = "You have a live chat ${now} "
 		String defaultbody = """Dear ${contactName},
@@ -139,7 +139,7 @@ class WsChatBookingService  extends WsChatConfService {
 	}
 	
 	@Transactional
-	public Map addBooking(ArrayList invites, String conference, String startDate, String endDate) {
+	Map addBooking(ArrayList invites, String conference, String startDate, String endDate) {
 		def current = new Date().format("dd_MM_yyyy_HH_mm")
 		def dFormat = "dd/MM/yyyy HH:mm"
 		SimpleDateFormat df = new SimpleDateFormat(dFormat)
@@ -177,7 +177,7 @@ Please join chat on [CHATURL]
 				def myMap = [username: found.username, emailAddress: foundprofile.email,
 					token: parsedToken, booking:myConference]
 				def inviteInstance = new ChatBookingInvites(myMap)
-				if (!inviteInstance.save(flush: true)) {
+				if (!inviteInstance.save()) {
 					log.error "Error saving Booking ${inviteInstance.errors}"
 				}else{
 					String sendbody = body.replace('[PERSON]', found.username).replace('[CHATURL]', chaturl)

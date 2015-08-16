@@ -7,25 +7,32 @@ import grails.validation.Validateable
 class ConfigBean {
 
 	//Declare end points
-	static final String chatPoint = 'wsChat'
-	static final String chatEndPoint = 'WsChatEndpoint'
-	static final String camEndPoint = 'WsCamEndpoint'
-	static final String fileEndPoint = 'WsChatFileEndpoint'
-	final String hostname = getConfig('hostname') ?: 'localhost:8080'
-	final def addAppName = getConfig('add.appName') ?: true
-	final def showtitle = getConfig('showtitle') ?: true
-	final def debug = getConfig('debug ')?: false
-	final process = getConfig('disable.login')?:false
-	final String chatTitle = getConfig('title') ?: 'Grails Websocket Chat'
-	final String chatHeader = getConfig('heading') ?: 'Grails websocket chat'
-	String frontUser = getConfig('frontend') ?: '_frontend'
-	static final Date now = new Date()
+	public static final String chatPoint = 'wsChat'
+	public static final String chatEndPoint = 'WsChatEndpoint'
+	public static final String camEndPoint = 'WsCamEndpoint'
+	public static final String fileEndPoint = 'WsChatFileEndpoint'
+	public final String hostname = getConfig('hostname') ?: 'localhost:8080'
+	public final boolean addAppName = getConfig('addAppName')?validateBool(getConfig('addAppName')):true
+	public final boolean showtitle = getConfig('showtitle')?validateBool(getConfig('showtitle')):true
+	public final boolean debug = getConfig('debug')?validateBool(getConfig('debug')):false
+	public final boolean process = getConfig('disable.login')?validateBool(getConfig('disable.login')):false
+	public final boolean enable_Chat_AI = getConfig('enable_Chat_AI')?validateBool(getConfig('enable_Chat_AI')):true
+	public final boolean enable_Chat_BadWords = getConfig('enable_Chat_BadWords')?validateBool(getConfig('enable_Chat_BadWords')):true	
+	public final boolean enable_Chat_Bot = getConfig('enable_Chat_Bot')?validateBool(getConfig('enable_Chat_Bot')):true
+	public final boolean liveChatAskName = getConfig('liveChatAskName')?validateBool(getConfig('liveChatAskName')):true
+	public final String liveChatNameMessage = getConfig('liveChatNameMessage') ?: 'Hi new user, what is your name ?'
+	public final boolean enable_AI = getConfig('enable_AI')?validateBool(getConfig('enable_AI')):true
+	public final String assistant = getConfig('liveChatAssistant') ?: 'assistant'
+	public final String chatTitle = getConfig('title') ?: 'Grails Websocket Chat'
+	public final String chatHeader = getConfig('heading') ?: 'Grails websocket chat'
+	public final String frontUser = getConfig('frontend') ?: '_frontend'
+	public final String botMessage = getConfig('botMessage') ?: 'Greetings I am the room bot'
+	public static final Date now = new Date()
 
 	Boolean addLayouts = false
 	String room
 	ArrayList rooms
 	String chatuser
-
 
 	String getChatuser() {
 		if (chatuser) {
@@ -33,39 +40,25 @@ class ConfigBean {
 		}
 		return chatuser
 	}
-	Boolean getProcess() {
-		return validateBool(process)
-	}
+	
 	Boolean getAddLayouts() {
 		return validateBool(addLayouts)
 	}
-
-
-	Boolean getDebug() {
-		return validateBool(debug)
-	}
-
-	Boolean getShowtitle() {
-		return validateBool(showtitle)
-	}
-
+	
 	String getAppName() {
 		String appName= grails.util.Metadata.current.applicationName ?: Holders.grailsApplication.metadata['app.name']
 		return appName
 	}
-
-	Boolean getAddAppName() {
-		return validateBool(addAppName)
-	}
-
-	def getUrl() { 
+	
+	String getUrl() { 
 		String url="http://${hostname}/${appName}/${chatPoint}/"
 		if (!addAppName) {
 			url="http://${hostname}/${chatPoint}/"
 		}
 		return url
 	}
-	def getUri() {
+	
+	String getUri() {
 		String uri="ws://${hostname}/${appName}/${chatEndPoint}/"
 		if (!addAppName) {
 			uri="ws://${hostname}/${chatEndPoint}/"
@@ -73,7 +66,7 @@ class ConfigBean {
 		return uri
 	}
 
-	def getCamEndpoint() {
+	String getCamEndpoint() {
 		String camEndpoint="ws://${hostname}/${appName}/${camEndPoint}/"
 		if (!addAppName) {
 			camEndpoint="ws://${hostname}/${camEndPoint}/"
@@ -81,7 +74,7 @@ class ConfigBean {
 		return camEndpoint
 	}
 
-	def getFileEndpoint() {
+	String getFileEndpoint() {
 		String fileEndpoint="ws://${hostname}/${appName}/${fileEndPoint}/"
 		if (!addAppName) {
 			fileEndpoint="ws://${hostname}/${fileEndPoint}/"

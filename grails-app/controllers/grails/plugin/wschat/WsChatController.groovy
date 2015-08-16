@@ -21,7 +21,7 @@ class WsChatController extends WsChatConfService {
 	def wsChatProfileService
 	def wsChatBookingService
 	def wsChatContService
-
+	def wsChatAuthService
 
 	def index(ConnectTagBean bean) {
 		bean.addLayouts=true
@@ -40,6 +40,7 @@ class WsChatController extends WsChatConfService {
 		bean.addLayouts=true
 		bean.chatuser = session.wschatuser
 		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(true)
+		wsChatAuthService.addBotToChatRoom(bean.room, 'chat', bean.enable_Chat_Bot, bean.botMessage, bean.uri)
 		[bean:bean]
 	}
 

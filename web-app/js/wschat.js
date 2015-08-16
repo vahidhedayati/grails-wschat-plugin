@@ -708,6 +708,20 @@ function sendMessage() {
 	}   
 }
 
+function processChatClose(message) {
+	webSocket.send("deactive_chat_bot");
+	webSocket.send("DISCO:-"+user);
+	$('#chatMessages').append(user+" disconnecting from server... \n");
+	webSocket.close();
+}
+
+function processLiveClose(message) {
+	webSocket.send("deactive_me");
+	webSocket.send("DISCO:-"+user);
+	$('#chatMessages').append(user+" disconnecting from server... \n");
+	webSocket.close();
+}
+
 function processClose(message) {
 	webSocket.send("DISCO:-"+user);
 	$('#chatMessages').append(user+" disconnecting from server... \n");

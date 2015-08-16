@@ -15,17 +15,17 @@ public class WsChatClientService extends WsChatConfService {
 	def grailsApplication
 	def wsChatUserService
 
-	public WsChatClientEndpoint conn(String uri, String user ) {
+	WsChatClientEndpoint conn(String uri, String user ) {
 		WsChatClientEndpoint clientEndPoint = new WsChatClientEndpoint(new URI(uri))
 		clientEndPoint.connectClient(user)
 		return clientEndPoint
 	}
 
-	def sendMessage(WsChatClientEndpoint clientEndPoint, String message) {
+	void sendMessage(WsChatClientEndpoint clientEndPoint, String message) {
 		clientEndPoint.sendMessage("${message}")
 	}
 
-	def sendArrayPM(WsChatClientEndpoint clientEndPoint, ArrayList pmuser, String message) {
+	void sendArrayPM(WsChatClientEndpoint clientEndPoint, ArrayList pmuser, String message) {
 		ConfigBean bean = new ConfigBean()
 		pmuser.each { cuser ->
 			boolean found
@@ -42,7 +42,8 @@ public class WsChatClientService extends WsChatConfService {
 
 		}
 	}
-	def sendPM(WsChatClientEndpoint clientEndPoint, String pmuser, String message) {
+	
+	void sendPM(WsChatClientEndpoint clientEndPoint, String pmuser, String message) {
 		boolean found
 		ConfigBean bean = new ConfigBean()
 		if (!pmuser.endsWith(bean.frontUser)) {
@@ -57,12 +58,12 @@ public class WsChatClientService extends WsChatConfService {
 		}
 	}
 
-	def disco(WsChatClientEndpoint clientEndPoint, String user) {
+	void disco(WsChatClientEndpoint clientEndPoint, String user) {
 		clientEndPoint.disconnectClient(user)
 	}
 
 
-	def handMessage(WsChatClientEndpoint clientEndPoint, String user,
+	void handMessage(WsChatClientEndpoint clientEndPoint, String user,
 			ArrayList pmuser, Map aMap, boolean strictMode,String divId, boolean masterNode) {
 
 		clientEndPoint.addMessageHandler(
@@ -128,6 +129,5 @@ public class WsChatClientService extends WsChatConfService {
 					}
 				})
 	}
-
 
 }

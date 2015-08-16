@@ -11,9 +11,9 @@ import java.util.concurrent.ConcurrentMap;
 import javax.websocket.Session;
 
 public interface UserMaps {
-	static final ConcurrentMap<String, Map<String, Session>> chatroomUsers = new ConcurrentHashMap<String, Map<String,Session>>();
-	static final ConcurrentMap<String, Session> camUsers = new ConcurrentHashMap<String, Session>();
-	static final ConcurrentMap<String, Session> fileroomUsers = new ConcurrentHashMap<String, Session>();			
-	static Set<HashMap<String,String>> clientMaster = Collections.synchronizedSet(new HashSet<HashMap<String,String>>());
-	static final Set<HashMap<String,String>> clientSlave = Collections.synchronizedSet(new HashSet<HashMap<String,String>>());
+	public static final ConcurrentMap<String, Map<String, Session>> chatroomUsers = new ConcurrentHashMap<String, Map<String,Session>>();
+	public static final ConcurrentMap<String, Session> camUsers = new ConcurrentHashMap<String, Session>();
+	public static final ConcurrentMap<String, Session> fileroomUsers = new ConcurrentHashMap<String, Session>();			
+	public static Set<HashMap<String,String>> clientMaster = Collections.synchronizedSet(new HashSet<HashMap<String,String>>());
+	public static final Set<HashMap<String,String>> clientSlave = Collections.synchronizedSet(new HashSet<HashMap<String,String>>());
 }

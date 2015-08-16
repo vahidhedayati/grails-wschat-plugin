@@ -96,7 +96,7 @@
     var onlineUsers=document.getElementById("onlineUsers");
     var messageBox=document.getElementById("messageBox");
     webSocket.onopen=function(message) {processOpen(message);};
-    webSocket.onclose=function(message) {processClose(message);};
+    webSocket.onclose=function(message) {processLiveClose(message);};
     webSocket.onerror=function(message) {processError(message);};
     webSocket.onmessage=function(message) {processMessage(message);	};
 		
@@ -111,6 +111,7 @@
        	</g:if>
 		<g:else>
        		webSocket.send("CONN:-"+user);
+       		webSocket.send("/userType liveChat");
            	scrollToBottom();
        </g:else>
  	}

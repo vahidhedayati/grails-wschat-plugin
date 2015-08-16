@@ -16,7 +16,7 @@ public class ChatClientListenerService extends WsChatConfService {
 	def wsChatUserService
 	def chatClientOverrideService
 
-	def sendArrayPM(Session userSession, ArrayList user,String message) {
+	void sendArrayPM(Session userSession, ArrayList user,String message) {
 		ConfigBean bean = new ConfigBean()
 		user.each { cuser ->
 			boolean found
@@ -33,7 +33,7 @@ public class ChatClientListenerService extends WsChatConfService {
 		}
 	}
 
-	def sendPM(Session userSession, String user,String message) {
+	void sendPM(Session userSession, String user,String message) {
 		String username = userSession.userProperties.get("username") as String
 		boolean found
 		ConfigBean bean = new ConfigBean()
@@ -48,7 +48,8 @@ public class ChatClientListenerService extends WsChatConfService {
 			}
 		}
 	}
-	public void sendDelayedMessage(Session userSession,final String message, int delay) {
+	
+	void sendDelayedMessage(Session userSession,final String message, int delay) {
 		def asyncProcess = new Thread({
 			sleep(delay)
 			userSession.basicRemote.sendText(message)
@@ -56,7 +57,7 @@ public class ChatClientListenerService extends WsChatConfService {
 			asyncProcess.start()
 	}
 
-	public void sendMessage(Session userSession,final String message) {
+	void sendMessage(Session userSession,final String message) {
 		userSession.basicRemote.sendText(message)
 	}
 
@@ -95,17 +96,17 @@ public class ChatClientListenerService extends WsChatConfService {
 		return csession
 	}
 
-	Session p_connect(String _uri, String _username, String _room){
-		String oRoom = _room ?: config.room
+	Session p_connect(String uri, String username, String room){
+		String oRoom = room ?: config.room
 		URI oUri
-		if(_uri){
-			oUri = URI.create(_uri+oRoom);
+		if(uri){
+			oUri = URI.create(uri+oRoom);
 		}
 		def container = ContainerProvider.getWebSocketContainer()
 		Session oSession
 		try{
 			oSession = container.connectToServer(ChatClientEndpoint.class, oUri)
-			oSession.basicRemote.sendText(CONNECTOR+_username)
+			oSession.basicRemote.sendText(CONNECTOR+username)
 		}catch(Exception e){
 			e.printStackTrace()
 			if(oSession && oSession.isOpen()){
@@ -113,18 +114,37 @@ public class ChatClientListenerService extends WsChatConfService {
 			}
 			return null
 		}
-		oSession.userProperties.put("username", _username)
+		oSession.userProperties.put("username", username)
 		return  oSession
 	}
 	
-	public Session disconnect(Session _oSession){
+	Session disconnectLive(Session userSession, String chatUser, String room, String botName){
+		Session nsess =wsChatUserService.usersSession(botName, room)
+		sendMessage(nsess, DISCONNECTOR)
+	}
+	
+	Session disconnectChat(Session userSession, String chatUser, String room, String botName){
+		int userCount = 0
+		chatNames.each { String cuser, Map<String,Session> records ->
+			def crec = records.find{it.key==room}
+			if (crec && cuser != botName) {
+				userCount ++
+			}
+		}
+		if (userCount<=1) {
+			sendMessage(userSession, DISCONNECTOR)
+		}
+	}
+	
+	
+	Session disconnect(Session userSession){
 		try{
-			if(_oSession && _oSession.isOpen()){
-				String user = _oSession.userProperties.get("username") as String
-				String room = _oSession.userProperties.get("room") as String
+			if(userSession && userSession.isOpen()){
+				String user = userSession.userProperties.get("username") as String
+				String room = userSession.userProperties.get("room") as String
 				if (user) {
 					ConfigBean bean = new ConfigBean()
-					sendMessage(_oSession, DISCONNECTOR)
+					sendMessage(userSession, DISCONNECTOR)
 					Session nsess
 					if (user.endsWith(bean.frontUser)) {
 						nsess =wsChatUserService.usersSession(user.substring(0,user.indexOf(bean.frontUser)), room)
@@ -139,10 +159,10 @@ public class ChatClientListenerService extends WsChatConfService {
 		}catch (Exception e){
 			e.printStackTrace()
 		}
-		return _oSession
+		return userSession
 	}
 
-	public void alertEvent(def _oSession,  String _event, String _context, JSON _data,
+	void alertEvent(def _oSession,  String _event, String _context, JSON _data,
 			ArrayList cusers, boolean masterNode, boolean strictMode, boolean autodisco,
 			boolean frontenduser){
 

@@ -12,16 +12,16 @@ class WsChatRoomService extends WsChatConfService {
 	def wsChatUserService
 
 
-	def sendRooms(Session userSession) {
+	void sendRooms(Session userSession) {
 		wsChatMessagingService.messageUser(userSession,roomList())
 	}
 
-	def  listRooms() {
+	void  listRooms() {
 		wsChatMessagingService.broadcast2all(roomList())
 	}
 
 	@Transactional
-	def returnRoom( Boolean displayString=null) {
+	def returnRoom(Boolean displayString=null) {
 		ArrayList dbrooms = config.rooms as ArrayList
 		if (!dbrooms) {
 			ChatRoomList dbroom = ChatRoomList?.findAllByRoomType('chat')
@@ -38,14 +38,14 @@ class WsChatRoomService extends WsChatConfService {
 	}
 
 	@Transactional
-	public void addRoom(Session userSession,String roomName, String roomType) {
+	void addRoom(Session userSession,String roomName, String roomType) {
 		if (isAdmin(userSession)) {
 			def nr = new ChatRoomList()
 			nr.room = roomName
 			if (roomType) {
 				nr.roomType = roomType
 			}
-			if (!nr.save(flush:true)) {
+			if (!nr.save()) {
 				log.error "Error saving ${roomName} ${nr.errors}"
 			}
 		}
@@ -53,7 +53,7 @@ class WsChatRoomService extends WsChatConfService {
 	}
 
 	@Transactional
-	public void addManualRoom(String roomName, String roomType) {
+	void addManualRoom(String roomName, String roomType) {
 		if (!roomType) {
 			roomType = 'chat'
 		}
@@ -64,7 +64,7 @@ class WsChatRoomService extends WsChatConfService {
 			if (roomType) {
 				nr.roomType = roomType
 			}
-			if (!nr.save(flush:true)) {
+			if (!nr.save()) {
 				log.error "Error saving ${roomName} ${nr.errors}"
 			}
 		}
@@ -78,7 +78,7 @@ class WsChatRoomService extends WsChatConfService {
 
 		def record = ChatRoomList?.findByRoomAndRoomType(roomName, roomType)
 		if (record) {
-			record.delete(flush:true)
+			record.delete()
 		}
 	}
 
@@ -93,7 +93,7 @@ class WsChatRoomService extends WsChatConfService {
 			}
 			def nr = ChatRoomList?.findByRoomAndRoomType(roomName,'chat')
 			if (nr) {
-				nr.delete(flush: true)
+				nr.delete()
 			}
 			listRooms()
 		}

@@ -21,6 +21,7 @@ class WsChatTagLib extends WsChatConfService {
 	def pluginbuddyService
 	def randomService
 	def wsChatBookingService
+	def wsChatAuthService
 	
 	def includeAllStyle = { attrs->
 		def bean = new InitiationBean(attrs)
@@ -54,6 +55,7 @@ class WsChatTagLib extends WsChatConfService {
 		}else{
 			out << g.render(contextPath: pluginContextPath, template : "/${CHATVIEW}/chat", model: model)
 		}
+		wsChatAuthService.addBotToChatRoom(bean.room, 'chat', bean.enable_Chat_Bot, bean.botMessage, bean.uri)
 	}
 
 
@@ -170,9 +172,11 @@ class WsChatTagLib extends WsChatConfService {
 		}else{
 			out << g.render(contextPath: pluginContextPath, template:"/customerChat/chatPage", model: model)
 		}
-		bean.message="Welcome, this is an automated message, attempting to retrieve a member of staff for you. Please wait"
-		Session oSession = chatClientListenerService.p_connect(bean.uri, bean.user+"_"+bean.assistant, bean.roomName)
-		chatClientListenerService.sendDelayedMessage(oSession, bean.message,1000)
+		wsChatAuthService.addBotToChatRoom(bean.roomName, 'liveChat', true, bean.botLiveMessage, bean.uri)
+
+	
+		//Session oSession = chatClientListenerService.p_connect(bean.uri, bean.roomName+"_"+bean.assistant, bean.roomName)
+		//chatClientListenerService.sendDelayedMessage(oSession, bean.message,1000)
 	}
 	
 	def complete = {attrs ->

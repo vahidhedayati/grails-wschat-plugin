@@ -67,6 +67,8 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 1.23				Live Chat feature added as part of the plugin(watch video 7)
 
+1.24				ChatBot and badWords added to the main chat room
+
 ```
 
 
@@ -77,7 +79,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency (Grails 2.X) :
 ```groovy
-        compile ":wschat:1.23-SNAPSHOT2"          
+        compile ":wschat:1.24"          
 ```
 
 [codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/tree/grails2)
@@ -140,6 +142,8 @@ http://localhost:8080/yourapp/wsChat/
 7. [Video 1.23 Add Live chat to your grails application](https://www.youtube.com/watch?v=VrvJNPQ-K7M)
 
 8. [Video 1.23-SNAPSHOT1 Live chat Logs BOT Artificial Intelligence and more](https://www.youtube.com/watch?v=fUIckOntais)
+
+9. [Video 1.24 Chat BOT now working in chat rooms, returning responses and banning/kicking users](https://www.youtube.com/watch?v=jUm7QrQhpTk)
 
 ##### WebtRTC WebCam walk through
 [WebtRTC WebCam walk through](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebtRTC-WebCam-walk-through)
