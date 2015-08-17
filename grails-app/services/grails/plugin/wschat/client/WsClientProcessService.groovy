@@ -246,7 +246,7 @@ public class WsClientProcessService extends WsChatConfService {
 										select new map(p.email as email, u.username as username) from ChatUserProfile p join p.chatuser u
 										join u.permissions e where e.name=:contactGroup
 										"""
-						PropertyValue.Map inputParams = [contactGroup:contactGroup]
+						Map inputParams = [contactGroup:contactGroup]
 						def results = ChatUserProfile.executeQuery(query,inputParams,[readonly:true,timeout:20,max:5])
 						results?.each {
 							if (it.email) {
@@ -301,12 +301,8 @@ public class WsClientProcessService extends WsChatConfService {
 						chatClientListenerService.sendMessage(userSession, "Thanks ${ccb?.name?: 'Guest'}, I have ${email} as your email now ${additional}")
 					}
 				} else if (actionthis && msgFrom){
-
 					boolean isEnabled = boldef(config.store_live_messages)
 					if (isEnabled) {
-
-
-						//msgFrom = (msgFrom == ccb.username)?'': msgFrom
 						String logUser
 						if (isAdmin) {
 							logUser = msgFrom
