@@ -224,18 +224,18 @@ function viewLiveChats(user) {
 function viewLiveLogs(user) {
 	if (isAdmin=="true") {
 		$.get("/"+getApp()+"/wsChat/viewLiveLogs?username="+user,function(data){
-			$('#logContainer').hide().html(data).fadeIn('slow');
+			$('inviteUserContainer').hide().html(data).fadeIn('slow');
 		});
-		$('#liveChatLogcontainer').show();
+		$('invitecontainer').show();
 	}
 }
 
 function viewLogs(user) {
 	if (isAdmin=="true") {
 		$.get("/"+getApp()+"/wsChat/viewLogs?username="+user,function(data){
-			$('#logContainer').hide().html(data).fadeIn('slow');
+			$('inviteUserContainer').hide().html(data).fadeIn('slow');
 		});
-		$('#liveChatLogcontainer').show();
+		$('invitecontainer').show();
 	}
 }
 

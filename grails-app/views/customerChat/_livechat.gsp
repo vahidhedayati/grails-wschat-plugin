@@ -214,9 +214,10 @@
        		webSocket.send("DISCO:-"+user);
        	 	webSocket.close();
        	</g:if>
-		<g:else>
+        <g:else>
        		webSocket.send("CONN:-"+user);
            	scrollToBottom();
+                webSocket.send("/userType liveChat");
        </g:else>
  	}
 	

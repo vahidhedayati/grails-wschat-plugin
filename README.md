@@ -79,7 +79,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency (Grails 2.X) :
 ```groovy
-        compile ":wschat:1.24"          
+        compile ":wschat:1.24-SNAPSHOT1"          
 ```
 
 [codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/tree/grails2)
@@ -229,45 +229,7 @@ It will work when this is enabled in your Config.groovy
 wschat.offline_pm=true
 ```
 
-#### 1.24 Live chat:
-```gsp
-<chat:customerChatButton user="${session.user}"/>
-<!-- OR -->
-<chat:customerChatButton />
-
-```
-If  user is not defined it will default their username to be Guest{sessionID} so their username will default to something like: GuestH5d4F9SDF943JGFHSD9DS  
-
-Config
-```groovy
-wschat.liveChatAssistant='assistant' // the chat client assistant name.. so if userx requests chat .. userx_assistant = this what this is . 
-wschat.liveChatPerm='admin'  // this is the group of users that livechat belongs to and if those uses have an email address in profile they will also be emailed
-wschat.liveContactEmail='youremail@gmail.com' // this is the hard coded live chat email 
-wschat.liveChatUsername='masterv'  // this is the nickname upon them joining a live request
-wschat.liveContactName='Mr V'  // this is the person that email title is set to
-wschat.emailFrom="me@domain.com"  //this is for sending emails
-wschat.store_live_messages=true  // store records of offline messaging
-wschat.enable_AI=true  // enable Aritificial Intelligence ? refer to ChatAI.groovy for example and understanding
-wschat.liveChatTitle="My Live chat"
-```
-
-With this all set - upon someone clicking live chat on the page with that taglib call an email is sent, follow the email link to join that user in the chat room to help them. Watch part 7 of the videos above to understand better.
-
-As described in video 8, the customerChatButton is far from secure, for a more secure method build your own button, like this:
- 
-```gsp
-<g:if test="${params.chat}">
-	we have params
-	<chat:customerChat user="myuser" />
-</g:if>
-<g:else>
-	<g:form name="something" action="livechat">
-		<g:hiddenField name="chat" value="yes"/>
-		<g:submitButton name="Chat" value="chat"/>
-	</g:form>
-</g:else>
-```
-
+#### [1.24 Live chat & Chat Bot](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Chat-Room-Bot---Live-Chat---Live-Chat-Bot)
 
 ### Known issues/work arounds:
 Since 0.20+ ui.videobox has been added, earlier versions and even current version suffers from conflicts with jquery.ui.chatbox and does not send message. In 1.13 an option above left of rooms will attempt to close PM windows. Otherwise refresh your page.

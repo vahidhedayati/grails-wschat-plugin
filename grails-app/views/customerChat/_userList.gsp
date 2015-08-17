@@ -49,7 +49,7 @@
 	<ul id="user_spot">
 		<li>${users?.username }
 			<ul id="user_spot_links">
-				<li><a  data-toggle="modal" href="#liveChatLogcontainer1"  onclick="javascript:viewLiveLogs('${users?.username}');">View logs</a></li>
+				<li><a  data-toggle="modal" href="#invitecontainer1"  onclick="javascript:viewLiveLogs('${users?.username}');">View logs</a></li>
 			</ul>
 		</li>
 	</ul>

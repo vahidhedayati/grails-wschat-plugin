@@ -71,9 +71,6 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  */
 public class WsClientProcessService extends WsChatConfService {
 
-	//static transactional  =  false
-
-	//def grailsApplication
 	def chatClientListenerService
 	def wsChatUserService
 	def wsChatBookingService
@@ -163,7 +160,6 @@ public class WsClientProcessService extends WsChatConfService {
 				}
 			}
 		}
-
 		Session currentSession
 		if (actionthis == 'close_connection') {
 			chatClientListenerService.disconnect(userSession)
@@ -210,15 +206,27 @@ public class WsClientProcessService extends WsChatConfService {
 				userType = currentSession.userProperties.get("userType") as String
 				room = returnRoom(msgFrom)
 			}
+			boolean isAdmin = false
 			boolean askName = boldef(config.liveChatAskName)
 			boolean askEmail = boldef(config.liveChatAskEmail)
 			if (currentSession && userType && userType=='liveChat') {
 				ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(msgFrom)
 				if (!ccb) {
-					chatClientListenerService.sendMessage(userSession, "Could not find you on our system!")
-					return
+					/*ccb = ChatUser.findByUsername(msgFrom)
+					if (!ccb) {
+						chatClientListenerService.sendMessage(userSession, "Could not find you on our system!")
+						return
+					}*/
+
+					isAdmin=true
+					/*helpRequested=true
+					askedEmail=true
+					askedName=true
+					askName=false
+					askEmail=false*/
 				}
-				if (!helpRequested) {
+				if (!helpRequested && !isAdmin) {
+					userSession.userProperties.put('cid', ccb.id)
 					String contactEmail = config.liveContactEmail
 					String contactUsername = config.liveChatUsername
 					String contactGroup = config.liveChatPerm ?: config.defaultperm
@@ -228,8 +236,8 @@ public class WsClientProcessService extends WsChatConfService {
 							wsChatBookingService.liveChatRequest(ccb, cb.url, msgFrom, room, contactEmail, config.liveContactName ?: 'Site Administrator', contactUsername)
 						}
 						String query= """
-										select new map(p.email as email, u.username as username) from ChatUserProfile p join p.chatuser u  
-										join u.permissions e where e.name=:contactGroup		
+										select new map(p.email as email, u.username as username) from ChatUserProfile p join p.chatuser u
+										join u.permissions e where e.name=:contactGroup
 										"""
 						Map inputParams = [contactGroup:contactGroup]
 						def results = ChatUserProfile.executeQuery(query,inputParams,[readonly:true,timeout:20,max:5])
@@ -245,8 +253,8 @@ public class WsClientProcessService extends WsChatConfService {
 					currentSession.userProperties.put("helpRequested", true)
 					currentSession.userProperties.put("nameRequired", true)
 				}
-				
-				if (ccb.name && askName && !helpRequested) {
+
+				if (!isAdmin && ccb?.name && askName && !helpRequested) {
 					currentSession.userProperties.put("nameRequired", false)
 					boolean doAi = boldef(config.enable_AI)
 					currentSession.userProperties.put("askedName", true)
@@ -258,7 +266,7 @@ public class WsClientProcessService extends WsChatConfService {
 
 					ccb.active=true
 					ccb.save()
-				} else if (nameRequired && actionthis && askName) {
+				} else if (!isAdmin && nameRequired && actionthis && askName) {
 					ccb.active=true
 					ccb.save()
 					currentSession.userProperties.put("nameRequired", false)
@@ -268,7 +276,7 @@ public class WsClientProcessService extends WsChatConfService {
 					chatClientListenerService.sendMessage(userSession, "Thanks ${name}, just incase we get cut off what is your email?")
 					currentSession.userProperties.put("emailedRequired", true)
 					//verify users email input //&& !nameRequired
-				} else 	if (currentSession && emailedRequired && actionthis && askEmail && !askedEmail) {
+				} else 	if (!isAdmin && currentSession && emailedRequired && actionthis && askEmail && !askedEmail) {
 					String email = actionthis
 					ccb.emailAddress=email
 					if (!ccb.validate()) {
@@ -285,11 +293,21 @@ public class WsClientProcessService extends WsChatConfService {
 						}
 						chatClientListenerService.sendMessage(userSession, "Thanks ${ccb?.name?: 'Guest'}, I have ${email} as your email now ${additional}")
 					}
-				} else if (actionthis && ccb && msgFrom){
+				} else if (actionthis && msgFrom){
+
 					boolean isEnabled = boldef(config.store_live_messages)
 					if (isEnabled) {
-						msgFrom = (msgFrom == ccb.username)?'': msgFrom
-						persistLiveMessage(ccb, actionthis,msgFrom)
+						String logUser
+						if (isAdmin) {
+							logUser = msgFrom
+							Long cid = userSession.userProperties.get('cid') as Long
+							if (cid) {
+								ccb = ChatCustomerBooking.get(cid)
+							}
+						}
+						if (ccb) {
+							persistLiveMessage(ccb, actionthis, logUser)
+						}
 					}
 					boolean doAi = boldef(config.enable_AI)
 					Map wordListing = wordListing(actionthis)
@@ -384,7 +402,7 @@ public class WsClientProcessService extends WsChatConfService {
 	/**
 	 * This does some wild query against ChatAI DB table and tries to match user input
 	 * against what it finds and currently for anything that matches words within a sentence
-	 * all those matches are returned - probably needs more work to make it more focused on input 
+	 * all those matches are returned - probably needs more work to make it more focused on input
 	 * matching actual result set.
 	 * @param userSession
 	 * @param wordListing
@@ -397,7 +415,7 @@ public class WsClientProcessService extends WsChatConfService {
 			List singleWords = wordListing.singleWords
 			if (dbList) {
 				List likeList = dbList.collect { "  or ai.input  like '%${it}%' "}
-				String query = """ select new map(ai.input as input, ai.output as output) FROM ChatAI ai 
+				String query = """ select new map(ai.input as input, ai.output as output) FROM ChatAI ai
 					where (ai.input in (:rawList)  ${likeList.join()} )"""
 				Map inputParams = [rawList:dbList]
 				def results = ChatAI.executeQuery(query,inputParams,[readonly:true,timeout:20,max:-1])
@@ -424,10 +442,10 @@ public class WsClientProcessService extends WsChatConfService {
 	}
 
 	@Transactional
-	void persistLiveMessage(ChatCustomerBooking cb, String message, String user) {
+	void persistLiveMessage(ChatCustomerBooking cb, String message, String user=null) {
 		boolean isEnabled = boldef(config.dbstore)
 		if (isEnabled) {
-			def cm = new ChatMessage(user: cb.username, contents: message, log: cb.log)
+			def cm = new ChatMessage(user: user, contents: message, log: cb.log)
 			if (!cm.save()) {
 				log.error "Persist Message issue: ${cm.errors}"
 			}
@@ -472,7 +490,7 @@ public class WsClientProcessService extends WsChatConfService {
 	 * @param masterNode
 	 */
 	public void processAct(String user, boolean pm,String actionthis, String sendThis, String divId,
-			String msgFrom, boolean strictMode, boolean masterNode) {
+						   String msgFrom, boolean strictMode, boolean masterNode) {
 
 		Session userSession = returnSession(user)
 		String username = userSession.userProperties.get("username") as String
@@ -496,15 +514,15 @@ public class WsClientProcessService extends WsChatConfService {
 			 log.info "something on master node that has mappings to do_task_1 TASK1"
 		 }else if (actionthis== 'do_task_2') {
 			 // TODO something on master node that has mappings to do_task_2
-		 	log.info "something on master node that has mappings to do_task_2 TASK2"
+			 log.info "something on master node that has mappings to do_task_2 TASK2"
 		 }else if (actionthis== 'do_task_3') {
-		 	// TODO something on master node that has mappings to do_task_3
+			 // TODO something on master node that has mappings to do_task_3
 			 log.info "something on master node that has mappings to do_task_3 TASK3"
 		 }
 		 }
-		 */	
+		 */
 		/*
-		 * Fancy block to not start client transmission 
+		 * Fancy block to not start client transmission
 		 * until it finds its own name _frontend logged in
 		 *  This way server/client transaction can happen with no issues
 		 */

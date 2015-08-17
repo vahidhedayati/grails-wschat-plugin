@@ -343,14 +343,14 @@ class WsChatController extends WsChatConfService {
 	
 	def viewLiveLogs(String username) {
 		def livelogs = wsChatBookingService.findLiveLogs(username)
-		render view: '/customerChat/viewLiveLogs', model: [livelogs:livelogs]
+		render template: '/customerChat/viewLiveLogs', model: [livelogs:livelogs]
 	}
 	
 	/* end live chat */
 	
 	def viewLogs(String username) {
 		def chatlogs = wsChatUserService.findLogs(username)
-		render view: '/admin/viewLogs', model: [chatlogs:chatlogs]
+		render template: '/admin/viewLogs', model: [chatlogs:chatlogs]
 	}
 	
 	def searchLiveChat(String mq) {
