@@ -123,6 +123,7 @@ class ChatUtils extends WsChatConfService {
 						myMsg.put("message", "${user} has joined ${room}")
 						wsChatMessagingService.broadcast(userSession,myMsg)
 						wsChatRoomService.sendRooms(userSession)
+						wsChatAuthService.addBotToChatRoom(rroom,'chat')
 					} else {
 						wsChatMessagingService.messageUser(userSession, ["message":"${username} is already loggged in to ${rroom}, action denied"])
 					}
@@ -220,6 +221,17 @@ class ChatUtils extends WsChatConfService {
 			}else if (message.startsWith("/flatusers")) {
 				wsChatUserService.sendFlatUsers(userSession,username)
 				// Usual chat messages bound for all
+			}else if (message.startsWith("/userType")) {
+				def p1 = "/userType "
+				def userType = message.substring(p1.length(),message.length())
+				userSession.userProperties.put("userType", userType)
+				if (userType=='liveChat') {
+					userSession.userProperties.put("nameRequired", true)
+					userSession.userProperties.put("emailedRequired", true)
+				}
+			}else if (message.startsWith("deactive_chat_bot") || (message.startsWith("deactive_me"))) {
+				String userType = userSession.userProperties.get("userType") as String
+				wsChatAuthService.delBotFromChatRoom(username, room, userType, message)
 			}else{
 				myMsg.put("message", "${username}: ${message}")
 				wsChatMessagingService.broadcast(userSession,myMsg)

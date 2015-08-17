@@ -13,7 +13,7 @@ import org.springframework.web.context.request.RequestContextHolder
 class WsChatContService extends WsChatConfService{
 
 	@Transactional
-	public Map verifyProfile(String username) {
+	Map verifyProfile(String username) {
 		boolean actualuser = false
 		def chatuser = ChatUser.findByUsername(username)
 		def profile = ChatUserProfile?.findByChatuser(chatuser)
@@ -26,7 +26,7 @@ class WsChatContService extends WsChatConfService{
 
 
 	@Transactional
-	public Map editProfile(String username) {
+	Map editProfile(String username) {
 		def chatuser = ChatUser.findByUsername(username)
 		def profile = ChatUserProfile.findByChatuser(chatuser)
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy")
@@ -48,13 +48,13 @@ class WsChatContService extends WsChatConfService{
 	}
 
 	@Transactional
-	public String addPhoto(params) {
+	String addPhoto(params) {
 		String result
 		params.chatuser = ChatUser.findByUsername(params.username)
 		if ((params.chatuser)&&(params.photo)) {
 
 			def newRecord = new ChatUserPics(params)
-			if (!newRecord.save(flush:true)) {
+			if (!newRecord.save()) {
 				result ="Something has gone wrong, could not upload photo"
 			}
 			result = "Record  ${newRecord.id} created. Create another?"
@@ -65,7 +65,7 @@ class WsChatContService extends WsChatConfService{
 	}
 
 	@Transactional
-	public String updateProfile(params) {
+	String updateProfile(params) {
 		String output
 		if (params.birthDate) {
 			params.birthDate = new SimpleDateFormat("dd/MM/yyyy").parse(params.birthDate)
@@ -75,12 +75,12 @@ class WsChatContService extends WsChatConfService{
 			def exists = ChatUserProfile.findByChatuser(params.chatuser)
 			if (!exists) {
 				def newRecord = new ChatUserProfile(params)
-				if (!newRecord.save(flush:true)) {
+				if (!newRecord.save()) {
 					output="Something has gone wrong"
 				}
 			}else{
 				exists.properties = params
-				if (!exists.save(flush:true)) {
+				if (!exists.save()) {
 					output="Something has gone wrong"
 				}
 			}
@@ -92,7 +92,7 @@ class WsChatContService extends WsChatConfService{
 	}
 
 	@Transactional
-	public Map viewUsers(String s, String sortby, String order, Integer offset, Integer max, String id=null) {
+	Map viewUsers(String s, String sortby, String order, Integer offset, Integer max, String id=null) {
 		def total, foundRec
 		def paginationParams = [sort: sortby, order: order, offset: offset, max: max]
 		switch (s) {

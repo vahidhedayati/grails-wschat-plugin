@@ -65,6 +65,8 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 1.21 / 3.0.3 		Websocket TicTacToe game added (Watch video 6)
 
 1.23 / 3.0.3 		Live Chat feature added as part of the plugin(watch video 7)
+
+1.24 / 3.0.3		ChatBot and badWords added to the main chat room
 ```
 
 
@@ -75,7 +77,7 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
 ###### Dependency (Grails 2.X) :
 ```groovy
-	compile ":wschat:1.23-SNAPSHOT2"
+	compile ":wschat:1.24"
 ```
 
 [codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/tree/grails2)
@@ -157,6 +159,7 @@ before running grails run-app
 
 8. [Video 1.23-SNAPSHOT1 Live chat Logs BOT Artificial Intelligence and more](https://www.youtube.com/watch?v=fUIckOntais)
 
+9. [Video 1.24 Chat BOT now working in chat rooms, returning responses and banning/kicking users](https://www.youtube.com/watch?v=jUm7QrQhpTk)
 
 ##### WebtRTC WebCam walk through
 

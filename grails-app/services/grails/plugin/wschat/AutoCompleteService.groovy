@@ -6,8 +6,8 @@ import grails.converters.JSON
 class AutoCompleteService {
 	
 	static transactional  =  false
-	
-	def autocomplete (params) {
+
+	JSON autocomplete (params) {
 		def results = ChatUser?.createCriteria().list {
 			ilike 'username', params.term + '%'
 			maxResults(Integer.parseInt(params.max,10))

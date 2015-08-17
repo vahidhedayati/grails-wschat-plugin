@@ -11,7 +11,7 @@ class WsChatProfileService  {
 	def wsChatAuthService
 
 	@Transactional
-	def addProfile(String user, Map paramsMap, boolean update) {
+	void addProfile(String user, Map paramsMap, boolean update) {
 		def found=ChatUser.findByUsername(user)
 		if (found) {
 			def foundprofile=ChatUserProfile.findByChatuser(found)
@@ -38,7 +38,7 @@ class WsChatProfileService  {
 	}
 
 	@Transactional
-	private saveProfile(Long found, Map paramsMap ) {
+	private void saveProfile(Long found, Map paramsMap ) {
 		paramsMap.put('chatuser', "${found}")
 		def profileInstance = new ChatUserProfile(paramsMap)
 		if (!profileInstance.save(flush: true)) {

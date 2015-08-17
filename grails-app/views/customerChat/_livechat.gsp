@@ -211,6 +211,7 @@
 		<g:else>
        		webSocket.send("CONN:-"+user);
            	scrollToBottom();
+           	webSocket.send("/userType liveChat");
        </g:else>
  	}
 	

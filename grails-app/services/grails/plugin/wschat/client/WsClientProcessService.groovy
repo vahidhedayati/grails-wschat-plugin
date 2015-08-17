@@ -1,5 +1,6 @@
 package grails.plugin.wschat.client
 
+import com.fasterxml.jackson.databind.deser.impl.PropertyValue
 import grails.converters.JSON
 import grails.plugin.wschat.WsChatConfService
 import org.grails.web.json.JSONArray
@@ -10,6 +11,8 @@ import javax.websocket.Session
 import grails.plugin.wschat.beans.ConfigBean
 import grails.transaction.Transactional
 import grails.plugin.wschat.ChatAI
+import grails.plugin.wschat.ChatUser
+import grails.plugin.wschat.ChatBadWords
 import grails.plugin.wschat.ChatCustomerBooking
 import grails.plugin.wschat.ChatMessage
 
@@ -73,15 +76,17 @@ beans = {
  * 
  */
 public class WsClientProcessService extends WsChatConfService {
-	
+
 
 	def chatClientListenerService
 	def wsChatUserService
 	def wsChatBookingService
 	def wsChatMessagingService
 
+
 	// DO NOT Disconnect automatically - required for live chat!
 	static boolean disco = false
+
 
 	// CLIENT SERVER CHAT VIA ChatClientListenerService method aka
 	// This is server processing of taglib call:
@@ -89,11 +94,10 @@ public class WsClientProcessService extends WsChatConfService {
 	// A demo and for you to change to what you want your backend to do
 	// I have commented out a disco = false
 	@Transactional
-	public void processResponse(Session userSession, String message) {
+	void processResponse(Session userSession, String message) {
 		String username = userSession.userProperties.get("username") as String
 		//String room = userSession.userProperties.get("room") as String
 		log.debug "DEBUG ${username}: $message"
-
 		String assistant = config.liveChatAssistant ?: 'assistant'
 		JSONObject rmesg=JSON.parse(message)
 		String actionthis=''
@@ -117,7 +121,7 @@ public class WsClientProcessService extends WsChatConfService {
 				log.debug "${event} ${context} ${jsonData}"
 				log.debug "${strictMode} ${masterNode} ${autodisco} ${frontenduser}"
 				if ( (event == "open_session")  || (autodisco == false)){
-					disco = false
+					this.disco = false
 				}
 				// There is a sleep time put in
 				// This is because front end takes while to load up on initial connection
@@ -151,34 +155,37 @@ public class WsClientProcessService extends WsChatConfService {
 		if (msgFrom) {
 			actionthis = rmesg.privateMessage
 			pm = true
-		}
-
-		def rmessage = rmesg.message
-		if (rmessage) {
-			def matcher = (rmessage =~ /(.*): (.*)/)
-			if (matcher.matches()){
-				msgFrom = matcher[0][1]
-				if (msgFrom) {
-					actionthis = matcher[0][2]
+		} else {
+			def rmessage = rmesg.message
+			if (rmessage) {
+				def matcher = (rmessage =~ /(.*): (.*)/)
+				if (matcher.matches()){
+					msgFrom = matcher[0][1]
+					if (msgFrom) {
+						actionthis = matcher[0][2]
+					}
 				}
 			}
 		}
 		Session currentSession
-		String thisUser
-		if (username) {
-			if (username.endsWith('_'+assistant)) {
-				thisUser = username.substring(0,username.indexOf('_'))
-			}else{
-				thisUser = username
-			}
-		}
-
 		if (actionthis == 'close_connection') {
 			chatClientListenerService.disconnect(userSession)
 		} else if (actionthis == 'deactive_me') {
 			ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(msgFrom)
-			ccb.active=false
-			ccb.save(flush:true)
+			if (ccb) {
+				ccb.active=false
+				ccb.save()
+
+			}
+			String room = returnRoom(username)
+			if (room) {
+				chatClientListenerService.disconnectLive(userSession, msgFrom, room, username)
+			}
+		} else if (actionthis == 'deactive_chat_bot') {
+			String room = returnRoom(username)
+			if (room) {
+				chatClientListenerService.disconnectChat(userSession, msgFrom, room, username)
+			}
 		} else if (actionthis == 'close_my_connection') {
 			if (pm) {
 				chatClientListenerService.sendPM(userSession, msgFrom,"close_connection")
@@ -189,156 +196,267 @@ public class WsClientProcessService extends WsChatConfService {
 			}else{
 				chatClientListenerService.sendMessage(userSession, ">>HAVE DONE \n"+actionthis)
 			}
-		}  else if (actionthis =~ /Welcome/ && (msgFrom == username)) {
-			currentSession = returnSession(thisUser)
-			this.disco = false
-			if (thisUser.endsWith('_'+assistant)) {
-				thisUser = username.substring(0,username.indexOf('_'))
+		}  else  if (msgFrom && msgFrom != username) {
+			currentSession = returnSession(msgFrom)
+			boolean nameRequired = true
+			boolean emailedRequired = true
+			boolean helpRequested = false
+			boolean askedName = false
+			boolean askedEmail = false
+			String room, userType
+			if (currentSession) {
+				nameRequired = currentSession.userProperties.get("nameRequired") as boolean
+				emailedRequired = currentSession.userProperties.get("emailedRequired") as boolean
+				askedName = currentSession.userProperties.get("askedName") as boolean
+				askedEmail = currentSession.userProperties.get("askedEmail") as boolean
+				helpRequested = currentSession.userProperties.get("helpRequested") as boolean
+				userType = currentSession.userProperties.get("userType") as String
+				room = returnRoom(msgFrom)
 			}
-			ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(thisUser)
-			if (ccb) {
-				String contactEmail = config.liveContactEmail
-				String contactUsername = config.liveChatUsername
-				String contactGroup = config.liveChatPerm ?: config.defaultperm
-				String room = returnRoom(thisUser)
-				try {
-					ConfigBean cb = new ConfigBean()
-					if (contactEmail && contactUsername) {
-						wsChatBookingService.liveChatRequest(ccb, cb.url, thisUser, room, contactEmail, config.liveContactName ?: 'Site Administrator', contactUsername)
-					}
-					String query= """
-							select new map(p.email as email, u.username as username) from ChatUserProfile p join p.chatuser u
-							join u.permissions e where e.name=:contactGroup
-							"""
-					Map inputParams = [contactGroup:contactGroup]
-					def results = ChatUserProfile.executeQuery(query,inputParams,[readonly:true,timeout:20,max:5])
-					results?.each {
-						if (it.email) {
-							wsChatBookingService.liveChatRequest(ccb, cb.url,  thisUser, room, it.email, it.username ,it.username)
+			boolean isAdmin = false
+			boolean askName = boldef(config.liveChatAskName)
+			boolean askEmail = boldef(config.liveChatAskEmail)
+			if (currentSession && userType && userType=='liveChat') {
+				ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(msgFrom)
+				if (!ccb) {
+					/*ccb = ChatUser.findByUsername(msgFrom)
+					if (!ccb) {
+						chatClientListenerService.sendMessage(userSession, "Could not find you on our system!")
+						return
+					}*/
+
+					isAdmin=true
+					/*helpRequested=true
+					askedEmail=true
+					askedName=true
+					askName=false
+					askEmail=false*/
+				}
+				if (!helpRequested && !isAdmin) {
+					userSession.userProperties.put('cid', ccb.id)
+					String contactEmail = config.liveContactEmail
+					String contactUsername = config.liveChatUsername
+					String contactGroup = config.liveChatPerm ?: config.defaultperm
+					try {
+						ConfigBean cb = new ConfigBean()
+						if (contactEmail && contactUsername) {
+							wsChatBookingService.liveChatRequest(ccb, cb.url, msgFrom, room, contactEmail, config.liveContactName ?: 'Site Administrator', contactUsername)
 						}
+						String query= """
+										select new map(p.email as email, u.username as username) from ChatUserProfile p join p.chatuser u
+										join u.permissions e where e.name=:contactGroup
+										"""
+						PropertyValue.Map inputParams = [contactGroup:contactGroup]
+						def results = ChatUserProfile.executeQuery(query,inputParams,[readonly:true,timeout:20,max:5])
+						results?.each {
+							if (it.email) {
+								wsChatBookingService.liveChatRequest(ccb, cb.url,  msgFrom, room, it.email, it.username ,it.username)
+							}
+						}
+					} catch (Exception e) {
+						//e.printStackTrace()
+						log.debug "It is likely you have not enabled SMTP service for mail to be sent"
 					}
-				} catch (Exception e) {
-					e.printStackTrace()
+					currentSession.userProperties.put("helpRequested", true)
+					currentSession.userProperties.put("nameRequired", true)
 				}
 
-				if (!ccb.name && !ccb.guestUser) {  //if (ccb.username == thisUser) {
-					chatClientListenerService.sendMessage(userSession, "Hi new user, what is your name ?")
-					if (currentSession) {
-						currentSession.userProperties.put("nameRequired", true)
-					}
-				} else {
-					boolean doAi = wsChatMessagingService.boldef(config.enable_AI)
+				if (!isAdmin && ccb?.name && askName && !helpRequested) {
+					currentSession.userProperties.put("nameRequired", false)
+					boolean doAi = boldef(config.enable_AI)
+					currentSession.userProperties.put("askedName", true)
 					String additional = ', please wait'
 					if (doAi) {
 						additional = '. Feel free to ask a question and maybe the bot can help whilst you are waiting'
 					}
 					chatClientListenerService.sendMessage(userSession, "Greetings ${ccb.name}! you appear to be an existing user ${additional}")
-				}
-				ccb.active=true
-				ccb.save(flush:true)
-			} else {
-				chatClientListenerService.sendMessage(userSession, "did not find you on our system wooops")
-			}
-		} else {
-			if (msgFrom && !msgFrom.endsWith('_'+assistant) && username && actionthis) {
-				currentSession = returnSession(thisUser)
-				boolean nameRequired = currentSession.userProperties.get("nameRequired") as boolean
-				boolean emailedRequired = currentSession.userProperties.get("emailedRequired") as boolean
-				//verify users name input
-				if (nameRequired && currentSession && actionthis) {
+
+					ccb.active=true
+					ccb.save()
+				} else if (!isAdmin && nameRequired && actionthis && askName) {
+					ccb.active=true
+					ccb.save()
 					currentSession.userProperties.put("nameRequired", false)
 					String name = actionthis
-					ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(thisUser)
 					ccb.name=name
-					ccb.save(flush:true)
+					ccb.save()
 					chatClientListenerService.sendMessage(userSession, "Thanks ${name}, just incase we get cut off what is your email?")
 					currentSession.userProperties.put("emailedRequired", true)
 					//verify users email input //&& !nameRequired
-				} else 	if (emailedRequired && currentSession && actionthis ) {
+				} else 	if (!isAdmin && currentSession && emailedRequired && actionthis && askEmail && !askedEmail) {
 					String email = actionthis
-					ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(thisUser)
 					ccb.emailAddress=email
 					if (!ccb.validate()) {
 						currentSession.userProperties.put("emailedRequired", true)
-						chatClientListenerService.sendMessage(userSession, "Thanks ${ccb.name}, I could not verify email ${email} can you try again?")
+						chatClientListenerService.sendMessage(userSession, "Thanks ${ccb?.name?: 'Guest'}, I could not verify email ${email} can you try again?")
 					} else {
 						currentSession.userProperties.put("emailedRequired", false)
-						ccb.save(flush:true)
-						chatClientListenerService.sendMessage(userSession, "Thanks ${ccb.name}, I have ${email} as your email now")
+						currentSession.userProperties.put("askedEmail", true)
+						ccb.save()
+						boolean doAi = boldef(config.enable_AI)
+						String additional = ', please wait'
+						if (doAi) {
+							additional = '. Feel free to ask a question and maybe the bot can help whilst you are waiting'
+						}
+						chatClientListenerService.sendMessage(userSession, "Thanks ${ccb?.name?: 'Guest'}, I have ${email} as your email now ${additional}")
 					}
-				} else {
-					checkAI(userSession,actionthis, thisUser, msgFrom)
+				} else if (actionthis && msgFrom){
+
+					boolean isEnabled = boldef(config.store_live_messages)
+					if (isEnabled) {
+
+
+						//msgFrom = (msgFrom == ccb.username)?'': msgFrom
+						String logUser
+						if (isAdmin) {
+							logUser = msgFrom
+							Long cid = userSession.userProperties.get('cid') as Long
+							if (cid) {
+								ccb = ChatCustomerBooking.get(cid)
+							}
+						}
+						if (ccb) {
+							persistLiveMessage(ccb, actionthis, logUser)
+						}
+					}
+					boolean doAi = boldef(config.enable_AI)
+					Map wordListing = wordListing(actionthis)
+					checkAI(userSession,wordListing, doAi, actionthis)
 				}
-			}
-			// DISCONNECTING HERE OTHERWISE WE WILL GET A LOOP OF REPEATED MESSAGES {unsure of its accuracy now after all new changes}
-			if (disco) {
-				chatClientListenerService.disconnect(userSession)
+			} else if (currentSession && userType=='chat') {
+				//this.disco = false
+				boolean doAi = boldef(config.enable_Chat_AI)
+				Map wordListing = wordListing(actionthis)
+				checkAI(userSession,wordListing,doAi, actionthis)
+				doAi = boldef(config.enable_Chat_BadWords)
+				checkBadWords(userSession,wordListing,doAi, actionthis, msgFrom)
+			} else {
+				//this.disco = true
+				// DISCONNECTING HERE OTHERWISE WE WILL GET A LOOP OF REPEATED MESSAGES {unsure of its accuracy now after all new changes}
+				if (disco) {
+					chatClientListenerService.disconnect(userSession)
+				}
 			}
 		}
 	}
 
-	//Improved AI lookup
-	private void checkAI(Session userSession, String actionthis, String thisUser,String messageFrom) {
-		//record logs
-		boolean isEnabled = boldef(config.store_live_messages)
-		if (isEnabled) {
-			messageFrom = (messageFrom == thisUser)?'': messageFrom
-			persistLiveMessage(actionthis,thisUser,messageFrom)
+	private Map wordListing(String actionthis) {
+		String output
+		def words = actionthis.split(" ")
+		List wordList = []
+		List singleWords = []
+		if (words.size()>1) {
+			String lastWord=''
+			words.eachWithIndex { String c, int i ->
+				wordList << c
+				singleWords << c
+				if (i>0) {
+					lastWord = "${lastWord} ${c}"
+					wordList << lastWord
+				} else {
+					lastWord = c
+				}
+			}
 		}
-		List dbList = []
-		boolean doAi = boldef(config.enable_AI)
+		wordList<< actionthis
+		return [wordList:wordList,singleWords:singleWords]
+	}
+
+	/**
+	 * checks badWords db table and returns defined action for the bad words which can be kick or ban and ban defined by duration period
+	 * or customise another message to be returned maybe telling off the user
+	 * @param userSession
+	 * @param wordListing
+	 * @param doAi
+	 * @param actionthis
+	 * @param user
+	 */
+	private void checkBadWords(Session userSession, Map wordListing, boolean doAi, String actionthis, String user) {
 		if (doAi) {
-			String output
-			dbList << actionthis
-			def words = actionthis.split(" ")
-			List wordList = []
-			List singleWords = []
-			if (words.size()>1) {
-				String lastWord=''
-				words.eachWithIndex { String c, int i ->
-					wordList << c
-					singleWords << c
-					if (i>0) {
-						lastWord = "${lastWord} ${c}"
-						wordList << lastWord
-					} else {
-						lastWord = c
+			List dbList = wordListing.wordList
+			List singleWords = wordListing.singleWords
+			if (dbList) {
+				String query = """ select new map(ai.input as input, ai.output as output, ai.duration as duration, ai.period as period) FROM ChatBadWords ai
+					where ai.input in (:rawList)"""
+				Map inputParams = [rawList:dbList]
+				def results = ChatBadWords.executeQuery(query,inputParams,[readonly:true,timeout:20,max:-1])
+				if (results) {
+					def finalResult = [:].withDefault { [] }
+					results.each {
+						def inputWords = it.input.split(" ")
+						int closest = 0
+						inputWords.each {
+							if (singleWords.contains(it)) {
+								closest++
+							}
+						}
+						String send = "${it.output} $user"
+						if (it.period && it.duration) {
+							send +=",${it.duration}:${it.period}"
+						}
+						finalResult["${closest}"] <<  send
+						//finalResult["${it.output}"] <<  closest
+					}
+					def mostRelated =  finalResult.max { a, b ->a.key.size() <=> b.key.size()}?.value
+					mostRelated?.each {
+						String send = it
+
+						chatClientListenerService.sendMessage(userSession, send)
 					}
 				}
 			}
-			dbList.addAll(wordList)
-			List likeList = dbList.collect { "  or ai.input  like '%${it}%' "}
-			String query = "select new map(ai.input as input, ai.output as output) FROM ChatAI ai where (ai.input in (:rawList)  "+ likeList.join() +")"
-			Map inputParams = [rawList:dbList]
-			def results = ChatAI.executeQuery(query,inputParams,[readonly:true,timeout:20,max:-1])
-			if (results) {
-				def finalResult = [:].withDefault { [] }
-				results.each {
-					def inputWords = it.input.split(" ")
-					int closest = 0
-					inputWords.each {
-						if (singleWords.contains(it)) {
-							closest++
+		}
+	}
+
+
+	/**
+	 * This does some wild query against ChatAI DB table and tries to match user input
+	 * against what it finds and currently for anything that matches words within a sentence
+	 * all those matches are returned - probably needs more work to make it more focused on input
+	 * matching actual result set.
+	 * @param userSession
+	 * @param wordListing
+	 * @param doAi
+	 * @param actionthis
+	 */
+	private void checkAI(Session userSession,Map wordListing, boolean doAi, String actionthis) {
+		if (doAi) {
+			List dbList = wordListing.wordList
+			List singleWords = wordListing.singleWords
+			if (dbList) {
+				List likeList = dbList.collect { "  or ai.input  like '%${it}%' "}
+				String query = """ select new map(ai.input as input, ai.output as output) FROM ChatAI ai
+					where (ai.input in (:rawList)  ${likeList.join()} )"""
+				Map inputParams = [rawList:dbList]
+				def results = ChatAI.executeQuery(query,inputParams,[readonly:true,timeout:20,max:-1])
+				if (results) {
+					def finalResult = [:].withDefault { [] }
+					results.each {
+						def inputWords = it.input.split(" ")
+						int closest = 0
+						inputWords.each {
+							if (singleWords.contains(it)) {
+								closest++
+							}
 						}
+						finalResult["${closest}"] <<  it.output
+						//finalResult["${it.output}"] <<  closest
 					}
-					finalResult["${closest}"] <<  it.output
-					//finalResult["${it.output}"] <<  closest
-				}
-				def mostRelated =  finalResult.max { a, b ->a.key.size() <=> b.key.size()}?.value
-				mostRelated?.each {
-					chatClientListenerService.sendMessage(userSession, it)
+					def mostRelated =  finalResult.max { a, b ->a.key.size() <=> b.key.size()}?.value
+					mostRelated?.each {
+						chatClientListenerService.sendMessage(userSession, it)
+					}
 				}
 			}
 		}
 	}
 
 	@Transactional
-	void persistLiveMessage(String message, String user, String username=null) {
+	void persistLiveMessage(ChatCustomerBooking cb, String message, String user=null) {
 		boolean isEnabled = boldef(config.dbstore)
 		if (isEnabled) {
-			def chat = ChatCustomerBooking.findByUsername(user)
-			def cm = new ChatMessage(user: username, contents: message, log: chat?.log)
-			if (!cm.save(flush:true)) {
+			def cm = new ChatMessage(user: user, contents: message, log: cb.log)
+			if (!cm.save()) {
 				log.error "Persist Message issue: ${cm.errors}"
 			}
 		}
@@ -357,21 +475,30 @@ public class WsClientProcessService extends WsChatConfService {
 		return isEnabled
 	}
 
-	private String returnRoom(String thisUser) {
-		Map<String,Session> records = chatroomUsers.get(thisUser)
+	private String returnRoom(String msgFrom) {
+		Map<String,Session> records = chatroomUsers.get(msgFrom)
 		return records.find{ it.value != null}?.key
 	}
 
-	private Session returnSession(String thisUser) {
-		Map<String,Session> records = chatroomUsers.get(thisUser)
+	private Session returnSession(String msgFrom) {
+		Map<String,Session> records = chatroomUsers.get(msgFrom)
 		String room = records.find{ it.value != null}?.key
-		Session currentSession = getChatUser(thisUser,room)
+		Session currentSession = getChatUser(msgFrom,room)
 		return currentSession
 	}
 
-	//OVERRIDE AND SET CUSTOM ACTIONS
-	// CLIENT SERVER CHAT VIA WsChatClientService method aka
-	// <chat:clientConnect gsp call
+
+	/**
+	 * OVERRIDE AND SET CUSTOM ACTIONS  CLIENT SERVER CHAT VIA WsChatClientService method aka <chat:clientConnect gsp call
+	 * @param user
+	 * @param pm
+	 * @param actionthis
+	 * @param sendThis
+	 * @param divId
+	 * @param msgFrom
+	 * @param strictMode
+	 * @param masterNode
+	 */
 	public void processAct(String user, boolean pm,String actionthis, String sendThis, String divId,
 						   String msgFrom, boolean strictMode, boolean masterNode) {
 
@@ -393,14 +520,14 @@ public class WsClientProcessService extends WsChatConfService {
 		/* SET CUSTOM ACTIONS
 		 if (masterNode) {
 		 if (actionthis== 'do_task_1') {
-		 // TODO something on master node that has mappings to do_task_1
-		 log.info "something on master node that has mappings to do_task_1 TASK1"
+			 // TODO something on master node that has mappings to do_task_1
+			 log.info "something on master node that has mappings to do_task_1 TASK1"
 		 }else if (actionthis== 'do_task_2') {
-		 // TODO something on master node that has mappings to do_task_2
-		 log.info "something on master node that has mappings to do_task_2 TASK2"
+			 // TODO something on master node that has mappings to do_task_2
+		 	log.info "something on master node that has mappings to do_task_2 TASK2"
 		 }else if (actionthis== 'do_task_3') {
-		 // TODO something on master node that has mappings to do_task_3
-		 log.info "something on master node that has mappings to do_task_3 TASK3"
+		 	// TODO something on master node that has mappings to do_task_3
+			 log.info "something on master node that has mappings to do_task_3 TASK3"
 		 }
 		 }
 		 */

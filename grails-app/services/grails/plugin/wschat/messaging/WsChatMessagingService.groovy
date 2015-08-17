@@ -14,7 +14,7 @@ import javax.websocket.Session
 
 class WsChatMessagingService extends WsChatConfService {
 
-	def sendMsg(Session userSession,String msg) throws Exception {
+	void sendMsg(Session userSession,String msg) throws Exception {
 		try {
 			if (userSession && userSession.isOpen()) {
 				String urecord = userSession.userProperties.get("username") as String
@@ -30,12 +30,20 @@ class WsChatMessagingService extends WsChatConfService {
 		}
 	}
 
-	def messageUser(Session userSession,Map msg) {
+	void sendDelayedMessage(Session userSession,final String message, int delay) {
+		def asyncProcess = new Thread({
+			sleep(delay)
+			userSession.basicRemote.sendText(message)
+		} as Runnable)
+		asyncProcess.start()
+	}
+
+	void messageUser(Session userSession,Map msg) {
 		def myMsgj = (msg as JSON).toString()
 		sendMsg(userSession, myMsgj)
 	}
 
-	def privateMessage(String user,Map msg,Session userSession) {
+	void privateMessage(String user,Map msg,Session userSession) {
 		def myMsg = [:]
 		def myMsgj = msg as JSON
 		String urecord = userSession.userProperties.get("username") as String
@@ -74,7 +82,7 @@ class WsChatMessagingService extends WsChatConfService {
 		return ChatBlockList.findByChatuserAndUsername(currentUser(username),urecord)?false:true
 	}
 
-	def broadcast2all(Map msg) {
+	void broadcast2all(Map msg) {
 		def myMsgj = msg as JSON
 		chatNames.each { String cuser,Map<String,Session> records ->
 			records?.each { String room, Session crec ->
@@ -85,7 +93,7 @@ class WsChatMessagingService extends WsChatConfService {
 		}
 	}
 
-	def broadcast(Session userSession,Map msg) {
+	void broadcast(Session userSession,Map msg) {
 		def myMsgj = msg as JSON
 		String room = userSession.userProperties.get("room") as String
 		String urecord = userSession.userProperties.get("username") as String
@@ -106,18 +114,17 @@ class WsChatMessagingService extends WsChatConfService {
 		ChatUser cu =  ChatUser.findByUsername(username)
 		return cu
 	}
-	def jsonmessageUser(Session userSession,String msg) {
+	void jsonmessageUser(Session userSession,String msg) {
 		userSession.basicRemote.sendText(msg as String)
 	}
 
-	def jsonmessageOther(Session userSession,String msg,String realCamUser, boolean fileUser=null) {
+	void jsonmessageOther(Session userSession,String msg,String realCamUser, boolean fileUser=null) {
 		def uList = camNames
 		if (fileUser) {
 			uList = fileroomUsers
 		}
 		uList.each { String cuser, Session crec ->
 			if (crec && crec.isOpen()) {
-				def cmuser = crec.userProperties.get("camusername").toString()
 				String camuser = crec.userProperties.get("camuser") as String
 				if ((camuser.startsWith(realCamUser+":"))&&(!camuser.toString().endsWith(realCamUser))) {
 					crec.basicRemote.sendText(msg as String)
@@ -126,7 +133,7 @@ class WsChatMessagingService extends WsChatConfService {
 		}
 	}
 
-	def jsonmessageOwner(Session userSession,String msg,String realCamUser, boolean fileUser=null) {
+	void jsonmessageOwner(Session userSession,String msg,String realCamUser, boolean fileUser=null) {
 		def uList = camNames
 		if (fileUser) {
 			uList = fileroomUsers
@@ -149,7 +156,7 @@ class WsChatMessagingService extends WsChatConfService {
 			def chat = ChatUser.findByUsername(user)
 			if (chat) {
 				def cm = new OffLineMessage(user: username, contents: message, offlog: chat?.offlog, readMsg: false)
-				if (!cm.save(flush:true)) {
+				if (!cm.save()) {
 					log.error "verifyOfflinePM issue:  ${cm.errors}"
 				}
 				messageUser(userSession,["message": "Offline message sent to ${user}"])
@@ -167,7 +174,7 @@ class WsChatMessagingService extends WsChatConfService {
 		if (isEnabled) {
 			def chat = ChatUser.findByUsername(user)
 			def cm = new ChatMessage(user: username, contents: message, log: chat?.log)
-			if (!cm.save(flush:true)) {
+			if (!cm.save()) {
 				log.error "Persist Message issue: ${cm.errors}"
 			}
 		}

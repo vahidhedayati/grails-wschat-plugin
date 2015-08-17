@@ -8,6 +8,8 @@ import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.OffLineMessage
 import grails.plugin.wschat.WsChatConfService
 import grails.transaction.Transactional
+import grails.plugin.wschat.beans.ConfigBean
+
 
 import java.text.SimpleDateFormat
 
@@ -19,6 +21,8 @@ class WsChatAuthService extends WsChatConfService   {
 	def wsChatMessagingService
 	def wsChatUserService
 	def wsChatRoomService
+	def chatClientListenerService
+
 
 	private void verifyOffLine(Session userSession, String username) {
 		def chat = ChatUser?.findByUsername(username)
@@ -32,17 +36,17 @@ class WsChatAuthService extends WsChatConfService   {
 	}
 
 	@Transactional
-	public Map addUser(String username) {
+	Map addUser(String username) {
 		String defaultPermission = config.defaultperm  ?: defaultPerm
 		def perm,user
 		perm = ChatPermissions.findByName(defaultPermission)
 		if (!perm) {
-			perm = ChatPermissions.findOrSaveWhere(name: defaultPermission).save(flush:true)
+			perm = ChatPermissions.findOrSaveWhere(name: defaultPermission).save()
 		}
 		user = ChatUser.findByUsername(username)
 		if (!user) {
 			def addlog = addLog()
-			user = ChatUser.findOrSaveWhere(username:username, permissions:perm, log: addlog, offlog: addlog).save(flush:true)
+			user = ChatUser.findOrSaveWhere(username:username, permissions:perm, log: addlog, offlog: addlog).save()
 		}
 		return [ user:user, perm:perm ]
 	}
@@ -50,7 +54,7 @@ class WsChatAuthService extends WsChatConfService   {
 	@Transactional
 	private ChatLog addLog() {
 		ChatLog logInstance = new ChatLog(messages: [])
-		if (!logInstance.save(flush:true)) {
+		if (!logInstance.save()) {
 			log.debug "${logInstance.errors}"
 		}
 		return logInstance
@@ -66,7 +70,7 @@ class WsChatAuthService extends WsChatConfService   {
 		logit.username = username
 		logit.loggedIn = true
 		logit.loggedOut = false
-		if (!logit.save(flush:true)) {
+		if (!logit.save()) {
 			log.error "${logit.errors}"
 		}
 		defaultPerm = user.permissions.name as String
@@ -79,13 +83,57 @@ class WsChatAuthService extends WsChatConfService   {
 		logit.username = username
 		logit.loggedIn = false
 		logit.loggedOut = true
-		if (!logit.save(flush:true)) {
+		if (!logit.save()) {
 			log.error "${logit.errors}"
 		}
 	}
 
+	void delBotFromChatRoom(String username, String roomName, String userType, String message) {
+		ConfigBean bean = new ConfigBean()
+		String botUser = roomName+"_"+bean.assistant
+		boolean addBot = true
+		if (userType=='chat') {
+			addBot = bean.enable_Chat_Bot
+		}
+		if (isBotinRoom(botUser)  && addBot) {
+			Session currentSession = getChatUser(botUser, roomName)
+			if (currentSession) {
+				wsChatMessagingService.messageUser(currentSession, ["message": "${username}: ${message}"])
+			}
+		}
+	}
+	void addBotToChatRoom(String roomName, String userType, boolean addBot=null, String message=null, String uri=null) {
+		ConfigBean bean = new ConfigBean()
+		if (!message) {
+			message = bean.botMessage
+		}
+		if (!uri) {
+			uri = bean.uri
+		}
+		if (!addBot) {
+			addBot = bean.enable_Chat_Bot
+		}
+		String botUser = roomName+"_"+bean.assistant
+		if (!isBotinRoom(botUser)  && addBot) {
+			Session currentSession = chatClientListenerService.p_connect(uri, botUser, roomName)
+			if (bean.liveChatAskName && userType=='liveChat') {
+				message+= "\n"+bean.liveChatNameMessage
+			}
+			chatClientListenerService.sendDelayedMessage(currentSession, message,1000)
+		}
+	}
 
-	public void connectUser(String message,Session userSession,String room) {
+	Boolean isBotinRoom(String botUser) {
+		boolean found = false
+		chatNames.each { String cuser, Map<String,Session> records ->
+			if (cuser == botUser) {
+				found = true
+			}
+		}
+		return found
+	}
+
+	void connectUser(String message,Session userSession,String room) {
 		def myMsg = [:]
 		Boolean isuBanned = false
 		String connector = "CONN:-"
@@ -128,7 +176,6 @@ class WsChatAuthService extends WsChatConfService   {
 		}
 		verifyOffLine(userSession,username)
 	}
-
 
 	@Transactional
 	Boolean isBanned(String username) {

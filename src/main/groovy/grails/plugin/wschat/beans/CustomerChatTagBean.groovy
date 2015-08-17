@@ -18,8 +18,9 @@ class CustomerChatTagBean extends ClientTagBean  implements Validateable {
 	String params
 	ArrayList uList
 	List userList
-	final String assistant = getConfig('liveChatAssistant') ?: 'assistant'
-	final String liveChatTitle = getConfig('liveChatTitle') ?:'Customer Chat'
+	public final String liveChatTitle = getConfig('liveChatTitle') ?:'Customer Chat'
+	public final String botLiveMessage = getConfig('botLiveMessage') ?: 'Welcome, this is an automated message, attempting to retrieve a member of staff for you. Please wait'
+
 	String id
 	Integer max = Math.min(max ?: 10, 1000)
 	String s

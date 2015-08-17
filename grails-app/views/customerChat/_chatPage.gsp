@@ -7,7 +7,11 @@
 	<div id="chat_div"></div>
 	<div class='col-sm-10'>
 		<div id="cmessage">
-			<div id="chatMessages"></div>
+			<div id="fixyflow">
+    			<div id="fixflow">
+    			<div id="chatMessages"></div>
+				</div>
+			</div>
 		</div>
 	<div class="message-thread">
 		<div id="sendMessage">
@@ -26,7 +30,7 @@
 			autoOpen: true,
             hide: "puff",
             show : "slide",
-            height: 435,
+            height: 440,
             width: 660,
             position: {
                 my: "left center",
@@ -39,6 +43,9 @@
              	$('#chatReturn').hide();
              	$(this).dialog("destroy");
              	$(this).hide();
+             },
+             open: function (event, ui) {
+                              $('#chatDialog').css('overflow', 'hidden');
              }
          });
     });
@@ -86,7 +93,7 @@
     var onlineUsers=document.getElementById("onlineUsers");
     var messageBox=document.getElementById("messageBox");
     webSocket.onopen=function(message) {processOpen(message);};
-    webSocket.onclose=function(message) {processClose(message);};
+    webSocket.onclose=function(message) {processLiveClose(message);};
     webSocket.onerror=function(message) {processError(message);};
     webSocket.onmessage=function(message) {processMessage(message);	};
 		
@@ -102,6 +109,7 @@
 		<g:else>
        		webSocket.send("CONN:-"+user);
            	scrollToBottom();
+           	webSocket.send("/userType liveChat");
        </g:else>
  	}
 	$('#messageBox').keypress(function(e){

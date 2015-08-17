@@ -20,6 +20,7 @@ class WsChatController extends WsChatConfService {
 	def wsChatProfileService
 	def wsChatBookingService
 	def wsChatContService
+	def wsChatAuthService
 
 	def index(ConnectTagBean bean) {
 		bean.addLayouts=true
@@ -39,6 +40,7 @@ class WsChatController extends WsChatConfService {
 		bean.setAddLayouts(true)
 		bean.chatuser = session.wschatuser
 		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(true)
+		wsChatAuthService.addBotToChatRoom(bean.room, 'chat', bean.enable_Chat_Bot, bean.botMessage, bean.uri)
 		[bean:bean]
 	}
 
@@ -339,14 +341,14 @@ class WsChatController extends WsChatConfService {
 
 	def viewLiveLogs(String username) {
 		def livelogs = wsChatBookingService.findLiveLogs(username)
-		render view: '/customerChat/viewLiveLogs', model: [livelogs:livelogs]
+		render template: '/customerChat/viewLiveLogs', model: [livelogs:livelogs]
 	}
 
 	/* end live chat */
 
 	def viewLogs(String username) {
 		def chatlogs = wsChatUserService.findLogs(username)
-		render view: '/admin/viewLogs', model: [chatlogs:chatlogs]
+		render template: '/admin/viewLogs', model: [chatlogs:chatlogs]
 	}
 
 	def searchLiveChat(String mq) {

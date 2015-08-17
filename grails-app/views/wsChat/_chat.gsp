@@ -149,13 +149,9 @@
 		return baseapp;
 	}
  	
- 	<g:if test="${bean.addAppName=='no'}">
-		var themeuri="/assets/"
-	</g:if>
-	<g:else>
-		var themeuri="/"+baseapp+"/assets/"
-	</g:else>
-	
+
+	var themeuri="/assets/"
+
 	document.getElementById('themeChanger2').onclick = function () { 
    	 	document.getElementById('chat_theme').href = themeuri+'chat-blue.css';
 	};
@@ -169,7 +165,7 @@
 	};
 	
 	document.getElementById('themeChanger4').onclick = function () { 
-   	 	document.getElementById('chat_theme').href = themeuri+'/chat.css';
+   	 	document.getElementById('chat_theme').href = themeuri+'chat.css';
 	};
 
 	if (!window.WebSocket) {
@@ -224,7 +220,7 @@
     var onlineUsers=document.getElementById("onlineUsers");
     var messageBox=document.getElementById("messageBox");
     webSocket.onopen=function(message) {processOpen(message);};
-    webSocket.onclose=function(message) {processClose(message);};
+    webSocket.onclose=function(message) {processChatClose(message);};
     webSocket.onerror=function(message) {processError(message);};
     webSocket.onmessage=function(message) {processMessage(message);	};
 		
@@ -241,6 +237,7 @@
        		webSocket.send("CONN:-"+user);
            	scrollToBottom();
            	webSocket.send("/listRooms");
+           	webSocket.send("/userType chat");
        </g:else>
  	}
 
@@ -259,6 +256,7 @@
 	});
 	
     window.onbeforeunload = function() {
+    	webSocket.send("deactive_chat_bot");
        webSocket.send("DISCO:-"+user);
        //webSocket.onclose = function() { }
        //webSocket.close();

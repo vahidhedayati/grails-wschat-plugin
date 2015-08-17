@@ -10,6 +10,7 @@ function processMessage(message) {
 		
 	if (jsonData.message!=null) {
 		$('#chatMessages').append(htmlEncode(jsonData.message)+"\n");
+		scrollToBottom();
 	}
 	if (jsonData.isAdmin!=null) {
 		isAdmin=jsonData.isAdmin
@@ -543,5 +544,6 @@ function processMessage(message) {
 		}
 		$('#chatMessages').append("PM("+sender+"): "+jsonData.privateMessage+"\n");
 		sendPM(receiver,sender,jsonData.privateMessage);
-	}   	
+	}
+	scrollToBottom();
 }

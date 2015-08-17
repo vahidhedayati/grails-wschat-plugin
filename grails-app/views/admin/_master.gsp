@@ -33,7 +33,3 @@
 	<div id="invitecontainer" style="display:none;">
 		<g:render template="/admin/inviteContainer"/>
 	</div>
-
-	<div id="liveChatLogcontainer" style="display: none;">
- 		<g:render template="/customerChat/master"/>
-   	</div>

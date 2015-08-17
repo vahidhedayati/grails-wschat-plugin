@@ -223,18 +223,18 @@ function viewLiveChats(user) {
 function viewLiveLogs(user) {
 	if (isAdmin=="true") {
 		$.get("/wsChat/viewLiveLogs?username="+user,function(data){
-			$('#logContainer').hide().html(data).fadeIn('slow');
+			$('#inviteUserContainer').hide().html(data).fadeIn('slow');
 		});
-		$('#liveChatLogcontainer').show();
+		$('#invitecontainer').show();
 	}
 }
 
 function viewLogs(user) {
 	if (isAdmin=="true") {
 		$.get("/wsChat/viewLogs?username="+user,function(data){
-			$('#logContainer').hide().html(data).fadeIn('slow');
+			$('#inviteUserContainer').hide().html(data).fadeIn('slow');
 		});
-		$('#liveChatLogcontainer').show();
+		$('#invitecontainer').show();
 	}
 }
 
@@ -730,6 +730,20 @@ function sendMessage() {
 	}   
 }
 
+function processChatClose(message) {
+	webSocket.send("deactive_chat_bot");
+	webSocket.send("DISCO:-"+user);
+	$('#chatMessages').append(user+" disconnecting from server... \n");
+	webSocket.close();
+}
+
+function processLiveClose(message) {
+	webSocket.send("deactive_me");
+	webSocket.send("DISCO:-"+user);
+	$('#chatMessages').append(user+" disconnecting from server... \n");
+	webSocket.close();
+}
+
 function processClose(message) {
 	webSocket.send("DISCO:-"+user);
 	$('#chatMessages').append(user+" disconnecting from server... \n");
@@ -746,5 +760,5 @@ function processError(message) {
 
 function scrollToBottom() {
 	$('#cmessage').scrollTop($('#cmessage')[0].scrollHeight);
-
 }
+

@@ -8,23 +8,23 @@ import javax.websocket.Session
 import org.grails.web.json.JSONObject
 
 public class WsChatClientService extends WsChatConfService {
-	
+
 	static transactional  =  false
-	
+
 
 	def wsChatUserService
 
-	public WsChatClientEndpoint conn(String uri, String user ) {
+	WsChatClientEndpoint conn(String uri, String user ) {
 		WsChatClientEndpoint clientEndPoint = new WsChatClientEndpoint(new URI(uri))
 		clientEndPoint.connectClient(user)
 		return clientEndPoint
 	}
 
-	def sendMessage(WsChatClientEndpoint clientEndPoint, String message) {
+	void sendMessage(WsChatClientEndpoint clientEndPoint, String message) {
 		clientEndPoint.sendMessage("${message}")
 	}
 
-	def sendArrayPM(WsChatClientEndpoint clientEndPoint, ArrayList pmuser, String message) {
+	void sendArrayPM(WsChatClientEndpoint clientEndPoint, ArrayList pmuser, String message) {
 		ConfigBean bean = new ConfigBean()
 		pmuser.each { cuser ->
 			boolean found
@@ -41,7 +41,8 @@ public class WsChatClientService extends WsChatConfService {
 
 		}
 	}
-	def sendPM(WsChatClientEndpoint clientEndPoint, String pmuser, String message) {
+
+	void sendPM(WsChatClientEndpoint clientEndPoint, String pmuser, String message) {
 		boolean found
 		ConfigBean bean = new ConfigBean()
 		if (!pmuser.endsWith(bean.frontUser)) {
@@ -56,77 +57,75 @@ public class WsChatClientService extends WsChatConfService {
 		}
 	}
 
-	def disco(WsChatClientEndpoint clientEndPoint, String user) {
+	void disco(WsChatClientEndpoint clientEndPoint, String user) {
 		clientEndPoint.disconnectClient(user)
 	}
 
 
-	def handMessage(WsChatClientEndpoint clientEndPoint, String user,
-			ArrayList pmuser, Map aMap, boolean strictMode,String divId, boolean masterNode) {
-			
+	void handMessage(WsChatClientEndpoint clientEndPoint, String user,
+					 ArrayList pmuser, Map aMap, boolean strictMode,String divId, boolean masterNode) {
+
 		clientEndPoint.addMessageHandler(
 				new WsChatClientEndpoint.MessageHandler() {
 					public void handleMessage(String message) {
 						if (message.startsWith('{"')) {
-						JSONObject rmesg=JSON?.parse(message)
-						String actionthis=''
-						String msgFrom = rmesg.msgFrom
-						String disconnect = rmesg.system
-						if (disconnect && disconnect == "disconnect") {
-							clientEndPoint.sendMessage("DISCO:-"+user)
-						}
-						boolean pm = false
-						if (strictMode) {
-							pmuser?.each { cuser ->
-								if (msgFrom && msgFrom == cuser) {
+							JSONObject rmesg=JSON?.parse(message)
+							String actionthis=''
+							String msgFrom = rmesg.msgFrom
+							String disconnect = rmesg.system
+							if (disconnect && disconnect == "disconnect") {
+								clientEndPoint.sendMessage("DISCO:-"+user)
+							}
+							boolean pm = false
+							if (strictMode) {
+								pmuser?.each { cuser ->
+									if (msgFrom && msgFrom == cuser) {
+										actionthis = rmesg.privateMessage
+										pm = true
+									}
+								}
+							}else{
+								if (msgFrom ) {
 									actionthis = rmesg.privateMessage
 									pm = true
 								}
 							}
-						}else{
-							if (msgFrom ) {
-								actionthis = rmesg.privateMessage
-								pm = true
-							}
-						}
-						def rmessage = rmesg.message
-						if (rmessage) {
-							def matcher = (rmessage =~ /(.*): (.*)/)
-							if (matcher.matches()){
-								msgFrom = matcher[0][1]
-								if (strictMode) {
-									pmuser?.each { cuser ->
-										if (msgFrom && msgFrom == cuser) {
+							def rmessage = rmesg.message
+							if (rmessage) {
+								def matcher = (rmessage =~ /(.*): (.*)/)
+								if (matcher.matches()){
+									msgFrom = matcher[0][1]
+									if (strictMode) {
+										pmuser?.each { cuser ->
+											if (msgFrom && msgFrom == cuser) {
+												actionthis = matcher[0][2]
+											}
+										}
+									}else{
+										if (msgFrom) {
 											actionthis = matcher[0][2]
 										}
 									}
+								}
+							}
+
+							if (actionthis) {
+								if ( (actionthis == 'close_connection')
+										|| (actionthis.startsWith('DISCO:-')) ) {
+									clientEndPoint.sendMessage("DISCO:-"+user)
 								}else{
-									if (msgFrom) {
-										actionthis = matcher[0][2]
+									if (aMap.containsKey(actionthis)) {
+										String sendThis=aMap[actionthis]
+										clientEndPoint.processAction( user, pm, actionthis, sendThis, divId ?: '',msgFrom,strictMode,masterNode)
+
 									}
 								}
 							}
-						}
 
-						if (actionthis) {
-							if ( (actionthis == 'close_connection')
-							|| (actionthis.startsWith('DISCO:-')) ) {
-								clientEndPoint.sendMessage("DISCO:-"+user)
-							}else{
-								if (aMap.containsKey(actionthis)) {
-									String sendThis=aMap[actionthis]
-									clientEndPoint.processAction( user, pm, actionthis, sendThis, divId ?: '',msgFrom,strictMode,masterNode)
-
-								}
-							}
+						}else{
+							clientEndPoint.sendMessage("${message}")
 						}
-						
-					}else{
-						clientEndPoint.sendMessage("${message}")
 					}
-				  }
 				})
 	}
-
-
 }

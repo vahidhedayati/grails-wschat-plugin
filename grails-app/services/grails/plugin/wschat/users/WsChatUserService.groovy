@@ -27,7 +27,7 @@ class WsChatUserService extends WsChatConfService  {
 
 
 	@Transactional
-	public ArrayList findLogs(String username) {
+	ArrayList findLogs(String username) {
 		ChatUser ccb = ChatUser.findByUsername(username)
 		Map resultSet = [:]
 		ArrayList finalResults=[]
@@ -43,7 +43,7 @@ class WsChatUserService extends WsChatConfService  {
 	}
 
 
-	public Map findaUser(String uid) {
+	Map findaUser(String uid) {
 		def returnResult=[:]
 		def found=ChatUser.findByUsername(uid)
 		if (found) {
@@ -61,7 +61,7 @@ class WsChatUserService extends WsChatConfService  {
 		return returnResult
 	}
 
-	public Map search(String mq) {
+	Map search(String mq) {
 		def userList = ChatUser?.findAllByUsernameLike("%" + mq + "%", [max: 30])
 		def uList = genAllUsers()
 		if (!userList) {
@@ -123,7 +123,7 @@ class WsChatUserService extends WsChatConfService  {
 		return chatUserExists(username)
 	}
 
-	public ArrayList genAllUsers() {
+	ArrayList genAllUsers() {
 		def uList = []
 		chatNames.each { String cuser,Map<String,Session> records ->
 			records?.each { String room, Session crec ->
@@ -135,11 +135,11 @@ class WsChatUserService extends WsChatConfService  {
 		return uList
 	}
 
-	def sendFlatUsers(Session userSession,String username) {
+	void sendFlatUsers(Session userSession,String username) {
 		userListGen(userSession, username, "flat")
 	}
 
-	def sendUsers(Session userSession,String username, String room) {
+	void sendUsers(Session userSession,String username, String room) {
 		String uiterator = userSession.userProperties.get("username").toString()
 		userListGen(userSession, username, "generic", room)
 	}
@@ -358,5 +358,4 @@ class WsChatUserService extends WsChatConfService  {
 			return username
 		}
 	}
-
 }

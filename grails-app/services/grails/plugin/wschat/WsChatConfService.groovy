@@ -18,67 +18,67 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 	/*
 	 * ChatUser ConcurrentHashMap
 	 */
-	public ConcurrentMap<String, Map<String,Session>> getChatNames() {
+	ConcurrentMap<String, Map<String,Session>> getChatNames() {
 		return chatroomUsers
 	}
-	public Collection<String> getChatUsers() {
+	Collection<String> getChatUsers() {
 		return Collections.unmodifiableSet(chatroomUsers.keySet())
 	}
-	public Session getChatUser(String username,String room) {
+	Session getChatUser(String username,String room) {
 		Map<String,Session> records = chatroomUsers.get(username)
 		return (records.find{it.key==room}?.value as Session)
 	}
-	public boolean chatUserExists(String username) {
+	boolean chatUserExists(String username) {
 		return chatUsers.contains(username)
 	}
-	public boolean destroyChatUser(String username) {
+	boolean destroyChatUser(String username) {
 		return chatroomUsers.remove(username) != null
 	}
 
 	/*
 	 * CamUser ConcurrentHashMap
 	 */
-	public Collection<String> getAvUsers() {
+	Collection<String> getAvUsers() {
 		return Collections.unmodifiableSet(camUsers.keySet())
 	}
-	public ConcurrentMap<String, Session>  getCamNames() {
+	ConcurrentMap<String, Session>  getCamNames() {
 		return camUsers
 	}
-	public Session getCamUser(String username) {
+	Session getCamUser(String username) {
 		Session userSession = camUsers.get(username)
 		return userSession
 	}
-	public boolean camUserExists(String username) {
+	boolean camUserExists(String username) {
 		return avUsers.contains(username)
 	}
-	public boolean destroyCamUser(String username) {
+	boolean destroyCamUser(String username) {
 		return camUsers.remove(username) != null
 	}
 
 	/*
 	 * fileroomUser ConcurrentHashMap
 	 */
-	public Collection<String> getFileUsers() {
+	Collection<String> getFileUsers() {
 		return Collections.unmodifiableSet(fileroomUsers.keySet())
 	}
-	public ConcurrentMap<String, Session>  getFileNames() {
+	ConcurrentMap<String, Session>  getFileNames() {
 		return fileroomUsers
 	}
-	public Session getFileUser(String username) {
+	Session getFileUser(String username) {
 		Session userSession = fileroomUsers.get(username)
 		return userSession
 	}
-	public boolean fileUserExists(String username) {
+	boolean fileUserExists(String username) {
 		return fileUsers.contains(username)
 	}
-	public boolean destroyFileUser(String username) {
+	boolean destroyFileUser(String username) {
 		return fileroomUsers.remove(username) != null
 	}
 
-	public String CONNECTOR = "CONN:-"
-	public String DISCONNECTOR = "DISCO:-"
-	public String CHATAPP = "WsChatEndpoint"
-	public String CHATVIEW = "wsChat"
+	public static final String CONNECTOR = "CONN:-"
+	public static final String DISCONNECTOR = "DISCO:-"
+	public static final String CHATAPP = "WsChatEndpoint"
+	public static final String CHATVIEW = "wsChat"
 
 	//static final Set<HashMap<String[],String[]>> clientMaster = ([:] as Set).asSynchronized()
 	//static final Set<HashMap<String[],String[]>> clientSlave = ([:] as Set).asSynchronized()
@@ -97,8 +97,6 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 			iceservers:iceservers, showtitle:showtitle]
 	}
 
-
-
 	boolean isConfigEnabled(String input) {
 		return Boolean.valueOf(input ?: false)
 	}
@@ -107,8 +105,7 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 		return isConfigEnabled(config.storeForFrontEnd ?: 'false')
 	}
 
-
-	public Boolean isAdmin(Session userSession) {
+	Boolean isAdmin(Session userSession) {
 		Boolean useris = false
 		String userLevel = userSession.userProperties.get("userLevel") as String
 		if (userLevel.toString().toLowerCase().startsWith('admin')) {
@@ -117,11 +114,11 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 		return useris
 	}
 
-	public String getApplicationName() {
+	String getApplicationName() {
 		return grailsApplication.metadata['app.name']
 	}
 
-	public String getFrontend() {
+	String getFrontend() {
 		return config.frontenduser ?: '_frontend'
 	}
 
