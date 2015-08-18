@@ -17,7 +17,11 @@
 	<div id="chat_div"></div>
 	<div class='col-sm-10'>
 		<div id="cmessage">
-			<div id="chatMessages"></div>
+			<div id="fixyflow">
+    			<div id="fixflow">
+    			<div id="chatMessages"></div>
+				</div>
+			</div>
 		</div>
 	<div class="message-thread">
 		<div id="sendMessage">
@@ -36,7 +40,7 @@
 			autoOpen: true,
             hide: "puff",
             show : "slide",
-            height: 435,
+            height: 440,
             width: 660,
             position: {
                 my: "left center",
@@ -49,10 +53,13 @@
              	$('#chatReturn').hide();
              	$(this).dialog("destroy");
              	$(this).hide();
+             },
+             open: function (event, ui) {
+                              $('#chatDialog').css('overflow', 'hidden');
              }
          });
     });
-
+    
  	var baseapp="${bean.appName}";
 	function getApp() {
 		return baseapp;

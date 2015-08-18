@@ -11,17 +11,10 @@ package grails.plugin.wschat
  * This is for you to populate with your company useful information
  * Customer may ask whats your contact number for which bot will repond with a response if that phrase is found in this table
  * The process to look up input output would suite something like (if you registered below in your bootstrap):
- * 
- *     ChatAI.findOrSaveWhere(input:'contact number', output: '0800 123456' )
- *     ChatAI.findOrSaveWhere(input:'opening hours', output: '9 - 5' )
- * 
- *   This is an example of the bot working away with example above:
- *    
- *   Guest8F550FFA6B4A1D05682A2B313D17F63E: what is your contact number 
- *   Guest8F550FFA6B4A1D05682A2B313D17F63E_assistant: 0800 123456
- *   
- *   Guest8F550FFA6B4A1D05682A2B313D17F63E: what is your opening hours fool 
- *   Guest8F550FFA6B4A1D05682A2B313D17F63E_assistant: 9 - 5 
+ *  ChatBadWords.findOrSaveWhere(input:'poo', output: '/kickuser' )
+ * //minutes months hours years days
+ * ChatBadWords.findOrSaveWhere(input:'pants', output: '/banuser', duration: 1  ,period: 'minutes')
+ * ChatBadWords.findOrSaveWhere(input:'bastard', output: '/banuser', duration: 1  ,period: 'months')
  *  
  */
 class ChatBadWords {
