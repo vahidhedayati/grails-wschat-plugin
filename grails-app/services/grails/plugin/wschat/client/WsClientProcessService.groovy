@@ -5,6 +5,7 @@ import grails.plugin.wschat.ChatAI
 import grails.plugin.wschat.ChatBadWords
 import grails.plugin.wschat.ChatCustomerBooking
 import grails.plugin.wschat.ChatMessage
+import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.ChatUserProfile
 import grails.plugin.wschat.WsChatConfService
 import grails.plugin.wschat.beans.ConfigBean
@@ -140,7 +141,10 @@ public class WsClientProcessService extends WsChatConfService {
 				}
 			}
 		}
-
+		//Cut back on DB lookups on each request - just lookup bot session
+		def cid = userSession.userProperties.get('cid')
+		def admin = userSession.userProperties.get('admin')
+		
 		if (disconnect && disconnect == "disconnect") {
 			chatClientListenerService.disconnect(userSession)
 		}
@@ -164,11 +168,15 @@ public class WsClientProcessService extends WsChatConfService {
 		if (actionthis == 'close_connection') {
 			chatClientListenerService.disconnect(userSession)
 		} else if (actionthis == 'deactive_me') {
-			ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(msgFrom)
+			ChatCustomerBooking ccb 
+			if (cid) {
+				ccb = ChatCustomerBooking.load(cid as Long)
+			} else {
+				ccb = ChatCustomerBooking.findByUsername(msgFrom)
+			}
 			if (ccb) {
 				ccb.active=false
 				ccb.save()
-
 			}
 			String room = returnRoom(username)
 			if (room) {
@@ -210,21 +218,30 @@ public class WsClientProcessService extends WsChatConfService {
 			boolean askName = boldef(config.liveChatAskName)
 			boolean askEmail = boldef(config.liveChatAskEmail)
 			if (currentSession && userType && userType=='liveChat') {
-				ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(msgFrom)
-				if (!ccb) {
-					/*ccb = ChatUser.findByUsername(msgFrom)
-					if (!ccb) {
-						chatClientListenerService.sendMessage(userSession, "Could not find you on our system!")
-						return
-					}*/
-
-					isAdmin=true
-					/*helpRequested=true
-					askedEmail=true
-					askedName=true
-					askName=false
-					askEmail=false*/
+				ChatCustomerBooking ccb 
+				if (cid) {
+					ccb = ChatCustomerBooking.load(cid as Long)
+				} else {
+					ccb = ChatCustomerBooking.findByUsername(msgFrom)
+				}				
+				if ((!ccb || (ccb && ccb.username != msgFrom))) {
+					boolean goahead = false
+					if (admin==msgFrom) {
+						goahead = true
+					} else if (!admin && config.liveChatUsername && config.liveChatUsername==msgFrom) {
+						goahead = true
+					} else if (!admin){
+						def cu = ChatUser.findByUsername(username)
+						if (cu) {
+							goahead = true
+						}
+					}
+					if (goahead) {
+						userSession.userProperties.put("admin", msgFrom)
+						isAdmin=true
+					}	
 				}
+				
 				if (!helpRequested && !isAdmin) {
 					userSession.userProperties.put('cid', ccb.id)
 					String contactEmail = config.liveContactEmail
@@ -263,9 +280,9 @@ public class WsClientProcessService extends WsChatConfService {
 						additional = '. Feel free to ask a question and maybe the bot can help whilst you are waiting'
 					}
 					chatClientListenerService.sendMessage(userSession, "Greetings ${ccb.name}! you appear to be an existing user ${additional}")
-
 					ccb.active=true
 					ccb.save()
+					
 				} else if (!isAdmin && nameRequired && actionthis && askName) {
 					ccb.active=true
 					ccb.save()
@@ -275,7 +292,8 @@ public class WsClientProcessService extends WsChatConfService {
 					ccb.save()
 					chatClientListenerService.sendMessage(userSession, "Thanks ${name}, just incase we get cut off what is your email?")
 					currentSession.userProperties.put("emailedRequired", true)
-					//verify users email input //&& !nameRequired
+					
+				
 				} else 	if (!isAdmin && currentSession && emailedRequired && actionthis && askEmail && !askedEmail) {
 					String email = actionthis
 					ccb.emailAddress=email
@@ -293,16 +311,15 @@ public class WsClientProcessService extends WsChatConfService {
 						}
 						chatClientListenerService.sendMessage(userSession, "Thanks ${ccb?.name?: 'Guest'}, I have ${email} as your email now ${additional}")
 					}
+					
 				} else if (actionthis && msgFrom){
-
 					boolean isEnabled = boldef(config.store_live_messages)
 					if (isEnabled) {
 						String logUser
 						if (isAdmin) {
 							logUser = msgFrom
-							Long cid = userSession.userProperties.get('cid') as Long
 							if (cid) {
-								ccb = ChatCustomerBooking.get(cid)
+								ccb = ChatCustomerBooking.load(cid as Long)
 							}
 						}
 						if (ccb) {
