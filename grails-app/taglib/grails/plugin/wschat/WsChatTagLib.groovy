@@ -166,10 +166,8 @@ class WsChatTagLib extends WsChatConfService {
 		}else{
 			out << g.render(contextPath: pluginContextPath, template:"/customerChat/chatPage", model: model)
 		}
-		wsChatAuthService.addBotToChatRoom(bean.roomName, 'liveChat', true, bean.botLiveMessage, bean.uri)
-		//bean.message="Welcome, this is an automated message, attempting to retrieve a member of staff for you. Please wait"
-		//Session oSession = chatClientListenerService.p_connect(bean.uri, bean.user+"_"+bean.assistant, bean.roomName)
-		//chatClientListenerService.sendDelayedMessage(oSession, bean.message,1000)
+		wsChatAuthService.addBotToChatRoom(bean.roomName, 'liveChat', true, bean.botLiveMessage, bean.uri, bean.user)
+
 	}
 
 	def complete = {attrs ->

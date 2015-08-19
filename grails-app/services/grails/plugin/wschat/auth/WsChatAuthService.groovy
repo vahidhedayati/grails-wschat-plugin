@@ -2,6 +2,7 @@ package grails.plugin.wschat.auth
 
 import grails.plugin.wschat.ChatAuthLogs
 import grails.plugin.wschat.ChatBanList
+import grails.plugin.wschat.ChatCustomerBooking
 import grails.plugin.wschat.ChatLog
 import grails.plugin.wschat.ChatPermissions
 import grails.plugin.wschat.ChatUser
@@ -102,7 +103,7 @@ class WsChatAuthService extends WsChatConfService   {
 			}
 		}
 	}
-	void addBotToChatRoom(String roomName, String userType, boolean addBot=null, String message=null, String uri=null) {
+	void addBotToChatRoom(String roomName, String userType, boolean addBot=null, String message=null, String uri=null, String user=null) {
 		ConfigBean bean = new ConfigBean()
 		if (!message) {
 			message = bean.botMessage
@@ -116,7 +117,14 @@ class WsChatAuthService extends WsChatConfService   {
 		String botUser = roomName+"_"+bean.assistant
 		if (!isBotinRoom(botUser)  && addBot) {
 			Session currentSession = chatClientListenerService.p_connect(uri, botUser, roomName)
-			if (bean.liveChatAskName && userType=='liveChat') {
+			Boolean userExists=false
+			if (user) {
+				def cc = ChatCustomerBooking.findByUsername(user)
+				if (cc && cc?.name) {
+					userExists=true
+				}
+			}
+			if (bean.liveChatAskName && userType=='liveChat' && userExists==false) {
 				message+= "\n"+bean.liveChatNameMessage
 			}
 			chatClientListenerService.sendDelayedMessage(currentSession, message,1000)
