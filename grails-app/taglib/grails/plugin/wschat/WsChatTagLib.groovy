@@ -172,7 +172,7 @@ class WsChatTagLib extends WsChatConfService {
 		}else{
 			out << g.render(contextPath: pluginContextPath, template:"/customerChat/chatPage", model: model)
 		}
-		wsChatAuthService.addBotToChatRoom(bean.roomName, 'liveChat', true, bean.botLiveMessage, bean.uri)
+		wsChatAuthService.addBotToChatRoom(bean.roomName, 'liveChat', true, bean.botLiveMessage, bean.uri, bean.user)
 
 	
 		//Session oSession = chatClientListenerService.p_connect(bean.uri, bean.roomName+"_"+bean.assistant, bean.roomName)

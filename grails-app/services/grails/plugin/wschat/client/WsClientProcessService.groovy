@@ -8,6 +8,7 @@ import grails.plugin.wschat.ChatMessage
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.ChatUserProfile
 import grails.plugin.wschat.WsChatConfService
+import grails.plugin.wschat.beans.ChatBotBean
 import grails.plugin.wschat.beans.ConfigBean
 import grails.transaction.Transactional
 
@@ -141,9 +142,18 @@ public class WsClientProcessService extends WsChatConfService {
 				}
 			}
 		}
-		//Cut back on DB lookups on each request - just lookup bot session
-		def cid = userSession.userProperties.get('cid')
-		def admin = userSession.userProperties.get('admin')
+		//Cut back on DB lookups store chat / admin info into chatBotBean
+		ChatBotBean chatBotBean = userSession.userProperties.get('chatBotBean') as ChatBotBean
+		ChatCustomerBooking ccb  
+		boolean isLiveAdmin = false
+		boolean emailSent = false
+		boolean adminVerified = false
+		if (chatBotBean) {
+			ccb	= chatBotBean.customer
+			isLiveAdmin	= chatBotBean.isLiveAdmin
+			emailSent	= chatBotBean.emailSent
+			adminVerified = chatBotBean.adminVerified
+		}
 		
 		if (disconnect && disconnect == "disconnect") {
 			chatClientListenerService.disconnect(userSession)
@@ -168,12 +178,6 @@ public class WsClientProcessService extends WsChatConfService {
 		if (actionthis == 'close_connection') {
 			chatClientListenerService.disconnect(userSession)
 		} else if (actionthis == 'deactive_me') {
-			ChatCustomerBooking ccb 
-			if (cid) {
-				ccb = ChatCustomerBooking.load(cid as Long)
-			} else {
-				ccb = ChatCustomerBooking.findByUsername(msgFrom)
-			}
 			if (ccb) {
 				ccb.active=false
 				ccb.save()
@@ -200,50 +204,29 @@ public class WsClientProcessService extends WsChatConfService {
 		}  else  if (msgFrom && msgFrom != username) {
 			currentSession = returnSession(msgFrom)
 			boolean nameRequired = true
-			boolean emailedRequired = true
+			boolean emailRequired = true
 			boolean helpRequested = false
-			boolean askedName = false
-			boolean askedEmail = false
+			
 			String room, userType
 			if (currentSession) {
 				nameRequired = currentSession.userProperties.get("nameRequired") as boolean
-				emailedRequired = currentSession.userProperties.get("emailedRequired") as boolean
-				askedName = currentSession.userProperties.get("askedName") as boolean
-				askedEmail = currentSession.userProperties.get("askedEmail") as boolean
+				emailRequired = currentSession.userProperties.get("emailRequired") as boolean
 				helpRequested = currentSession.userProperties.get("helpRequested") as boolean
 				userType = currentSession.userProperties.get("userType") as String
 				room = returnRoom(msgFrom)
 			}
-			boolean isAdmin = false
 			boolean askName = boldef(config.liveChatAskName)
 			boolean askEmail = boldef(config.liveChatAskEmail)
 			if (currentSession && userType && userType=='liveChat') {
-				ChatCustomerBooking ccb 
-				if (cid) {
-					ccb = ChatCustomerBooking.load(cid as Long)
-				} else {
-					ccb = ChatCustomerBooking.findByUsername(msgFrom)
-				}				
-				if ((!ccb || (ccb && ccb.username != msgFrom))) {
-					boolean goahead = false
-					if (admin==msgFrom) {
-						goahead = true
-					} else if (!admin && config.liveChatUsername && config.liveChatUsername==msgFrom) {
-						goahead = true
-					} else if (!admin){
-						def cu = ChatUser.findByUsername(username)
-						if (cu) {
-							goahead = true
-						}
+				if (!chatBotBean || !adminVerified) {
+					setBotBean(userSession, msgFrom, chatBotBean)
+					chatBotBean = userSession.userProperties.get('chatBotBean') as ChatBotBean
+					if (chatBotBean) {
+						ccb	= chatBotBean.customer
+						isLiveAdmin	= chatBotBean.isLiveAdmin
 					}
-					if (goahead) {
-						userSession.userProperties.put("admin", msgFrom)
-						isAdmin=true
-					}	
 				}
-				
-				if (!helpRequested && !isAdmin) {
-					userSession.userProperties.put('cid', ccb.id)
+				if (!helpRequested && !isLiveAdmin && !emailSent) {
 					String contactEmail = config.liveContactEmail
 					String contactUsername = config.liveChatUsername
 					String contactGroup = config.liveChatPerm ?: config.defaultperm
@@ -267,14 +250,12 @@ public class WsClientProcessService extends WsChatConfService {
 						//e.printStackTrace()
 						log.debug "It is likely you have not enabled SMTP service for mail to be sent"
 					}
-					currentSession.userProperties.put("helpRequested", true)
 					currentSession.userProperties.put("nameRequired", true)
 				}
 
-				if (!isAdmin && ccb?.name && askName && !helpRequested) {
+				if (!isLiveAdmin && ccb?.name && askName && !helpRequested &&!emailSent) {
 					currentSession.userProperties.put("nameRequired", false)
 					boolean doAi = boldef(config.enable_AI)
-					currentSession.userProperties.put("askedName", true)
 					String additional = ', please wait'
 					if (doAi) {
 						additional = '. Feel free to ask a question and maybe the bot can help whilst you are waiting'
@@ -283,7 +264,7 @@ public class WsClientProcessService extends WsChatConfService {
 					ccb.active=true
 					ccb.save()
 					
-				} else if (!isAdmin && nameRequired && actionthis && askName) {
+				} else if (!isLiveAdmin && nameRequired && actionthis && askName && ccb) {
 					ccb.active=true
 					ccb.save()
 					currentSession.userProperties.put("nameRequired", false)
@@ -291,18 +272,15 @@ public class WsClientProcessService extends WsChatConfService {
 					ccb.name=name
 					ccb.save()
 					chatClientListenerService.sendMessage(userSession, "Thanks ${name}, just incase we get cut off what is your email?")
-					currentSession.userProperties.put("emailedRequired", true)
-					
-				
-				} else 	if (!isAdmin && currentSession && emailedRequired && actionthis && askEmail && !askedEmail) {
+					currentSession.userProperties.put("emailRequired", true)
+				} else 	if (!isLiveAdmin && currentSession && emailRequired && actionthis && askEmail) {
 					String email = actionthis
 					ccb.emailAddress=email
 					if (!ccb.validate()) {
-						currentSession.userProperties.put("emailedRequired", true)
+						currentSession.userProperties.put("emailRequired", true)
 						chatClientListenerService.sendMessage(userSession, "Thanks ${ccb?.name?: 'Guest'}, I could not verify email ${email} can you try again?")
 					} else {
-						currentSession.userProperties.put("emailedRequired", false)
-						currentSession.userProperties.put("askedEmail", true)
+						currentSession.userProperties.put("emailRequired", false)
 						ccb.save()
 						boolean doAi = boldef(config.enable_AI)
 						String additional = ', please wait'
@@ -316,11 +294,8 @@ public class WsClientProcessService extends WsChatConfService {
 					boolean isEnabled = boldef(config.store_live_messages)
 					if (isEnabled) {
 						String logUser
-						if (isAdmin) {
+						if (isLiveAdmin) {
 							logUser = msgFrom
-							if (cid) {
-								ccb = ChatCustomerBooking.load(cid as Long)
-							}
 						}
 						if (ccb) {
 							persistLiveMessage(ccb, actionthis, logUser)
@@ -345,6 +320,25 @@ public class WsClientProcessService extends WsChatConfService {
 				}
 			}
 		}
+	}
+	
+	private void setBotBean(Session userSession, String msgFrom, ChatBotBean cbean=null) {
+		if (!cbean) {
+			cbean = new ChatBotBean()
+		}	
+		cbean.username=msgFrom
+		ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(msgFrom)
+		if (ccb) {
+			cbean.customer = ccb
+		} else {
+			ChatUser cu = ChatUser.findByUsername(msgFrom)
+			cbean.chatuser = cu
+			cbean.isLiveAdmin = wsChatUserService.isLiveAdmin(msgFrom)
+			cbean.isChatAdmin = wsChatUserService.isLiveAdmin(msgFrom)
+			cbean.isConfigLiveAdmin = wsChatUserService.isConfLiveAdmin(msgFrom)
+			cbean.adminVerified = true
+		}
+		userSession.userProperties.put('chatBotBean', cbean)
 	}
 
 	private Map wordListing(String actionthis) {
@@ -407,7 +401,6 @@ public class WsClientProcessService extends WsChatConfService {
 					def mostRelated =  finalResult.max { a, b ->a.key.size() <=> b.key.size()}?.value
 					mostRelated?.each {
 						String send = it
-
 						chatClientListenerService.sendMessage(userSession, send)
 					}
 				}

@@ -133,7 +133,9 @@ class WsChatBookingService  extends WsChatConfService {
 
 			Where the user is waiting for your help 
 		"""
+		
 		String body  = 	config?.liveChatBody ?: defaultbody
+		log.debug body
 		String subject = config?.liveChatSubject ?: defaultsubject
 		SendMail(contactEmail,'',subject,body)
 	}

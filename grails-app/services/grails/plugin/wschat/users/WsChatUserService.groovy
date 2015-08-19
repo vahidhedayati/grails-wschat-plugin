@@ -19,6 +19,42 @@ class WsChatUserService extends WsChatConfService  {
 
 	def wsChatMessagingService
 
+	Boolean isConfLiveAdmin(String username) {
+		if (config.liveChatUsername && config.liveChatUsername==username) {
+			return true
+		}
+	}
+	
+	Boolean isLiveAdmin(String username) {
+		boolean liveAdminChecked = false
+		if (config.liveChatUsername && config.liveChatUsername==username) {
+			liveAdminChecked = true
+		} else {
+			def cu = ChatUser.findByUsername(username)
+			if (cu) {
+				if (cu.permissions.name == config.liveChatPerm?config.liveChatPerm:config.defaultperm ) {
+					liveAdminChecked = true
+				}
+			}
+		}
+		return liveAdminChecked
+	}
+	
+	Boolean isLiveAdmin(String username, String providedUser) {
+		boolean liveAdminChecked = false
+		if (providedUser && providedUser==username) {
+			liveAdminChecked = true
+		} else if (!providedUser && config.liveChatUsername && config.liveChatUsername==username) {
+			liveAdminChecked = true
+		} else if (!providedUser){
+			def cu = ChatUser.findByUsername(username)
+			if (cu) {
+				liveAdminChecked = true
+			}
+		}
+		return liveAdminChecked
+	}
+	
 	void kickUser(Session userSession,String username) {
 		Boolean useris = isAdmin(userSession)
 		if (useris) {

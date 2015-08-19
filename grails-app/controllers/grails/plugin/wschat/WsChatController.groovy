@@ -299,16 +299,8 @@ class WsChatController extends WsChatConfService {
 	}
 	
 	def joinLiveChat(String roomName,String username) {
-		boolean goahead = false
-		if (config.liveChatUsername && config.liveChatUsername==username) {
-			goahead = true
-		} else {
-			def cu = ChatUser.findByUsername(username)
-			if (cu) {
-				goahead = true
-			}
-		}
-		if (goahead) {
+		boolean isLiveAdmin = wsChatUserService.isLiveAdmin(username)
+		if (isLiveAdmin) {
 			session.wschatuser = username
 			session.wschatroom = roomName
 			session.livechat = true
