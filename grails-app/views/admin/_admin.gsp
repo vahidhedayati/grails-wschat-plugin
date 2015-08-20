@@ -1,10 +1,10 @@
 <ul class="nav-pills pull-right">
-<li class="btn-success btn">
+<li class="btn-success btn btn-xs">
 <a data-toggle="modal" href="#roomcontainer1" class="glyphicon glyphicon-plus" 
 onclick="javascript:addaRoom('+wrapIt(user)+');" title="Add a Room"></a>
 </li>
-<li class="btn-danger btn">
-<a data-toggle="modal" href="#roomcontainer1" class="glyphicon glyphicon-minus" 
+<li class="btn-danger btn btn-xs">
+<a data-toggle="modal" href="#roomcontainer1" class="glyphicon glyphicon-minus " 
 onclick="javascript:delaRoom('+wrapIt(user)+');" title="Remove a Room"></a>
 </li>
 </ul>
