@@ -70,10 +70,9 @@
 	width: 80%;
 	color:#000; 
 }
-.ui-widget-header, .ui-state-default, ui-button {
-	background: #b9cd6d;
-	border: 1px solid #b9cd6d;
-	color: #FFFFFF;
-	font-weight: bold;
+.ui-widget-header,.ui-state-default, ui-button{
+    background: #c00;
+    border: 1px solid #a0a0a0;
+    color: #FFFFFF;
+    font-weight: bold;
 }
-

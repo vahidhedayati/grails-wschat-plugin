@@ -36,17 +36,16 @@ textarea{
 #sendBtn { 
 	display:inline-block;
 	*display:inline;
-	*zoom:3;
+	*zoom:2;
 	float:right;
 	 background: #6C7B8B;
 	color: #FFF;
-	font-size:17px; 
-	padding:8px 13px; 
-	font-family:'Helvetica Neue',sans-serif; 
-
-	border-radius:0.	4px; 
-	-moz-border-radius:0.4px; 
-	-webkit-border-radius:0.4px;
+	font-size:13px; 
+	padding:2px 2px; 
+	font-family:'Helvetica Neue',sans-serif;
+	border-radius:0.2px; 
+	-moz-border-radius:0.2px; 
+	-webkit-border-radius:0.2px;
 	 border:1px solid #000; 
 } 
 
@@ -55,7 +54,14 @@ textarea{
 }
 #sendMessage  textarea {
 	height: 3em;
-	width: 91%;
+	width: 85%;
 	background: #3D3D3D;
 	color:#FFF; 
+}
+
+.ui-widget-header,.ui-state-default, ui-button{
+    background: #000000;
+    border: 1px solid #a0a0a0;
+    color: #FFFFFF;
+    font-weight: bold;
 }

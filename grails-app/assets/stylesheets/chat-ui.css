@@ -380,7 +380,7 @@ background: $separation-color;
 #colourthemes{
 	position: absolute;
 	right: 2em;
-	top: 4em;	
+	top: 1.9em;	
 	float:right;
 }
 /* webrtc style sheet */
@@ -630,10 +630,68 @@ div[class*="bttn"] {
   color: #ffffff;
   background-color: #000000;
 }
-
-.ui-widget-header,.ui-state-default, ui-button{
-   background:#b9cd6d;
-   border: 1px solid #b9cd6d;
-   color: #FFFFFF;
-   font-weight: bold;
+.navbar-toggle .icon-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: #000;
+  border-radius: 1px;
 }
+#topNavBar1 {
+	position: fixed;
+    top: 0px !important;
+    left: 10px !important;
+     margin: 0;
+    padding: 0;
+}
+#topNavBar2 {
+	position: fixed;
+    top: 0px !important;
+    left: 50px !important;
+     margin: 0;
+    padding: 0;
+}
+#Navbar1 {
+	  min-height: 30px !important;
+	margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+#Navbar2 {
+	min-height: 30px !important;
+	margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+}
+#friendsBlock {
+
+	min-height: 5em;
+	display:block; 
+	position: relative;
+	 list-style-type:none;
+	 resize:both;
+}
+.clearfix:after
+{
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    height: 0;
+    line-height: 0;  
+}
+.clearall {
+	clear:both;
+	padding-bottom: 6px;
+}
+#roomBlock {
+	min-height: 12em;
+	position: relative;
+	display: block;
+ list-style-type:none;
+	resize:both;
+}
+
