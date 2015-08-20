@@ -56,3 +56,10 @@ textarea{
 	background: #104E8B;
 	color:#FFF; 
 }
+
+.ui-widget-header,.ui-state-default, ui-button{
+    background: #104E8B;
+    border: 1px solid #a0a0a0;
+    color: #FFFFFF;
+    font-weight: bold;
+}

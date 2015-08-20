@@ -666,3 +666,32 @@ div[class*="bttn"] {
     width: auto !important;
     height: auto !important;
 }
+#friendsBlock {
+
+	min-height: 5em;
+	display:block; 
+	position: relative;
+	 list-style-type:none;
+	 resize:both;
+}
+.clearfix:after
+{
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    height: 0;
+    line-height: 0;  
+}
+.clearall {
+	clear:both;
+	padding-bottom: 6px;
+}
+#roomBlock {
+	min-height: 12em;
+	position: relative;
+	display: block;
+ list-style-type:none;
+	resize:both;
+}
+

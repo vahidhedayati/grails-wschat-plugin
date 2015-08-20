@@ -17,7 +17,6 @@
 				</small>
 			</div>
 		</g:if>
-
 		<div id="chat_div"></div>
 		<div id="userList"></div>
 		<div id="camcom"></div>
@@ -40,7 +39,6 @@
 		</div>
 		<div id="chatterBox">
 			<div class='row' id="themeChoice">
-
 				<nav class="navbar" id="Navbar1" role="navigation1">
 				<div class="container">
 					<ul class="nav-pills pull-left">
@@ -53,21 +51,17 @@
 						</button>
 						</div>
 					</ul>
-					
 					<div class="collapse navbar-collapse navbar-collapse1" role="navigation1">
-					
-						<ul class="nav-pills pull-left">
+						<ul class="nav nav-pills pull-left">
 						<li class="btn btn-success btn-xs" style="margin-top: 10px; margin-right: 2px;"> 
-						<g:message code="wschat.change.room.label" default="CHANGE ROOM:" />
-						<span class="glyphicon glyphicon-hand-right" title="Chatrooms" alt="choose a different room"></span>
-					</li>
+							<g:message code="wschat.change.room.label" default="CHANGE ROOM:" />
+							<span class="glyphicon glyphicon-hand-right" title="Chatrooms" alt="choose a different room"></span>
+						</li>
 					<li class="btn" style="margin-top: 0.4em;">
 						<a  onclick="javascript:closeChatPMs()" title="${message(code: 'wschat.close.PM.boxes.label', default: 'Attempt to close any stuck PM Boxes')}">
 						<span class="glyphicon glyphicon-export"></span>
 						</a>
 					</li>
-				</ul>
-			
 					<div id="chatRooms"></div>
 					<div id="adminRooms"></div>
 					<div id="colourthemes">
@@ -80,10 +74,10 @@
 						<button id="themeChanger4" class="btn btn-default btn-xs">
 						</button>
 					</div>
+				</ul>	
 				</div>
 			</div>
 			</nav>
-	
 			<div class='col-sm-2'>
 				<nav id="Navbar2" class="navbar" role="navigation">
 				<ul class="nav-pills pull-left">
@@ -96,7 +90,6 @@
 					</button>
 					</div>
 				</ul>
-					
 				<div class="collapse navbar-collapse navbar-collapse2" role="navigation">
 					<ul class="nav nav-stacked">
 							<ul class="dropdown-menu" id='friendsBlock' style="display: inline-block; position: relative; padding:0px; ">
@@ -121,7 +114,6 @@
 					</div>
 				</nav>
 			</div>
-					
 			<div class='col-sm-10' >
 					<div id="cmessage">
 						<div id="fixyflow">
