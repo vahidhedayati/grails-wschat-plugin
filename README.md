@@ -73,9 +73,16 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
  Websocket chat can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
 
 ###### Plugin will work with tomcat 7.0.54 + (inc. 8) running java 1.7+
+If you are using Grails 2.3X please check your BuildConfig.groovy and ensure you have tomcat set to 7.0.55, refer to https://github.com/vahidhedayati/grails-wschat-plugin/issues/5:
+
+```groovy
+   build ":tomcat:7.0.55"
+```
+
+This plugin will not work on grails app older than 2.3. Since tomcat:7.054/7.055 requires grails applications 2.3+
 
 
-###### Dependency (Grails 2.X) :
+###### Dependency (Grails 2.3+) :
 ```groovy
 	compile ":wschat:1.24-SNAPSHOT2"
 ```
