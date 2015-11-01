@@ -535,6 +535,28 @@ function processMessage(message) {
 	}
 
 	/*
+	 * Convert usres Live Chat Message into a PM
+	 * send it as new SendLivechatPm
+	 * search for liveMessage or clientLiveMessage
+	 */
+	if (jsonData.liveMessage!=null) {
+		var receiver
+		var sender
+		var room
+		if (jsonData.msgFrom!=null) {
+			sender=jsonData.msgFrom
+		}
+		if (jsonData.msgTo!=null) {
+			receiver=jsonData.msgTo
+		}
+		if (jsonData.fromRoom!=null) {
+			room=jsonData.fromRoom
+		}
+		$('#chatMessages').append(sender+": "+jsonData.liveMessage+"\n");
+		sendLiveChatPM(receiver,sender,jsonData.liveMessage,room);
+	}
+
+	/*
 	 * Transformation of Live Chat PM completed
 	 * Send the response from admin back to matching endUser
 	 * search for liveMessageResponse or adminLiveMessage

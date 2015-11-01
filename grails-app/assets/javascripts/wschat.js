@@ -83,7 +83,7 @@ function adminOptions(isAdmin,user) {
 
 	var sb = [];
 	if (isAdmin=="true") {
-		var strUrl = "/"+getApp()+"/wsChat/verifyLiveChatUser?username="+user, strReturn = "";
+		var strUrl = window.location+"/verifyLiveChatUser?username="+user, strReturn = "";
     	jQuery.ajax({
     	  url: strUrl,
     	  success: function(html) {

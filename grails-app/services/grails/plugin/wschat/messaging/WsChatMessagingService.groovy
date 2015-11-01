@@ -100,6 +100,7 @@ class WsChatMessagingService extends WsChatConfService {
 				if (crec && crec.isOpen() && room==msg.fromRoom) {
 					if (chatUserUtilService.isLiveAdmin(cuser)) {
 						crec.basicRemote.sendText(myMsg)
+						log.debug "User->Admin: ${cuser} ${myMsg}"
 					}
 				}
 			}
@@ -124,6 +125,7 @@ class WsChatMessagingService extends WsChatConfService {
 			records?.each { String room, Session crec ->
 				if (crec && crec.isOpen() && room==msg.fromRoom && cuser==msg.msgTo) {
 					crec.basicRemote.sendText(myMsg)
+					log.debug "Admin->User: ${cuser} ${myMsg}"
 				}
 			}
 		}

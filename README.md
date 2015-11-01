@@ -91,9 +91,17 @@ This plugin will not work on grails app older than 2.3. Since tomcat:7.054/7.055
 
 
 ###### Dependency (Grails 3.X) :
+
+Version 3.0.3 (Seems all my plugins had an issue)
+```groovy
+	compile "org.grails.plugins:grails-wschat-plugin:3.0.3"
+```
+
+Version 3.0.4 (fixed)
 ```groovy
 	compile "org.grails.plugins:wschat:3.0.4"
 ```
+
 
 [codebase for grails 3.X](https://github.com/vahidhedayati/grails-wschat-plugin/)
 

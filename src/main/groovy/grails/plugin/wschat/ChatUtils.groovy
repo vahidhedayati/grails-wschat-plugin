@@ -6,6 +6,7 @@ import grails.plugin.wschat.file.WsFileService
 import grails.plugin.wschat.messaging.WsChatMessagingService
 import grails.plugin.wschat.rooms.WsChatRoomService
 import grails.plugin.wschat.users.WsChatUserService
+import grails.util.Holders
 
 import javax.websocket.Session
 
@@ -87,7 +88,7 @@ class ChatUtils extends WsChatConfService {
 				def v= parseInput("/enableUsers ",message)
 				String user = v.user
 				String userRoom = v.msg
-				String msg = config.enableUsersMessage  ?: 'A member of staff has joined'
+				String msg = getConfig('enableUsersMessage')  ?: 'A member of staff has joined'
 				wsChatMessagingService.adminEnableEndScreens(user,[fromUser:username, msgTo:user, fromRoom:userRoom, enabeLiveChat:'yes',  liveMessageInitiate:msg],userSession)
 
 			} else if (message.startsWith("/verifyAdmin")) {
@@ -173,7 +174,7 @@ class ChatUtils extends WsChatConfService {
 					Session crec2 = records.find{it.key==rroom}?.value
 					if (!crec2) {
 						if (currentRoom) {
-							String sendleave = config.send.leaveroom  ?: 'yes'
+							String sendleave = getConfig('send.leaveroom')  ?: 'yes'
 							if (sendleave == 'yes') {
 								wsChatMessagingService.broadcast(userSession,[message: "${username} has left ${room}"])
 							}
@@ -292,7 +293,7 @@ class ChatUtils extends WsChatConfService {
 					boolean hasLiveAdmin = wsChatUserService.roomHasLiveAdmin(room)
 					if (hasLiveAdmin) {
 						wsChatMessagingService.adminEnableEndScreens(username,[fromUser:username, msgTo:username, fromRoom:room, enabeLiveChat:'yes'],userSession)
-						String msg = config.enableUsersMessage  ?: 'A member of staff has joined'
+						String msg = getConfig('enableUsersMessage')  ?: 'A member of staff has joined'
 						wsChatMessagingService.messageUser(userSession, [liveMessageInitiate:msg])
 					}
 				}
@@ -341,5 +342,9 @@ class ChatUtils extends WsChatConfService {
 		def um = mu.split(',')
 		def m = um[1].indexOf(':')>-1 ?  um[1].split(':') :  null
 		return [user:um[0].trim(), msg:m[0]?m[0].trim():msg, msg2:m[1].trim()]
+	}
+	
+        def getConfig(String configProperty) {
+		Holders.config.wschat[configProperty] ?: ''
 	}
 }

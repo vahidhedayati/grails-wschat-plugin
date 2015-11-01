@@ -39,7 +39,7 @@ class WsChatAuthService extends WsChatConfService   {
 
 	@Transactional
 	Map addUser(String username) {
-		String defaultPermission = config.defaultperm  ?: defaultPerm
+		String defaultPermission = config.defaultperm  ?: UserBean.defaultPerm
 		def perm,user
 		perm = ChatPermissions.findByName(defaultPermission)
 		if (!perm) {
