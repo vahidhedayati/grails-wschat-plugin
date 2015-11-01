@@ -81,12 +81,12 @@
 			</div>
 			</nav>
 			<div class="pull-right btn btn-default">
-				<a id="showChatDialog"><g:message code="wschat.show.global.messenger" default="SHOW GLOBAL MESSENGER"/></a>
-			</div>
-			<g:javascript>
-				toggleBlock('#showChatDialog','#chatDialog','${g.message(code: 'wschat.global.messenger', default: 'GLOBAL MESSENGER')}');
-			</g:javascript>
-			<div class='col-sm-10' id="chatDialog" style="display:none;" >
+           			<a id="showChatDialog"><g:message code="wschat.hide.chat.room" default="HIDE CHAT ROOM"/></a>
+           		</div>
+           		<g:javascript>
+           			toggleBlock('#showChatDialog','#chatDialog','${g.message(code: 'wschat.chat.room.caps', default: 'CHAT ROOM')}');
+           		</g:javascript>
+			<div class='col-sm-10' id="chatDialog">
 					<div id="cmessage">
 						<div id="fixyflow">
 							<div id="fixflow">
