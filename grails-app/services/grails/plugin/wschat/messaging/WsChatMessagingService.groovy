@@ -14,6 +14,8 @@ import javax.websocket.Session
 
 class WsChatMessagingService extends WsChatConfService {
 
+	def chatUserUtilService
+	
 	void sendMsg(Session userSession,String msg) throws Exception {
 		try {
 			if (userSession && userSession.isOpen()) {
@@ -46,7 +48,7 @@ class WsChatMessagingService extends WsChatConfService {
 	void privateMessage(String user,Map msg,Session userSession) {
 		def myMsg = [:]
 		def myMsgj = msg as JSON
-		String urecord = userSession.userProperties.get("username") as String
+		String urecord = userSession.userProperties.get("username")
 		Boolean found = false
 		boolean isEnabled = boldef(config.dbstore_pm_messages)
 		if (isEnabled) {
@@ -76,7 +78,85 @@ class WsChatMessagingService extends WsChatConfService {
 			verifyOfflinePM(user, myMsgj as String, userSession, urecord)
 		}
 	}
+	
+	/**
+	 * clientLiveMessage 
+	 * converts a modified chat window message into a PM
+	 * liveChat client messaging admin of chatRoom
+	 * @param user
+	 * @param msg
+	 * @param userSession
+	 */
+	void clientLiveMessage(String user,Map msg,Session userSession) {
+		def myMsg = (msg as JSON).toString()
+		String urecord = userSession.userProperties.get("username")
+		boolean isEnabled = boldef(config.dbstore_pm_messages)
+		if (isEnabled) {
+			persistMessage(myMsg,user,urecord)
+			persistMessage(myMsg,urecord,urecord)
+		}
+		chatNames.each { String cuser, Map<String,Session> records ->
+			records?.each { String room, Session crec ->
+				if (crec && crec.isOpen() && room==msg.fromRoom) {
+						if (chatUserUtilService.isLiveAdmin(cuser)) {
+							crec.basicRemote.sendText(myMsg)
+						}
+				}
+			}
+		}
+	}
 
+	/**
+	 * This is the message convertor from admin back to end user
+	 * @param user
+	 * @param msg
+	 * @param userSession
+	 */
+	void adminLiveMessage(String user,Map msg,Session userSession) {
+		def myMsg = (msg as JSON).toString()
+		String urecord = userSession.userProperties.get("username")
+		boolean isEnabled = boldef(config.dbstore_pm_messages)
+		if (isEnabled) {
+			persistMessage(myMsg,user,urecord)
+			persistMessage(myMsg,urecord,urecord)
+		}
+		chatNames.each { String cuser, Map<String,Session> records ->
+			records?.each { String room, Session crec ->
+				if (crec && crec.isOpen() && room==msg.fromRoom && cuser==msg.msgTo) {
+						crec.basicRemote.sendText(myMsg)
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Does two things sends message with 
+	 * enabeLiveChat:true,  liveMessageInitiate: custom or hardcoded message
+	 * end user receives both json objects and enables their chat space + notifies
+	 * them a member of staff has joined
+	 * @param user
+	 * @param msg
+	 * @param userSession
+	 */
+	void adminEnableEndScreens(String user,Map msg,Session userSession) {
+		def myMsg = (msg as JSON).toString()
+		String urecord = userSession.userProperties.get("username")
+		boolean isEnabled = boldef(config.dbstore_pm_messages)
+		if (isEnabled) {
+			persistMessage(myMsg,user,urecord)
+			persistMessage(myMsg,urecord,urecord)
+		}
+		chatNames.each { String cuser, Map<String,Session> records ->
+			records?.each { String room, Session crec ->
+				if (crec && crec.isOpen() && room==msg.fromRoom) {
+					if (!chatUserUtilService.isLiveAdmin(cuser)) {
+						crec.basicRemote.sendText(myMsg)
+					}	
+				}
+			}
+		}
+	}
+	
 	@Transactional
 	Boolean checkPM(String username, String urecord) {
 		boolean result = true

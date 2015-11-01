@@ -20,6 +20,7 @@ class SearchBean {
 	String inputid = id 
 	Map viewUsers
 	String username 
+	Boolean hasAdmin
 	
 	Integer getOffset() { 
 		int off=0
@@ -38,6 +39,7 @@ class SearchBean {
 		uList(nullable:true)
 		userList(nullable:true)
 		username(nullable:true)
+		hasAdmin(nullable:true)
 	}
 
 	String getUsername() {

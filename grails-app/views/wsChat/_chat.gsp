@@ -52,7 +52,7 @@
 						</div>
 					</ul>
 					<div class="collapse navbar-collapse navbar-collapse1" role="navigation1">
-						<ul class="nav nav-pills pull-left">
+						<ul class="nav nav-pills">
 						<li class="btn btn-success btn-xs" style="margin-top: 10px; margin-right: 2px;"> 
 							<g:message code="wschat.change.room.label" default="CHANGE ROOM:" />
 							<span class="glyphicon glyphicon-hand-right" title="Chatrooms" alt="choose a different room"></span>

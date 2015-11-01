@@ -77,7 +77,8 @@ public class WsClientProcessService extends WsChatConfService {
 	def wsChatUserService
 	def wsChatBookingService
 	def wsChatMessagingService
-
+	def chatUserUtilService
+	
 
 	// DO NOT Disconnect automatically - required for live chat!
 	static boolean disco = false
@@ -227,29 +228,7 @@ public class WsClientProcessService extends WsChatConfService {
 					}
 				}
 				if (!helpRequested && !isLiveAdmin && !emailSent) {
-					String contactEmail = config.liveContactEmail
-					String contactUsername = config.liveChatUsername
-					String contactGroup = config.liveChatPerm ?: config.defaultperm
-					try {
-						ConfigBean cb = new ConfigBean()
-						if (contactEmail && contactUsername) {
-							wsChatBookingService.liveChatRequest(ccb, cb.url, msgFrom, room, contactEmail, config.liveContactName ?: 'Site Administrator', contactUsername)
-						}
-						String query= """
-										select new map(p.email as email, u.username as username) from ChatUserProfile p join p.chatuser u
-										join u.permissions e where e.name=:contactGroup
-										"""
-						Map inputParams = [contactGroup:contactGroup]
-						def results = ChatUserProfile.executeQuery(query,inputParams,[readonly:true,timeout:20,max:5])
-						results?.each {
-							if (it.email) {
-								wsChatBookingService.liveChatRequest(ccb, cb.url,  msgFrom, room, it.email, it.username ,it.username)
-							}
-						}
-					} catch (Exception e) {
-						//e.printStackTrace()
-						log.debug "It is likely you have not enabled SMTP service for mail to be sent"
-					}
+					wsChatBookingService.sendLiveEmail(ccb,msgFrom,room)
 					currentSession.userProperties.put("nameRequired", true)
 				}
 
@@ -333,9 +312,9 @@ public class WsClientProcessService extends WsChatConfService {
 		} else {
 			ChatUser cu = ChatUser.findByUsername(msgFrom)
 			cbean.chatuser = cu
-			cbean.isLiveAdmin = wsChatUserService.isLiveAdmin(msgFrom)
-			cbean.isChatAdmin = wsChatUserService.isLiveAdmin(msgFrom)
-			cbean.isConfigLiveAdmin = wsChatUserService.isConfLiveAdmin(msgFrom)
+			cbean.isLiveAdmin = chatUserUtilService.isLiveAdmin(msgFrom)
+			cbean.isChatAdmin = chatUserUtilService.isLiveAdmin(msgFrom)
+			cbean.isConfigLiveAdmin = chatUserUtilService.isConfLiveAdmin(msgFrom)
 			cbean.adminVerified = true
 		}
 		userSession.userProperties.put('chatBotBean', cbean)

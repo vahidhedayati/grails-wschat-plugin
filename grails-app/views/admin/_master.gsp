@@ -20,6 +20,8 @@
 
 <g:javascript>
 
+	var user="${bean.chatuser}";
+
 	function closeAdminModal() {
 		$('#admincontainer1').modal('hide');
 		$('body').removeClass('modal-open');

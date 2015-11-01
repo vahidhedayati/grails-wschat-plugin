@@ -9,10 +9,6 @@ import grails.plugin.wschat.beans.RoomBean
 import grails.plugin.wschat.beans.SearchBean
 import grails.plugin.wschat.beans.UserBean
 
-import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
-
-
-
 class WsChatController extends WsChatConfService {
 
 	def wsChatRoomService
@@ -22,7 +18,8 @@ class WsChatController extends WsChatConfService {
 	def wsChatBookingService
 	def wsChatContService
 	def wsChatAuthService
-
+	def chatUserUtilService
+	
 	def index(ConnectTagBean bean) {
 		bean.addLayouts=true
 		bean.setRooms(config.rooms as ArrayList)
@@ -104,7 +101,6 @@ class WsChatController extends WsChatConfService {
 	def uploadPhoto(String username) {
 		def chatuser = ChatUser.findByUsername(username)
 		def profile = ChatUserProfile.findByChatuser(chatuser)
-		ApplicationTagLib g = new org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib()
 		def photoFile= g.createLink(controller: 'wsChat', action: 'photo', params: [username:username],  absolute: 'true' )
 		def model = [photoFile:photoFile,profile:profile,chatuser:chatuser,username:username]
 		if (wsChatContService.verifyUser(username)) {
@@ -187,6 +183,27 @@ class WsChatController extends WsChatConfService {
 		render autoCompleteService.autocomplete(params)
 	}
 
+	def liveChatsRooms(SearchBean bean) { 
+		if (isAdmin) {
+			bean.uList= wsChatUserService.genAllLiveRooms()
+			bean.userListCount=bean.uList?.size()
+			render (template: '/admin/viewLiveChatRooms', model: [bean:bean])
+		}
+	}
+	
+	def verifyLiveChatUser(String username) {
+		if (isAdmin) {
+			Boolean isFound = wsChatUserService.findLiveUser(username)
+			if (isFound) {
+				def result = [found: isFound]
+				render result as JSON
+				return
+			}
+			return
+		}
+		render status: 404
+	}
+	
 
 	def viewUsers(SearchBean bean) {
 		if (isAdmin) {
@@ -199,8 +216,7 @@ class WsChatController extends WsChatConfService {
 			Map model = [bean:bean]
 			if (request.xhr) {
 				render (template: '/admin/viewUsers', model: model)
-			}
-			else {
+			} else {
 				render (view: '/admin/viewUsers', model: model)
 			}
 		}
@@ -227,7 +243,7 @@ class WsChatController extends WsChatConfService {
 
 	def addUser(String username) {
 		if (isAdmin) {
-			render (template: '/admin/addUser', model: [ username:username])
+			render (template: '/admin/addUser', model: [username:username])
 			return
 		}
 		render ''
@@ -235,15 +251,15 @@ class WsChatController extends WsChatConfService {
 
 	def addEmail(String username) {
 		if (isAdmin) {
-			render (template: '/admin/addEmail', model: [ username:username])
+			render (template: '/admin/addEmail', model: [username:username])
 			return
 		}
 		render ''
 	}
 	def addUserEmail(String username,String email) {
 		if (isAdmin && email) {
-			def profile=[email: email] as Map
-			wsChatProfileService.addProfile(username, profile, false)
+			wsChatProfileService.addProfile(username, [email: email], false)
+			return
 		}
 		render "attempted add of ${email}"
 	}
@@ -299,7 +315,7 @@ class WsChatController extends WsChatConfService {
 	}
 	
 	def joinLiveChat(String roomName,String username) {
-		boolean isLiveAdmin = wsChatUserService.isLiveAdmin(username)
+		boolean isLiveAdmin = chatUserUtilService.isLiveAdmin(username)
 		if (isLiveAdmin) {
 			session.wschatuser = username
 			session.wschatroom = roomName

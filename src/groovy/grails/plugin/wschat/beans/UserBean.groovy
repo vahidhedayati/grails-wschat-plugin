@@ -7,6 +7,8 @@ import grails.validation.Validateable
 @Validateable
 class UserBean extends ConfigBean {
 
+	static final String defaultPerm = 'user'
+	
 	String user
 	String rtc
 	String chatuser

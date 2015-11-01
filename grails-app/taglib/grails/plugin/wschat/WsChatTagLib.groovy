@@ -165,18 +165,65 @@ class WsChatTagLib extends WsChatConfService {
 		}
 		String uri = "${bean.uri}${bean.roomName}"
 		
+		// This will save client livechat Request in CustomerBooking 
 		wsChatBookingService.saveCustomerBooking(bean)
+		
+		/*
+		 * Renders /customerChat/_chatPage.gsp
+		 */
 		Map model = [bean:bean, uri:uri]
 		if (bean.template) {
 			out << g.render(template:bean.template, model:model)
 		}else{
 			out << g.render(contextPath: pluginContextPath, template:"/customerChat/chatPage", model: model)
 		}
+		
+		/*
+		 * This does the client side connection, it has a twist
+		 * tries to figure out if it should ask the user for their name (configurable by you)
+		 * and if its an existing user that has used the system before.
+		 * Variation of messages generated and sent to trigger bot conversation with end user
+		 *  
+		 * It has a lot more turns and twists, it also triggers emails to the admin group look for 
+		 * wsChatBookingService.sendLiveEmail in WsClientProcessingService.groovy to understand more 
+		 */
+		
 		wsChatAuthService.addBotToChatRoom(bean.roomName, 'liveChat', true, bean.botLiveMessage, bean.uri, bean.user)
-
+	}
 	
-		//Session oSession = chatClientListenerService.p_connect(bean.uri, bean.roomName+"_"+bean.assistant, bean.roomName)
-		//chatClientListenerService.sendDelayedMessage(oSession, bean.message,1000)
+
+	def liveChat = { attrs ->
+		attrs << [controller:controllerName, action: actionName, params: params ]
+		CustomerChatTagBean bean = new CustomerChatTagBean(attrs)
+		if (!bean.roomName) {
+			bean.roomName = randomService.shortRand(controllerName+actionName)
+		}
+		if (!bean.user) {
+			bean.guestUser = true
+			bean.user = 'Guest'+session.id
+		} else {
+			bean.guestUser = false
+		}
+		String uri = "${bean.uri}${bean.roomName}"
+		
+		ChatCustomerBooking ccb = wsChatBookingService.saveCustomerBooking(bean)
+		
+		/*
+		 * Renders /customerChat/_liveChatPage.gsp
+		 */
+		
+		Map model = [bean:bean, uri:uri]
+		if (bean.template) {
+			out << g.render(template:bean.template, model:model)
+		}else{
+			out << g.render(contextPath: pluginContextPath, template:"/customerChat/liveChatPage", model: model)
+		}
+		
+		/*
+		 * Triggers an email to admin group
+		 * to notify someone needs help
+		 */
+		wsChatBookingService.sendLiveEmail(ccb,bean.user,bean.roomName)
 	}
 	
 	def complete = {attrs ->
