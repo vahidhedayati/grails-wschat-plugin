@@ -29,7 +29,7 @@
 	
 </g:javascript>
 	
-	
+	var user="${bean.chatuser}";
 	<div id="invitecontainer" style="display:none;">
 		<g:render template="/admin/inviteContainer"/>
 	</div>

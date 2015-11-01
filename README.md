@@ -84,7 +84,7 @@ This plugin will not work on grails app older than 2.3. Since tomcat:7.054/7.055
 
 ###### Dependency (Grails 2.3+) :
 ```groovy
-	compile ":wschat:1.24-SNAPSHOT2"
+	compile ":wschat:1.25"
 ```
 
 [codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/tree/grails2)
@@ -92,7 +92,7 @@ This plugin will not work on grails app older than 2.3. Since tomcat:7.054/7.055
 
 ###### Dependency (Grails 3.X) :
 ```groovy
-	compile "org.grails.plugins:wschat:3.0.3"
+	compile "org.grails.plugins:wschat:3.0.4"
 ```
 
 [codebase for grails 3.X](https://github.com/vahidhedayati/grails-wschat-plugin/)
@@ -167,6 +167,8 @@ before running grails run-app
 8. [Video 1.23-SNAPSHOT1 Live chat Logs BOT Artificial Intelligence and more](https://www.youtube.com/watch?v=fUIckOntais)
 
 9. [Video 1.24 Chat BOT now working in chat rooms, returning responses and banning/kicking users](https://www.youtube.com/watch?v=jUm7QrQhpTk)
+
+10. [Video 1.25 LiveChat (1 room multiple users with 1 admin interacting with all) ](https://www.youtube.com/watch?v=udbOq6fiD9o)
 
 ##### WebtRTC WebCam walk through
 

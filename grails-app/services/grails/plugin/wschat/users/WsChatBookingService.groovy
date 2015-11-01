@@ -6,19 +6,15 @@ import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.ChatUserProfile
 import grails.plugin.wschat.WsChatConfService
 import grails.plugin.wschat.ChatCustomerBooking
+import grails.plugin.wschat.beans.ConfigBean
 import grails.plugin.wschat.beans.CustomerChatTagBean
-import grails.plugin.wschat.ChatLog
 import grails.plugin.wschat.ChatMessage
 import groovy.time.TimeCategory
-import java.util.Date
-
 import java.rmi.server.UID
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.text.SimpleDateFormat
-
 import org.springframework.transaction.annotation.Transactional
-import org.grails.plugins.web.taglib.ApplicationTagLib
 
 class WsChatBookingService  extends WsChatConfService {
 
@@ -111,6 +107,50 @@ class WsChatBookingService  extends WsChatConfService {
 		return yesis
 	}
 
+	/**
+	 * sendLiveEmail figures out who should get the email and passes it to liveChatRequest below
+	 * @param ccb
+	 * @param msgFrom
+	 * @param room
+	 */
+	void sendLiveEmail(ChatCustomerBooking ccb,String msgFrom, String room) {
+		String contactEmail2 = config.liveContactEmail
+		String contactUsername = config.liveChatUsername
+		String contactGroup = config.liveChatPerm ?: config.defaultperm
+		try {
+			ConfigBean cb = new ConfigBean()
+			if (contactEmail2 && contactUsername) {
+				liveChatRequest(ccb, cb.url, msgFrom, room, contactEmail2, config.liveContactName ?: 'Site Administrator', contactUsername)
+			}
+			String query= """
+										select new map(p.email as email, u.username as username) from ChatUserProfile p join p.chatuser u
+										join u.permissions e where e.name=:contactGroup
+										"""
+			Map inputParams = [contactGroup:contactGroup]
+			def results = ChatUserProfile.executeQuery(query,inputParams,[readonly:true,timeout:20,max:5])
+			results?.each {
+				if (it.email) {
+					liveChatRequest(ccb, cb.url,  msgFrom, room, it.email, it.username ,it.username)
+				}
+			}
+		} catch (Exception e) {
+			//e.printStackTrace()
+			log.debug "It is likely you have not enabled SMTP service for mail to be sent"
+		}
+	}
+
+	/**
+	 *  This sends an email with a custom body overridable by
+	 * 	wschat.liveChatBody  and wschat.liveChatSubject configured
+	 *  in your application.groovy/BuildConfig.groovy
+	 * @param ccb
+	 * @param url
+	 * @param thisUser
+	 * @param room
+	 * @param contactEmail
+	 * @param contactName
+	 * @param adminUsername
+	 */
 	void liveChatRequest(ChatCustomerBooking ccb, String url, String thisUser, String room, String contactEmail, String contactName, String adminUsername) {
 		def now = new Date().format("dd_MM_yyyy_HH_mm")
 		String defaultsubject = "You have a live chat ${now} "
@@ -146,7 +186,6 @@ class WsChatBookingService  extends WsChatConfService {
 		def endDateTime = df.parse(endDate)
 		def myConference = ChatBooking.findOrSaveWhere(conferenceName: conference, dateTime:dateTime, endDateTime:endDateTime)
 		String defaultsubject = "You have a chat Scheduled for ${startDate} "
-		ApplicationTagLib  g = new ApplicationTagLib()
 		String defaultbody = """Dear [PERSON],
 A request has been made to join chat room ${conference}, scheduled between (${startDate}/${endDate}.
 The following members have also been invited ${invites}.

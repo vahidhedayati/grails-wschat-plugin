@@ -18,7 +18,8 @@ class SearchBean implements Validateable {
 	def offset 
 	String inputid = id 
 	Map viewUsers
-	String username 
+	String username
+	Boolean hasAdmin
 	
 	Integer getOffset() { 
 		int off=0
@@ -37,6 +38,7 @@ class SearchBean implements Validateable {
 		uList(nullable:true)
 		userList(nullable:true)
 		username(nullable:true)
+		hasAdmin(nullable:true)
 	}
 
 	String getUsername() {

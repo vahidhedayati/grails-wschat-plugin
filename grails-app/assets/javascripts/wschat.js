@@ -83,6 +83,15 @@ function adminOptions(isAdmin,user) {
 
 	var sb = [];
 	if (isAdmin=="true") {
+		var strUrl = "/"+getApp()+"/wsChat/verifyLiveChatUser?username="+user, strReturn = "";
+    	jQuery.ajax({
+    	  url: strUrl,
+    	  success: function(html) {
+    		sb.push('<li class="btn-xs" id="sideBar">\n');
+    		sb.push('<a onclick="javascript:livepmuser('+wrapIt(user)+', '+wrapIt(getUser())+');">liveChatPM  '+user+'</a>\n');
+    		sb.push('\n</li> \n');
+    	  },async:false}
+    	);
 		sb.push('<li class="btn-xs" id="sideBar">\n');
 		sb.push('<a onclick="javascript:kickuser('+wrapIt(user)+');">Kick  '+user+'</a>\n');
 		sb.push('</li>\n');
@@ -141,35 +150,6 @@ function processChatMessage(message) {
 
 function joinRoom(user,room) {
 	webSocket.send("/joinRoom "+user+","+room);
-}
-
-function sendPM(receiver,sender,pm) {
-	//alert('--'+receiever+"--"+sender+"---"+pm);
-	$(function(event, ui) {
-		var box = null;
-		if(box) {
-			box.chatbox("option", "boxManager").toggleBox();
-		}else {
-			var added=verifyAdded(sender);
-			var el="#"+sender
-			if (added=="false") {
-				//alert('none found');
-				var el = document.createElement('div');
-				el.setAttribute('id', sender);
-			}	
-			box =  $(el).chatbox({id:sender, 
-				user:{key : "value"},
-				title : "PM from: "+sender,
-				messageSent : function(id, user, msg) {
-					verifyPosition(sender);
-					$("#"+sender).chatbox("option", "boxManager").addMsg(receiver, msg);
-					webSocket.send("/pm "+sender+","+msg);
-				}
-			});
-		}                 
-	});
-	verifyPosition(sender);
-	$("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);         
 }
 
 function blockuser(blockid,user) {
@@ -686,6 +666,126 @@ function closeVideos()  {
 	}
 }
 
+function liveChatsRooms(user) {
+	if (isAdmin=="true") {
+		$.get("/wsChat/liveChatsRooms",function(data){
+			$('#adminsContainer').hide().html(data).fadeIn('slow');
+		});
+		$('#admincontainer').show();
+	}
+}
+function joinLiveChatRoom(room,user) {
+	 webSocket.send("/joinLiveChatRoom "+user+","+room);
+}
+
+
+/*
+ * This appears under admin liveChat window
+ * and when sending messages it converts pm back to message
+ * to display in liveChat window which imitates pm window
+ */
+function sendLiveChatPM(receiver,sender,pm,room) {
+	$(function(event, ui) {
+		var box = null;
+		if(box) {
+			box.chatbox("option", "boxManager").toggleBox();
+		}else {
+			var added=verifyAdded(sender);
+			var el="#"+sender
+			if (added=="false") {
+				var el = document.createElement('div');
+				el.setAttribute('id', sender);
+			}
+			box =  $(el).chatbox({id:sender,
+				user:{key : "value"},
+				title : "LIVECHAT from: "+sender,
+				messageSent : function(id, user, msg) {
+					///verifyPosition(sender);
+					$("#"+sender).chatbox("option", "boxManager").addMsg(getUser(), msg);
+					webSocket.send("/cl "+sender+","+room+":"+msg);
+				}
+			});
+		}
+	});
+	verifyPosition(sender);
+	$("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);
+}
+
+function livepmuser(suser,sender,room) {
+	var sus=suser ? suser : user
+	$(function(event, ui) {
+		var box = null;
+		if(box) {
+			box.chatbox("option", "boxManager").toggleBox();
+		}else {
+			var added=verifyAdded(sus);
+			var el="#"+suser
+			if (added=="false") {
+				//	alert ('suser '+suser+' not found div ');
+				var el = document.createElement('div');
+				el.setAttribute('id', sus);
+			}
+			box = $(el).chatbox({id:sender,
+				user:{key : "value"},
+
+				title : "LIVECHAT: "+sus,
+				messageSent : function(id, user, msg) {
+					//verifyPosition(sus);
+					$("#"+suser).chatbox("option", "boxManager").addMsg(id, msg);
+					webSocket.send("/cl "+suser+","+room+":"+msg);
+				}
+			});
+			box.chatbox("option", "show",1);
+		}
+	});
+}
+
+function sendLiveMessage() {
+	if (messageBox.value!="/disco") {
+		if (messageBox.value!="") {
+			$('#chatMessages').append(getUser()+": "+messageBox.value+"\n");
+			webSocket.send("/lc "+getUser()+","+roomName+":"+messageBox.value);
+			messageBox.value="";
+			messageBox.value.replace(/^\s*[\r\n]/gm, "");
+			scrollToBottom();
+		}
+	}else {
+		webSocket.send("DISCO:-"+user);
+		$('#chatMessages').append(user+" disconnecting from server... \n");
+		messageBox.value="";
+		webSocket.close();
+	}
+}
+
+
+
+function sendPM(receiver,sender,pm) {
+	$(function(event, ui) {
+		var box = null;
+		if(box) {
+			box.chatbox("option", "boxManager").toggleBox();
+		}else {
+			var added=verifyAdded(sender);
+			var el="#"+sender
+			if (added=="false") {
+				var el = document.createElement('div');
+				el.setAttribute('id', sender);
+			}
+			box =  $(el).chatbox({id:sender,
+				user:{key : "value"},
+				title : "PM from: "+sender,
+				messageSent : function(id, user, msg) {
+					verifyPosition(sender);
+					$("#"+sender).chatbox("option", "boxManager").addMsg(receiver, msg);
+					webSocket.send("/pm "+sender+","+msg);
+				}
+			});
+		}
+	});
+	verifyPosition(sender);
+	$("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);
+}
+
 function pmuser(suser,sender) {
 	//alert(''+suser+"===="+sender);
 	$(function(event, ui) {
@@ -762,3 +862,15 @@ function scrollToBottom() {
 	$('#cmessage').scrollTop($('#cmessage')[0].scrollHeight);
 }
 
+function toggleBlock(caller,called,calltext) {
+	$(caller).click(function() {
+		if($(called).is(":hidden")) {
+ 			$(caller).html('HIDE '+calltext).fadeIn('slow');
+    	}else{
+        	$(caller).html('SHOW '+calltext).fadeIn('slow');
+
+    	}
+ 		$(called).slideToggle("fast");
+
+  	});
+}

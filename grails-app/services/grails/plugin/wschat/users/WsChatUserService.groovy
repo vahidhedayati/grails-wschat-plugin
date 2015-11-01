@@ -17,27 +17,7 @@ import javax.websocket.Session
 class WsChatUserService extends WsChatConfService  {
 
 	def wsChatMessagingService
-
-	Boolean isConfLiveAdmin(String username) {
-		if (config.liveChatUsername && config.liveChatUsername==username) {
-			return true
-		}
-	}
-
-	Boolean isLiveAdmin(String username) {
-		boolean liveAdminChecked = false
-		if (config.liveChatUsername && config.liveChatUsername==username) {
-			liveAdminChecked = true
-		} else {
-			def cu = ChatUser.findByUsername(username)
-			if (cu) {
-				if (cu.permissions.name == config.liveChatPerm?config.liveChatPerm:config.defaultperm ) {
-					liveAdminChecked = true
-				}
-			}
-		}
-		return liveAdminChecked
-	}
+	def chatUserUtilService
 
 	void kickUser(Session userSession,String username) {
 		Boolean useris = isAdmin(userSession)
@@ -46,17 +26,14 @@ class WsChatUserService extends WsChatConfService  {
 		}
 	}
 
-
 	@Transactional
 	ArrayList findLogs(String username) {
 		ChatUser ccb = ChatUser.findByUsername(username)
-		Map resultSet = [:]
 		ArrayList finalResults=[]
 		if (ccb) {
 			def cm = ChatMessage.findAllByLog(ccb.log)
 			cm?.each {
-				resultSet = [:]
-				resultSet << [ message: it.contents, date: it.dateCreated, user: it.user ]
+				Map resultSet=[ message: it.contents, date: it.dateCreated, user: it.user ]
 				finalResults << resultSet
 			}
 		}
@@ -154,6 +131,62 @@ class WsChatUserService extends WsChatConfService  {
 			}
 		}
 		return uList
+	}
+
+	ArrayList genAllLiveRooms() {
+		def fList = []
+		chatNames.each { String cuser,Map<String,Session> records ->
+			def uList = [:]
+			records?.each { String room, Session crec ->
+				if (crec && crec.isOpen()) {
+					String userType = crec.userProperties.get("userType")
+					if (userType=='liveChat') {
+						if (!fList.findAll{it.room==room}) {
+							uList.room=room
+						}
+						if (chatUserUtilService.isLiveAdmin(cuser,false)) {
+							uList.hasAdmin=true
+							log.debug "${cuser} ${userType} ${room} isAdmin: ${uList.hasAdmin}"
+						}
+						if (uList.room) {
+							fList.add(uList)
+						}
+					}
+				}
+
+			}
+		}
+		return fList
+	}
+
+	Boolean findLiveUser(String username) {
+		boolean result = false
+		chatNames.each { String cuser,Map<String,Session> records ->
+			records?.each { String room, Session crec ->
+				if (crec && crec.isOpen()) {
+					String userType = crec.userProperties.get("userType")
+					if (userType=='liveChat' && username==cuser) {
+						result = true
+					}
+				}
+			}
+		}
+		return result
+	}
+
+	Boolean roomHasLiveAdmin(String room) {
+		boolean result = false
+		chatNames.each { String cuser,Map<String,Session> records ->
+			records?.each { String croom, Session crec ->
+				if (crec && crec.isOpen()) {
+					String userType = crec.userProperties.get("userType")
+					if (userType=='liveChat' && chatUserUtilService.isLiveAdmin(cuser,false) && croom == room) {
+						result = true
+					}
+				}
+			}
+		}
+		return result
 	}
 
 	void sendFlatUsers(Session userSession,String username) {

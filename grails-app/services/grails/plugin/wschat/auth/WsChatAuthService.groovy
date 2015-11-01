@@ -10,6 +10,7 @@ import grails.plugin.wschat.OffLineMessage
 import grails.plugin.wschat.WsChatConfService
 import grails.transaction.Transactional
 import grails.plugin.wschat.beans.ConfigBean
+import grails.plugin.wschat.beans.UserBean
 
 
 import java.text.SimpleDateFormat
@@ -63,30 +64,29 @@ class WsChatAuthService extends WsChatConfService   {
 
 	@Transactional
 	Map validateLogin(String username) {
-		def defaultPerm = 'user'
+		String defaultPerm = UserBean.defaultPerm
 		def au=addUser(username)
-		def user=au.user
-		def perm=au.perm
-		def logit = new ChatAuthLogs()
-		logit.username = username
-		logit.loggedIn = true
-		logit.loggedOut = false
-		if (!logit.save()) {
+		ChatUser user=au.user
+		ChatPermissions perm=au.perm
+		ChatAuthLogs logit = new ChatAuthLogs(username: username,loggedIn:true,loggedOut:false).save()
+		if (!logit) {
 			log.error "${logit.errors}"
+		} else {
+			log.debug "${logit.id} ${username} added to ChatAuthLogs: loggedIn"
 		}
-		defaultPerm = user.permissions.name as String
+		defaultPerm = user.permissions.name
 		[permission: defaultPerm, user: user]
 	}
 
 	@Transactional
 	void validateLogOut(String username) {
-		def logit = new ChatAuthLogs()
-		logit.username = username
-		logit.loggedIn = false
-		logit.loggedOut = true
-		if (!logit.save()) {
+		def logit = new ChatAuthLogs(username:username, loggedIn:false,loggedOut:true).save()
+		if (!logit) {
 			log.error "${logit.errors}"
+		} else {
+			log.debug "${logit.id} ${username} added to ChatAuthLogs: LoggedOut"
 		}
+
 	}
 
 	void delBotFromChatRoom(String username, String roomName, String userType, String message) {
@@ -127,6 +127,7 @@ class WsChatAuthService extends WsChatConfService   {
 			if (bean.liveChatAskName && userType=='liveChat' && userExists==false) {
 				message+= "\n"+bean.liveChatNameMessage
 			}
+			log.debug "${message}"
 			chatClientListenerService.sendDelayedMessage(currentSession, message,1000)
 		}
 	}
@@ -141,7 +142,7 @@ class WsChatAuthService extends WsChatConfService   {
 		return found
 	}
 
-	void connectUser(String message,Session userSession,String room) {
+	void connectUser(String message,Session userSession,String room, Boolean sendUsers=true) {
 		def myMsg = [:]
 		Boolean isuBanned = false
 		String connector = "CONN:-"
@@ -179,7 +180,7 @@ class WsChatAuthService extends WsChatConfService   {
 		wsChatUserService.sendUsers(userSession,username,room)
 		String sendjoin = config.send.joinroom  ?: 'yes'
 		wsChatRoomService.sendRooms(userSession)
-		if (sendjoin == 'yes') {
+		if (sendjoin == 'yes' && sendUsers) {
 			wsChatMessagingService.broadcast(userSession,["message": "${username} has joined ${room}"])
 		}
 		verifyOffLine(userSession,username)

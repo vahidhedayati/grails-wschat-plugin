@@ -48,7 +48,7 @@
 						</div>
 					</ul>
 					<div class="collapse navbar-collapse navbar-collapse1" role="navigation1">
-						<ul class="nav nav-pills pull-left">
+						<ul class="nav nav-pills navbar">
 						<li class="btn btn-success btn-xs" style="margin-top: 10px; margin-right: 2px;"> 
 							<g:message code="wschat.change.room.label" default="CHANGE ROOM:" />
 							<span class="glyphicon glyphicon-hand-right" title="Chatrooms" alt="choose a different room"></span>
@@ -74,7 +74,13 @@
 				</div>
 			</div>
 			</nav>
-			<div class='col-sm-10' >
+			<div class="pull-right btn btn-default">
+           		<a id="showChatDialog"><g:message code="wschat.hide.chat.room" default="HIDE CHAT ROOM"/></a>
+           	</div>
+           	<g:javascript>
+           		toggleBlock('#showChatDialog','#chatDialog','${g.message(code: 'wschat.chat.room.caps', default: 'CHAT ROOM')}');
+           	</g:javascript>
+           	<div class='col-sm-10' id="chatDialog">
 					<div id="cmessage">
 						<div id="fixyflow">
 							<div id="fixflow">
@@ -107,16 +113,6 @@
 			</div>
 		</ul>
 		<div class="collapse navbar-collapse navbar-collapse2" role="navigation">
-			<ul class="nav nav-stacked">
-					<ul class="dropdown-menu" id='friendsBlock' style="display: inline-block; position: relative; padding:0px; ">
-						<div class="btn btn-warning btn-xs btn-block">
-							<b><g:message code="wschat.friends.label" default="FRIENDS" /></b>
-						</div>
-						<ul class="dropdown-menu" id='friendsList' style="display: inline-block; float: left; top: 1px;position: relative; padding:0px; ">
-							<span id="friendsList1" />
-						</ul>
-					</ul>
-				</ul>
 				<ul class="nav nav-stacked" >
 					<ul class="dropdown-menu" id='roomBlock' style="display: inline-block; position: relative; padding:0px; ">
 						<div class="btn btn-success btn-xs btn-block">
@@ -218,41 +214,43 @@
     webSocket.onmessage=function(message) {processMessage(message);	};
 		
    function processOpen(message) {
-   		if (debug == "on") {
-			console.log('Openning  connection for to ${bean.chatuser}');
-		}
-    	<g:if test="${!bean.chatuser}">
-       		$('#chatMessages').append("Chat denied no username \n");
-       		webSocket.send("DISCO:-"+user);
-       	 	webSocket.close();
-       	</g:if>
-		<g:else>
-       		webSocket.send("CONN:-"+user);
-           	scrollToBottom();
-           	webSocket.send("/userType liveChat");
-       </g:else>
- 	}
-	
-	
-	
-	$('#messageBox').keypress(function(e){
-	if (e.keyCode == 13 && !e.shiftKey) {
-		e.preventDefault();
-	}
-	if(e.which == 13){
-		var tmb=messageBox.value.replace(/^\s*[\r\n]/gm, "");
-		if (tmb!="") {
-			sendMessage();
-			$("#messageBox").val().trim();
-			messageBox.focus();
-		}
-	}
-	});
-	
-     window.onbeforeunload = function() {
-       webSocket.send("DISCO:-"+user);
+     		if (debug == "on") {
+  			console.log('Openning  connection for to ${bean.chatuser}');
+  		}
+      	<g:if test="${!bean.chatuser}">
+         		$('#chatMessages').append("Chat denied no username \n");
+         		webSocket.send("LIVEDISCO:-"+user);
+         	 	webSocket.close();
+         	</g:if>
+          <g:else>
+         		webSocket.send("LIVECONN:-"+user);
+             	scrollToBottom();
+              webSocket.send("/userType liveChat");
+              webSocket.send("/enableUsers "+user+",${bean.room}");
+         </g:else>
+   	}
+
+
+
+  	$('#messageBox').keypress(function(e){
+  	if (e.keyCode == 13 && !e.shiftKey) {
+  		e.preventDefault();
+  	}
+  	if(e.which == 13){
+  		var tmb=messageBox.value.replace(/^\s*[\r\n]/gm, "");
+  		if (tmb!="") {
+  			sendMessage();
+  			$("#messageBox").val().trim();
+  			messageBox.focus();
+  		}
+  	}
+  	});
+
+   window.onbeforeunload = function() {
+       webSocket.send("LIVEDISCO:-"+user);
        //webSocket.onclose = function() { }
        //webSocket.close();
-     }
+   }
+
 </g:javascript>
 
