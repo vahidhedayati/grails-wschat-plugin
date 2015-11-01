@@ -98,10 +98,10 @@ This plugin will not work on grails app older than 2.3. Since tomcat:7.054/7.055
 ```
 
 
-#### This is the codebase for grails 3.X
+##### This is the codebase for grails 3.X
 
 
-### Access URL: 
+##### Access URL: 
 
 This plugin provides  basic chat page, once installed you can access Grails 2:
 
@@ -115,14 +115,25 @@ http://localhost:8080/wsChat/
 ````
 
 
-## [Configuration variables required:](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Config-V3.groovy)
+##### [Configuration variables required:](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Config-V3.groovy)
  		
-## [Version info](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Version-info-V3)
-
-## [Chat Commands](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Commands)
+##### [Version info](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Version-info-V3)
 
 
-### Intergrating chat with your apps authentication
+##### [Chat Commands](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Commands)
+
+
+##### [Creating admin accounts](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Creating-admin-accounts)
+
+
+##### [1.24/1.25 Live chat & Chat Bot](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Chat-Room-Bot---Live-Chat---Live-Chat-Bot)
+
+
+##### [WebtRTC WebCam walk through](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebtRTC-WebCam-walk-through)
+
+
+
+##### Intergrating chat with your apps authentication
 [Disable index page](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Custom-calling-plugin-disabled-login)
 
 
@@ -155,19 +166,11 @@ http://localhost:8080/wsChat/
 10. [Video 1.25 LiveChat (1 room multiple users with 1 admin interacting with all) ](https://www.youtube.com/watch?v=udbOq6fiD9o)
 
 
-### [WebtRTC WebCam walk through](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebtRTC-WebCam-walk-through)
+
+###### [STUN Server, setting up your own server & WebRTC-terminology](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebRTC-terminology)
 
 
-### [1.24/1.25 Live chat & Chat Bot](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Chat-Room-Bot---Live-Chat---Live-Chat-Bot)
-
-
-### [STUN Server, setting up your own server & WebRTC-terminology](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebRTC-terminology)
-
-
-### [Customised chat menus for your chat users](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Customised-chat-menus-for-your-chat-users)
-
-
-#### [Creating admin accounts](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Creating-admin-accounts)
+###### [Customised chat menus for your chat users](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Customised-chat-menus-for-your-chat-users)
 
 
 ###### [0.10+ & resources based apps (pre 2.4)](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/resources-based-apps)
@@ -182,7 +185,7 @@ http://localhost:8080/wsChat/
 
 ###### [Chat room booking/reservations](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Booking-chat-event)
 
-#### 1.13 Offline Messaging - enable override:
+###### 1.13 Offline Messaging - enable override:
 
 It will work when this is enabled in your Config.groovy
 
