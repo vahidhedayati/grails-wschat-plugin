@@ -16,50 +16,48 @@ Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 1.0+  - Supports WebRTC currently only on Chrome Canary.
 
 1.12  - Chat room bookings for multiple participants
-	Persist messages to DB override config required.
-	Lots of bug fixing + ui changes.
-	On the fly colour theme changes extended.
-					
-1.13  -	Friends List / Room list - showing any online friends 
-	anywhere in chat. Issue with friends/block list unique ids 
-	causing issue (Fixed).
-	Offline Messaging added - offline PM friends. Or if a user that
-	leaves room. Upon next login offline messages appears.
-	More UI updates. Button to close PMs added.
-					
-					
+        Persist messages to DB override config required.
+        Lots of bug fixing + ui changes.
+        On the fly colour theme changes extended.
+
+1.13  - Friends List / Room list - showing any online friends 
+        anywhere in chat. Issue with friends/block list unique ids 
+        causing issue (Fixed).
+        Offline Messaging added - offline PM friends. Or if a user that
+        leaves room. Upon next login offline messages appears.
+        More UI updates. Button to close PMs added.
+
 1.17  - Websocket -> WebRTC File sharing peer2peer available -  
-	Once websocket negotiation are completed, WebRTC and 
-	HTML5 File API are used in conjunction to allow file transfer
-	between the users physical machines.
-	Limitations:
-	
-	1. (Chrome) - seems to only work on small files 18k worked..
-		50k files failed. On firefox tested as far as 2MB files all good.
-		
-	2. Only chrome -> chrome OR Firefox -> Firefox. 
-		Can not send from FF to Chrome and vice versa.. read here:
-		
-	https://bloggeek.me/send-file-webrtc-data-api/
-										 
-										 
+        Once websocket negotiation are completed, WebRTC and 
+        HTML5 File API are used in conjunction to allow file transfer
+        between the users physical machines.
+        Limitations:
+
+        1. (Chrome) - seems to only work on small files 18k worked..
+            50k files failed. On firefox tested as far as 2MB files all good.
+
+        2. Only chrome -> chrome OR Firefox -> Firefox. 
+            Can not send from FF to Chrome and vice versa.. read here:
+
+        https://bloggeek.me/send-file-webrtc-data-api/
+
 1.18 -  Mediastreaming enabled but has not worked for me personally, might do for someone else. 
-	Only supports .webm files.
-	
-	firefox
-    		about:config
-    		media.mediasource.enabled = true
-	firefox show what shared by chrome but FF doesn't share screen itself 
-    	(transmits just video from cam)
-    	
-    	screen casting for Chrome
-    		chrome://flags
-    		enable screen capture support in getusermedia()
-    		HTTPS is MANDATORY for screen casting
-    	Chrome will ask 'Do you want <web site name> to share your screen? - say YES
-    	Or run
-    	chromium-browser --allow-http-screen-capture --enable-usermedia-screen-capturing
-    	
+        Only supports .webm files.
+
+        firefox
+            about:config
+            media.mediasource.enabled = true
+        firefox show what shared by chrome but FF doesn't share screen itself 
+        (transmits just video from cam)
+
+        screen casting for Chrome
+            chrome://flags
+            enable screen capture support in getusermedia()
+            HTTPS is MANDATORY for screen casting
+        Chrome will ask 'Do you want <web site name> to share your screen? - say YES
+        Or run:
+        chromium-browser --allow-http-screen-capture --enable-usermedia-screen-capturing
+
 3.0.3/1.20  - Multiple login with same user but must be different rooms - removal of dbSupport check
 
 3.0.3/1.21  - Websocket TicTacToe game added (Watch video 6)
