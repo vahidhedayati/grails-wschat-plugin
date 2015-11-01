@@ -11,69 +11,66 @@ Admin can:  kick/Ban (for specified time period)
 Users can create profiles define details and upload photos.
 Chat rooms can be created in Config.groovy +/ DB once logged in using UI.
 
-0.19+ -  			supports webcam tested  on chrome/firefox.
+0.19+ - Supports webcam tested  on chrome/firefox.
   
-1.0+  -  			supports WebRTC currently only on Chrome Canary.
+1.0+  - Supports WebRTC currently only on Chrome Canary.
 
-1.11-SNAPSHOT4 + 	supports WebRTC screen sharing + chat client/server 
-					messaging/event services.
-					screen sharing only Chrome Canary+ (no plugins req)
-					
-1.12 				Chat room bookings for multiple participants
-					Persist messages to DB override config required.
-					Lots of bug fixing + ui changes.
-					On the fly colour theme changes extended.
-					
-1.13				Friends List / Room list - showing any online friends 
-					anywhere in chat. Issue with friends/block list unique ids 
-					causing issue (Fixed).
-					Offline Messaging added - offline PM friends. Or if a user that
-					leaves room. Upon next login offline messages appears.
-					More UI updates. Button to close PMs added.
-					
-					
-1.17 				Websocket -> WebRTC File sharing peer2peer available -  
-					Once websocket negotiation are completed, WebRTC and 
-					HTML5 File API are used in conjunction to allow file transfer
-					between the users physical machines.
-					Limitations 
-					1. (Chrome) - seems to only work on small files 18k worked..
-					50k files failed. On firefox tested as far as 2MB files all good.
-					2. Only chrome -> chrome OR Firefox -> Firefox. 
-					Can not send from FF to Chrome and vice versa.. read here:
-					https://bloggeek.me/send-file-webrtc-data-api/
-										 
-										 
-1.17-SNAPSHOT1      Mediastreaming enabled but has not worked for me personally, might do for someone else. 
-					Only supports .webm files.
-					firefox
-    				about:config
-    				media.mediasource.enabled = true
+1.12  - Chat room bookings for multiple participants
+        Persist messages to DB override config required.
+        Lots of bug fixing + ui changes.
+        On the fly colour theme changes extended.
 
-    				screen casting for Chrome
-    				chrome://flags
-    				enable screen capture support in getusermedia()
-    				HTTPS is MANDATORY for screen casting
-    				Chrome will ask 'Do you want <web site name> to share your screen? - say YES
-    				firefox show what shared by chrome but FF doesn't share crseen itself 
-    				(transmits just video from cam)
-    				Or run
-    				chromium-browser --allow-http-screen-capture --enable-usermedia-screen-capturing
+1.13  - Friends List / Room list - showing any online friends 
+        anywhere in chat. Issue with friends/block list unique ids 
+        causing issue (Fixed).
+        Offline Messaging added - offline PM friends. Or if a user that
+        leaves room. Upon next login offline messages appears.
+        More UI updates. Button to close PMs added.
 
+1.17  - Websocket -> WebRTC File sharing peer2peer available -  
+        Once websocket negotiation are completed, WebRTC and 
+        HTML5 File API are used in conjunction to allow file transfer
+        between the users physical machines.
+        Limitations:
 
-1.20 				Long overdue and popular request - Same user logging in twice in two different rooms		
+        1. (Chrome) - seems to only work on small files 18k worked..
+            50k files failed. On firefox tested as far as 2MB files all good.
 
-1.21 				Websocket TicTacToe game added (Watch video 6)
+        2. Only chrome -> chrome OR Firefox -> Firefox. 
+            Can not send from FF to Chrome and vice versa.. read here:
 
-1.23				Live Chat feature added as part of the plugin(watch video 7)
+        https://bloggeek.me/send-file-webrtc-data-api/
 
-1.24				ChatBot and badWords added to the main chat room
+1.18 -  Mediastreaming enabled but has not worked for me personally, might do for someone else. 
+        Only supports .webm files.
 
+        firefox
+            about:config
+            media.mediasource.enabled = true
+        firefox show what shared by chrome but FF doesn't share screen itself 
+        (transmits just video from cam)
+
+        screen casting for Chrome
+            chrome://flags
+            enable screen capture support in getusermedia()
+            HTTPS is MANDATORY for screen casting
+        Chrome will ask 'Do you want <web site name> to share your screen? - say YES
+        Or run:
+        chromium-browser --allow-http-screen-capture --enable-usermedia-screen-capturing
+
+3.0.3/1.20  - Multiple login with same user but must be different rooms - removal of dbSupport check
+
+3.0.3/1.21  - Websocket TicTacToe game added (Watch video 6)
+
+3.0.3/1.23  - Live Chat feature added as part of the plugin(watch video 7)
+
+3.0.3/1.24  - ChatBot and badWords added to the main chat room
+
+3.0.4/1.25  - Live Chat Many users to 1 admin (Video 10). 
 ```
 
 
  Websocket chat can be incorporated to an existing grails app running ver 2>+. Supports both resource (pre 2.4) /assets (2.4+) based grails sites.
-
 
 ###### Plugin will work with tomcat 7.0.54 + (inc. 8) running java 1.7+
 If you are using Grails 2.3X please check your BuildConfig.groovy and ensure you have tomcat set to 7.0.55, refer to https://github.com/vahidhedayati/grails-wschat-plugin/issues/5:
@@ -84,21 +81,25 @@ If you are using Grails 2.3X please check your BuildConfig.groovy and ensure you
 
 This plugin will not work on grails app older than 2.3. Since tomcat:7.054/7.055 requires grails applications 2.3+
 
+
 ###### Dependency (Grails 2.3+) :
 ```groovy
 	compile ":wschat:1.25"
 ```
 
-[codebase for grails 2.X](https://github.com/vahidhedayati/grails-wschat-plugin/tree/grails2)
+##### This is the codebase for grails 2.X
 
 
 ###### Dependency (Grails 3.X) :
 ```groovy
-	compile "org.grails.plugins:wschat:3.0.3"
+	compile "org.grails.plugins:wschat:3.0.4"
 ```
 
 [codebase for grails 3.X](https://github.com/vahidhedayati/grails-wschat-plugin/)
 
+
+
+##### Access URL: 
 
 This plugin provides  basic chat page, once installed you can access Grails 2:
 
@@ -111,31 +112,35 @@ Grails 3:
 http://localhost:8080/wsChat/
 ````
 
-## Config.groovy variables required:
- [Config.groovy variables required:](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Config.groovy)
+
+##### [Configuration variables required:](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Config.groovy)
  		
+##### [Version info](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Version-info)
 
 
-##Version info
-[Version info](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Version-info)
+##### [Chat Commands](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Commands)
+
+
+##### [Creating admin accounts](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Creating-admin-accounts)
+
+
+##### [1.24/1.25 Live chat & Chat Bot](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Chat-Room-Bot---Live-Chat---Live-Chat-Bot)
+
+
+##### [WebtRTC WebCam walk through](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebtRTC-WebCam-walk-through)
 
 
 
-###Commands
-[Commands](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Commands)
+##### Intergrating chat with your apps authentication
+[Disable index page](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Custom-calling-plugin-disabled-login)
 
 
+[Integration Method 1](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Merging-plugin-with-your-own-custom-calls)
 
-
-### Intergrating chat with your apps authentication
-[Definitely disable index](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Custom-calling-plugin-disabled-login)
-
-[Method 1](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Merging-plugin-with-your-own-custom-calls)
-
-[Method 2](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Custom-calls)
+[Integration Method 2](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Custom-calls)
 
  
-### Videos:
+### Videos on youtube:
 1. [Video: grails app running wschat 0.14 part1](https://www.youtube.com/watch?v=E-NmbDZg9G4)
 
 2. [Video: grails app running wschat 0.14 part2](https://www.youtube.com/watch?v=xPxV_iEYYm0)
@@ -159,38 +164,26 @@ http://localhost:8080/wsChat/
 10. [Video 1.25 LiveChat (1 room multiple users with 1 admin interacting with all) ](https://www.youtube.com/watch?v=udbOq6fiD9o)
 
 
-##### WebtRTC WebCam walk through
-[WebtRTC WebCam walk through](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebtRTC-WebCam-walk-through)
+
+###### [STUN Server, setting up your own server & WebRTC-terminology](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebRTC-terminology)
 
 
-
-### [Customised chat menus for your chat users](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Customised-chat-menus-for-your-chat-users)
-
-
-#### STUN Server, setting up your own server:
-[WebRTC-terminology](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebRTC-terminology)
+###### [Customised chat menus for your chat users](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Customised-chat-menus-for-your-chat-users)
 
 
-##### Creating admin accounts
-[Creating admin accounts](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Creating-admin-accounts)
-	
+###### [0.10+ & resources based apps (pre 2.4)](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/resources-based-apps)
 
-##### 0.10+ & resources based apps (pre 2.4)
-[pre 2.4 apps](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/resources-based-apps)
+###### [ChatClientEndPoint Client/Server Messaging  new feature since 1.11](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/wsChatClient-Client-Server-Messaging-new-feature-since-1.11)
 
-##### ChatClientEndPoint Client/Server Messaging  new feature since 1.11
-[Client/Server Messaging explained](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/wsChatClient-Client-Server-Messaging-new-feature-since-1.11)
+###### [add profile with taglib connection call](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/profile-creation)
 
-#### 1.12 additions:
-[add profile with taglib connection call](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/profile-creation)
+###### [how to screen capture](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Screen-capture-commands)
 
-[how to screen capture](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Screen-capture-commands)
+###### [Chat to DB](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Persist-Chat-to-DB)
 
-[Chat to DB](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Persist-Chat-to-DB)
+###### [Chat room booking/reservations](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Booking-chat-event)
 
-[Chat room booking/reservations](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Booking-chat-event)
-
-#### 1.13 Offline Messaging - enable override:
+###### 1.13 Offline Messaging - enable override:
 
 It will work when this is enabled in your Config.groovy
 
@@ -198,10 +191,13 @@ It will work when this is enabled in your Config.groovy
 wschat.offline_pm=true
 ```
 
-#### [1.24 Live chat & Chat Bot](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Chat-Room-Bot---Live-Chat---Live-Chat-Bot)
 
-### Known issues/work arounds:
+#### Known issues/work arounds:
 Since 0.20+ ui.videobox has been added, earlier versions and even current version suffers from conflicts with jquery.ui.chatbox and does not send message. In 1.13 an option above left of rooms will attempt to close PM windows. Otherwise refresh your page.
 
-### Complete site wrapper example 
+#### Complete site wrapper example 
 [example chat web application with Bootstrap/Shiro:LDAP/AD](https://github.com/vahidhedayati/kchat)
+
+[Demo of customised chat views and client/server Grails 2.4.4](https://github.com/vahidhedayati/testwschat)
+
+[Demo of customised chat views and client/server Grails 3.0.1](https://github.com/vahidhedayati/testwschat3)
