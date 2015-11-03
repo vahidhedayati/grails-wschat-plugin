@@ -8,6 +8,7 @@
 <link rel="stylesheet"	href="${resource(dir: 'css', file: 'jquery.ui.chatbox.css')}" type="text/css">
 <script type="text/javascript"	src="${resource(dir: 'js', file: 'jquery.ui.chatbox.js')}"></script>
 <script type="text/javascript"	src="${resource(dir: 'js', file: 'jquery.ui.videobox.js')}"></script>
+<link rel="stylesheet"	href="${resource(dir: 'css', file: 'font-awesome.css')}" type="text/css">
 <g:if test="${bean?.bootstrap}">
 <script type="text/javascript"	src="${resource(dir: 'js', file: 'bootstrap.min.js')}"></script>
 <link rel="stylesheet"	href="${resource(dir: 'css', file: 'bootstrap.min.css')}" type="text/css">

@@ -117,20 +117,6 @@
 	float:left;
 	
 }
-#sendBtn { 
-	display:inline-block;
-	*display:inline;
-	*zoom:2;
-	float:right;
-	
-	padding:11px 4px; 
-	font-family:'Helvetica Neue',sans-serif; 
-	font-size:13px; 
-	border-radius:0.2px; 
-	-moz-border-radius:0.2px; 
-	-webkit-border-radius:0.2px;
-	 border:1px solid #1A87B9 ;
-} 
 #sendMessage  textarea {
 	height: 3em;
 	width: 85%;
@@ -145,4 +131,285 @@
     border: 1px solid #cfcfcf;
     color: #FFFFFF;
     font-weight: bold;
+}
+
+.spinner-0 {
+	background: url(../images/spinner0.gif) 50% 50% no-repeat transparent;
+}
+.spinner-1 {
+	background: url(../images/spinner1.gif) 50% 50% no-repeat transparent;
+}
+.spinner-2 {
+	background: url(../images/spinner2.gif) 50% 50% no-repeat transparent;
+}
+.spinner-3 {
+	background: url(../images/spinner3.gif) 50% 50% no-repeat transparent;
+}
+.spinner-4 {
+	background: url(../images/spinner4.gif) 50% 50% no-repeat transparent;
+}
+.spinner-5 {
+	background: url(../images/spinner5.gif) 50% 50% no-repeat transparent;
+}
+.spinner-6 {
+	background: url(../images/spinner6.gif) 50% 50% no-repeat transparent;
+}
+.spinner-7 {
+	background: url(../images/spinner7.gif) 50% 50% no-repeat transparent;
+}
+.spinner-8 {
+	background: url(../images/spinner8.gif) 50% 50% no-repeat transparent;
+}
+.spinner-9 {
+	background: url(../images/spinner9.gif) 50% 50% no-repeat transparent;
+}
+.spinner-10 {
+	background: url(../images/spinner10.gif) 50% 50% no-repeat transparent;
+}
+.spinner-11 {
+	background: url(../images/spinner11.gif) 50% 50% no-repeat transparent;
+}
+.spinner-12 {
+	background: url(../images/spinner12.gif) 50% 50% no-repeat transparent;
+}
+.spinner-13 {
+	background: url(../images/spinner13.gif) 50% 50% no-repeat transparent;
+}
+.spinner-14 {
+	background: url(../images/spinner14.gif) 50% 50% no-repeat transparent;
+}
+.spinner-15 {
+	background: url(../images/spinner15.gif) 50% 50% no-repeat transparent;
+}
+.spinner-16 {
+	background: url(../images/spinner16.gif) 50% 50% no-repeat transparent;
+}
+.spinner-17 {
+	background: url(../images/spinner17.gif) 50% 50% no-repeat transparent;
+}
+.spinner-18 {
+	background: url(../images/spinner18.gif) 50% 50% no-repeat transparent;
+}
+.spinner-19 {
+	background: url(../images/spinner19.gif) 50% 50% no-repeat transparent;
+}
+.spinner-20 {
+	background: url(../images/spinner20.gif) 50% 50% no-repeat transparent;
+}
+.spinner-21 {
+	background: url(../images/spinner21.gif) 50% 50% no-repeat transparent;
+}
+.spinner-22 {
+	background: url(../images/spinner22.gif) 50% 50% no-repeat transparent;
+}
+.spinner-23 {
+	background: url(../images/spinner23.gif) 50% 50% no-repeat transparent;
+}
+.spinner-24 {
+	background: url(../images/spinner24.gif) 50% 50% no-repeat transparent;
+}
+.spinner-25 {
+	background: url(../images/spinner25.gif) 50% 50% no-repeat transparent;
+}
+
+fieldset,
+.property-list {
+	margin: 0.6em 1.25em 0 1.25em;
+	padding: 0.3em 1.8em 1.25em;
+	position: relative;
+	zoom: 1;
+	border: none;
+}
+
+.property-list .fieldcontain {
+	list-style: none;
+	overflow: hidden;
+	zoom: 1;
+}
+
+.fieldcontain {
+	margin-top: 1em;
+}
+
+.fieldcontain label,
+.fieldcontain .property-label {
+	color: #666666;
+	text-align: right;
+	width: 25%;
+}
+
+.fieldcontain .property-label {
+	float: left;
+}
+
+.fieldcontain .property-value {
+	display: block;
+	margin-left: 27%;
+}
+
+label {
+	cursor: pointer;
+	display: inline-block;
+	margin: 0 0.25em 0 0;
+}
+
+
+
+input, select, textarea {
+	background-color: #fcfcfc;
+	border: 1px solid #cccccc;
+	
+	padding: 0.2em 0.4em;
+	
+}
+
+.top_form  {
+	
+	background-color: #fcfcfc;
+	border: 1px solid #cccccc;
+	
+	height: 10px;
+	box-shadow:
+        inset 0 2px 3px rgba(5,5,255,0.5),
+        inset 0 -2px 3px rgba(0,0,0,0.5),
+        0 1px 1px rgba(5,5,255,1.9);
+}
+select {
+    background: -webkit-linear-gradient(white, #333);
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    color: #333;
+    text-shadow: 0 0 4px rgba(0, 0, 0.8, 0.8);
+    width:auto\9;
+    -webkit-appearance: none;
+}
+
+select:active {
+    background: -webkit-linear-gradient(#333, white);
+}
+
+.middle_form  {
+	background-color: #fcfcfc;
+	border: 1px solid #cccccc;
+	
+
+	height: 15px;
+	padding: 0px;
+} 
+
+.top_form1  {
+	margin-left: 10px;
+	margin-right: 10px;
+	color: #000;
+	background-color: #ccc;
+	border: 1px solid #ccc;
+	
+	height: 25px;
+} 
+
+.top_form2  {
+	margin-left: 10px;
+	margin-right: 10px;
+	color: #FFF;
+	background-color: #0000CE;
+	border: 1px solid #0000CE;
+	
+	height: 25px;
+} 
+
+.top_form3  {
+	margin-left: 10px;
+	margin-right: 10px;
+	color: #FFF;
+	background-color: #F70000;
+	border: 1px solid #F70000;
+	
+	height: 25px;	
+} 
+
+select[multiple] {
+	vertical-align: top;
+}
+
+textarea {
+	width: 250px;
+	height: 150px;
+	overflow: auto; /* IE always renders vertical scrollbar without this */
+	vertical-align: top;
+}
+
+input[type=checkbox], input[type=radio] {
+	background-color: transparent;
+	border: 0;
+	padding: 0;
+}
+
+input:focus, select:focus, textarea:focus {
+	background-color: #ffffff;
+	border: 1px solid #eeeeee;
+	outline: 0;
+	-moz-box-shadow: 0 0 0.5em #ffffff;
+	-webkit-box-shadow: 0 0 0.5em #ffffff;
+	box-shadow: 0 0 0.5em #ffffff;
+}
+
+.required-indicator {
+	color: #444444;
+	display: inline-block;
+	font-weight: bold;
+	margin-left: 0.3em;
+	position: relative;
+	top: 0.1em;
+}
+
+ul.one-to-many {
+	display: inline-block;
+	list-style-position: inside;
+	vertical-align: top;
+}
+
+.ie6 ul.one-to-many, .ie7 ul.one-to-many {
+	display: inline;
+	zoom: 1;
+}
+
+ul.one-to-many li.add {
+	list-style-type: none;
+}
+
+/* EMBEDDED PROPERTIES */
+
+fieldset.embedded {
+	background-color: transparent;
+	border: 1px solid #CCCCCC;
+	margin-left: 0;
+	margin-right: 0;
+	padding-left: 0;
+	padding-right: 0;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
+fieldset.embedded legend {
+	margin: 0 1em;
+}
+
+/* MESSAGES AND ERRORS */
+
+.errors,
+.message {
+	
+	line-height: 2;
+	margin: 1em 2em;
+	padding: 0.25em;
+}
+
+.message {
+	background: #f3f3ff;
+	border: 1px solid #b2d1ff;
+	color: #006dba;
+	-moz-box-shadow: 0 0 0.25em #b2d1ff;
+	-webkit-box-shadow: 0 0 0.25em #b2d1ff;
+	box-shadow: 0 0 0.25em #b2d1ff;
 }

@@ -109,18 +109,18 @@
 		
    function processOpen(message) {
    		if (debug == "on") {
-			console.log('Opening  connection for to ${bean.user}');
+			console.log('${g.message(code:'wschat.connecting.user', default:'Opening  connection for to')} ${bean.user}');
 		}
     	<g:if test="${!bean.user}">
-       		$('#chatMessages').append("Chat denied no username \n");
+       		$('#chatMessages').append("${g.message(code:'wschat.no.username.error', default:'Chat denied no username')} \n");
        		webSocket.send("DISCO:-"+user);
        	 	webSocket.close();
        	</g:if>
 		<g:else>
-       		webSocket.send("CONN:-"+user);
-       		webSocket.send("/userType liveChat");
+       		webSocket.send("CONN:-"+user+",liveChat");
            	scrollToBottom();
        </g:else>
+       	
  	}
 	$('#messageBox').keypress(function(e){
 	if (e.keyCode == 13 && !e.shiftKey) {

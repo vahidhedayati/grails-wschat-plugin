@@ -2,12 +2,13 @@ package grails.plugin.wschat.messaging
 
 import grails.converters.JSON
 import grails.plugin.wschat.ChatBlockList
-import grails.plugin.wschat.ChatCustomerBooking
 import grails.plugin.wschat.ChatMessage
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.OffLineMessage
 import grails.plugin.wschat.WsChatConfService
 import grails.transaction.Transactional
+
+import java.text.DateFormat
 
 import javax.websocket.Session
 
@@ -100,6 +101,7 @@ class WsChatMessagingService extends WsChatConfService {
 				if (crec && crec.isOpen() && room==msg.fromRoom) {
 						if (chatUserUtilService.isLiveAdmin(cuser)) {
 							crec.basicRemote.sendText(myMsg)
+							log.debug "User->Admin: ${cuser} ${myMsg}"
 						}
 				}
 			}
@@ -124,6 +126,7 @@ class WsChatMessagingService extends WsChatConfService {
 			records?.each { String room, Session crec ->
 				if (crec && crec.isOpen() && room==msg.fromRoom && cuser==msg.msgTo) {
 						crec.basicRemote.sendText(myMsg)
+						log.debug "Admin->User: ${cuser} ${myMsg}"
 				}
 			}
 		}
@@ -155,6 +158,48 @@ class WsChatMessagingService extends WsChatConfService {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Updates/collects liveChat user details and sends back to valid userTypes
+	 * @param user
+	 * @param msg
+	 * @param userSession
+	 */
+	void updateLiveList(String user,Map msg,Session userSession) {
+		String urecord = userSession.userProperties.get("username")
+		chatNames.each { String cuser, Map<String,Session> records ->
+			records?.each { String room, Session crec ->
+				if (crec && crec.isOpen() && crec.userProperties.get("userType") == 'monitorLiveChat') {
+					crec.basicRemote.sendText(populateList(msg) as String)
+				}
+			}
+		}
+	}
+	
+	/*
+	 * populates a list of admin & livechat users particpating/
+	 * awaiting livechat
+	 */
+	JSON populateList(Map msg) {
+		List result=[]
+		chatNames.each { String cuser, Map<String,Session> records ->
+			records?.each { String croom, Session crec ->
+				if (crec && crec.isOpen() &&  (crec.userProperties.get("userType") == 'liveChat') && cuser!=msg.fromUser) {
+					boolean userPerm = crec.userProperties.get("userLevel")=='admin' ? true : false
+					String startTime = (crec.userProperties.get("startTime") as Date)?.format("yyyy-MM-dd HH:mm:ss")
+					String joinedRoom = (crec.userProperties.get("joinedRoom") as Date)?.format("yyyy-MM-dd HH:mm:ss")
+					boolean isAdmin =  chatUserUtilService.isLiveAdmin(cuser,false)
+					result << [room: croom, user:cuser,isAdmin:isAdmin, joinedRoom:joinedRoom, startTime:startTime, userPerm:userPerm]
+				}
+			}
+		}
+		
+		/*
+		 * GroupBy room collection saving a lot of agro
+		 */
+		def finalResult=[liveChatrooms:result.groupBy{it.room}]
+		return finalResult as JSON			 
 	}
 	
 	@Transactional

@@ -8,7 +8,7 @@
 		</g:layoutHead>
 		<r:layoutResources />
 	</head>
-	<body>
+	<body>	
 		<g:layoutBody/>
 		<r:layoutResources />
 	</body>

@@ -56,6 +56,7 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 	@OnOpen
 	public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) {
 		userSession.userProperties.put("room", room)
+		userSession.userProperties.put("startTime", new Date())
 		def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 		def grailsApplication = ctx.grailsApplication
 		wsChatAuthService = ctx.wsChatAuthService

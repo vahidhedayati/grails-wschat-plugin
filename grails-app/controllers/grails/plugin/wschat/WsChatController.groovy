@@ -190,7 +190,7 @@ class WsChatController extends WsChatConfService {
 			render (template: '/admin/viewLiveChatRooms', model: [bean:bean])
 		}
 	}
-	
+	/*
 	def verifyLiveChatUser(String username) {
 		if (isAdmin) {
 			Boolean isFound = wsChatUserService.findLiveUser(username)
@@ -203,8 +203,7 @@ class WsChatController extends WsChatConfService {
 		}
 		render status: 404
 	}
-	
-
+	*/
 	def viewUsers(SearchBean bean) {
 		if (isAdmin) {
 			bean.uList = wsChatUserService.genAllUsers()

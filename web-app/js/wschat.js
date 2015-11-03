@@ -79,50 +79,6 @@ function htmlEncode(value){
 	return $('<div/>').text(value).html();
 }
 
-function adminOptions(isAdmin,user) {
-	var sb = [];
-	if (isAdmin=="true") {
-		var strUrl = "/"+getApp()+"/wsChat/verifyLiveChatUser?username="+user, strReturn = "";
-		  jQuery.ajax({
-		    url: strUrl,
-		    success: function(html) {
-		    		sb.push('<li class="btn-xs" id="sideBar">\n');
-		    		sb.push('<a onclick="javascript:livepmuser('+wrapIt(user)+', '+wrapIt(getUser())+');">liveChatPM  '+user+'</a>\n');
-		    		sb.push('\n</li> \n');
-		    },
-		  async:false
-		});
-		sb.push('<li class="btn-xs" id="sideBar">\n');
-		sb.push('<a onclick="javascript:kickuser('+wrapIt(user)+');">Kick  '+user+'</a>\n');
-		sb.push('</li>\n');
-		sb.push('<li class="btn-xs" id="sideBar">\n');
-		sb.push('<a  data-toggle="modal" href="#banuser1"  onclick="javascript:banuser('+wrapIt(user)+');">Ban  '+user+'</a>\n');
-		sb.push('</li>\n');
-	}
-	return sb.join("")
-}
-
-
-function adminRooms(isAdmin) {
-	if (isAdmin=="true") {
-		var strUrl = "/"+getApp()+"/wsChat/adminMenu", strReturn = "";
-		  jQuery.ajax({
-		    url: strUrl,
-		    success: function(html) {
-		      strReturn = html;
-		    },
-		    async:false
-		  });
-		return strReturn;
-	}
-	//var sb = [];
-	//sb.push('<ul class="nav-pills pull-right">');
-	//sb.push('<li class="btn-success btn"><a data-toggle="modal" href="#roomcontainer1" class="glyphicon glyphicon-plus" onclick="javascript:addaRoom('+wrapIt(user)+');" title="Add a Room"></a></li>');
-	//sb.push('<li class="btn-danger btn"><a data-toggle="modal" href="#roomcontainer1" class="glyphicon glyphicon-minus" onclick="javascript:delaRoom('+wrapIt(user)+');" title="Remove a Room"></a></li>');
-	//sb.push('</ul>');
-	//console.log('-------'+sb.join(""));
-}
-
 function actOnEachLine(textarea, func) {
 	var lines = textarea.replace(/\r\n/g, "\n").split("\n");
 	var newLines, newValue, i;
@@ -655,6 +611,19 @@ function closeVideos()  {
 	} 		
 }
 
+function adminRooms(isAdmin) {
+	if (isAdmin=="true") {
+		var strUrl = "/"+getApp()+"/wsChat/adminMenu", strReturn = "";
+		  jQuery.ajax({
+		    url: strUrl,
+		    success: function(html) {
+		      strReturn = html;
+		    },
+		    async:false
+		  });
+		return strReturn;
+	}
+}
 
 /*
  * This appears under admin liveChat window

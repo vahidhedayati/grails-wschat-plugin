@@ -16,8 +16,8 @@ import java.security.MessageDigest
 import java.security.SecureRandom
 import java.text.SimpleDateFormat
 
+import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
 import org.springframework.transaction.annotation.Transactional
-
 
 class WsChatBookingService  extends WsChatConfService {
 
@@ -219,6 +219,7 @@ Please join chat on [CHATURL]
 				String parsedToken = token.toString().replaceAll('[^a-zA-Z0-9[:space:]]','')
 
 				def sendMap = [username: found.username]
+				ApplicationTagLib  g = new ApplicationTagLib()
 				def chaturl = g.createLink(controller: 'wsChat', action: 'joinBooking', id: parsedToken, params: sendMap, absolute: 'true' )
 
 				def myMap = [username: found.username, emailAddress: foundprofile.email,
