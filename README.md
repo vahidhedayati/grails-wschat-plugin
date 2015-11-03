@@ -5,7 +5,7 @@ Grails websocket chat Plugin provides a multi-chat room add-on to an existing gr
 
 ###### [How to install](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Installation)
 
-###### [Configuration variables required:](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Config-v3.groovy)
+###### [Configuration variables required](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Config-v3.groovy)
  		
 ###### [Version info](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Version-info-v3)
 
@@ -15,7 +15,7 @@ Grails websocket chat Plugin provides a multi-chat room add-on to an existing gr
 
 ###### [How to use configure Live chat & Chat Bot](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Chat-Room-Bot---Live-Chat---Live-Chat-Bot)
 
-###### [add profile with taglib connection call](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/profile-creation)
+###### [Add profile with taglib connection call](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/profile-creation)
 
 ###### [Chat room booking/reservations](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Booking-chat-event)
 
@@ -54,7 +54,7 @@ Grails websocket chat Plugin provides a multi-chat room add-on to an existing gr
 
 ###### [ChatClientEndPoint Client/Server Messaging  new feature since 1.11](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/wsChatClient-Client-Server-Messaging-new-feature-since-1.11)
 
-###### [how to screen capture](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Screen-capture-commands)
+###### [How to screen capture](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Screen-capture-commands)
 
 ###### [Chat to DB](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Persist-Chat-to-DB)
 
@@ -66,7 +66,8 @@ Grails websocket chat Plugin provides a multi-chat room add-on to an existing gr
 
 ###### [Thanks to](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Thanks-to)
 
-##### Grails wschat plugin supports:
+##### Grails wschat release/feature summary:
+
 ```
 User roles (Admin/regular user)
 Admin can:  kick/Ban (for specified time period)
