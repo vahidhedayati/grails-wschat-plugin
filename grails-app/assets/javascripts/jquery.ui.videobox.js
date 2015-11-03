@@ -68,6 +68,9 @@
 					this.elem.uiVidbox.remove();
 					var cuser = $(self.element).attr("id");
 					delCamList(cuser);
+					//delGame(cuser);
+					//delFileList(cuser);
+					//delMediaList(cuser);
 				},
 				toggleBox: function() {
 					this.elem.uiVidbox.toggle();
@@ -172,8 +175,16 @@
 						disablertc();
 						WebRTC.close();
 					}
+				}else if (cuser==user+'_webrtc') {
+					disablertc();
+					WebRTC.close();
+				} else if (cuser==user+'_game') {
+					disableGame();
+				} else if (cuser==user+'_fileshare') {
+					disableFile();
+				} else if (cuser==user+'_mediastream') { 
+					disableMedia();	
 				}
-				delCamList(cuser);
 				uiVidbox.hide();
 				uiVidbox.remove();
 				self.options.boxClosed(self.options.id);

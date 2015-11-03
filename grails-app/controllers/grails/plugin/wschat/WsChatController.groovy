@@ -194,6 +194,7 @@ class WsChatController extends WsChatConfService {
 		}
 	}
 
+	/*
 	def verifyLiveChatUser(String username) {
 		if (isAdmin) {
 			Boolean isFound = wsChatUserService.findLiveUser(username)
@@ -206,6 +207,7 @@ class WsChatController extends WsChatConfService {
 		}
 		render status: 404
 	}
+	*/
 
 	def viewUsers(SearchBean bean) {
 		if (isAdmin) {

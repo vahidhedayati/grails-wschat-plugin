@@ -133,6 +133,13 @@ class WsChatTagLib extends WsChatConfService {
 		}
 	}
 
+	/**
+	 * customerChatButton is an insecure button generated
+	 * for easy access/use to the next taglib call customerChat
+	 *
+	 * <chat:customerChatButton user="${session.user}"/>
+	 * or <chat:customerChatButton />
+	 */
 	def customerChatButton= { attrs->
 		attrs << [controller:controllerName, action: actionName, params: params ]
 		CustomerChatTagBean bean = new CustomerChatTagBean(attrs)
@@ -140,6 +147,24 @@ class WsChatTagLib extends WsChatConfService {
 		out << g.render(contextPath: pluginContextPath,template: '/customerChat/chatButton', model:model)
 	}
 
+	/**
+	 * Original liveChat method
+	 * interacts with end-user with what is required is 1 room per live chat
+	 * you should ensure each customerChat request hits a new room,
+	 * leave roomName blank to ensure it is randomly generated
+	 *
+	 * Will provide a room bot to verify end user and grab name/email
+	 * Will email/notify admin group of a new livechat request
+	 * Bot will also try to help with words matching patterns in ChatAI
+	 *
+	 *
+	 * <chat:customerChat />
+	 * <chat:customerChat user="${params.user}" />
+	 * <chat:customerChat user="${params.user}" roomName="${params.room }" />
+	 * <chat:customerChat user="${params.user}" roomName="${params.room }" name="Users actualName"/>
+	 * <chat:customerChat user="${params.user}" roomName="${params.room }" name="Users actualName"  emailAddress="users@email.com" />
+	 *
+	 */
 	def customerChat = { attrs ->
 		attrs << [controller:controllerName, action: actionName, params: params ]
 		CustomerChatTagBean bean = new CustomerChatTagBean(attrs)
@@ -151,11 +176,10 @@ class WsChatTagLib extends WsChatConfService {
 		// set the username to be Guest{SessionID}
 		// this now means if the user is using same session and is on another page
 		// chat system will recognise them
+		bean.guestUser = false
 		if (!bean.user) {
 			bean.guestUser = true
-			bean.user = 'Guest'+session.id
-		} else {
-			bean.guestUser = false
+			bean.user = 'Guest' + session.id
 		}
 		String uri = "${bean.uri}${bean.roomName}"
 
@@ -184,18 +208,32 @@ class WsChatTagLib extends WsChatConfService {
 		wsChatAuthService.addBotToChatRoom(bean.roomName, 'liveChat', true, bean.botLiveMessage, bean.uri, bean.user)
 	}
 
-
+	/**
+	 * new liveChat method
+	 * user input disabled until staff/admin joins their live chat
+	 * user livechat rooms shared. So one admin can interact with many users in that room
+	 * Users oblivious / unaware of this
+	 * no chat bot in this model
+	 * admin is notified of a new live chat request
+	 * Where all users can be routed to one or a few rooms - easier to monitor
+	 *
+	 * No buttons - call this directly when you have enough information look at video 10 and example site
+	 * <chat:liveChat />
+	 * <chat:liveChat user="${params.user}" />
+	 * <chat:liveChat user="${params.user}" roomName="${params.room }" />
+	 * <chat:liveChat user="${params.user}" roomName="${params.room }" name="Users actualName"/>
+	 * <chat:liveChat user="${params.user}" roomName="${params.room }" name="Users actualName"  emailAddress="users@email.com" />
+	 */
 	def liveChat = { attrs ->
 		attrs << [controller:controllerName, action: actionName, params: params ]
 		CustomerChatTagBean bean = new CustomerChatTagBean(attrs)
 		if (!bean.roomName) {
 			bean.roomName = randomService.shortRand(controllerName+actionName)
 		}
+		bean.guestUser = false
 		if (!bean.user) {
 			bean.guestUser = true
-			bean.user = 'Guest'+session.id
-		} else {
-			bean.guestUser = false
+			bean.user = 'Guest' + session.id
 		}
 		String uri = "${bean.uri}${bean.roomName}"
 
@@ -216,6 +254,33 @@ class WsChatTagLib extends WsChatConfService {
 		 * to notify someone needs help
 		 */
 		wsChatBookingService.sendLiveEmail(ccb,bean.user,bean.roomName)
+	}
+
+	/**
+	 *  monitoring call that allows you to
+	 *  monitor live chat requests from any part of your existing site
+	 *  whilst you can use the admin cog to monitor live chat requests
+	 *  this is an attempt to take away repetitve clicks / extra work
+	 *  and just present it to you in a nice easy way to be able to provide
+	 *  best possible response for your end users.
+	 */
+	def monitorliveChat = { attrs ->
+		attrs << [controller:controllerName, action: actionName, params: params ]
+		CustomerChatTagBean bean = new CustomerChatTagBean(attrs)
+		if (!bean.roomName) {
+			bean.roomName = "adminRoom"
+		}
+		if (!bean.user) {
+			bean.user = 'Guest'+session.id
+		}
+		String uri = "${bean.uri}${bean.roomName}"
+		Map model = [bean:bean, uri:uri]
+		if (bean.template) {
+			out << g.render(template:bean.template, model:model)
+		}else{
+			out << g.render(contextPath: pluginContextPath, template:"/customerChat/monitorLiveChat", model: model)
+		}
+
 	}
 
 	def complete = {attrs ->

@@ -159,6 +159,48 @@ class WsChatMessagingService extends WsChatConfService {
 		}
 	}
 
+	/**
+	 * Updates/collects liveChat user details and sends back to valid userTypes
+	 * @param user
+	 * @param msg
+	 * @param userSession
+	 */
+	void updateLiveList(String user,Map msg,Session userSession) {
+		String urecord = userSession.userProperties.get("username")
+		chatNames.each { String cuser, Map<String,Session> records ->
+			records?.each { String room, Session crec ->
+				if (crec && crec.isOpen() && crec.userProperties.get("userType") == 'monitorLiveChat') {
+					crec.basicRemote.sendText(populateList(msg) as String)
+				}
+			}
+		}
+	}
+
+	/*
+	 * populates a list of admin & livechat users particpating/
+	 * awaiting livechat
+	 */
+	JSON populateList(Map msg) {
+		List result=[]
+		chatNames.each { String cuser, Map<String,Session> records ->
+			records?.each { String croom, Session crec ->
+				if (crec && crec.isOpen() &&  (crec.userProperties.get("userType") == 'liveChat') && cuser!=msg.fromUser) {
+					boolean userPerm = crec.userProperties.get("userLevel")=='admin' ? true : false
+					String startTime = (crec.userProperties.get("startTime") as Date)?.format("yyyy-MM-dd HH:mm:ss")
+					String joinedRoom = (crec.userProperties.get("joinedRoom") as Date)?.format("yyyy-MM-dd HH:mm:ss")
+					boolean isAdmin =  chatUserUtilService.isLiveAdmin(cuser,false)
+					result << [room: croom, user:cuser,isAdmin:isAdmin, joinedRoom:joinedRoom, startTime:startTime, userPerm:userPerm]
+				}
+			}
+		}
+
+		/*
+		 * GroupBy room collection saving a lot of agro
+		 */
+		def finalResult=[liveChatrooms:result.groupBy{it.room}]
+		return finalResult as JSON
+	}
+
 	@Transactional
 	Boolean checkPM(String username, String urecord) {
 		return ChatBlockList.findByChatuserAndUsername(currentUser(username),urecord)?false:true

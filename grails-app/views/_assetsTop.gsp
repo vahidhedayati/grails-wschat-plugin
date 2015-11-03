@@ -8,6 +8,7 @@
 <asset:javascript src="jquery-ui.min.js" />
 <asset:stylesheet src="jquery-ui.min.css" />
 </g:if>
+<asset:stylesheet src="font-awesome.css"/>
 <g:if test="${bean?.bootstrap}">
 <asset:javascript src="bootstrap.min.js" />
 <asset:stylesheet href="bootstrap.min.css" />

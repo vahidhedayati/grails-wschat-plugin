@@ -1,10 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-</head>
+  <head></head>
 <body>
 
-<g:render template="/customerChat/livechat" model="${[bean:bean]}"/>
-
-</body>
+    <g:render template="/customerChat/livechat" model="${[bean:bean]}"/>
+ </body>   
 </html>

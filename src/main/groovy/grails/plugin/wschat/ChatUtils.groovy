@@ -27,6 +27,26 @@ class ChatUtils extends WsChatConfService {
 		wsChatMessagingService.privateMessage(user,[msgFrom:username, msgTo:user,privateMessage:msg],userSession)
 	}
 
+	private void verifyUser(Session userSession, String userType, String room, String username) {
+		userSession.userProperties.put("startTime", new Date())
+		userSession.userProperties.put("userType", userType)
+		if (userType=='liveChat') {
+			userSession.userProperties.put("livechat", "on")
+			userSession.userProperties.put("nameRequired", true)
+			userSession.userProperties.put("emailedRequired", true)
+			boolean hasLiveAdmin = wsChatUserService.roomHasLiveAdmin(room)
+			if (hasLiveAdmin) {
+				wsChatMessagingService.adminEnableEndScreens(username,[fromUser:username, msgTo:username, fromRoom:room, enabeLiveChat:'yes'],userSession)
+				String msg = config.enableUsersMessage  ?: 'A member of staff has joined'
+				wsChatMessagingService.messageUser(userSession, [liveMessageInitiate:msg])
+			}
+			wsChatMessagingService.updateLiveList(username,[fromUser:username, fromRoom:room, hasAdmin:hasLiveAdmin],userSession)
+		}
+		if (userType=='monitorLiveChat') {
+			wsChatMessagingService.updateLiveList(username,[:],userSession)
+		}
+	}
+
 	private void verifyAction(Session userSession,String message) {
 		def myMsg = [:]
 		String username = userSession.userProperties.get("username") as String
@@ -36,10 +56,23 @@ class ChatUtils extends WsChatConfService {
 		Boolean isuBanned = false
 		if (!username)  {
 			if (message.startsWith(connector)) {
-				wsChatAuthService.connectUser(message,userSession,room)
+				def values = parseInput(connector,message)
+				String user = values.user
+				String userType = values.msg
+				//backward compatible
+				def m = message.indexOf(',')>-1 ? message.split(",")[0] : message
+				wsChatAuthService.connectUser(m,userSession,room)
+				verifyUser(userSession, userType, room,username)
 			}
 			if (message.startsWith(connector2)) {
-				wsChatAuthService.connectUser(message,userSession,room,false)
+				userSession.userProperties.put("joinedRoom", new Date())
+				def values = parseInput(connector2,message)
+				String user = values.user
+				String userType = values.msg
+				def m = message.indexOf(',')>-1 ? message.split(",")[0] : message
+				wsChatAuthService.connectUser(m,userSession,room,false)
+				verifyUser(userSession, userType, room,username)
+
 			}
 			if ((myMsg)&&(!isuBanned)) {
 				wsChatMessagingService.broadcast(userSession,myMsg)
@@ -135,6 +168,7 @@ class ChatUtils extends WsChatConfService {
 				String msg = "${user} has removed you from their Friends List"
 				privateMessage(userSession, user,person,msg)
 			} else if (message.startsWith("/joinRoom")) {
+				userSession.userProperties.put("joinedRoom", new Date())
 				def values = parseInput("/joinRoom ",message)
 				String user = values.user as String
 				String rroom = values.msg as String
@@ -164,7 +198,7 @@ class ChatUtils extends WsChatConfService {
 					}
 				}
 			} else if (message.startsWith("/joinLiveChatRoom")) {
-
+				userSession.userProperties.put("joinedRoom", new Date())
 				def values = parseInput("/joinLiveChatRoom ",message)
 				String user = values.user
 				String rroom = values.msg
@@ -286,17 +320,7 @@ class ChatUtils extends WsChatConfService {
 			} else if (message.startsWith("/userType")) {
 				def p1 = "/userType "
 				def userType = message.substring(p1.length(),message.length())
-				userSession.userProperties.put("userType", userType)
-				if (userType=='liveChat') {
-					userSession.userProperties.put("nameRequired", true)
-					userSession.userProperties.put("emailedRequired", true)
-					boolean hasLiveAdmin = wsChatUserService.roomHasLiveAdmin(room)
-					if (hasLiveAdmin) {
-						wsChatMessagingService.adminEnableEndScreens(username,[fromUser:username, msgTo:username, fromRoom:room, enabeLiveChat:'yes'],userSession)
-						String msg = getConfig('enableUsersMessage')  ?: 'A member of staff has joined'
-						wsChatMessagingService.messageUser(userSession, [liveMessageInitiate:msg])
-					}
-				}
+				verifyUser(userSession, userType, room,username)
 			} else if (message.startsWith("deactive_chat_bot") || (message.startsWith("deactive_me"))) {
 				String userType = userSession.userProperties.get("userType") as String
 				wsChatAuthService.delBotFromChatRoom(username, room, userType, message)

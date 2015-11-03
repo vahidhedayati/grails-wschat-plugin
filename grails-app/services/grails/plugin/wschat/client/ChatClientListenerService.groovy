@@ -105,7 +105,7 @@ public class ChatClientListenerService extends WsChatConfService {
 		Session oSession
 		try {
 			oSession = container.connectToServer(ChatClientEndpoint.class, oUri)
-			oSession.basicRemote.sendText(CONNECTOR + username)
+			oSession.basicRemote.sendText(CONNECTOR + username+",chat")
 		} catch (Exception e) {
 			e.printStackTrace()
 			if (oSession && oSession.isOpen()) {

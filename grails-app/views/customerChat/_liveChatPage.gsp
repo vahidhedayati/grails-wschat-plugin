@@ -3,7 +3,7 @@
 <asset:stylesheet src="jquery-ui.min.css" />
 <asset:stylesheet href="customer-chat.css" id="chat_theme" />
 <asset:javascript src="wschat.js" />
-<asset:javascript src="usermenu.js" />
+<asset:javascript src="livechat.js" />
 <div id="chatDialog" title="${bean.liveChatTitle}">
 	<div id="chat_div"></div>
 	<div class='col-sm-10'>
@@ -17,7 +17,7 @@
 	<div class="message-thread" id="waiting" style="display:none;">
 		<div id="sendMessage">
 			<textarea id="messageBox" name="message"></textarea>
-			<input type="button" id="sendBtn"
+			<input type="button" class="btn btn-danger"  id="sendBtn"
 				value="${message(code: 'wschat.send.label', default: 'SEND')}"
 				onClick="sendLiveMessage();" >
 			</div>
@@ -102,20 +102,21 @@
 		
    function processOpen(message) {
    		if (debug == "on") {
-			console.log('Opening  connection for to ${bean.user}');
+			console.log('${g.message(code:'wschat.connecting.user', default:'Opening  connection for to')} ${bean.user}');
 		}
     	<g:if test="${!bean.user}">
-       		$('#chatMessages').append("${message(code: 'wschat.denied.nousername.label', default: 'Chat denied no username provided')} \n");
+       		$('#chatMessages').append("${g.message(code:'wschat.no.username.error', default:'Chat denied no username')} \n");
        		webSocket.send("LIVEDISCO:-"+user);
        	 	webSocket.close();
        	</g:if>
 		<g:else>
-       		webSocket.send("LIVECONN:-"+user);
-       		webSocket.send("/userType liveChat");
+       		webSocket.send("LIVECONN:-"+user+",liveChat");
            	scrollToBottom();
        </g:else>
        	$('#chatMessages').append("${message(code: 'wschat.please.wait.for.staff.label', default: 'Please wait for member of staff')}\n");
        	$('#messageBox').prop("readonly", true);
+       	$(".ui-widget-header,.ui-state-default,.ui-button").css({"background":"black","color":"white"});
+        $(".ui-dialog-content,.ui-widget-content").css({"background":"#ddd","color":"#000"});
  	}
 	$('#messageBox').keypress(function(e){
 	if (e.keyCode == 13 && !e.shiftKey) {
@@ -132,8 +133,6 @@
 	});
 	
      window.onbeforeunload = function() {
-		//webSocket.send("deactive_me");
-       // webSocket.send("close_connection");
        	webSocket.send("LIVEDISCO:-"+user);
        webSocket.onclose = function() { }
        webSocket.close();

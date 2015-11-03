@@ -207,7 +207,7 @@
  		//webSocket.send("CONN:-${bean.user}");
     	<g:if test="${bean.frontUser}">
     		console.log('connecting');
-    		webSocket.send("CONN:-${bean.user}${bean.frontUser}");
+    		webSocket.send("CONN:-${bean.user}${bean.frontUser},chat");
        	</g:if>
 		<g:else>
 			console.log('denied');

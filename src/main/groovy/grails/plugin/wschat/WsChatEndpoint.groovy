@@ -48,7 +48,7 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 
 	@OnOpen
 	public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) {
-		
+		userSession.userProperties.put("startTime", new Date())
 		userSession.userProperties.put("room", room)
 		//def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 		def ctx = Holders.applicationContext
