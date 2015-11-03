@@ -5,9 +5,9 @@ Grails websocket chat Plugin provides a multi-chat room add-on to an existing gr
 
 ###### [How to install](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Installation)
 
-###### [Configuration variables required:](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Config.groovy)
+###### [Configuration variables required:](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Config-v3.groovy)
  		
-###### [Version info](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Version-info)
+###### [Version info](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Version-info-v3)
 
 ###### [Creating admin accounts](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Creating-admin-accounts)
 
