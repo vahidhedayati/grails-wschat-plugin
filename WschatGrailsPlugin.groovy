@@ -1,3 +1,4 @@
+import grails.plugin.boselecta.BoSelectaEndpoint
 import grails.plugin.wschat.TicTacToeServer
 import grails.plugin.wschat.WsCamEndpoint
 import grails.plugin.wschat.WsChatEndpoint
@@ -28,6 +29,9 @@ class WschatGrailsPlugin {
 			}
 			listener {
 				'listener-class'(TicTacToeServer.name)
+			}
+			listener {
+				'listener-class'(BoSelectaEndpoint.name)
 			}
 		}
 	}
