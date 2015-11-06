@@ -2,7 +2,7 @@
 .dropdown-submenu{position:relative;  z-index: 21; background:  #000; color: #fff;  }
 
 #user-title {background:  #000; color: #FFF;}
-#themeChoice {background:  #000;  }
+#themeChoice {background:  #000;  height:100%;}
 #onlineUsers {background:  #111;  }
 #sideBar a {background:  #000; color: #FFF;}
 #sideBar a:hover { background:  #000; color: #FFF;}

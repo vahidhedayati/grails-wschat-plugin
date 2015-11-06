@@ -3,6 +3,7 @@
 <asset:stylesheet src="jquery-ui.min.css" />
 <asset:stylesheet href="customer-chat.css" id="chat_theme" />
 <asset:javascript src="wschat.js" />
+<asset:javascript src="livechat1.js" />
 <div id="chatDialog" title="${bean.liveChatTitle}">
 	<div id="chat_div"></div>
 	<div class='col-sm-10'>
@@ -45,7 +46,7 @@
              	$(this).hide();
              },
              open: function (event, ui) {
-                              $('#chatDialog').css('overflow', 'hidden');
+               $('#chatDialog').css('overflow', 'hidden');
              }
          });
     });
@@ -118,8 +119,8 @@
 	if(e.which == 13){
 		var tmb=messageBox.value.replace(/^\s*[\r\n]/gm, "");
 		if (tmb!="") {
-			sendMessage();
 			$("#messageBox").val().trim();
+			sendMessage();
 			messageBox.focus();
 		}
 	}

@@ -11,25 +11,17 @@ class WsChatRoomService extends WsChatConfService {
 	def wsChatMessagingService
 	def wsChatUserService
 
-
 	void sendRooms(Session userSession) {
 		wsChatMessagingService.messageUser(userSession,roomList())
 	}
 
-	void listRooms() {
+	void  listRooms() {
 		wsChatMessagingService.broadcast2all(roomList())
 	}
 
 	@Transactional
-	def returnRoom(Boolean displayString=null) {
-		ArrayList dbrooms = config.rooms as ArrayList
-		if (!dbrooms ) {
-			ChatRoomList dbroom = ChatRoomList?.findAllByRoomType('chat')
-			dbrooms = dbroom.room
-		}
-		if (!dbrooms) {
-			dbrooms = ['wschat']
-		}
+	def returnRoom(boolean displayString=false) {
+		List dbrooms = (config?.rooms.collect{it}  +ChatRoomList?.findAllByRoomType('chat')*.room?.unique()?.collect{it}) ?: ['wschat']
 		if (displayString) {
 			return dbrooms[0] as String
 		}else{
@@ -38,13 +30,11 @@ class WsChatRoomService extends WsChatConfService {
 	}
 
 	@Transactional
-	void addRoom(Session userSession,String roomName, String roomType) {
+	void addRoom(Session userSession,String roomName, String roomType='chat') {
 		if (isAdmin(userSession)) {
 			def nr = new ChatRoomList()
 			nr.room = roomName
-			if (roomType) {
-				nr.roomType = roomType
-			}
+			nr.roomType = roomType
 			if (!nr.save()) {
 				log.error "Error saving ${roomName} ${nr.errors}"
 			}
@@ -53,17 +43,12 @@ class WsChatRoomService extends WsChatConfService {
 	}
 
 	@Transactional
-	void addManualRoom(String roomName, String roomType) {
-		if (!roomType) {
-			roomType = 'chat'
-		}
+	void addManualRoom(String roomName, String roomType='chat') {
 		def record = ChatRoomList?.findByRoomAndRoomType(roomName, roomType)
 		if (!record) {
 			def nr = new ChatRoomList()
 			nr.room = roomName
-			if (roomType) {
-				nr.roomType = roomType
-			}
+			nr.roomType = roomType
 			if (!nr.save()) {
 				log.error "Error saving ${roomName} ${nr.errors}"
 			}
@@ -71,10 +56,7 @@ class WsChatRoomService extends WsChatConfService {
 	}
 
 	@Transactional
-	void delaRoom(String roomName, String roomType) {
-		if (!roomType) {
-			roomType = 'chat'
-		}
+	void delaRoom(String roomName, String roomType='chat') {
 		def record = ChatRoomList?.findByRoomAndRoomType(roomName, roomType)
 		if (record) {
 			record.delete()
@@ -83,7 +65,7 @@ class WsChatRoomService extends WsChatConfService {
 
 	@Transactional
 	void delRoom(Session userSession,String roomName) {
-		if ((isAdmin(userSession)) ) {
+		if (isAdmin(userSession)) {
 			chatNames.each { String cuser, Map<String,Session> records ->
 				Session crec = records.find{it.key==roomName}?.value
 				if (crec && crec.isOpen() && roomName.equals(crec.userProperties.get("room"))) {
@@ -100,32 +82,9 @@ class WsChatRoomService extends WsChatConfService {
 
 	@Transactional
 	Map roomList() {
-		def uList = []
-		def room = config.rooms
-		if (room) {
-			uList = []
-			room.each {
-				def myMsg = [:]
-				myMsg.put("room",it)
-				uList.add(myMsg)
-			}
-		}
-		def finalList = [:]
-		def	dbrooms = ChatRoomList?.findAllByRoomType('chat')*.room?.unique()
-		if (dbrooms) {
-			dbrooms.each {
-				def myMsg = [:]
-				myMsg.put("room",it)
-				uList.add(myMsg)
-			}
-		}
-		if (!room && !dbrooms) {
-			room = 'wschat'
-			def myMsg = [:]
-			myMsg.put("room",room)
-			uList.add(myMsg)
-		}
-		finalList.put("rooms", uList)
-		return finalList as Map
+		List uList = (config?.rooms.collect{['room':it]}  +ChatRoomList?.findAllByRoomType('chat')*.room?.unique()?.collect{['room':it]}) ?: [room:'wschat']
+		Map finalList = [rooms: uList]
+		return finalList
 	}
+
 }

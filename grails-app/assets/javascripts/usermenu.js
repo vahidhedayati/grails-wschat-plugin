@@ -12,8 +12,8 @@ function processMessage(message) {
 	}
 		
 	if (jsonData.message!=null) {
-		$('#chatMessages').append(htmlEncode(jsonData.message)+"\n");
-                scrollToBottom();
+		$('#chatMessages').append('<div id="msgBroadcast">'+jsonData.message.trim()+"<div>");
+        scrollToBottom();
 	}
 	
 	if (jsonData.isAdmin!=null) {
@@ -153,7 +153,7 @@ function processMessage(message) {
 			}
 			/*------------------------------------------------------------------------------------------*/
 			if (entry.online_friends!=null) {
-				sb5.push(addFriendOptions(user,entry.user,'friend','','chatOnline'));
+				sb5.push(addFriendOptions(user,entry.online_friends,'friend','','chatOnline'));
 			}
 			
 
@@ -166,26 +166,46 @@ function processMessage(message) {
 		currentRoom=jsonData.currentRoom
 	}
 	if (jsonData.liveChatMode!=null) {
-		window.location.href = "/"+getApp()+"/wsChat/joinLiveChat?roomName="+jsonData.liveChatMode+"&username="+user;
+		window.location.href = "/wsChat/joinLiveChat?roomName="+jsonData.liveChatMode+"&username="+user;
 	}
 	if (jsonData.rooms!=null) {
 		var rms = [];
-		rms.push('<ul class="nav-pills pull-center">\n');
 		jsonData.rooms.forEach(function(entry) {
 			if (entry.room!=null) {
 				if (currentRoom == entry.room) {
-					rms.push('<li class="btn btn-default"><b>'+entry.room+'</b></li>\n');
-					
+					rms.push('<li class="btn btn-default btn-xs"><b>'+entry.room+'</b></li>\n');
 				}else{
-					rms.push('<li class="btn btn-default"><a onclick="javascript:joinRoom('+wrapIt(user)+','+wrapIt(entry.room)+');">'+entry.room+'</a></li>\n');
-				}
-			}
-		});
-		rms.push('</ul>\n');
-		var admintool=adminRooms(isAdmin)
-		rms.push(admintool);
-		$('#chatRooms').html(rms.join(""));
-	}
+    				rms.push('<li class="btn btn-default btn-xs"><a onclick="javascript:joinRoom('+wrapIt(user)+','+wrapIt(entry.room)+');">'+entry.room+'</a></li>\n');
+    			}
+    		}
+    	});
+    	$('#chatRooms').html(rms.join(""));
+    	if (isAdmin=="true") {
+    		$('#adminMenu').show();
+    		var roomOptions = [];
+    		roomOptions.push('<a data-toggle="modal" href="#roomcontainer1" class="glyphicon glyphicon-plus"');
+    		roomOptions.push('onclick="javascript:addaRoom('+wrapIt(user)+');" title="Add a Room"></a>');
+    		roomOptions.push('<a data-toggle="modal" href="#roomcontainer1" class="glyphicon glyphicon-minus "');
+    		roomOptions.push('onclick="javascript:delaRoom('+wrapIt(user)+');" title="Remove a Room"></a>');
+			$('#adminRoomOptions').html(roomOptions.join(""));
+    	}
+    }
+
+    /*
+     * this makes admins menu up from map entry returned.
+     */
+    if (jsonData.adminOptions!=null && isAdmin=="true") {
+    	var roomOptions = [];
+    	jsonData.adminOptions.forEach(function(entry) {
+    		if (entry.actions!=null) {
+    			roomOptions.push('<li><a data-toggle="modal" href="#admincontainer1" onclick="javascript:'+entry.actions+'('+wrapIt(user)+');" >');
+    			//convert back result to il8n variable conversion
+    			var converted= window[entry.actions+'Label'];
+    			roomOptions.push(converted+'</a></li>\n');
+    		}
+    	});
+    	$('#adminOptions').html(roomOptions.join(""));
+    }
 
 	/* 
 	 * Convert usres Live Chat Message into a PM
@@ -205,7 +225,7 @@ function processMessage(message) {
 		if (jsonData.fromRoom!=null) {
 			room=jsonData.fromRoom
 		}
-		$('#chatMessages').append(sender+": "+jsonData.liveMessage+"\n");
+		$('#chatMessages').append('<div id="msgSent"><span class="msgPersonSent">'+sender+':</span> <span class="msgSentContent">'+jsonData.liveMessage+'</span></div>');
 		sendLiveChatPM(receiver,sender,jsonData.liveMessage,room);
 	}
 	
@@ -228,7 +248,9 @@ function processMessage(message) {
 		if (jsonData.fromRoom!=null) {
 			room=jsonData.fromRoom
 		}
+		//TODO - VH
 		$('#chatMessages').append(sender+": "+jsonData.liveMessageResponse+"\n");
+
 	}
 	
 	/*
@@ -287,7 +309,7 @@ function addFriendOptions(user,friend,userType,requestType,glyphicons,id) {
 	sb.push('\n<li class="dropdown-submenu bttn-xs" id="'+id+'"><a tabindex="-1" id="user-title" class="user-title glyphicon '+glyphicons+'" >'+friend+'</a>\n');
 	sb.push('<ul class="dropdown-menu">\n');
 	sb.push('<li class="btn-xs" id="sideBar">\n');
-	sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(friend)+');">'+friend+'\'s '+profile+'</a>\n');
+	sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(friend)+');">'+friend+' '+profile+'</a>\n');
 	sb.push('</li>\n');
 	if (id=='chatBlocked') {
 		sb.push('<li class="btn-xs" id="sideBar">\n');
@@ -360,7 +382,7 @@ function addOwnerOptions(entry, glyphicons,userType) {
 	sb.push('\n<li class="dropdown-submenu bttn-xs" id="ownerBar">\n<a tabindex="-1" id="user-title" class="user-title glyphicon  '+glyphicons+'">'+entry+'</a>\n');
 	sb.push('<ul class="dropdown-menu">\n');
 	sb.push('<li class="btn-xs" id="sideBar">\n');
-	sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry)+');">'+entry+'\'s '+profile+'</a>\n');
+	sb.push('<a  data-toggle="modal" href="#userprofile1"  onclick="javascript:userprofile('+wrapIt(entry)+');">'+entry+' '+profile+'</a>\n');
 	sb.push('</li>\n');
 	if (userType=='owner') {
 		sb.push('<li class="btn-xs" id="sideBar">\n');

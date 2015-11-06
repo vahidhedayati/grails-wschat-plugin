@@ -30,7 +30,7 @@
 	// Convert grails variable values to javascript format
 	var user="${bean.user}";
 	var hostname="${bean.hostname}";
-	var room = "${bean.room}";
+	var room = "${bean.roomName}";
 	function getHostName() {
 		return hostname;
 	}

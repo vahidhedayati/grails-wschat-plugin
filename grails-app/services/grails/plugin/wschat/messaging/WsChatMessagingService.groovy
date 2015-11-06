@@ -15,6 +15,8 @@ import javax.websocket.Session
 class WsChatMessagingService extends WsChatConfService {
 
 	def chatUserUtilService
+	def i18nService
+
 
 	void sendMsg(Session userSession,String msg) throws Exception {
 		try {
@@ -64,11 +66,11 @@ class WsChatMessagingService extends WsChatConfService {
 						found = true
 						if (sendIt&&sendIt2) {
 							crec.basicRemote.sendText(myMsgj as String)
-							myMsg.put("message","Private Message sent to ${user}")
-							messageUser(userSession,myMsg)
+							def msga=i18nService.msg("wschat.pm.sent","pm sent to ${user}",[user])
+							messageUser(userSession,[message:msga])
 						}else{
-							myMsg.put("message","Private Message NOT sent to ${user}, you have been blocked !")
-							messageUser(userSession,myMsg)
+							def msga=i18nService.msg("wschat.pm.not.sent.blocked","Private Message NOT sent to ${user}, you have been blocked !",[user])
+							messageUser(userSession,[message:msga])
 						}
 					}
 				}
@@ -92,7 +94,9 @@ class WsChatMessagingService extends WsChatConfService {
 		String urecord = userSession.userProperties.get("username")
 		boolean isEnabled = boldef(config.dbstore_pm_messages)
 		if (isEnabled) {
-			persistMessage(myMsg,user,urecord)
+			if (user) {
+				persistMessage(myMsg, user, urecord)
+			}
 			persistMessage(myMsg,urecord,urecord)
 		}
 		chatNames.each { String cuser, Map<String,Session> records ->
@@ -106,19 +110,20 @@ class WsChatMessagingService extends WsChatConfService {
 			}
 		}
 	}
-
-	/**
-	 * This is the message convertor from admin back to end user
-	 * @param user
-	 * @param msg
-	 * @param userSession
-	 */
+/**
+ * This is the message convertor from admin back to end user
+ * @param user
+ * @param msg
+ * @param userSession
+ */
 	void adminLiveMessage(String user,Map msg,Session userSession) {
 		def myMsg = (msg as JSON).toString()
 		String urecord = userSession.userProperties.get("username")
 		boolean isEnabled = boldef(config.dbstore_pm_messages)
 		if (isEnabled) {
-			persistMessage(myMsg,user,urecord)
+			if (user) {
+				persistMessage(myMsg,user,urecord)
+			}
 			persistMessage(myMsg,urecord,urecord)
 		}
 		chatNames.each { String cuser, Map<String,Session> records ->
@@ -145,7 +150,9 @@ class WsChatMessagingService extends WsChatConfService {
 		String urecord = userSession.userProperties.get("username")
 		boolean isEnabled = boldef(config.dbstore_pm_messages)
 		if (isEnabled) {
-			persistMessage(myMsg,user,urecord)
+			if (user) {
+				persistMessage(myMsg,user,urecord)
+			}
 			persistMessage(myMsg,urecord,urecord)
 		}
 		chatNames.each { String cuser, Map<String,Session> records ->
@@ -166,11 +173,21 @@ class WsChatMessagingService extends WsChatConfService {
 	 * @param userSession
 	 */
 	void updateLiveList(String user,Map msg,Session userSession) {
+		List admins=[]
 		String urecord = userSession.userProperties.get("username")
 		chatNames.each { String cuser, Map<String,Session> records ->
 			records?.each { String room, Session crec ->
 				if (crec && crec.isOpen() && crec.userProperties.get("userType") == 'monitorLiveChat') {
-					crec.basicRemote.sendText(populateList(msg) as String)
+					admins<<crec
+				}
+			}
+		}
+		//Any admins ? yes gen list and send one list to all
+		if (admins) {
+			String message=populateList(msg) as String
+			admins.each {Session crec->
+				if (crec && crec.isOpen()) {
+					crec.basicRemote.sendText(message)
 				}
 			}
 		}
@@ -183,9 +200,9 @@ class WsChatMessagingService extends WsChatConfService {
 	JSON populateList(Map msg) {
 		List result=[]
 		chatNames.each { String cuser, Map<String,Session> records ->
-			records?.each { String croom, Session crec ->
+			records?.each {String croom, Session crec ->
 				if (crec && crec.isOpen() &&  (crec.userProperties.get("userType") == 'liveChat') && cuser!=msg.fromUser) {
-					boolean userPerm = crec.userProperties.get("userLevel")=='admin' ? true : false
+					String userPerm = crec.userProperties.get("userLevel")
 					String startTime = (crec.userProperties.get("startTime") as Date)?.format("yyyy-MM-dd HH:mm:ss")
 					String joinedRoom = (crec.userProperties.get("joinedRoom") as Date)?.format("yyyy-MM-dd HH:mm:ss")
 					boolean isAdmin =  chatUserUtilService.isLiveAdmin(cuser,false)
@@ -283,12 +300,15 @@ class WsChatMessagingService extends WsChatConfService {
 				if (!cm.save()) {
 					log.error "verifyOfflinePM issue:  ${cm.errors}"
 				}
-				messageUser(userSession,["message": "Offline message sent to ${user}"])
+				def msga=i18nService.msg("wschat.offline.pm.sent","Offline message sent to ${user}",[user])
+				messageUser(userSession,[message: msga])
 			} else{
-				messageUser(userSession,["message": "Error: ${user} not found - unable to send PM"])
+				def msga=i18nService.msg("wschat.unable.pm.nouser","Error: ${user} not found - unable to send PM",[user])
+				messageUser(userSession,[message: msga])
 			}
 		}else{
-			messageUser(userSession,["message": "Error: offline messaging not enabled. Message not sent"])
+			def msga=i18nService.msg("wschat.offline.pm.disabled","offline messaging not enabled. Message not sent")
+			messageUser(userSession,["message": msga])
 		}
 	}
 

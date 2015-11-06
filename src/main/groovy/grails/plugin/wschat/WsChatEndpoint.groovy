@@ -56,6 +56,8 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 		wsChatUserService = ctx.wsChatUserService
 		wsChatMessagingService = ctx.wsChatMessagingService
 		wsChatRoomService = ctx.wsChatRoomService
+		messageSource = ctx.messageSource
+		localeResolver = ctx.localeResolver
 
 	}
 

@@ -7,6 +7,8 @@ import grails.plugin.wschat.messaging.WsChatMessagingService
 import grails.plugin.wschat.rooms.WsChatRoomService
 import grails.plugin.wschat.users.WsChatUserService
 import grails.util.Holders
+import org.springframework.context.MessageSource
+import org.springframework.web.servlet.i18n.SessionLocaleResolver
 
 import javax.websocket.Session
 
@@ -18,6 +20,8 @@ class ChatUtils extends WsChatConfService {
 	WsChatMessagingService wsChatMessagingService
 	WsFileService wsFileService
 	WsCamService wsCamService
+	SessionLocaleResolver localeResolver
+	MessageSource messageSource
 
 	Boolean loggedIn(String user) {
 		return chatUserExists(user)
@@ -37,7 +41,7 @@ class ChatUtils extends WsChatConfService {
 			boolean hasLiveAdmin = wsChatUserService.roomHasLiveAdmin(room)
 			if (hasLiveAdmin) {
 				wsChatMessagingService.adminEnableEndScreens(username,[fromUser:username, msgTo:username, fromRoom:room, enabeLiveChat:'yes'],userSession)
-				String msg = config.enableUsersMessage  ?: 'A member of staff has joined'
+				String msg = getConfig('enableUsersMessage')  ?: 'A member of staff has joined'
 				wsChatMessagingService.messageUser(userSession, [liveMessageInitiate:msg])
 			}
 			wsChatMessagingService.updateLiveList(username,[fromUser:username, fromRoom:room, hasAdmin:hasLiveAdmin],userSession)
@@ -79,7 +83,8 @@ class ChatUtils extends WsChatConfService {
 			}
 		} else {
 			if (message.startsWith("DISCO:-")) {
-				wsChatMessagingService.broadcast(userSession,[message: "${username} has left ${room}"])
+				def msg=messageSource.getMessage('wschat.user.left',[username,room].toArray(), "$username has left ${room}",localeResolver.defaultLocale)
+				wsChatMessagingService.broadcast(userSession,[message: msg])
 				wsChatUserService.removeUser(username)
 				wsChatUserService.sendUsers(userSession,username, room)
 				userSession.close()
@@ -94,7 +99,8 @@ class ChatUtils extends WsChatConfService {
 				if (user!=username) {
 					privateMessage(userSession, username,user,msg)
 				} else {
-					wsChatMessagingService.messageUser(userSession,[message:"Private message self?"])
+					def msga=messageSource.getMessage('wschat.pm.yourself',null, "Private message self?",localeResolver.defaultLocale)
+					wsChatMessagingService.messageUser(userSession,[message:msga])
 				}
 
 				// livechat message
@@ -157,7 +163,7 @@ class ChatUtils extends WsChatConfService {
 				String person = values.msg as String
 				wsChatUserService.addUser(user,person)
 				wsChatUserService.sendUsers(userSession,user, room)
-				String msg = "${user} has added you to their Friends List"
+				def msg=messageSource.getMessage('wschat.friend.added.you',[username].toArray(), "$username has added you to their Friends Listing",localeResolver.defaultLocale)
 				privateMessage(userSession, user,person,msg)
 			} else if (message.startsWith("/removefriend")) {
 				def values = parseInput("/removefriend ",message)
@@ -165,7 +171,7 @@ class ChatUtils extends WsChatConfService {
 				String person = values.msg as String
 				wsChatUserService.removeUser(user,person)
 				wsChatUserService.sendUsers(userSession,user, room)
-				String msg = "${user} has removed you from their Friends List"
+				def msg=messageSource.getMessage('wschat.friend.removed.you',[username].toArray(), "$username has removed you from their Friends Listing",localeResolver.defaultLocale)
 				privateMessage(userSession, user,person,msg)
 			} else if (message.startsWith("/joinRoom")) {
 				userSession.userProperties.put("joinedRoom", new Date())
@@ -178,7 +184,8 @@ class ChatUtils extends WsChatConfService {
 					Session crec2 = records.find{it.key==rroom}?.value
 					if (!crec2) {
 						if (currentRoom) {
-							wsChatMessagingService.broadcast(userSession,["message": "${username} has left ${room}"])
+							def msg=messageSource.getMessage('wschat.user.left',[username,room].toArray(), "$username has left ${room}",localeResolver.defaultLocale)
+							wsChatMessagingService.broadcast(userSession,["message": msg])
 							records.remove("${room}")
 							wsChatUserService.sendUsers(userSession,user, room)
 							records << ["${rroom}":userSession]
@@ -189,12 +196,18 @@ class ChatUtils extends WsChatConfService {
 						wsChatMessagingService.messageUser(userSession,myMsg)
 						myMsg = [:]
 						wsChatUserService.sendUsers(userSession,user, rroom)
-						myMsg.put("message", "${user} has joined ${room}")
-						wsChatMessagingService.broadcast(userSession,myMsg)
+						def msg=messageSource.getMessage('wschat.user.joined',[username,room].toArray(), "${user} has joined ${room}",localeResolver.defaultLocale)
+						wsChatMessagingService.broadcast(userSession,[message:msg])
 						wsChatRoomService.sendRooms(userSession)
+						//Send back list of Javascripts to enable through socket respoonse
+						if (isAdmin(userSession)) {
+							def adminActions=[[actions:'viewUsers'],[actions:'liveChatsRooms'],[actions:'createConference'],[actions:'viewLiveChats',]]
+							wsChatMessagingService.broadcast(userSession,[adminOptions:adminActions])
+						}
 						wsChatAuthService.addBotToChatRoom(rroom,'chat')
 					} else {
-						wsChatMessagingService.messageUser(userSession, ["message":"${username} is already loggged in to ${rroom}, action denied"])
+						def msg=messageSource.getMessage('wschat.user.already.joined',[username,rroom].toArray(), "${user} has already logged into room ${rroom}, action denied",localeResolver.defaultLocale)
+						wsChatMessagingService.messageUser(userSession, [message: msg ])
 					}
 				}
 			} else if (message.startsWith("/joinLiveChatRoom")) {
@@ -210,7 +223,8 @@ class ChatUtils extends WsChatConfService {
 						if (currentRoom) {
 							String sendleave = getConfig('send.leaveroom')  ?: 'yes'
 							if (sendleave == 'yes') {
-								wsChatMessagingService.broadcast(userSession,[message: "${username} has left ${room}"])
+								def msg=messageSource.getMessage('wschat.user.left',[username,room].toArray(), "$username has left ${room}",localeResolver.defaultLocale)
+								wsChatMessagingService.broadcast(userSession,[message: msg])
 							}
 							records.remove("${room}")
 							wsChatUserService.sendUsers(userSession,user, room)
@@ -220,7 +234,8 @@ class ChatUtils extends WsChatConfService {
 						room = rroom
 						wsChatMessagingService.messageUser(userSession,[currentRoom: room])
 					} else {
-						wsChatMessagingService.messageUser(userSession, [message:"${username} is already loggged in to ${rroom}, action denied"])
+						def msg=messageSource.getMessage('wschat.user.already.joined',[username,rroom].toArray(), "${user} has already logged into room ${rroom}, action denied",localeResolver.defaultLocale)
+						wsChatMessagingService.messageUser(userSession, [message:msg])
 					}
 				}
 				wsChatMessagingService.messageUser(userSession,[liveChatMode: rroom])
@@ -317,15 +332,17 @@ class ChatUtils extends WsChatConfService {
 			} else if (message.startsWith("/flatusers")) {
 				wsChatUserService.sendFlatUsers(userSession,username)
 				// Usual chat messages bound for all
+			/*
 			} else if (message.startsWith("/userType")) {
 				def p1 = "/userType "
 				def userType = message.substring(p1.length(),message.length())
 				verifyUser(userSession, userType, room,username)
+			*/
 			} else if (message.startsWith("deactive_chat_bot") || (message.startsWith("deactive_me"))) {
 				String userType = userSession.userProperties.get("userType") as String
 				wsChatAuthService.delBotFromChatRoom(username, room, userType, message)
 			} else {
-				myMsg.put("message", "${username}: ${message}")
+				myMsg.put("message", "<span class='roomPerson'>${username}: </span><span class='roomMessage'>${message.replaceAll("\\<.*?>","")}</span>")
 				wsChatMessagingService.broadcast(userSession,myMsg)
 			}
 		}

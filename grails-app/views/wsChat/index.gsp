@@ -9,30 +9,48 @@
 </title>
 </head>
 <body>
+
 	<g:if test="${flash.message}">
 		<div class="message" role="status">
 			${flash.message}
 		</div>
 	</g:if>
-	<div class="container">
-		<div id="pageHeader" class="page-header2">
-			<h2>
-				${bean.chatHeader }
-			</h2>
-			<small> ${bean.now}
-			</small>
-		</div>
-		<g:form id="form1" method="post" controller="wsChat" action="login">
+    <div class="container">
+      <div class="row clearfix">
+         <div class="col-md-12 column">
+            <g:form  class="form-horizontal"name="form1"  method="post" controller="wsChat" action="login">
+			<div class="page-header" >
+				<h2>${bean.chatHeader }</h2>
+				<small> ${bean.now}</small>
+			</div>
+		   <div class="form-group">
+             <label for="nickname" class="col-sm-2 control-label">
+        		<g:message code="wschat.nickname.label" default="ChatName"  class="form-control" />
+        	 </label>
+        	   <div class="col-sm-4">	
+					<g:textField name="username"/>
+			 </div>
+			</div> 
 			<div class="form-group">
-				<div class="nickname">Nickname:</div>
-				<input type="text" name="username">
-				
-				<g:select name="room" from="${bean.rooms}" />
-				
-				<input type="submit" value="login">
-
+             <label for="room" class="col-sm-2 control-label">
+             	<g:message code="wschat.choose.room.label" default="Choose Room" />						
+        		
+        	 </label>
+        	   <div class="col-sm-4">	
+					<g:select name="room" from="${bean.rooms}"  class="form-control"/>
+			 </div>
+			</div>
+			<div class="form-group">
+             <label for="submit" class="col-sm-2 control-label">
+        		<g:message code="wschat.go.chat.label" default="Go Chat"  class="form-control" />
+        	 </label>
+        	   <div class="col-sm-4">	
+					<input type="submit" value="${g.message(code:'wschat.login.label', default:'Login') }" class="btn btn-primary btn-lg">
+			 </div>
 			</div>
 		</g:form>
 	</div>
+ </div>
+ </div>
 </body>
 </html>

@@ -18,7 +18,7 @@
 		
 <div class="fieldcontain ${hasErrors(bean: bookingInstance, field: 'conferenceName', 'error')} required">
 <label for="manager">
-<g:message code="dateTime.label" default="Conference Name" />
+<g:message code="wschat.conference.name.label" default="Conference Name" />
 </label>
 	<input type="text" name="conferenceName" id="conferenceName" value="" />
 </div>
@@ -35,13 +35,17 @@
 <g:message code="wschat.room.owner.label" default="Invite members" />
 </label>
 	
-<chat:complete 
-id="masterUser" name="masterUser"
-domain='grails.plugin.wschat.ChatUser'
-searchField='username'
-collectField='username'
-value=''/>
-
+<% def myuser = bo.randomizeUser('user': 'random1') %>
+<bo:connect user="${myuser}" job="job3"/>
+<bo:selecta
+	 autoComplete="true" autoCompletePrimary="true"
+    job="job3" user="${myuser}"id="masterUser" name="masterUser"
+	domain='grails.plugin.wschat.ChatUser'
+	searchField='username'
+	collectField='username'
+	setId="h1"
+	value=''
+/>
 
 <div id="selectedValues">
 </div>

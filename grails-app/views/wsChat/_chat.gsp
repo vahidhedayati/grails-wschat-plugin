@@ -72,7 +72,7 @@
 			<div class="message-thread">
 				<div id="sendMessage">
 					<textarea id="messageBox" name="message"></textarea>
-					<input type="button"  class="btn btn-danger" id="sendBtn" value="${message(code: 'wschat.send.label', default: 'SEND')}"
+					<input type="button" id="sendBtn" value="${message(code: 'wschat.send.label', default: 'SEND')}"
 						onClick="sendMessage();">
 				</div>
 			</div>
@@ -186,8 +186,8 @@
 	if(e.which == 13){
 		var tmb=messageBox.value.replace(/^\s*[\r\n]/gm, "");
 		if (tmb!="") {
-			sendMessage();
 			$("#messageBox").val().trim();
+			sendMessage();
 			messageBox.focus();
 		}
 	}

@@ -36,5 +36,18 @@
 	var joinLabel="${g.message(code: 'wschat.join.label', default: 'Join')}";
 	var joinedTime="${g.message(code: 'wschat.join.room.label', default: 'Joined Room')}";
 	var disconnectingMessage="${g.message(code: 'wschat.disco.label', default: 'disconnecting from server...')}";
+	var removedFrom="${g.message(code: 'wschat.removed.from.label', default: 'removed from')}";
+	var addedTo="${g.message(code: 'wschat.added.to.label', default: 'added to')}";
+	var listLabel="${g.message(code: 'wschat.list.label', default: 'list')}";
+	var friendLabel="${g.message(code: 'wschat.friend.label', default: 'friend')}";
+	var bannedTill="${g.message(code: 'wschat.banned.till.label', default: 'is about to be banned until:')}";
+	var errorMessage="${g.message(code: 'wschat.error.label', default: 'Error')}";
+	var nowViewing="${g.message(code: 'wschat.now.viewing.label', default: 'is now viewing your ')}";
+	var showLabel="${g.message(code: 'wschat.show.label', default: 'SHOW')}";
+	var hideLabel="${g.message(code: 'wschat.hide.label', default: 'HIDE')}";
+	var userPermLabel="${g.message(code: 'wschat.user.permission.label', default: 'permission')}";
+	var viewUsersLabel="${g.message(code: 'wschat.viewusers.default', default: 'View Users')}";
+	var liveChatsRoomsLabel="${g.message(code: 'wschat.viewLiveChatRooms.default', default: 'Live Chat Rooms')}";
+	var createConferenceLabel="${g.message(code: 'wschat.create.conference.default', default: 'Create Conference')}";
+	var viewLiveChatsLabel="${g.message(code: 'wschat.view.liveChats.default', default: 'View Live Chat Requests')}";
 </g:javascript>
-			

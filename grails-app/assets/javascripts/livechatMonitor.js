@@ -27,7 +27,7 @@ function processMessage(message) {
 		rms.push('<table>\n');
 		rms.push('<tr><th>'+roomLabel+'</th>\n<th>'+userLabel+'</th>\n');
 		rms.push('<th>'+startLabel+'</th><th>'+joinedTime+'</th>\n<th>'+adminLabel+'</th>\n');
-		rms.push('<th>'+actionLabel+'</th></tr>\n');
+		rms.push('<th>'+userPermLabel+'</th><th>'+actionLabel+'</th></tr>\n');
 		for(var i in jsonData.liveChatrooms) {
 			rms.push('<tr>\n');	
 			rms.push('<td>\n');
@@ -38,21 +38,12 @@ function processMessage(message) {
 				if (j>=1) {
 					rms.push('\n<tr><td></td>');
 				}
-				rms.push('\n<td>');
-				rms.push(entry.user);
-				rms.push('</td>\n');
-				rms.push('<td>');
-				rms.push(entry.startTime);
-				rms.push('</td>\n');
-				rms.push('<td>');
-				rms.push(entry.joinedRoom);
-				rms.push('</td>\n');
-				rms.push('<td>');
-				rms.push(entry.isAdmin);
-				rms.push('</td>\n');
-				rms.push('<td>');
-				rms.push('<a href = "/'+getApp()+'/wsChat/joinLiveChat?roomName='+entry.room+'&username='+getUser()+'">'+joinLabel+' '+entry.room+'</a>');
-				rms.push('</td>\n');
+				rms.push('\n<td>'+entry.user+'</td>\n');
+				rms.push('<td>'+entry.startTime+'</td>\n');
+				rms.push('<td>'+entry.joinedRoom+'</td>\n');
+				rms.push('<td>'+entry.userPerm+'</td>\n');
+				rms.push('<td>'+entry.isAdmin+'</td>\n');
+				rms.push('<td><a href="/wsChat/joinLiveChat?roomName='+entry.room+'&username='+getUser()+'">'+joinLabel+' '+entry.room+'</a></td>\n');
 				if (j>=1) {
 					rms.push('\n</tr>\n');
 				}

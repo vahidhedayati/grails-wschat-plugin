@@ -2,7 +2,7 @@
 .dropdown-submenu{position:relative;  z-index: 21; background:  #000099; color: #fff;  }
 
 #user-title {background:  #000099; color: #FFF;}
-#themeChoice {background:  #000099;  }
+#themeChoice {background:  #000099; height:100%;  }
 #onlineUsers {background:  #000099;  }
 #sideBar a {background:  #000099; color: #FFF;}
 #sideBar a:hover { background:  #0000CC; color: #FF0000;}
@@ -34,28 +34,6 @@ textarea{
 	color:#fff; 
 }
 
-#sendBtn { 
-	display:inline-block;
-	*display:inline;
-	*zoom:2;
-	float:right;
-	 background: #00BFFF;
-	color: #FFF;
-	padding:2px 2px; 
-	font-family:'Helvetica Neue',sans-serif; 
-	font-size:13px; 
-	border-radius:0.2px; 
-	-moz-border-radius:0.2px; 
-	-webkit-border-radius:0.2px;
-	 border:1px solid #1A87B9 
-} 
-
-#sendMessage  textarea {
-	height: 3em;
-	width:85%;
-	background: #104E8B;
-	color:#FFF; 
-}
 
 .ui-widget-header,.ui-state-default, ui-button{
     background: #104E8B;

@@ -19,9 +19,19 @@ class ClientTagBean extends InitiationBean implements Validateable {
 
 	String user
 	String frontuser
+
+	// TODO --- a mess getter setting something
+	// causing issue left out for now
+	/*
 	String getFrontuser() {
 		frontuser=user+frontUser 
 		receivers.add(frontuser)
+	}
+	*/
+	void setReceivers(String input) {
+		if (frontuser && user) {
+			receivers << user+frontUser
+		}
 	}
 
 	Boolean getStrictMode() {

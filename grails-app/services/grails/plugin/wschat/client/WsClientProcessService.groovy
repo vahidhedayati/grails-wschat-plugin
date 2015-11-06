@@ -83,7 +83,7 @@ public class WsClientProcessService extends WsChatConfService {
 	def wsChatBookingService
 	def wsChatMessagingService
 	def chatUserUtilService
-
+	def i18nService
 	// DO NOT Disconnect automatically - required for live chat!
 	static boolean disco = false
 
@@ -98,6 +98,11 @@ public class WsClientProcessService extends WsChatConfService {
 		String username = userSession.userProperties.get("username") as String
 		//String room = userSession.userProperties.get("room") as String
 		log.debug "DEBUG ${username}: $message"
+
+		//convert all new style messages with html wrapping to pure text
+		//otherwise bot has no idea what to do
+		message=message.replaceAll("\\<.*?>","")
+
 		String assistant = config.liveChatAssistant ?: 'assistant'
 		JSONObject rmesg=JSON.parse(message)
 		String actionthis=''
@@ -239,11 +244,12 @@ public class WsClientProcessService extends WsChatConfService {
 				if (!isLiveAdmin && ccb?.name && askName && !helpRequested &&!emailSent) {
 					currentSession.userProperties.put("nameRequired", false)
 					boolean doAi = boldef(config.enable_AI)
-					String additional = ', please wait'
+					def additional=i18nService.msg("wschat.please.wait",', please wait')
 					if (doAi) {
-						additional = '. Feel free to ask a question and maybe the bot can help whilst you are waiting'
+						additional = i18nService.msg("wschat.feel.free.ask",'. Feel free to ask a question and maybe the bot can help whilst you are waiting')
 					}
-					chatClientListenerService.sendMessage(userSession, "Greetings ${ccb.name}! you appear to be an existing user ${additional}")
+					def msga=i18nService.msg("wschat.bot.greetings","Greetings ${ccb.name}! you appear to be an existing user ${additional}",[ccb.name,additional])
+					chatClientListenerService.sendMessage(userSession, msga)
 					ccb.active=true
 					ccb.save()
 
@@ -254,23 +260,26 @@ public class WsClientProcessService extends WsChatConfService {
 					String name = actionthis
 					ccb.name=name
 					ccb.save()
-					chatClientListenerService.sendMessage(userSession, "Thanks ${name}, just incase we get cut off what is your email?")
+					def msga=i18nService.msg("wschat.bot.ask.email","Thanks ${name}, just in case we get cut off what is your email?",[name])
+					chatClientListenerService.sendMessage(userSession, msga)
 					currentSession.userProperties.put("emailRequired", true)
 				} else 	if (!isLiveAdmin && currentSession && emailRequired && actionthis && askEmail) {
 					String email = actionthis
 					ccb.emailAddress=email
 					if (!ccb.validate()) {
 						currentSession.userProperties.put("emailRequired", true)
-						chatClientListenerService.sendMessage(userSession, "Thanks ${ccb?.name?: 'Guest'}, I could not verify email ${email} can you try again?")
+						def msga=i18nService.msg("wschat.bot.email.issue","Thanks ${ccb?.name?: 'Guest'}, I could not verify email ${email} can you try again?",[ccb?.name?: 'Guest',email])
+						chatClientListenerService.sendMessage(userSession, msga)
 					} else {
 						currentSession.userProperties.put("emailRequired", false)
 						ccb.save()
 						boolean doAi = boldef(config.enable_AI)
-						String additional = ', please wait'
+						def additional=i18nService.msg("wschat.please.wait",', please wait')
 						if (doAi) {
-							additional = '. Feel free to ask a question and maybe the bot can help whilst you are waiting'
+							additional = i18nService.msg("wschat.feel.free.ask",'. Feel free to ask a question and maybe the bot can help whilst you are waiting')
 						}
-						chatClientListenerService.sendMessage(userSession, "Thanks ${ccb?.name?: 'Guest'}, I have ${email} as your email now ${additional}")
+						def msga=i18nService.msg("wschat.bot.got.email","Thanks ${ccb?.name?: 'Guest'},, I have ${email} as your email now ${additional}",[ccb?.name?: 'Guest', email, additional])
+						chatClientListenerService.sendMessage(userSession, msga)
 					}
 
 				} else if (actionthis && msgFrom){

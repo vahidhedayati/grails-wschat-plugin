@@ -9,13 +9,13 @@ function processMessage(message) {
 	}
 		
 	if (jsonData.message!=null) {
-		$('#chatMessages').append(htmlEncode(jsonData.message)+"\n");
-                scrollToBottom();
+		$('#chatMessages').append('<div id="msgBroadcast">'+jsonData.message.trim()+"<div>");
+        scrollToBottom();
 	}	
 	if (jsonData.isBanned!=null) {
 		$('#chatMessages').append(htmlEncode(jsonData.isBanned)+"\n");
 		webSocket.send("DISCO:-"+user);
-		$('#chatMessages').append(user+" disconnecting from server... \n");
+		$('#chatMessages').append(user+' '+disconnectingMessage+"\n");
 		$('#onlineUsers').html("");
 		messageBox.value="";
 		webSocket.close();
@@ -24,7 +24,7 @@ function processMessage(message) {
 	if (jsonData.system!=null) {
 		if (jsonData.system=="disconnect") { 
 			webSocket.send("DISCO:-"+user);
-			$('#chatMessages').append(user+" disconnecting from server... \n");
+			$('#chatMessages').append(user+' '+disconnectingMessage+"\n");
 			$('#onlineUsers').html("");
 			messageBox.value="";
 			webSocket.close();
@@ -38,19 +38,11 @@ function processMessage(message) {
 	 * to understand better
 	 */
 	if (jsonData.liveMessageResponse!=null) {
-		var receiver
 		var sender
-		var room
 		if (jsonData.msgFrom!=null) {
 			sender=jsonData.msgFrom
 		}
-		if (jsonData.msgTo!=null) {
-			receiver=jsonData.msgTo
-		}
-		if (jsonData.fromRoom!=null) {
-			room=jsonData.fromRoom
-		}
-		$('#chatMessages').append(sender+": "+jsonData.liveMessageResponse+"\n");
+		$('#chatMessages').append('<div id="msgReceived"><span class="msgPersonReceived">'+sender+':</span> <span class="msgReceivedContent">'+htmlEncode(jsonData.liveMessageResponse)+'</span></div>');
 	}
 	
 	/*
@@ -58,7 +50,7 @@ function processMessage(message) {
 	 * joining a live room
 	 */
 	if (jsonData.liveMessageInitiate!=null) {
-		$('#chatMessages').append(jsonData.liveMessageInitiate+"\n");
+		$('#chatMessages').append('<div id="liveInitialisation">'+jsonData.liveMessageInitiate+"</div>");
 	}
 
 	
@@ -70,8 +62,8 @@ function processMessage(message) {
 		$('#messageBox').prop("readonly", false);
 		$('#waiting').show();
 		$('#chatDialog').css('height', '435');
-		$(".ui-widget-header,.ui-state-default,.ui-button").css({"background-colour":"#FF0000","background":"#c00","color":"white"});
-		$(".ui-dialog-content,.ui-widget-content").css({"background":"#FFF","color":"#000"});
+		$(".ui-widget-header,.ui-state-default,.ui-button").css(at);
+		$(".ui-dialog-content,.ui-widget-content").css(ab);
 	}
 	
 	

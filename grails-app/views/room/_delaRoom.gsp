@@ -25,7 +25,7 @@
 		<div class='col-sm-2'>
 		<div class='form-group'>
 		<label for="age">
-		<g:message code="wschat.firstname.label" default="Your Age" />
+		<g:message code="wschat.remove.room.label" default="Choose Room to Remove" />
 		</label>
 		<g:select id="delroomName" name="room" from="${roomList}" required="required"  class="one-to-one"/>
 		</div>

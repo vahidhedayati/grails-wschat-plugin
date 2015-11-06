@@ -24,28 +24,25 @@ class WsChatAuthService extends WsChatConfService   {
 	def wsChatUserService
 	def wsChatRoomService
 	def chatClientListenerService
-
+	def i18nService
 
 	private void verifyOffLine(Session userSession, String username) {
 		def chat = ChatUser?.findByUsername(username)
 		def pms=OffLineMessage?.findAllByOfflog(chat.offlog)
+		pms?.each { aa->
+			wsChatMessagingService.sendMsg(userSession,aa?.contents)
+		}
 		if (pms) {
-			pms.each { aa->
-				wsChatMessagingService.sendMsg(userSession,aa?.contents)
-			}
 			pms*.delete()
 		}
 	}
 
+
 	@Transactional
 	Map addUser(String username) {
 		String defaultPermission = config.defaultperm  ?: UserBean.defaultPerm
-		def perm,user
-		perm = ChatPermissions.findByName(defaultPermission)
-		if (!perm) {
-			perm = ChatPermissions.findOrSaveWhere(name: defaultPermission).save()
-		}
-		user = ChatUser.findByUsername(username)
+		def perm = ChatPermissions.findByName(defaultPermission) ?: ChatPermissions.findOrSaveWhere(name: defaultPermission).save()
+		def user = ChatUser.findByUsername(username)
 		if (!user) {
 			def addlog = addLog()
 			user = ChatUser.findOrSaveWhere(username:username, permissions:perm, log: addlog, offlog: addlog).save()
@@ -99,7 +96,8 @@ class WsChatAuthService extends WsChatConfService   {
 		if (isBotinRoom(botUser)  && addBot) {
 			Session currentSession = getChatUser(botUser, roomName)
 			if (currentSession) {
-				wsChatMessagingService.messageUser(currentSession, ["message": "${username}: ${message}"])
+				wsChatMessagingService.messageUser(currentSession, [message:"<span class='roomPerson'>${username}: </span><span class='roomMessage'>${message.replaceAll("\\<.*?>","")}</span>"])
+				//wsChatMessagingService.messageUser(currentSession, [message:"${username}: ${message}"])
 			}
 		}
 	}
@@ -134,7 +132,7 @@ class WsChatAuthService extends WsChatConfService   {
 
 	Boolean isBotinRoom(String botUser) {
 		boolean found = false
-		chatNames.each { String cuser, Map<String,Session> records ->
+		chatNames?.each { String cuser, Map<String,Session> records ->
 			if (cuser == botUser) {
 				found = true
 			}
@@ -152,7 +150,8 @@ class WsChatAuthService extends WsChatConfService   {
 		userSession.userProperties.put("username", username)
 		isuBanned = isBanned(username)
 		if (isuBanned){
-			wsChatMessagingService.messageUser(userSession,["isBanned":"user ${username} is banned being disconnected"])
+			def msga=i18nService.msg("wschat.user.banned","user ${username} is banned being disconnected",[username])
+			wsChatMessagingService.messageUser(userSession,[isBanned:msga])
 			return
 		}
 		def userRec = validateLogin(username)
@@ -166,7 +165,8 @@ class WsChatAuthService extends WsChatConfService   {
 			Map<String,Session> records= chatroomUsers.get(username)
 			Session crec = records.find{it.key==room}?.value
 			if (crec) {
-				wsChatMessagingService.messageUser(userSession, ["message":"${username} is already loggged in to ${room}, action denied"])
+				def msga=i18nService.msg("wschat.user.already.loggedin","${username} is already loggged in to ${room}, action denied",[username,room])
+				wsChatMessagingService.messageUser(userSession, [message:msga])
 				return
 			} else {
 				records << ["${room}":userSession]
@@ -180,8 +180,13 @@ class WsChatAuthService extends WsChatConfService   {
 		wsChatUserService.sendUsers(userSession,username,room)
 		String sendjoin = config.send.joinroom  ?: 'yes'
 		wsChatRoomService.sendRooms(userSession)
+		if (useris) {
+			def adminActions=[[actions:'viewUsers'],[actions:'liveChatsRooms'],[actions:'createConference'],[actions:'viewLiveChats',]]
+			wsChatMessagingService.broadcast(userSession,[adminOptions:adminActions])
+		}
 		if (sendjoin == 'yes' && sendUsers) {
-			wsChatMessagingService.broadcast(userSession,["message": "${username} has joined ${room}"])
+			def msga=i18nService.msg("wschat.user.joined","${username} has joined ${room}",[username,room])
+			wsChatMessagingService.broadcast(userSession,[message: msga])
 		}
 		verifyOffLine(userSession,username)
 	}

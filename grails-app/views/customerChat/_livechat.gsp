@@ -30,7 +30,7 @@
 		<g:render template="/admin/master"/>
 	</div>
 	<div class="pull-right btn btn-default">
-		<a id="showChatDialog"><g:message code="wschat.hide.chat.room" default="HIDE CHAT ROOM"/></a>
+		<g:message code="wschat.hide.chat.room" default="${g.message(code: 'wschat.chat.hide.room.caps', default: 'HIDE CHAT ROOM')}"/></a>
 	</div>
 	<g:javascript>
 		toggleBlock('#showChatDialog','#chatDialog','${g.message(code: 'wschat.chat.room.caps', default: 'CHAT ROOM')}');
@@ -190,8 +190,8 @@
   	if(e.which == 13){
   		var tmb=messageBox.value.replace(/^\s*[\r\n]/gm, "");
   		if (tmb!="") {
-  			sendMessage();
   			$("#messageBox").val().trim();
+  			sendMessage();
   			messageBox.focus();
   		}
   	}
