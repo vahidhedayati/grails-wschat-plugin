@@ -46,7 +46,6 @@
 	setId="h1"
 	value=''
 />
-<g:textField name="h1"/>
 
 
 <div id="selectedValues">
