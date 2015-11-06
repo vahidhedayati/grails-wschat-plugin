@@ -1,5 +1,4 @@
 <asset:stylesheet href="chat.css" id="chat_theme" />
-<asset:stylesheet href="chat-look.css" />
 <asset:stylesheet href="chat-ui.css" />
 <g:if test="${bean?.wschatjs}">
 <asset:javascript src="${bean.wschatjs}" />

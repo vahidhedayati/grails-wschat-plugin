@@ -377,12 +377,32 @@ background: $separation-color;
 	left: auto;
 	right: auto;
 }
-#colourthemes{
-	position: absolute;
-	right: 2em;
-	top: 1.9em;	
-	float:right;
+#siteContent {
+	clear:both;
+	margin-top: 6em;
 }
+#adminRoomOptions{
+	margin-left: 0px;
+	margin-top: -6px;
+}
+
+.content h1 {
+	border-bottom: 1px solid #CCCCCC;
+	margin: 0.8em 1em 0.3em;
+	padding: 0 0.25em;
+}
+.navigation {position:fixed;}
+
+.tnav .navbar { background:#F06; height:30px; }
+.navbar-inner-sm{background-color: #282828;padding: 1px 20px;background-repeat: repeat-x;-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, .25), inset 0 -1px 0 rgba(0, 0, 0, .1);-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, .25), inset 0 -1px 0 rgba(0, 0, 0, .1);box-shadow: 0 1px 3px rgba(0, 0, 0, .25), inset 0 -1px 0 rgba(0, 0, 0, .1);background-image: linear-gradient(top, #333333, #222222);}
+.navbar-inner-sm .nav {position: relative;left: 0;display: block;float: left;margin: 0 10px 0 0;}
+.navbar-inner-sm .nav.pull-right {float: right;}
+.navbar-inner-sm .nav > li {display: block;float: left;}
+.navbar-inner-sm .nav > li > a {float: none;padding: 4px 5px;line-height: 19px;color: #999999;text-decoration: none;text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);}
+.navbar-inner-sm .nav > li > a:hover {background-color: transparent;color: #ffffff;text-decoration: none;}
+.navbar-inner-sm .nav .active > a,.navbar .nav .active > a:hover {color: #ffffff;text-decoration: none;background-color: #003753;}
+.navbar-inner-sm .divider-vertical {height: 27px;width: 1px;margin: 0 9px;overflow: hidden;background-color: #282828;border-left: 1px solid #3f3f3f; border-right: 1px solid #161616;}
+.navbar-inner-sm .nav.pull-right {margin-left: 10px;margin-right: 0;}
 /* webrtc style sheet */
 .section {
 	width: 100%;
@@ -694,4 +714,53 @@ div[class*="bttn"] {
  list-style-type:none;
 	resize:both;
 }
+
+/*
+*Override the below config in your app CSS file
+*/
+#liveInitialisation {
+	background: #CCC;
+	color: #000;
+	width:100%;
+}
+#msgReceived {
+	background: #EEE;
+	color: #000;
+	width:100%;
+}
+#msgSent {
+	background: #FFF;
+	color: #000;
+	width:100%;
+}
+.msgPersonSent {
+	background: #CCC;
+	color: #FFF;
+}
+.msgPersonReceived {
+	background: #FFF;
+	color: #FFF;
+}
+.msgSentContent {
+	background: #FFF;
+	color: #000;
+}
+.msgReceivedContent {
+	background: #EEE;
+	color: #000;
+}
+#msgBroadcast {
+	background: #FDFDF0;
+	color: #000;
+	width:100%;
+}
+.roomPerson {
+	background: #FFDFEF;
+	color: #000;
+}
+.roomMessage {
+	background: #FFFFFD;
+	color: #000;
+}
+
 

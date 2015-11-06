@@ -21,6 +21,7 @@ import org.codehaus.groovy.grails.web.context.ServletContextHolder as SCH
 import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes as GA
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.context.MessageSource
 
 @WebListener
 @ServerEndpoint("/WsChatEndpoint/{room}")
@@ -64,6 +65,8 @@ class WsChatEndpoint extends ChatUtils implements ServletContextListener {
 		wsChatMessagingService = ctx.wsChatMessagingService
 		wsChatRoomService = ctx.wsChatRoomService
 		config = grailsApplication.config.wschat
+		messageSource = ctx.messageSource
+		localeResolver = ctx.localeResolver
 	}
 
 	@OnMessage

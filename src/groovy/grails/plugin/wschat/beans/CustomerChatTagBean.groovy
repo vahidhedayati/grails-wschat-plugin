@@ -1,9 +1,5 @@
 package grails.plugin.wschat.beans
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import grails.converters.JSON
 import grails.validation.Validateable
 
@@ -32,6 +28,10 @@ class CustomerChatTagBean extends ClientTagBean {
 	def offset
 	String inputid = id
 	Map viewUsers
+	JSON inactiveLCTitle=["background":"black","color":"white"] as JSON
+	JSON inactiveLCBody=["background":"#ddd","color":"#000"] as JSON
+	JSON activeLCTitle=["background-colour":"#FF0000","background":"#c00","color":"white"] as JSON
+	JSON activeLCBody=["background":"#FFF","color":"#000"] as JSON
 	
 	Integer getOffset() {
 		int off=0
@@ -60,6 +60,44 @@ class CustomerChatTagBean extends ClientTagBean {
 		offset(nullable:true)
 		viewUsers(nullable:true)
 		id(nullable:true)
+		inactiveLCTitle(nullable:true)
+		inactiveLCBody(nullable:true)
+		activeLCTitle(nullable:true)
+		activeLCBody(nullable:true)
 		//id(nullable: false, validator: validateInput)
+	}
+	
+	void setInactiveLCTitle(Map input) {
+		if (input){
+			inactiveLCTitle=input as JSON
+		}
+	}
+	void setInactiveLCBody(Map input) {
+		if (input){
+			inactiveLCBody=input as JSON
+		}
+	}
+	void setActiveLCTitle(Map input) {
+		if (input){
+			activeLCTitle=input as JSON
+		}
+	}
+	void setActiveLCBody(Map input) {
+		if (input){
+			activeLCBody=input as JSON
+		}
+	}
+	
+	String getActiveLCBody() { 
+		return activeLCBody as String
+	}
+	String getInactiveLCBody() {
+		return inactiveLCBody as String
+	}
+	String getActiveLCTitle() {
+		return activeLCTitle as String
+	}
+	String getInactiveLCTitle() {
+		return inactiveLCTitle as String
 	}
 }

@@ -233,7 +233,7 @@ public class ClientProcessService extends ConfService implements ClientSessions 
 						primaryCollect = s.primaryCollect
 						primarySearch = s.primarySearch
 					}
-					if (go && secondary) {
+					if (go && secondary && bindId) {
 						def res
 						if (bindId.endsWith('.id')) {
 							res = autoCompleteService.selectDomainClass(secondary,  searchField,  collectfield, bindId, updateAutoValue)

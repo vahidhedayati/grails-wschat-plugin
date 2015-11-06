@@ -80,7 +80,7 @@
 	;
 	var debug = "${bean.debug}";
 	
-	var uri="${bean.uri}";
+	var uri="${bean.uri}${bean.room}";
 
 	if (debug == "on") {
 		console.log('Connecting to '+uri);

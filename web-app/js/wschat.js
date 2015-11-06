@@ -112,12 +112,12 @@ function joinRoom(user,room) {
 
 function blockuser(blockid,user) {
 	webSocket.send("/block "+user+","+blockid);
-	$('#chatMessages').append(blockid+" has been added to "+user+"'s blocklist\n");
+	$('#chatMessages').append(blockid+' '+addedTo+' '+user+' '+block+' '+listLabel+'\n');
 }
 
 function confirmBan(username,duration,period) { 
 	webSocket.send("/banuser "+username+","+duration+":"+period);
-	$('#chatMessages').append(username+" is about to be banned until: "+duration+" "+period+"\n");
+	$('#chatMessages').append(username+"  "+bannedTill+' '+duration+" "+period+"\n");
 }
 
 function kickuser(user) {
@@ -254,17 +254,17 @@ function closePhoto() {
 
 function unblockuser(blockid,user) {
 	webSocket.send("/unblock "+user+","+blockid);
-	$('#chatMessages').append(blockid+" has been removed from "+user+"'s blocklist\n");
+	$('#chatMessages').append(blockid+' '+removedFrom+' '+user+" blocklist\n");
 }
 
 function adduser(addid,user) {
 	webSocket.send("/add "+user+","+addid);
-	$('#chatMessages').append(addid+" has been added to "+user+"'s friends list\n");
+	$('#chatMessages').append(addid+' '+addedTo+' '+user+' '+addedTo+' '+listLabel+'\n');
 }
 
 function removefriend(addid,user) {
 	webSocket.send("/removefriend "+user+","+addid);
-	$('#chatMessages').append(addid+" has been removed to "+user+"'s friends list\n");
+	$('#chatMessages').append(addid+' '+removedFrom+' '+user+' '+friendLabel+' '+listLabel+'\n');
 }
 
 function verifyCam(uid) {
@@ -563,7 +563,7 @@ function enableCam(camuser, camaction,viewtype){
 					}
 				});
 				if (camaction=="view") {
-					webSocket.send("/pm "+camuser+", "+user+" is now viewing your "+viewtype);
+					webSocket.send("/pm "+camuser+", "+user+" "+nowViewing+' '+viewtype);
 				}
 				//else{
 				//	webSocket.send("/pm "+user+", "+user+" you cam is now active");
@@ -611,6 +611,7 @@ function closeVideos()  {
 	} 		
 }
 
+/*
 function adminRooms(isAdmin) {
 	if (isAdmin=="true") {
 		var strUrl = "/"+getApp()+"/wsChat/adminMenu", strReturn = "";
@@ -624,6 +625,7 @@ function adminRooms(isAdmin) {
 		return strReturn;
 	}
 }
+*/
 
 /*
  * This appears under admin liveChat window
@@ -689,7 +691,7 @@ function livepmuser(suser,sender,room) {
 function sendLiveMessage() {
 	if (messageBox.value!="/disco") {
 		if (messageBox.value!="") {
-			$('#chatMessages').append(getUser()+": "+messageBox.value+"\n");
+			$('#chatMessages').append('<div id="msgSent"><span class="msgPersonSent">'+getUser()+':</span> <span class="msgSentContent">'+htmlEncode(messageBox.value)+'</span></div>');
 			webSocket.send("/lc "+getUser()+","+roomName+":"+messageBox.value);
 			messageBox.value="";
 			messageBox.value.replace(/^\s*[\r\n]/gm, "");
@@ -697,7 +699,7 @@ function sendLiveMessage() {
 		}  
 	}else {
 		webSocket.send("DISCO:-"+user);
-		$('#chatMessages').append(user+" disconnecting from server... \n");
+		$('#chatMessages').append(user+' '+disconnectingMessage+"\n");
 		messageBox.value="";
 		webSocket.close();
 	}   
@@ -768,7 +770,7 @@ function sendMessage() {
 		}  
 	}else {
 		webSocket.send("DISCO:-"+user);
-		$('#chatMessages').append(user+" disconnecting from server... \n");
+		$('#chatMessages').append(user+' '+disconnectingMessage+"\n");
 		messageBox.value="";
 		webSocket.close();
 	}   
@@ -777,20 +779,20 @@ function sendMessage() {
 function processChatClose(message) {
 	webSocket.send("deactive_chat_bot");
 	webSocket.send("DISCO:-"+user);
-	$('#chatMessages').append(user+" disconnecting from server... \n");
+	$('#chatMessages').append(user+' '+disconnectingMessage+"\n");
 	webSocket.close();
 }
 
 function processLiveClose(message) {
 	webSocket.send("deactive_me");
 	webSocket.send("DISCO:-"+user);
-	$('#chatMessages').append(user+" disconnecting from server... \n");
+	$('#chatMessages').append(user+' '+disconnectingMessage+"\n");
 	webSocket.close();
 }
 
 function processClose(message) {
 	webSocket.send("DISCO:-"+user);
-	$('#chatMessages').append(user+" disconnecting from server... \n");
+	$('#chatMessages').append(user+' '+disconnectingMessage+"\n");
 	webSocket.close();
 }
 
@@ -800,7 +802,7 @@ function processCamClose(message) {
 }
 
 function processError(message) {
-	$('#chatMessages').append("Error.... <br/>");
+	$('#chatMessages').append(errorMessage+"<br/>");
 }
 
 function scrollToBottom() {
@@ -810,9 +812,9 @@ function scrollToBottom() {
 function toggleBlock(caller,called,calltext) {
 	$(caller).click(function() {
 		if($(called).is(":hidden")) {
- 			$(caller).html('HIDE '+calltext).fadeIn('slow');
+ 			$(caller).html(hideLabel+' '+calltext).fadeIn('slow');
     	}else{
-        	$(caller).html('SHOW '+calltext).fadeIn('slow');	
+        	$(caller).html(showLabel+' '+calltext).fadeIn('slow');	
         	
     	}
  		$(called).slideToggle("fast");

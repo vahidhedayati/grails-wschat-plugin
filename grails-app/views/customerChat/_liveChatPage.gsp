@@ -1,3 +1,4 @@
+ <%@ page import="grails.converters.JSON" %>
  <g:if test="${enduser?.verifyAppVersion().equals('assets')}">
 <asset:javascript src="jquery.min.js" />
 <asset:javascript src="jquery-ui.min.js" />
@@ -28,14 +29,19 @@
 	<div class="message-thread" id="waiting" style="display:none;">
 		<div id="sendMessage">
 			<textarea id="messageBox" name="message"></textarea>
-			<input type="button" class="btn btn-danger" id="sendBtn"
+			<input type="button" id="sendBtn"
 				value="${message(code: 'wschat.send.label', default: 'SEND')}"
 				onClick="sendLiveMessage();" >
 			</div>
 		</div>
 	</div>
 </div>
+
+
 <g:javascript>
+	var at=${bean.activeLCTitle.encodeAsRaw()};
+	var ab=${bean.activeLCBody.encodeAsRaw()};
+	
 	$(function() {
 	 	$( "#chatDialog" ).dialog({
 			autoOpen: true,
@@ -126,8 +132,8 @@
        </g:else>
        	$('#chatMessages').append("${message(code: 'wschat.please.wait.for.staff.label', default: 'Please wait for member of staff')}\n");
        	$('#messageBox').prop("readonly", true);
-		$(".ui-widget-header,.ui-state-default,.ui-button").css({"background":"black","color":"white"});
-		$(".ui-dialog-content,.ui-widget-content").css({"background":"#ddd","color":"#000"});
+		$(".ui-widget-header,.ui-state-default,.ui-button").css(${bean.inactiveLCTitle.encodeAsRaw()});
+		$(".ui-dialog-content,.ui-widget-content").css(${bean.inactiveLCBody.encodeAsRaw()});
  	}
 	$('#messageBox').keypress(function(e){
 	if (e.keyCode == 13 && !e.shiftKey) {
@@ -136,8 +142,8 @@
 	if(e.which == 13){
 		var tmb=messageBox.value.replace(/^\s*[\r\n]/gm, "");
 		if (tmb!="") {
-			sendLiveMessage();
 			$("#messageBox").val().trim();
+			sendLiveMessage();
 			messageBox.focus();
 		}
 	}

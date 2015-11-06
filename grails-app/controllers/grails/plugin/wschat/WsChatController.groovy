@@ -22,10 +22,7 @@ class WsChatController extends WsChatConfService {
 	
 	def index(ConnectTagBean bean) {
 		bean.addLayouts=true
-		bean.setRooms(config.rooms as ArrayList)
-		if (!bean.rooms) {
-			bean.setRooms(wsChatRoomService.returnRoom())
-		}
+		bean.setRooms(wsChatRoomService.returnRoom())
 		if (bean.process) {
 			render "Default sign in page disabled"
 			return
@@ -179,10 +176,6 @@ class WsChatController extends WsChatConfService {
 		render view: 'xo', model: [bean:bean, uri:uri]
 	}
 	
-	def autocomplete() {
-		render autoCompleteService.autocomplete(params)
-	}
-
 	def liveChatsRooms(SearchBean bean) { 
 		if (isAdmin) {
 			bean.uList= wsChatUserService.genAllLiveRooms()
@@ -190,20 +183,7 @@ class WsChatController extends WsChatConfService {
 			render (template: '/admin/viewLiveChatRooms', model: [bean:bean])
 		}
 	}
-	/*
-	def verifyLiveChatUser(String username) {
-		if (isAdmin) {
-			Boolean isFound = wsChatUserService.findLiveUser(username)
-			if (isFound) {
-				def result = [found: isFound]
-				render result as JSON
-				return
-			}
-			return
-		}
-		render status: 404
-	}
-	*/
+
 	def viewUsers(SearchBean bean) {
 		if (isAdmin) {
 			bean.uList = wsChatUserService.genAllUsers()

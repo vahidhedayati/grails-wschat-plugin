@@ -4,6 +4,7 @@
 <asset:stylesheet src="jquery-ui.min.css" />
 <asset:stylesheet href="customer-chat.css" id="chat_theme" />
 <asset:javascript src="wschat.js" />
+<asset:javascript src="livechat1.js" />
 </g:if>
 <g:else>
 <script type="text/javascript"	src="${resource(dir: 'js', file: 'jquery.min.js')}"></script>
@@ -11,6 +12,7 @@
 <link rel="stylesheet"	href="${resource(dir: 'css', file: 'jquery-ui.min.css')}" type="text/css" media="screen" />
 <link rel="stylesheet"	href="${resource(dir: 'css', file: 'customer-chat.css')}" type="text/css" media="screen" />
 <script type="text/javascript" src="${resource(dir: 'js', file: 'wschat.js')}"></script>
+<script type="text/javascript" src="${resource(dir: 'js', file: 'livechat1.js')}"></script>
 </g:else>	
 
 <div id="chatDialog" title="${bean.liveChatTitle}">
@@ -26,7 +28,7 @@
 	<div class="message-thread">
 		<div id="sendMessage">
 			<textarea id="messageBox" name="message"></textarea>
-			<input type="button" id="sendBtn"
+			<input id="sendBtn"
 				value="${message(code: 'wschat.send.label', default: 'SEND')}"
 				onClick="sendMessage();">
 			</div>
@@ -55,7 +57,7 @@
              	$(this).hide();
              },
              open: function (event, ui) {
-                              $('#chatDialog').css('overflow', 'hidden');
+                $('#chatDialog').css('overflow', 'hidden');
              }
          });
     });
@@ -129,8 +131,8 @@
 	if(e.which == 13){
 		var tmb=messageBox.value.replace(/^\s*[\r\n]/gm, "");
 		if (tmb!="") {
-			sendMessage();
 			$("#messageBox").val().trim();
+			sendMessage();
 			messageBox.focus();
 		}
 	}

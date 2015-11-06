@@ -13,5 +13,4 @@
 <script type="text/javascript" src="${resource(dir: 'js', file: 'client.js')}"></script>
 <script type="text/javascript" src="${resource(dir: 'js', file: 'camclient.js')}"></script>
 <link rel="stylesheet" href="${resource(dir: 'css', file: 'chat.css')}"	type="text/css" id="chat_theme">
-<link rel="stylesheet" href="${resource(dir: 'css', file: 'chat-look.css')}"	type="text/css" >
 <link rel="stylesheet" href="${resource(dir: 'css', file: 'chat-ui.css')}" type="text/css">
