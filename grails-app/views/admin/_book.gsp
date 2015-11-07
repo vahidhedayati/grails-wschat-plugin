@@ -35,17 +35,12 @@
 <g:message code="wschat.room.owner.label" default="Invite members" />
 </label>
 	
-<% def myuser = bo.randomizeUser('user': 'random1') %>
-<bo:connect user="${myuser}" job="job3"/>
-<bo:selecta
-	 autoComplete="true" autoCompletePrimary="true"
-    job="job3" user="${myuser}"id="masterUser" name="masterUser"
-	domain='grails.plugin.wschat.ChatUser'
-	searchField='username'
-	collectField='username'
-	setId="h1"
-	value=''
-/>
+<chat:complete
+id="masterUser" name="masterUser"
+domain='grails.plugin.wschat.ChatUser'
+searchField='username'
+collectField='username'
+value=''/>
 
 <div id="selectedValues">
 </div>

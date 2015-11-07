@@ -315,6 +315,10 @@ function addFriendOptions(user,friend,userType,requestType,glyphicons,id) {
 		sb.push('<li class="btn-xs" id="sideBar">\n');
 		sb.push('<a onclick="javascript:unblockuser('+wrapIt(friend)+', '+wrapIt(user)+');">'+unblock+' '+friend+'</a>\n');
 		sb.push('\n</li> ');
+	}else if (requestType=='livechat') {
+    	sb.push('<li class="btn-xs" id="sideBar">\n');
+    	sb.push('<a onclick="javascript:livepmuser('+wrapIt(friend)+', '+wrapIt(user)+','+wrapIt(getRoom())+');">'+liveChatPM+'  '+friend+'</a>\n');
+    	sb.push('\n</li> \n');
 	} else {
 		if (id=='chatOffline') {
 			sb.push('<li class="btn-xs" id="sideBar">\n');
@@ -337,11 +341,7 @@ function addFriendOptions(user,friend,userType,requestType,glyphicons,id) {
 			sb.push('<a onclick="javascript:blockuser('+wrapIt(friend)+', '+wrapIt(user)+');">'+block+'  '+friend+'</a>\n');
 			sb.push('</li>\n');
 		}
-		if (requestType=='livechat') {
-			sb.push('<li class="btn-xs" id="sideBar">\n');
-			sb.push('<a onclick="javascript:livepmuser('+wrapIt(friend)+', '+wrapIt(user)+','+wrapIt(getRoom())+');">'+liveChatPM+'  '+user+'</a>\n');
-			sb.push('\n</li> \n');
-		}
+
 		if (requestType=='rtc') {
 			sb.push('<li class="btn-xs" id="sideBar">\n');
 			sb.push('<a onclick="javascript:enableCam('+wrapIt(friend)+','+wrapIt('view')+','+wrapIt('webrtc')+');">'+webrtc+'</a>\n');

@@ -183,7 +183,14 @@ class WsChatController extends WsChatConfService {
 			bean.uList= wsChatUserService.genAllLiveRooms()
 			bean.userListCount=bean.uList?.size()
 			render (template: '/admin/viewLiveChatRooms', model: [bean:bean])
+			return
 		}
+		render "Not authorised!"
+		return
+	}
+
+	def autocomplete() {
+		render autoCompleteService.autocomplete(params)
 	}
 
 	def viewUsers(SearchBean bean) {

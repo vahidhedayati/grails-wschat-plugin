@@ -283,4 +283,19 @@ class WsChatTagLib extends WsChatConfService {
 
 	}
 
+	def complete = {attrs ->
+		AutoCompleteBean bean = new AutoCompleteBean(attrs)
+		if (!bean.validate()) {
+			bean.errors.allErrors.each {err ->
+				throwTagError("Tag [complete] is missing required attribute [${err.field}]")
+			}
+		}
+		Map model = [bean:bean]
+		if (bean.userTemplate) {
+			out << g.render(template:bean.userTemplate, model: model)
+		}else{
+			out << g.render(contextPath: pluginContextPath, template: bean.template, model:model)
+		}
+	}
+
 }

@@ -40,6 +40,7 @@ class ChatUtils extends WsChatConfService {
 			userSession.userProperties.put("emailedRequired", true)
 			boolean hasLiveAdmin = wsChatUserService.roomHasLiveAdmin(room)
 			if (hasLiveAdmin) {
+				wsChatUserService.sendUsers(userSession,username,room)
 				wsChatMessagingService.adminEnableEndScreens(username,[fromUser:username, msgTo:username, fromRoom:room, enabeLiveChat:'yes'],userSession)
 				String msg = getConfig('enableUsersMessage')  ?: 'A member of staff has joined'
 				wsChatMessagingService.messageUser(userSession, [liveMessageInitiate:msg])

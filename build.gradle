@@ -68,7 +68,6 @@ dependencies {
     compile 'org.grails.plugins:ajax-tags:1.0.0.BUILD-SNAPSHOT'
     compile 'javax.websocket:javax.websocket-api:1.0'
     compile 'org.grails.plugins:mail:2.0.0.RC1'
-    compile "org.grails.plugins:boselecta:3.0.1"
    // compile 'org.codehaus.jackson:jackson-core-asl:1.9.13' ,'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
 }
 

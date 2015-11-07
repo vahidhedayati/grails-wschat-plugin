@@ -251,7 +251,7 @@ class WsChatUserService extends WsChatConfService  {
 					String file = crec.userProperties.get("file").toString()
 					String media = crec.userProperties.get("media").toString()
 					String game = crec.userProperties.get("game").toString()
-					def livechat = crec.userProperties.get("livechat").toString()
+					String livechat = crec.userProperties.get("livechat").toString()
 					String addav = ""
 					if (listType=="generic") {
 						if (av.equals("on")) {

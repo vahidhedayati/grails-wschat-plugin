@@ -57,7 +57,7 @@ class WsChatMessagingService extends WsChatConfService {
 			persistMessage(myMsgj as String,user,urecord)
 			persistMessage(myMsgj as String,urecord,urecord)
 		}
-		chatNames.each { String cuser, Map<String,Session> records ->
+		chatNames?.each { String cuser, Map<String,Session> records ->
 			if (cuser.equals(user)) {
 				records?.eachWithIndex { String room, Session crec, i ->
 					if (crec && crec.isOpen() && i==0) {
@@ -99,7 +99,7 @@ class WsChatMessagingService extends WsChatConfService {
 			}
 			persistMessage(myMsg,urecord,urecord)
 		}
-		chatNames.each { String cuser, Map<String,Session> records ->
+		chatNames?.each { String cuser, Map<String,Session> records ->
 			records?.each { String room, Session crec ->
 				if (crec && crec.isOpen() && room==msg.fromRoom) {
 					if (chatUserUtilService.isLiveAdmin(cuser)) {
@@ -126,7 +126,7 @@ class WsChatMessagingService extends WsChatConfService {
 			}
 			persistMessage(myMsg,urecord,urecord)
 		}
-		chatNames.each { String cuser, Map<String,Session> records ->
+		chatNames?.each { String cuser, Map<String,Session> records ->
 			records?.each { String room, Session crec ->
 				if (crec && crec.isOpen() && room==msg.fromRoom && cuser==msg.msgTo) {
 					crec.basicRemote.sendText(myMsg)
@@ -155,7 +155,7 @@ class WsChatMessagingService extends WsChatConfService {
 			}
 			persistMessage(myMsg,urecord,urecord)
 		}
-		chatNames.each { String cuser, Map<String,Session> records ->
+		chatNames?.each { String cuser, Map<String,Session> records ->
 			records?.each { String room, Session crec ->
 				if (crec && crec.isOpen() && room==msg.fromRoom) {
 					if (!chatUserUtilService.isLiveAdmin(cuser)) {
@@ -175,7 +175,7 @@ class WsChatMessagingService extends WsChatConfService {
 	void updateLiveList(String user,Map msg,Session userSession) {
 		List admins=[]
 		String urecord = userSession.userProperties.get("username")
-		chatNames.each { String cuser, Map<String,Session> records ->
+		chatNames?.each { String cuser, Map<String,Session> records ->
 			records?.each { String room, Session crec ->
 				if (crec && crec.isOpen() && crec.userProperties.get("userType") == 'monitorLiveChat') {
 					admins<<crec
@@ -185,7 +185,7 @@ class WsChatMessagingService extends WsChatConfService {
 		//Any admins ? yes gen list and send one list to all
 		if (admins) {
 			String message=populateList(msg) as String
-			admins.each {Session crec->
+			admins?.each {Session crec->
 				if (crec && crec.isOpen()) {
 					crec.basicRemote.sendText(message)
 				}
@@ -225,7 +225,7 @@ class WsChatMessagingService extends WsChatConfService {
 
 	void broadcast2all(Map msg) {
 		def myMsgj = msg as JSON
-		chatNames.each { String cuser,Map<String,Session> records ->
+		chatNames?.each { String cuser,Map<String,Session> records ->
 			records?.each { String room, Session crec ->
 				if (crec && crec.isOpen()) {
 					crec.basicRemote.sendText(myMsgj as String);
@@ -242,7 +242,7 @@ class WsChatMessagingService extends WsChatConfService {
 		if (isEnabled) {
 			persistMessage(myMsgj as String,urecord)
 		}
-		chatNames.each { String cuser, Map<String,Session> records ->
+		chatNames?.each { String cuser, Map<String,Session> records ->
 			Session crec = records.find{it.key==room}?.value
 			if (crec && crec.isOpen() && room.equals(crec.userProperties.get("room"))) {
 				crec.basicRemote.sendText(myMsgj as String);
@@ -264,7 +264,7 @@ class WsChatMessagingService extends WsChatConfService {
 		if (fileUser) {
 			uList = fileroomUsers
 		}
-		uList.each { String cuser, Session crec ->
+		uList?.each { String cuser, Session crec ->
 			if (crec && crec.isOpen()) {
 				String camuser = crec.userProperties.get("camuser") as String
 				if ((camuser.startsWith(realCamUser+":"))&&(!camuser.toString().endsWith(realCamUser))) {
@@ -279,7 +279,7 @@ class WsChatMessagingService extends WsChatConfService {
 		if (fileUser) {
 			uList = fileroomUsers
 		}
-		uList.each { String cuser, Session crec ->
+		uList?.each { String cuser, Session crec ->
 			if (crec && crec.isOpen()) {
 				def cmuser = crec.userProperties.get("camusername").toString()
 				String camuser = crec.userProperties.get("camuser") as String
