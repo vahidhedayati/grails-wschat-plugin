@@ -28,7 +28,7 @@
 	<div class="message-thread">
 		<div id="sendMessage">
 			<textarea id="messageBox" name="message"></textarea>
-			<input id="sendBtn"
+			<input type="button" id="sendBtn" 
 				value="${message(code: 'wschat.send.label', default: 'SEND')}"
 				onClick="sendMessage();">
 			</div>
