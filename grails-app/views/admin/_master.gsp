@@ -20,7 +20,7 @@
 
 <g:javascript>
 
-	var user="${bean.chatuser}";
+	//var user="${bean.chatuser}";
 
 	function closeAdminModal() {
 		$('#admincontainer1').modal('hide');

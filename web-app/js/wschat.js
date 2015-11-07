@@ -1,7 +1,7 @@
 var config = {
 		width : 155, //px
 		gap : 2,
-		maxBoxes : 5,
+		maxBoxes : 10,
 		messageSent : function(dest, msg) {
 			// override this
 			$("#" + dest).chatbox("option", "boxManager").addMsg(dest, msg);
@@ -15,7 +15,7 @@ function verifyAdded(uid) {
 		added="true";
 	}
 	return added;
-}		
+}
 
 
 function adduList(uid) { 
@@ -61,15 +61,14 @@ function verifyPosition(uid) {
 	var idx = idList.indexOf(uid);
 	if(idx == -1) {
 		idList.push(uid);
-	}	
-	if (idList.length>1) { 
-		var getNextOffset = function() {
-			return (config.width + config.gap) * idList.length;
-		};	
-		$("#"+uid).chatbox("option", "offset", getNextOffset());
+	    if (idList.length>1) {
+		    var getNextOffset = function() {
+			    return (config.width + config.gap) * idList.length;
+		    };
+		    $("#"+uid).chatbox("option", "offset", getNextOffset());
+	    }
 	}
 }
-
 
 function wrapIt(value) {
 	return "'"+value+"'"
@@ -641,22 +640,25 @@ function sendLiveChatPM(receiver,sender,pm,room) {
 			var added=verifyAdded(sender);
 			var el="#"+sender
 			if (added=="false") {
-				var el = document.createElement('div');
+				var el = document.createElement('div')
 				el.setAttribute('id', sender);
-			}	
-			box =  $(el).chatbox({id:sender, 
+				//el.setAttribute('draggable', true);
+			}
+			box =  $(el).chatbox({id:sender,
 				user:{key : "value"},
 				title : "LIVECHAT from: "+sender,
 				messageSent : function(id, user, msg) {
-					///verifyPosition(sender);
+				    if (added=="false") {
+					    verifyPosition(sender);
+					}
 					$("#"+sender).chatbox("option", "boxManager").addMsg(getUser(), msg);
 					webSocket.send("/cl "+sender+","+room+":"+msg);
 				}
 			});
-		}                 
+		}
 	});
 	verifyPosition(sender);
-	$("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);         
+	$("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);
 }
 
 function livepmuser(suser,sender,room) {
@@ -666,24 +668,27 @@ function livepmuser(suser,sender,room) {
 		if(box) {
 			box.chatbox("option", "boxManager").toggleBox();
 		}else {
-			var added=verifyAdded(sus);
+			var added=verifyAdded(suser);
 			var el="#"+suser
 			if (added=="false") {
-				//	alert ('suser '+suser+' not found div ');
-				var el = document.createElement('div');
-				el.setAttribute('id', sus);
-			}	
-			box = $(el).chatbox({id:sender, 
+				var el = document.createElement('div')
+				el.setAttribute('id', suser);
+			}
+			box = $(el).chatbox({id:suser,
 				user:{key : "value"},
-				
-				title : "LIVECHAT: "+sus,
+
+				title : "LIVECHAT: "+suser,
 				messageSent : function(id, user, msg) {
-					//verifyPosition(sus);
-					$("#"+suser).chatbox("option", "boxManager").addMsg(id, msg);
+				    if (added=="false") {
+				        console.log('verifying added '+suser)
+				        verifyPosition(suser);
+				    }
+				    console.log('sending message '+msg)
+					$("#"+suser).chatbox("option", "boxManager").addMsg(suser, msg);
 					webSocket.send("/cl "+suser+","+room+":"+msg);
 				}
 			});
-			box.chatbox("option", "show",1); 
+			//box.chatbox("option", "show",1);
 		}
 	});
 }
@@ -714,23 +719,28 @@ function sendPM(receiver,sender,pm) {
 			var added=verifyAdded(sender);
 			var el="#"+sender
 			if (added=="false") {
-				//alert('none found');
 				var el = document.createElement('div');
 				el.setAttribute('id', sender);
-			}	
-			box =  $(el).chatbox({id:sender, 
+			}
+			box =  $(el).chatbox({id:sender,
 				user:{key : "value"},
 				title : "PM from: "+sender,
 				messageSent : function(id, user, msg) {
-					verifyPosition(sender);
+					if (added=="false") {
+                        verifyPosition(sender);
+                    }
 					$("#"+sender).chatbox("option", "boxManager").addMsg(receiver, msg);
 					webSocket.send("/pm "+sender+","+msg);
 				}
+				//,
+				//boxClosed: function(id) {
+                //    removePosition(sender);
+                //}
 			});
-		}                 
+		}
 	});
 	verifyPosition(sender);
-	$("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);         
+	$("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);
 }
 
 function pmuser(suser,sender) {
@@ -742,23 +752,29 @@ function pmuser(suser,sender) {
 			var added=verifyAdded(suser);
 			var el="#"+suser
 			if (added=="false") {
-				//	alert ('suser '+suser+' not found div ');
 				var el = document.createElement('div');
 				el.setAttribute('id', suser);
-			}	
-			box = $(el).chatbox({id:sender, 
+			}
+			box = $(el).chatbox({id:suser,
 				user:{key : "value"},
 				title : "PM: "+suser,
 				messageSent : function(id, user, msg) {
-					verifyPosition(suser);
+				    if (added=="false") {
+                	    verifyPosition(suser);
+                	}
 					$("#"+suser).chatbox("option", "boxManager").addMsg(id, msg);
 					webSocket.send("/pm "+suser+","+msg);
 				}
+				//,
+				//boxClosed: function(id) {
+				 //   removePosition(suser);
+				//}
 			});
 			box.chatbox("option", "show",1); 
 		}
 	});
 }
+
 
 function sendMessage() {
 	if (messageBox.value!="/disco") {

@@ -16,7 +16,7 @@ import java.security.MessageDigest
 import java.security.SecureRandom
 import java.text.SimpleDateFormat
 
-import org.codehaus.groovy.grails.plugins.web.taglib.ApplicationTagLib
+import org.codehaus.groovy.grails.web.mapping.LinkGenerator
 import org.springframework.transaction.annotation.Transactional
 
 class WsChatBookingService  extends WsChatConfService {
@@ -24,6 +24,7 @@ class WsChatBookingService  extends WsChatConfService {
 	def mailService
 	def wsChatRoomService
 	def wsChatAuthService
+	LinkGenerator grailsLinkGenerator
 	
 	static prng = new SecureRandom()
 
@@ -209,9 +210,8 @@ Please join chat on [CHATURL]
 		wsChatRoomService.addManualRoom(conference,'booking')
 		invites.each { user->
 			def found=ChatUser.findByUsername(user)
-			if (found) {
-				def foundprofile=ChatUserProfile.findByChatuser(found)
-
+		if (found.profile) {
+				def foundprofile=found.profile
 				def uid = found.username + new UID().toString() + prng.nextLong() + System.currentTimeMillis()
 				MessageDigest digest = MessageDigest.getInstance("SHA-256");
 				byte[] hash = digest.digest(uid.getBytes("UTF-8"));
@@ -219,11 +219,8 @@ Please join chat on [CHATURL]
 				String parsedToken = token.toString().replaceAll('[^a-zA-Z0-9[:space:]]','')
 
 				def sendMap = [username: found.username]
-				ApplicationTagLib  g = new ApplicationTagLib()
-				def chaturl = g.createLink(controller: 'wsChat', action: 'joinBooking', id: parsedToken, params: sendMap, absolute: 'true' )
-
-				def myMap = [username: found.username, emailAddress: foundprofile.email,
-					token: parsedToken, booking:myConference]
+				def chaturl = grailsLinkGenerator.link(controller: 'wsChat', action: 'joinBooking', id: parsedToken, params: sendMap, absolute: 'true')
+				def myMap = [username: found.username, emailAddress: foundprofile.email,token: parsedToken, booking:myConference]
 				def inviteInstance = new ChatBookingInvites(myMap)
 				if (!inviteInstance.save()) {
 					log.error "Error saving Booking ${inviteInstance.errors}"
@@ -286,8 +283,9 @@ Please join chat on [CHATURL]
 			}
 		}
 		catch (e) {
-			throw new Exception(e.message)
+			//throw new Exception(e.message)
 			//log.error messageSource.getMessage('default.issue.sending.email.label', ["${e.message}"].toArray(), "Problem sending email ${e.message}", LCH.getLocale()),e
+			log.error "Problem sending email ${e.message}"
 		}
 	}
 

@@ -42,6 +42,7 @@ class ChatUtils extends WsChatConfService {
 		userSession.userProperties.put("startTime", new Date())
 		userSession.userProperties.put("userType", userType)
 		if (userType=='liveChat') {
+			wsChatUserService.sendUsers(userSession,username,room)
 			userSession.userProperties.put("livechat", "on")
 			userSession.userProperties.put("nameRequired", true)
 			userSession.userProperties.put("emailedRequired", true)

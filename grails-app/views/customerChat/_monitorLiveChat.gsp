@@ -22,8 +22,8 @@
 		<button id="themeChanger4" class="btn btn-default btn-xs"/>
 	</div>
 	<g:render template="/il8n"/>
-	<span id="liveChatUsersList" />
-	<div id="cmessage" style="display:none;"/>
+	<span id="liveChatUsersList" ></span>
+	<div id="cmessage" style="display:none;"></div>
 		
 <g:javascript>
 
@@ -64,7 +64,7 @@
 	// Convert grails variable values to javascript format
 	var user="${bean.user}";
 	var hostname="${bean.hostname}";
-	var room = "${bean.room}";
+	var room = "${bean.roomName}";
 	function getHostName() {
 		return hostname;
 	}
@@ -73,14 +73,14 @@
 		return user;
 	}
 	function getRoom() { 
-	 return room;
+	 return roomName;
 	}
 	var currentRoom;
 	var idList = new Array();
 	;
 	var debug = "${bean.debug}";
 	
-	var uri="${bean.uri}${bean.room}";
+	var uri="${bean.uri}${bean.roomName}";
 
 	if (debug == "on") {
 		console.log('Connecting to '+uri);

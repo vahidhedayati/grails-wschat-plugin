@@ -183,7 +183,11 @@ class WsChatController extends WsChatConfService {
 			render (template: '/admin/viewLiveChatRooms', model: [bean:bean])
 		}
 	}
-
+	
+	def autocomplete() {
+		render autoCompleteService.autocomplete(params)
+	}
+	
 	def viewUsers(SearchBean bean) {
 		if (isAdmin) {
 			bean.uList = wsChatUserService.genAllUsers()
