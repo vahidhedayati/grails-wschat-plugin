@@ -5,11 +5,11 @@ import grails.plugin.wschat.ChatBanList
 import grails.plugin.wschat.ChatCustomerBooking
 import grails.plugin.wschat.ChatLog
 import grails.plugin.wschat.ChatPermissions
+import grails.plugin.wschat.ChatRoomList
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.OffLineMessage
 import grails.plugin.wschat.WsChatConfService
 import grails.plugin.wschat.beans.ConfigBean
-import grails.plugin.wschat.beans.UserBean
 import grails.transaction.Transactional
 
 import java.text.SimpleDateFormat
@@ -38,19 +38,21 @@ class WsChatAuthService extends WsChatConfService   {
 
 	@Transactional
 	Map addUser(String username) {
-		String defaultPermission = config.defaultperm  ?: UserBean.defaultPerm
-		def perm = ChatPermissions.findByName(defaultPermission)
-		if (!perm) {
-			perm = new ChatPermissions(name: defaultPermission).save()
+		ChatUser user
+		ChatPermissions perm
+		String defaultPermission = config.defaultperm  ?: ChatUser.DEFAULT_PERMISSION
+		if (defaultPermission) {
+			perm = ChatPermissions.findByName(defaultPermission)
+			perm = perm ? perm : new ChatPermissions(name: defaultPermission).save(flush: true)
+			user = ChatUser.findByUsername(username)
+			if (!user) {
+				def addlog = addLog()
+				user = ChatUser.findOrSaveWhere(username: username, permissions: perm, log: addlog, offlog: addlog).save()
+			}
 		}
-		def user = ChatUser.findByUsername(username)
-		if (!user) {
-			def addlog = addLog()
-			user = ChatUser.findOrSaveWhere(username:username, permissions:perm, log: addlog, offlog: addlog).save()
-		}
-		return [ user:user, perm:perm ]
+		return [user:user, perm:perm]
 	}
-
+	
 	@Transactional
 	private ChatLog addLog() {
 		ChatLog logInstance = new ChatLog(messages: [])
@@ -62,18 +64,16 @@ class WsChatAuthService extends WsChatConfService   {
 
 	@Transactional
 	Map validateLogin(String username) {
-		String defaultPerm = UserBean.defaultPerm
 		def au=addUser(username)
 		ChatUser user=au.user
 		ChatPermissions perm=au.perm
 		ChatAuthLogs logit = new ChatAuthLogs(username: username,loggedIn:true,loggedOut:false).save()
-		if (!logit) {  
+		if (!logit) {
 			log.error "${logit.errors}"
-		} else {	
+		} else {
 			log.debug "${logit.id} ${username} added to ChatAuthLogs: loggedIn"
-		}	
-		defaultPerm = user.permissions.name
-		[permission: defaultPerm, user: user]
+		}
+		[permission: perm?.name ?: ChatUser.DEFAULT_PERMISSION, user: user]
 	}
 
 	@Transactional
@@ -91,7 +91,7 @@ class WsChatAuthService extends WsChatConfService   {
 		ConfigBean bean = new ConfigBean()
 		String botUser = roomName+"_"+bean.assistant
 		boolean addBot = true
-		if (userType=='chat') {
+		if (userType==ChatRoomList.DEFAULT_ROOM_TYPE) {
 			addBot = bean.enable_Chat_Bot
 		}
 		if (isBotinRoom(botUser)  && addBot) {
@@ -123,7 +123,7 @@ class WsChatAuthService extends WsChatConfService   {
 					userExists=true
 				}
 			}
-			if (bean.liveChatAskName && userType=='liveChat' && userExists==false) { 
+			if (bean.liveChatAskName && userType==ChatUser.CHAT_LIVE_USER && userExists==false) {
 				message+= "\n"+bean.liveChatNameMessage 
 			}
 			log.debug "${message}"

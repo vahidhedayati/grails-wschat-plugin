@@ -178,7 +178,7 @@ class WsChatMessagingService extends WsChatConfService {
 		String urecord = userSession.userProperties.get("username")
 		chatNames?.each { String cuser, Map<String,Session> records ->
 			records?.each { String room, Session crec ->
-				if (crec && crec.isOpen() && crec.userProperties.get("userType") == 'monitorLiveChat') {
+				if (crec && crec.isOpen() && crec.userProperties.get("userType") == ChatUser.CHAT_LIVE_USER_ADMIN) {
 					admins<<crec
 				}
 			}
@@ -202,7 +202,7 @@ class WsChatMessagingService extends WsChatConfService {
 		List result=[]
 		chatNames?.each { String cuser, Map<String,Session> records ->
 			records?.each {String croom, Session crec ->
-				if (crec && crec.isOpen() &&  (crec.userProperties.get("userType") == 'liveChat') && cuser!=msg.fromUser) {
+				if (crec && crec.isOpen() &&  (crec.userProperties.get("userType") == ChatUser.CHAT_LIVE_USER) && cuser!=msg.fromUser) {
 					String userPerm = crec.userProperties.get("userLevel")
 					String startTime = (crec.userProperties.get("startTime") as Date)?.format("yyyy-MM-dd HH:mm:ss")
 					String joinedRoom = (crec.userProperties.get("joinedRoom") as Date)?.format("yyyy-MM-dd HH:mm:ss")

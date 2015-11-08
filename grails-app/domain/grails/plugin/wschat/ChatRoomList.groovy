@@ -1,10 +1,13 @@
 package grails.plugin.wschat
 
 class ChatRoomList {
+	static final String DEFAULT_ROOM_TYPE = 'chat'
+	static final List DEFAULT_ROOM = ['wschat']
+	
 	Date dateCreated
 	Date lastUpdated
 	String room
-	String roomType = 'chat'
+	String roomType =  DEFAULT_ROOM_TYPE
 	
 
     static constraints = {

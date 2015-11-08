@@ -10,7 +10,9 @@ class WsChatRoomService extends WsChatConfService {
 
 	def wsChatMessagingService
 	def wsChatUserService
-
+	
+	public static List DEFAULT_ROOM = ChatRoomList.DEFAULT_ROOM.collect{['room':it]}
+	
 	void sendRooms(Session userSession) {
 		wsChatMessagingService.messageUser(userSession,roomList())
 	}
@@ -21,7 +23,7 @@ class WsChatRoomService extends WsChatConfService {
 
 	@Transactional
 	def returnRoom(boolean displayString=false) {
-		List dbrooms = (config?.rooms.collect{it}  +ChatRoomList?.findAllByRoomType('chat')*.room?.unique()?.collect{it}) ?: ['wschat']
+		List dbrooms = (config?.rooms.collect{it}  +ChatRoomList?.findAllByRoomType(ChatRoomList.DEFAULT_ROOM_TYPE)*.room?.unique()?.collect{it}) ?: ChatRoomList.DEFAULT_ROOM
 		if (displayString) {
 			return dbrooms[0] as String
 		}else{
@@ -30,7 +32,7 @@ class WsChatRoomService extends WsChatConfService {
 	}
 
 	@Transactional
-	void addRoom(Session userSession,String roomName, String roomType='chat') {
+	void addRoom(Session userSession,String roomName, String roomType=ChatRoomList.DEFAULT_ROOM_TYPE) {
 		if (isAdmin(userSession)) {
 			def nr = new ChatRoomList()
 			nr.room = roomName
@@ -43,7 +45,7 @@ class WsChatRoomService extends WsChatConfService {
 	}
 
 	@Transactional
-	void addManualRoom(String roomName, String roomType='chat') {
+	void addManualRoom(String roomName, String roomType=ChatRoomList.DEFAULT_ROOM_TYPE) {
 		def record = ChatRoomList?.findByRoomAndRoomType(roomName, roomType)
 		if (!record) {
 			def nr = new ChatRoomList()
@@ -56,7 +58,7 @@ class WsChatRoomService extends WsChatConfService {
 	}
 
 	@Transactional
-	void delaRoom(String roomName, String roomType='chat') {
+	void delaRoom(String roomName, String roomType=ChatRoomList.DEFAULT_ROOM_TYPE) {
 		def record = ChatRoomList?.findByRoomAndRoomType(roomName, roomType)
 		if (record) {
 			record.delete()
@@ -82,7 +84,7 @@ class WsChatRoomService extends WsChatConfService {
 
 	@Transactional
 	Map roomList() {
-		List uList = (config?.rooms.collect{['room':it]}  +ChatRoomList?.findAllByRoomType('chat')*.room?.unique()?.collect{['room':it]}) ?: [room:'wschat']   
+		List uList = (config?.rooms.collect{['room':it]}  +ChatRoomList?.findAllByRoomType(ChatRoomList.DEFAULT_ROOM_TYPE)*.room?.unique()?.collect{['room':it]}) ?: DEFAULT_ROOM
 		Map finalList = [rooms: uList]
 		return finalList 
 	}

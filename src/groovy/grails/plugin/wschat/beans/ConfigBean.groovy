@@ -91,10 +91,14 @@ class ConfigBean {
 
 	//worker for the boolean logic
 	private Boolean validateBool(def input) {
-		if (input instanceof Boolean) {
-			return input
-		}else{
+		if (input) {
+			if (input instanceof Boolean) {
+				return input
+			} else if (input){
 			return input.toBoolean()
+			}
+		} else {
+			return false
 		}
 	}
 

@@ -156,7 +156,7 @@ class WsChatUserService extends WsChatConfService  {
 			records?.each { String room, Session crec ->
 				if (crec && crec.isOpen()) {
 					String userType = crec.userProperties.get("userType")
-					if (userType=='liveChat') {
+					if (userType==ChatUser.CHAT_LIVE_USER) {
 						if (!fList.findAll{it.room==room}) {
 							uList.room=room
 						}
@@ -181,7 +181,7 @@ class WsChatUserService extends WsChatConfService  {
 			records?.each { String room, Session crec ->
 				if (crec && crec.isOpen()) {
 					String userType = crec.userProperties.get("userType")
-					if (userType=='liveChat' && username==cuser) {
+					if (userType==ChatUser.CHAT_LIVE_USER && username==cuser) {
 						result = true
 					}
 				}
