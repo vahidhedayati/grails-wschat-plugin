@@ -34,7 +34,7 @@ class ChatUtils extends WsChatConfService {
 	private void verifyUser(Session userSession, String userType, String room, String username) {
 		userSession.userProperties.put("startTime", new Date())
 		userSession.userProperties.put("userType", userType)
-		if (userType=='liveChat') {
+		if (userType==ChatUser.CHAT_LIVE_USER) {
 			userSession.userProperties.put("livechat", "on")
 			userSession.userProperties.put("nameRequired", true)
 			userSession.userProperties.put("emailedRequired", true)
@@ -47,7 +47,7 @@ class ChatUtils extends WsChatConfService {
 			}
 			wsChatMessagingService.updateLiveList(username,[fromUser:username, fromRoom:room, hasAdmin:hasLiveAdmin],userSession)
 		}
-		if (userType=='monitorLiveChat') {
+		if (userType== ChatUser.CHAT_LIVE_USER_ADMIN) {
 			wsChatMessagingService.updateLiveList(username,[:],userSession)
 		}
 	}
@@ -56,12 +56,11 @@ class ChatUtils extends WsChatConfService {
 		def myMsg = [:]
 		String username = userSession.userProperties.get("username") as String
 		String room  =  userSession.userProperties.get("room") as String
-		String connector = "CONN:-"
-		String connector2 = "LIVECONN:-"
+
 		Boolean isuBanned = false
 		if (!username)  {
-			if (message.startsWith(connector)) {
-				def values = parseInput(connector,message)
+			if (message.startsWith(CONNECTOR)) {
+				def values = parseInput(CONNECTOR,message)
 				String user = values.user
 				String userType = values.msg
 				//backward compatible
@@ -69,9 +68,9 @@ class ChatUtils extends WsChatConfService {
 				wsChatAuthService.connectUser(m,userSession,room)
 				verifyUser(userSession, userType, room,username)
 			}
-			if (message.startsWith(connector2)) {
+			if (message.startsWith(LIVE_CONNECTOR)) {
 				userSession.userProperties.put("joinedRoom", new Date())
-				def values = parseInput(connector2,message)
+				def values = parseInput(LIVE_CONNECTOR,message)
 				String user = values.user
 				String userType = values.msg
 				def m = message.indexOf(',')>-1 ? message.split(",")[0] : message
@@ -83,13 +82,13 @@ class ChatUtils extends WsChatConfService {
 				wsChatMessagingService.broadcast(userSession,myMsg)
 			}
 		} else {
-			if (message.startsWith("DISCO:-")) {
+			if (message.startsWith(DISCONNECTOR)) {
 				def msg=messageSource.getMessage('wschat.user.left',[username,room].toArray(), "$username has left ${room}",localeResolver.defaultLocale)
 				wsChatMessagingService.broadcast(userSession,[message: msg])
 				wsChatUserService.removeUser(username)
 				wsChatUserService.sendUsers(userSession,username, room)
 				userSession.close()
-			} else if (message.startsWith("LIVEDISCO:-")) {
+			} else if (message.startsWith(LIVE_DISCONNECTOR)) {
 				wsChatUserService.removeUser(username)
 				wsChatUserService.sendUsers(userSession,username, room)
 				userSession.close()
@@ -332,17 +331,11 @@ class ChatUtils extends WsChatConfService {
 				wsChatUserService.sendUsers(userSession,camuser,room)
 			} else if (message.startsWith("/flatusers")) {
 				wsChatUserService.sendFlatUsers(userSession,username)
-				// Usual chat messages bound for all
-			/*
-			} else if (message.startsWith("/userType")) {
-				def p1 = "/userType "
-				def userType = message.substring(p1.length(),message.length())
-				verifyUser(userSession, userType, room,username)
-			*/
 			} else if (message.startsWith("deactive_chat_bot") || (message.startsWith("deactive_me"))) {
 				String userType = userSession.userProperties.get("userType") as String
 				wsChatAuthService.delBotFromChatRoom(username, room, userType, message)
 			} else {
+				// Usual chat messages bound for all
 				myMsg.put("message", "<span class='roomPerson'>${username}: </span><span class='roomMessage'>${message.replaceAll("\\<.*?>","")}</span>")
 				wsChatMessagingService.broadcast(userSession,myMsg)
 			}
@@ -355,7 +348,6 @@ class ChatUtils extends WsChatConfService {
 		}
 		return input
 	}
-
 
 	/**
 	 * parseInput i.e.

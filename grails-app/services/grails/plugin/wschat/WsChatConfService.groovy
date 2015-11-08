@@ -76,7 +76,9 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 	}
 
 	public static final String CONNECTOR = "CONN:-"
+	public static final String LIVE_CONNECTOR = "LIVECONN:-"
 	public static final String DISCONNECTOR = "DISCO:-"
+	public static final String LIVE_DISCONNECTOR = "LIVEDISCO:-"
 	public static final String CHATAPP = "WsChatEndpoint"
 	public static final String CHATVIEW = "wsChat"
 
