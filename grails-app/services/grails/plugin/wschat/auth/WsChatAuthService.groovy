@@ -67,15 +67,20 @@ class WsChatAuthService extends WsChatConfService   {
 	@Transactional
 	Map validateLogin(String username) {
 		def au=addUser(username)
-		ChatUser user=au.user
-		ChatPermissions perm=au.perm
-		ChatAuthLogs logit = new ChatAuthLogs(username: username,loggedIn:true,loggedOut:false).save()
-		if (!logit) {
-			log.error "${logit.errors}"
+		if (au) {
+			ChatUser user = au.user
+			ChatPermissions perm = au.perm
+			ChatAuthLogs logit = new ChatAuthLogs(username: username, loggedIn: true, loggedOut: false).save()
+			if (!logit) {
+				log.error "${logit.errors}"
+			} else {
+				log.debug "${logit.id} ${username} added to ChatAuthLogs: loggedIn"
+			}
+			[permission: perm?.name ?: ChatUser.DEFAULT_PERMISSION, user: user]
 		} else {
-			log.debug "${logit.id} ${username} added to ChatAuthLogs: loggedIn"
+			[permission: ChatUser.DEFAULT_PERMISSION,user:username]
 		}
-		[permission: perm?.name ?: ChatUser.DEFAULT_PERMISSION, user: user]
+
 	}
 
 	@Transactional
@@ -158,40 +163,42 @@ class WsChatAuthService extends WsChatConfService   {
 			return
 		}
 		def userRec = validateLogin(username)
-		def userLevel = userRec.permission
-		user = userRec.user
-		userSession.userProperties.put("userLevel", userLevel)
-		String rooma = userSession?.userProperties?.get("room")
-		if (loggedIn(username)==false) {
-			chatroomUsers.putIfAbsent(username, ["${room}":userSession])
-		} else {
-			Map<String,Session> records= chatroomUsers.get(username)
-			Session crec = records.find{it.key==room}?.value
-			if (crec) {
-				def msga=i18nService.msg("wschat.user.already.loggedin","${username} is already loggged in to ${room}, action denied",[username,room])
-				wsChatMessagingService.messageUser(userSession, [message:msga])
-				return
+		if (userRec) {
+			def userLevel = userRec.permission
+			user = userRec.user
+			userSession.userProperties.put("userLevel", userLevel)
+			String rooma = userSession?.userProperties?.get("room")
+			if (loggedIn(username) == false) {
+				chatroomUsers.putIfAbsent(username, ["${room}": userSession])
 			} else {
-				records << ["${room}":userSession]
+				Map<String, Session> records = chatroomUsers.get(username)
+				Session crec = records.find { it.key == room }?.value
+				if (crec) {
+					def msga = i18nService.msg("wschat.user.already.loggedin", "${username} is already loggged in to ${room}, action denied", [username, room])
+					wsChatMessagingService.messageUser(userSession, [message: msga])
+					return
+				} else {
+					records << ["${room}": userSession]
+				}
 			}
+			Boolean useris = isAdmin(userSession)
+			wsChatMessagingService.messageUser(userSession, ["isAdmin": useris as String])
+			def myMsg2 = [:]
+			myMsg2.put("currentRoom", "${room}")
+			wsChatMessagingService.messageUser(userSession, myMsg2)
+			wsChatUserService.sendUsers(userSession, username, room)
+			String sendjoin = config.send.joinroom ?: 'yes'
+			wsChatRoomService.sendRooms(userSession)
+			if (useris) {
+				def adminActions = [[actions: 'viewUsers'], [actions: 'liveChatsRooms'], [actions: 'createConference'], [actions: 'viewLiveChats',]]
+				wsChatMessagingService.broadcast(userSession, [adminOptions: adminActions])
+			}
+			if (sendjoin == 'yes' && sendUsers) {
+				def msga = i18nService.msg("wschat.user.joined", "${username} has joined ${room}", [username, room])
+				wsChatMessagingService.broadcast(userSession, [message: msga])
+			}
+			verifyOffLine(userSession, username)
 		}
-		Boolean useris = isAdmin(userSession)
-		wsChatMessagingService.messageUser(userSession, ["isAdmin":useris as String])
-		def myMsg2 = [:]
-		myMsg2.put("currentRoom", "${room}")
-		wsChatMessagingService.messageUser(userSession,myMsg2)
-		wsChatUserService.sendUsers(userSession,username,room)
-		String sendjoin = config.send.joinroom  ?: 'yes'
-		wsChatRoomService.sendRooms(userSession)
-		if (useris) {
-			def adminActions=[[actions:'viewUsers'],[actions:'liveChatsRooms'],[actions:'createConference'],[actions:'viewLiveChats',]]
-			wsChatMessagingService.broadcast(userSession,[adminOptions:adminActions])
-		}
-		if (sendjoin == 'yes' && sendUsers) {
-			def msga=i18nService.msg("wschat.user.joined","${username} has joined ${room}",[username,room])
-			wsChatMessagingService.broadcast(userSession,[message: msga])
-		}
-		verifyOffLine(userSession,username)
 	}
 
 	@Transactional

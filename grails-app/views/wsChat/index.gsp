@@ -1,16 +1,11 @@
 <!DOCTYPE html>
 <html>
-<head>
-
-<g:render template="includes" model="${[bean:bean]}"/>
-
-<title>
-	${bean.chatTitle }
-</title>
-</head>
+    <head>
+        <g:render template="includes" model="${[bean:bean]}"/>
+        <title>${bean.chatTitle }</title>
+    </head>
 <body>
-
-	<g:if test="${flash.message}">
+    <g:if test="${flash.message}">
 		<div class="message" role="status">
 			${flash.message}
 		</div>
@@ -23,13 +18,13 @@
 				<h2>${bean.chatHeader }</h2>
 				<small> ${bean.now}</small>
 			</div>
-		   <div class="form-group">
+		    <div class="form-group">
              <label for="nickname" class="col-sm-2 control-label">
         		<g:message code="wschat.nickname.label" default="ChatName"  class="form-control" />
         	 </label>
         	   <div class="col-sm-4">	
 					<g:textField name="username"/>
-			 </div>
+			    </div>
 			</div> 
 			<div class="form-group">
              <label for="room" class="col-sm-2 control-label">
@@ -38,7 +33,7 @@
         	 </label>
         	   <div class="col-sm-4">	
 					<g:select name="room" from="${bean.rooms}"  class="form-control"/>
-			 </div>
+			    </div>
 			</div>
 			<div class="form-group">
              <label for="submit" class="col-sm-2 control-label">
@@ -46,11 +41,11 @@
         	 </label>
         	   <div class="col-sm-4">	
 					<input type="submit" value="${g.message(code:'wschat.login.label', default:'Login') }" class="btn btn-primary btn-lg">
-			 </div>
+			    </div>
 			</div>
-		</g:form>
-	</div>
- </div>
- </div>
+		    </g:form>
+	      </div>
+        </div>
+    </div>
 </body>
 </html>

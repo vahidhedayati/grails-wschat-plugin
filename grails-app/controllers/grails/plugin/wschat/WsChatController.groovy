@@ -178,8 +178,9 @@ class WsChatController extends WsChatConfService {
 		[bean:bean]
 	}
 
-	def liveChatsRooms(SearchBean bean) {
+	def liveChatsRooms() {
 		if (isAdmin) {
+			Map bean=[:]
 			bean.uList= wsChatUserService.genAllLiveRooms()
 			bean.userListCount=bean.uList?.size()
 			render (template: '/admin/viewLiveChatRooms', model: [bean:bean])
