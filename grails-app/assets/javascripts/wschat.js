@@ -1,5 +1,5 @@
 var config = {
-		width : 155, //px
+		width : 300, //px
 		gap : 2,
 		maxBoxes : 10,
 		messageSent : function(dest, msg) {
@@ -61,11 +61,13 @@ function verifyPosition(uid) {
 	var idx = idList.indexOf(uid);
 	if(idx == -1) {
 		idList.push(uid);
-	    if (idList.length>1) {
-		    var getNextOffset = function() {
-			    return (config.width + config.gap) * idList.length;
-		    };
-		    $("#"+uid).chatbox("option", "offset", getNextOffset());
+		var getNextOffset = function() {
+            return (config.width + config.gap) * (idList.length-1);
+        };
+        if (idList.length>2) {
+              $("#"+uid).chatbox("option", "offset", getNextOffset());
+	    }else if (idList.length>1) {
+            $("#"+uid).chatbox("option", "offset",305);
 	    }
 	}
 }
