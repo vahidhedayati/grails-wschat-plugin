@@ -37,6 +37,16 @@ class WsChatAuthService extends WsChatConfService   {
 		}
 	}
 
+	@Transactional
+	public void addPermission() {
+		String defaultPermission = config.defaultperm ?: ChatUser.DEFAULT_PERMISSION
+		if (defaultPermission) {
+			ChatPermissions perm = ChatPermissions.findByName(defaultPermission)
+			if (!perm) {
+				 new ChatPermissions(name: defaultPermission).save(flush: true)
+			}
+		}
+	}
 
 	@Transactional
 	Map addUser(String username) {
@@ -49,7 +59,7 @@ class WsChatAuthService extends WsChatConfService   {
 			user = ChatUser.findByUsername(username)
 			if (!user) {
 				def addlog = addLog()
-				user = ChatUser.findOrSaveWhere(username: username, permissions: perm, log: addlog, offlog: addlog).save()
+				user = new ChatUser(username: username, permissions: perm, log: addlog, offlog: addlog).save(flush:true)
 			}
 		}
 		return [user:user, perm:perm]
@@ -154,7 +164,6 @@ class WsChatAuthService extends WsChatConfService   {
 		String connector = "CONN:-"
 		def user
 		def username = message.substring(message.indexOf(connector)+connector.length(),message.length()).trim().replace(' ', '_').replace('.', '_')
-
 		userSession.userProperties.put("username", username)
 		isuBanned = isBanned(username)
 		if (isuBanned){
@@ -163,7 +172,7 @@ class WsChatAuthService extends WsChatConfService   {
 			return
 		}
 		def userRec = validateLogin(username)
-		if (userRec) {
+		if (userRec.user) {
 			def userLevel = userRec.permission
 			user = userRec.user
 			userSession.userProperties.put("userLevel", userLevel)

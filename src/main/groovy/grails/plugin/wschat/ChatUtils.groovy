@@ -42,7 +42,8 @@ class ChatUtils extends WsChatConfService {
 			if (hasLiveAdmin) {
 				wsChatUserService.sendUsers(userSession,username,room)
 				wsChatMessagingService.adminEnableEndScreens(username,[fromUser:username, msgTo:username, fromRoom:room, enabeLiveChat:'yes'],userSession)
-				String msg = getConfig('enableUsersMessage')  ?: 'A member of staff has joined'
+				def msga=messageSource.getMessage('wschat.staff.joined.label',[].toArray(), "A member of staff has joined",localeResolver.defaultLocale)
+				String msg = msga ?: getConfig('enableUsersMessage')  ?: 'A member of staff has joined'
 				wsChatMessagingService.messageUser(userSession, [liveMessageInitiate:msg])
 			}
 			wsChatMessagingService.updateLiveList(username,[fromUser:username, fromRoom:room, hasAdmin:hasLiveAdmin],userSession)
@@ -60,6 +61,7 @@ class ChatUtils extends WsChatConfService {
 		Boolean isuBanned = false
 		if (!username)  {
 			if (message.startsWith(CONNECTOR)) {
+				wsChatAuthService.addPermission()
 				def values = parseInput(CONNECTOR,message)
 				String user = values.user
 				String userType = values.msg
@@ -69,6 +71,7 @@ class ChatUtils extends WsChatConfService {
 				verifyUser(userSession, userType, room,username)
 			}
 			if (message.startsWith(LIVE_CONNECTOR)) {
+				wsChatAuthService.addPermission()
 				userSession.userProperties.put("joinedRoom", new Date())
 				def values = parseInput(LIVE_CONNECTOR,message)
 				String user = values.user

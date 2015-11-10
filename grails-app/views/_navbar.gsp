@@ -13,6 +13,10 @@
 					<a class="navbar-brand" href="${createLink(uri: '/')}" id="size3">
 						${g.message(code:'wschat.appName', default:'wsChat')}
 					</a>
+					<sec:ifLoggedIn>
+					<form name="logout" method="POST" action="${createLink(controller:'logout') }">
+                    		<g:submitButton name="logout" class="pull-right btn btn-danger btn-xs"/></form>
+					</sec:ifLoggedIn>
 			</div>
 			<div class="collapse navbar-collapse navbar-ex1-collapse" role="navigation">
 				<ul class="nav navbar-nav navbar-left">

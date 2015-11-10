@@ -75,6 +75,7 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 		return fileroomUsers.remove(username) != null
 	}
 
+
 	public static final String CONNECTOR = "CONN:-"
 	public static final String LIVE_CONNECTOR = "LIVECONN:-"
 	public static final String DISCONNECTOR = "DISCO:-"
@@ -89,14 +90,14 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 		String process = config.disable.login ?: 'no'
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String chatHeader = config.heading ?: 'Grails websocket chat'
-
+		boolean enableSecurity = isConfigEnabled(config.enableSecurity ?: false)
 		String hostname = config.hostname ?: 'localhost:8080'
 		String addAppName = config.add.appName ?: 'no'
 		JSON iceservers  = cfg.stunServers as JSON
 		String showtitle = config.showtitle ?: 'yes'
 		return [process:process, chatTitle:chatTitle,
 			chatHeader:chatHeader,  hostname:hostname, addAppName:addAppName,
-			iceservers:iceservers, showtitle:showtitle]
+			iceservers:iceservers, showtitle:showtitle,enableSecurity:enableSecurity]
 	}
 
 	boolean isConfigEnabled(String input) {

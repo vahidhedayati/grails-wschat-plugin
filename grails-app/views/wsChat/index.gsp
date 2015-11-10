@@ -18,12 +18,13 @@
 				<h2>${bean.chatHeader }</h2>
 				<small> ${bean.now}</small>
 			</div>
+
 		    <div class="form-group">
              <label for="nickname" class="col-sm-2 control-label">
         		<g:message code="wschat.nickname.label" default="ChatName"  class="form-control" />
         	 </label>
-        	   <div class="col-sm-4">	
-					<g:textField name="username"/>
+        	   <div class="col-sm-4" id="userDetails">
+					<g:textField name="username" value="${session.wschatuser?:''}"/>
 			    </div>
 			</div> 
 			<div class="form-group">
@@ -47,5 +48,11 @@
 	      </div>
         </div>
     </div>
+<g:javascript>
+<g:if test="${session.wschatuser}">
+    $('#username').prop('disabled',true);
+    //$('#userDetails').html('${session.wschatuser}');
+</g:if>
+</g:javascript>
 </body>
 </html>

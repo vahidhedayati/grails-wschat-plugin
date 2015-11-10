@@ -25,6 +25,7 @@ class ConfigBean implements Validateable {
 	public final String chatHeader = getConfig('heading') ?: 'Grails websocket chat'
 	public final String frontUser = getConfig('frontend') ?: '_frontend'
 	public final String botMessage = getConfig('botMessage') ?: 'Greetings I am the room bot'
+	public final boolean enableSecurity = getConfig('enableSecurity') ? validateBool(getConfig('enableSecurity')):false
 	public static final Date now = new Date()
 
 	Boolean addLayouts = false
@@ -89,10 +90,14 @@ class ConfigBean implements Validateable {
 
 	//worker for the boolean logic
 	private Boolean validateBool(def input) {
-		if (input instanceof Boolean) {
-			return input
-		}else{
-			return input.toBoolean()
+		if (input) {
+			if (input instanceof Boolean) {
+				return input
+			} else {
+				return input.toBoolean()
+			}
+		} else {
+			return false
 		}
 	}
 

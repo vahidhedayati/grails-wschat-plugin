@@ -45,6 +45,7 @@ class WsChatTagLib extends WsChatConfService {
 		}
 		session.wschatroom = bean.room
 		session.wschatuser = bean.chatuser
+
 		Map model = [bean:bean]
 		if (bean.template) {
 			out << g.render(template:bean.template, model:model)
