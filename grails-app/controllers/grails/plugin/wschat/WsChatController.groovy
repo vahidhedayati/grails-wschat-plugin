@@ -521,6 +521,6 @@ class WsChatController extends WsChatConfService {
 			redirect(controller: "${controllerName}",action: "auth${actionThis}", params:params)
 			return
 		}
-		Eval.me(bean ? "render${actionThis}(${bean})" : "render${actionThis}()", params:params)
+		Eval.me(bean ? "render${actionThis}(${bean})" : "render${actionThis}()")
 	}
 }
