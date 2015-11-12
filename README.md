@@ -54,6 +54,9 @@ Grails websocket chat Plugin provides a multi-chat room add-on to an existing gr
 
 11. [Video 3.0.6 1.27 LiveChat monitoring and changing live chat style/colours](https://www.youtube.com/watch?v=C-xPAr0RcIo)
 
+12. [Video 3.0.9 Spring security](https://www.youtube.com/watch?v=PpzP6MsVKY0)
+
+
 ###### [Chat Commands](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/Commands)
 
 ###### [STUN Server, setting up your own server & WebRTC-terminology](https://github.com/vahidhedayati/grails-wschat-plugin/wiki/WebRTC-terminology)

@@ -49,7 +49,7 @@ class WsChatAuthService extends WsChatConfService   {
      */
 	@Transactional
 	public void addSecurityUser(SignupBean bean, boolean adminUser=false) {
-		String defaultPermission = adminUser ? ChatUser.CHAT_ADMIN : (config.defaultperm ?: ChatUser.DEFAULT_PERMISSION)
+		String defaultPermission = adminUser ? ChatUser.CHAT_ADMIN : ChatUser.CHAT_USER
 		String springSecurityPermission = adminUser ? ChatUser.SPRINGSECURITY_ADMIN : ChatUser.SPRINGSECURITY_USER
 		if (defaultPermission && springSecurityPermission) {
 			addUser(bean.username, bean.email, defaultPermission)
