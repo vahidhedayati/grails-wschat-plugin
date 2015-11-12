@@ -14,6 +14,7 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	'/**/images/**':    ['permitAll'],
 	'/**/favicon.ico':  ['permitAll'],
 	'/wsChat/**':       ['permitAll'],
+	'/wsChatAdmin/**':       ['permitAll'],
 	'/wsCamEndpoint/**':		['permitAll'],
 	'/wsChatEndpoint/**':		['permitAll'],
 	'/wsChatFileEndpoint/**':	['permitAll'],

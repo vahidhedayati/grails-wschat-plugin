@@ -6,6 +6,7 @@ import grails.plugin.wschat.beans.ConnectTagBean
 import grails.plugin.wschat.beans.LoginBean
 import grails.plugin.wschat.beans.RoomBean
 import grails.plugin.wschat.beans.SearchBean
+import grails.plugin.wschat.beans.SignupBean
 import grails.plugin.wschat.beans.UserBean
 import grails.plugin.wschat.beans.CustomerChatTagBean
 import grails.plugin.wschat.beans.LiveChatBean
@@ -23,13 +24,32 @@ class WsChatController extends WsChatConfService {
 	def chatUserUtilService
 	def springSecurityService
 
-//---------------------- Start Index
+
+	def signup() {
+		def bean = new SignupBean()
+		render (view:'/login/signup', model:[bean:bean])
+	}
+
+	def register(SignupBean bean) {
+		if (!bean.validate()) {
+			render(view:'/login/signup', model:[bean:bean])
+			return
+		}
+		wsChatAuthService.addSecurityUser(bean)
+		redirect(controller: "wsChat",action: "index")
+	}
+
+	//---------------------- Start Index
 	/**
 	 * index default action checks if configuration has enabled security
 	 * if so sent to authIndex
      */
 	def index(ConnectTagBean bean) {
-		renderContent(bean,upperCaseFirst(actionName),params)
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderIndex(bean)
 	}
 
 	@Secured(['ROLE_USER','ROLE_ADMIN'])
@@ -48,48 +68,15 @@ class WsChatController extends WsChatConfService {
 		}
 		render (view: 'index', model: [bean:bean])
 	}
-//---------------------- End Index
+	//---------------------- End Index
 
-//---------------------- Start chat
-	def chat(ConnectTagBean bean) {
-		renderContent(bean,upperCaseFirst(actionName),params)
-	}
-
-	@Secured(['ROLE_USER','ROLE_ADMIN'])
-	def authChat(ConnectTagBean bean) {
-		session.wschatuser=springSecurityService.currentUser as String
-		renderChat(bean)
-	}
-
-	private void renderChat(ConnectTagBean bean) {
-		bean.setAddLayouts(true)
-		bean.chatuser = session.wschatuser
-		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(true)
-		wsChatAuthService.addBotToChatRoom(bean.room, 'chat', bean.enable_Chat_Bot, bean.botMessage, bean.uri)
-		render (view: 'chat', model: [bean:bean])
-	}
-//---------------------- End chat
-
-	def sendfile(RoomBean bean) {
-		bean.chatuser = session.wschatuser
-		boolean sender = false
-		if (bean.room == bean.chatuser) {
-			bean.sender = true
-		}
-		[bean:bean]
-	}
-
-	def sendmedia(RoomBean bean) {
-		bean.chatuser = session.wschatuser
-		boolean sender = false
-		if (bean.room == bean.chatuser) {
-			bean.sender = true
-		}
-		[bean:bean]
-	}
-//---------------------- Start login
+	//---------------------- Start login
 	def login(LoginBean bean) {
-		renderContent(bean,upperCaseFirst(actionName),params)
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}", params:params)
+			return
+		}
+		renderLogin(bean)
 	}
 	@Secured(['ROLE_USER','ROLE_ADMIN'])
 	def authLogin(LoginBean bean) {
@@ -114,7 +101,49 @@ class WsChatController extends WsChatConfService {
 			return
 		}
 	}
-//---------------------- End login
+	//---------------------- End login
+
+	//---------------------- Start chat
+	def chat(ConnectTagBean bean) {
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderChat(bean)
+	}
+
+	@Secured(['ROLE_USER','ROLE_ADMIN'])
+	def authChat(ConnectTagBean bean) {
+		session.wschatuser=springSecurityService.currentUser as String
+		renderChat(bean)
+	}
+
+	private void renderChat(ConnectTagBean bean) {
+		bean.setAddLayouts(true)
+		bean.chatuser = session.wschatuser
+		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(true)
+		wsChatAuthService.addBotToChatRoom(bean.room, 'chat', bean.enable_Chat_Bot, bean.botMessage, bean.uri)
+		render (view: 'chat', model: [bean:bean])
+	}
+	//---------------------- End chat
+
+	def sendfile(RoomBean bean) {
+		bean.chatuser = session.wschatuser
+		boolean sender = false
+		if (bean.room == bean.chatuser) {
+			bean.sender = true
+		}
+		[bean:bean]
+	}
+
+	def sendmedia(RoomBean bean) {
+		bean.chatuser = session.wschatuser
+		boolean sender = false
+		if (bean.room == bean.chatuser) {
+			bean.sender = true
+		}
+		[bean:bean]
+	}
 
 	def verifyprofile(String username) {
 		Map vp = wsChatContService.verifyProfile(username)
@@ -219,9 +248,13 @@ class WsChatController extends WsChatConfService {
 		[bean:bean]
 	}
 
-//---------------------- start liveChatsRooms
+	//---------------------- start liveChatsRooms
 	def liveChatsRooms() {
-		renderContent(bean,upperCaseFirst(actionName),params)
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderLiveChatsRooms()
 	}
 
 	@Secured(['ROLE_ADMIN'])
@@ -240,14 +273,18 @@ class WsChatController extends WsChatConfService {
 		render "Not authorised!"
 		return
 	}
-//---------------------- End liveChatsRooms
+	//---------------------- End liveChatsRooms
 
 	def autocomplete() {
 		render autoCompleteService.autocomplete(params)
 	}
-//---------------------- start viewUsers
+	//---------------------- start viewUsers
 	def viewUsers(SearchBean bean) {
-		renderContent(bean,upperCaseFirst(actionName),params)
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderViewUsers(bean)
 	}
 
 	@Secured(['ROLE_ADMIN'])
@@ -273,7 +310,7 @@ class WsChatController extends WsChatConfService {
 		}
 		render ''
 	}
-//---------------------- end viewUsers
+	//---------------------- end viewUsers
 
 	def search(String mq) {
 		if (isAdmin) {
@@ -326,9 +363,13 @@ class WsChatController extends WsChatConfService {
 		}
 		[startDate:startDate, endDate:endDate]
 	}
-//---------------------- start addBooking
+	//---------------------- start addBooking
 	def addBooking() {
-		renderContent(null,upperCaseFirst(actionName),params)
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderAddBooking()
 	}
 
 	@Secured(['ROLE_ADMIN'])
@@ -354,7 +395,7 @@ class WsChatController extends WsChatConfService {
 		}
 		render 'Not Authorized'
 	}
-//---------------------- end addBooking
+	//---------------------- end addBooking
 
 	/* liveChat */
 	def loadChat(String user, String controller, String action,String roomName) {
@@ -373,10 +414,14 @@ class WsChatController extends WsChatConfService {
 		render view: '/customerChat/chatPage', model: [bean:bean]
 	}
 
-//---------------------- start joinLiveChat
+	//---------------------- start joinLiveChat
 	def joinLiveChat(String roomName,String username) {
 		Map bean=[roomName:roomName,username:username]
-		renderContent(bean,upperCaseFirst(actionName),params)
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderJoinLiveChat(bean)
 	}
 
 	@Secured(['ROLE_ADMIN'])
@@ -395,10 +440,15 @@ class WsChatController extends WsChatConfService {
 		}
 		render 'Not Authorized'
 	}
-//---------------------- end joinLiveChat
+	//---------------------- end joinLiveChat
 
 	def liveChat(LiveChatBean bean) {
-		renderContent(bean,upperCaseFirst(actionName),params)
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderLiveChat(bean)
+
 	}
 
 	@Secured(['ROLE_ADMIN'])
@@ -413,9 +463,13 @@ class WsChatController extends WsChatConfService {
 		render view: '/customerChat/livechat', model: [bean:bean]
 	}
 
-//---------------------- start viewLiveChats
+	//---------------------- start viewLiveChats
 	def viewLiveChats(CustomerChatTagBean bean) {
-		renderContent(bean,upperCaseFirst(actionName),params)
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderViewLiveChats(bean)
 	}
 	@Secured(['ROLE_ADMIN'])
 	def authViewLiveChat(CustomerChatTagBean bean) {
@@ -436,7 +490,7 @@ class WsChatController extends WsChatConfService {
 		}
 		render 'Not Authorized'
 	}
-//---------------------- end viewLiveChats
+	//---------------------- end viewLiveChats
 
 	def viewLiveLogs(String username) {
 		def livelogs = wsChatBookingService.findLiveLogs(username)
@@ -516,11 +570,4 @@ class WsChatController extends WsChatConfService {
 		s.substring(0,1).toUpperCase() + s.substring(1)
 	}
 
-	private void renderContent(bean,String actionThis, params) {
-		if (wsconf.enableSecurity) {
-			redirect(controller: "${controllerName}",action: "auth${actionThis}", params:params)
-			return
-		}
-		Eval.me(bean ? "render${actionThis}(${bean})" : "render${actionThis}()")
-	}
 }

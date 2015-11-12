@@ -1,14 +1,19 @@
 package grails.plugin.wschat.auth
 
+import grails.plugin.wschat.ChatAuth
+import grails.plugin.wschat.ChatAuthChatRole
 import grails.plugin.wschat.ChatAuthLogs
 import grails.plugin.wschat.ChatBanList
 import grails.plugin.wschat.ChatCustomerBooking
 import grails.plugin.wschat.ChatLog
 import grails.plugin.wschat.ChatPermissions
+import grails.plugin.wschat.ChatRole
 import grails.plugin.wschat.ChatRoomList
 import grails.plugin.wschat.ChatUser
+import grails.plugin.wschat.ChatUserProfile
 import grails.plugin.wschat.OffLineMessage
 import grails.plugin.wschat.WsChatConfService
+import grails.plugin.wschat.beans.SignupBean
 import grails.transaction.Transactional
 import grails.plugin.wschat.beans.ConfigBean
 
@@ -37,29 +42,72 @@ class WsChatAuthService extends WsChatConfService   {
 		}
 	}
 
+	/**
+	 * Spring security sign up mixed in with chat sign up
+	 * @param bean
+	 * @param adminUser
+     */
 	@Transactional
-	public void addPermission() {
-		String defaultPermission = config.defaultperm ?: ChatUser.DEFAULT_PERMISSION
-		if (defaultPermission) {
-			ChatPermissions perm = ChatPermissions.findByName(defaultPermission)
-			if (!perm) {
-				 new ChatPermissions(name: defaultPermission).save(flush: true)
-			}
+	public void addSecurityUser(SignupBean bean, boolean adminUser=false) {
+		String defaultPermission = adminUser ? ChatUser.CHAT_ADMIN : (config.defaultperm ?: ChatUser.DEFAULT_PERMISSION)
+		String springSecurityPermission = adminUser ? ChatUser.SPRINGSECURITY_ADMIN : ChatUser.SPRINGSECURITY_USER
+		if (defaultPermission && springSecurityPermission) {
+			addUser(bean.username, bean.email, defaultPermission)
+			addSecurity(bean.username,bean.password, springSecurityPermission)
 		}
 	}
 
+	/**
+	 * strictly spring security signup
+	 * @param username
+	 * @param password
+	 * @param springSecurityPermission
+     */
 	@Transactional
-	Map addUser(String username) {
-		ChatUser user
+	public void addSecurity(String username, String password, String springSecurityPermission=null) {
+		if (!springSecurityPermission) {
+			springSecurityPermission = ChatUser.SPRINGSECURITY_USER
+		}
+
+		def role = ChatRole.findByAuthority(springSecurityPermission)
+		if (!role) {
+			role = new ChatRole(springSecurityPermission).save()
+		}
+		def user = new ChatAuth(username, password).save()
+		ChatAuthChatRole.create user, role, true
+	}
+
+	@Transactional
+	public ChatPermissions addPermission(String defaultPermission=null) {
+		if (!defaultPermission) {
+			defaultPermission = config.defaultperm ?: ChatUser.DEFAULT_PERMISSION
+		}
 		ChatPermissions perm
-		String defaultPermission = config.defaultperm  ?: ChatUser.DEFAULT_PERMISSION
 		if (defaultPermission) {
 			perm = ChatPermissions.findByName(defaultPermission)
-			perm = perm ? perm : new ChatPermissions(name: defaultPermission).save(flush: true)
+			if (!perm) {
+				perm = new ChatPermissions(name: defaultPermission).save(flush: true)
+			}
+		}
+		return perm
+	}
+
+	@Transactional
+	Map addUser(String username, String email=null, String defaultPermission=null) {
+		ChatUser user
+		ChatPermissions perm
+		if (!defaultPermission) {
+			defaultPermission = config.defaultperm ?: ChatUser.DEFAULT_PERMISSION
+		}
+		if (defaultPermission) {
+			perm = addPermission(defaultPermission)
 			user = ChatUser.findByUsername(username)
 			if (!user) {
 				def addlog = addLog()
-				user = new ChatUser(username: username, permissions: perm, log: addlog, offlog: addlog).save(flush:true)
+				user = new ChatUser(username: username, permissions: perm, log: addlog, offlog: addlog).save(flush: true)
+			}
+			if (email) {
+				ChatUserProfile.findOrSaveWhere(chatuser: user, email: email).save(flush: true)
 			}
 		}
 		return [user:user, perm:perm]
@@ -68,7 +116,7 @@ class WsChatAuthService extends WsChatConfService   {
 	@Transactional
 	private ChatLog addLog() {
 		ChatLog logInstance = new ChatLog(messages: [])
-		if (!logInstance.save()) {
+		if (!logInstance.save(flush:true)) {
 			log.debug "${logInstance.errors}"
 		}
 		return logInstance

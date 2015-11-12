@@ -317,9 +317,11 @@ class WsChatMessagingService extends WsChatConfService {
 		boolean isEnabled = boldef(config.dbstore)
 		if (isEnabled) {
 			def chat = ChatUser.findByUsername(user)
-			def cm = new ChatMessage(user: username, contents: message, log: chat?.log)
-			if (!cm.save()) {
-				log.error "Persist Message issue: ${cm.errors}"
+			if (chat) {
+				def cm = new ChatMessage(user: username?:user, contents: message, log: chat.log)
+				if (!cm.save()) {
+					log.error "Persist Message issue: ${cm.errors}"
+				}
 			}
 		}
 	}

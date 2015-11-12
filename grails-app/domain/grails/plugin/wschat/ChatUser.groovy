@@ -9,6 +9,9 @@ class ChatUser {
 	public static final String CHAT_LIVE_USER_ADMIN		= 'monitorLiveChat'
 	public static final String DEFAULT_PERMISSION		=  CHAT_USER
 
+	public static final String SPRINGSECURITY_USER 		= 'ROLE_USER'
+	public static final String SPRINGSECURITY_ADMIN		= 'ROLE_ADMIN'
+
 	public static final PERMISSIONS=[CHAT_ADMIN,CHAT_USER,CHAT_LIVE_USER,CHAT_LIVE_USER_ADMIN]
 
 	Date dateCreated
