@@ -26,3 +26,6 @@ if(Environment.current == Environment.DEVELOPMENT) {
         logger("StackTrace", ERROR, ['FULL_STACKTRACE'], false )
     }
 }
+
+//logger 'grails.plugin.springsecurity', DEBUG
+//logger 'org.springframework.security', DEBUG
