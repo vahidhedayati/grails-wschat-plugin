@@ -386,7 +386,7 @@ function addOwnerOptions(entry, glyphicons,userType) {
 	sb.push('</li>\n');
 	if (userType=='owner') {
 		sb.push('<li class="btn-xs" id="sideBar">\n');
-		sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry)+','+wrapIt('send')+','+wrapIt('webcam')+');">'+enableCam+'</a>\n');
+		sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry)+','+wrapIt('send')+','+wrapIt('webcam')+');">'+enableCamLabel+'</a>\n');
 		sb.push('</li>\n');
 		sb.push('<li class="btn-xs" id="sideBar">\n');
 		sb.push('<a  onclick="javascript:enableCam('+wrapIt(entry)+','+wrapIt('send')+','+wrapIt('webrtc')+');">'+enableRTC+'</a>\n');

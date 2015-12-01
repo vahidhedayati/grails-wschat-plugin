@@ -64,11 +64,12 @@ function verifyPosition(uid) {
 		var getNextOffset = function() {
             return (config.width + config.gap) * (idList.length-1);
         };
-        if (idList.length>2) {
+        if (idList.length>1) {
               $("#"+uid).chatbox("option", "offset", getNextOffset());
-	    }else if (idList.length>1) {
-            $("#"+uid).chatbox("option", "offset",305);
-	    }
+        }
+	  //  }else if (idList.length>1) {
+      //      $("#"+uid).chatbox("option", "offset",305);
+	  //  }
 	}
 }
 
@@ -658,15 +659,15 @@ function joinLiveChatRoom(room,user) {
  * to display in liveChat window which imitates pm window
  */
 function sendLiveChatPM(receiver,sender,pm,room) {
+    var added=verifyAdded(sender);
 	$(function(event, ui) {
 		var box = null;
 		if(box) {
 			box.chatbox("option", "boxManager").toggleBox();
 		}else {
-			var added=verifyAdded(sender);
 			var el="#"+sender
 			if (added=="false") {
-				var el = document.createElement('div')
+				el = document.createElement('div')
 				el.setAttribute('id', sender);
 				//el.setAttribute('draggable', true);
 			}
@@ -683,33 +684,34 @@ function sendLiveChatPM(receiver,sender,pm,room) {
 			});
 		}
 	});
-	verifyPosition(sender);
+	 if (added=="false") {
+	    verifyPosition(sender);
+	}
 	$("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);
 }
 
 function livepmuser(suser,sender,room) {
+var added=verifyAdded(suser);
 	var sus=suser ? suser : user
 	$(function(event, ui) {
 		var box = null;
 		if(box) {
 			box.chatbox("option", "boxManager").toggleBox();
 		}else {
-			var added=verifyAdded(suser);
 			var el="#"+suser
 			if (added=="false") {
-				var el = document.createElement('div')
+				el = document.createElement('div')
 				el.setAttribute('id', suser);
+			} else {
+			    $(el).chatbox("option", "boxManager").toggleBox();
 			}
 			box = $(el).chatbox({id:suser,
 				user:{key : "value"},
-
 				title : "LIVECHAT: "+suser,
 				messageSent : function(id, user, msg) {
 				    if (added=="false") {
-				        console.log('verifying added '+suser)
 				        verifyPosition(suser);
 				    }
-				    console.log('sending message '+msg)
 					$("#"+suser).chatbox("option", "boxManager").addMsg(suser, msg);
 					webSocket.send("/cl "+suser+","+room+":"+msg);
 				}
@@ -739,15 +741,16 @@ function sendLiveMessage() {
 
 
 function sendPM(receiver,sender,pm) {
+    var added=verifyAdded(sender);
 	$(function(event, ui) {
 		var box = null;
 		if(box) {
 			box.chatbox("option", "boxManager").toggleBox();
 		}else {
-			var added=verifyAdded(sender);
+
 			var el="#"+sender
 			if (added=="false") {
-				var el = document.createElement('div');
+				el = document.createElement('div');
 				el.setAttribute('id', sender);
 			}
 			box =  $(el).chatbox({id:sender,
@@ -767,7 +770,10 @@ function sendPM(receiver,sender,pm) {
 			});
 		}
 	});
-	verifyPosition(sender);
+	if (added=="false") {
+      	verifyPosition(suser);
+    }
+	//verifyPosition(sender);
 	$("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);
 }
 

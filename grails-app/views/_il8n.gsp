@@ -21,7 +21,7 @@
 	var tictactoe="${g.message(code: 'wschat.tictactoe.label', default: 'Play TicTacToe')}";
 	var fileSharing="${g.message(code: 'wschat.filesharing.label', default: 'FileSharing')}";
 	var mediaStreaming="${g.message(code: 'wschat.media.streaming.label', default: 'Media streaming')}";
-	var enableCam="${g.message(code: 'wschat.enable.cam.label', default: 'Enable Webcam')}";
+	var enableCamLabel="${g.message(code: 'wschat.enable.cam.label', default: 'Enable Webcam')}";
 	var enableRTC="${g.message(code: 'wschat.enable.webrtc.label', default: 'Enable WebRTC')}";
 	var enableRTCScreen="${g.message(code: 'wschat.enable.webrtc.screen.label', default: 'WebRTC Screen Share')}";
 	var enableFileSharing="${g.message(code: 'wschat.enable.filesharing.label', default: 'Enable FileSharing')}";

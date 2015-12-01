@@ -90,7 +90,7 @@ class WsChatConfService implements UserMaps, GrailsApplicationAware {
 		String process = config.disable.login ?: 'no'
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String chatHeader = config.heading ?: 'Grails websocket chat'
-		boolean enableSecurity = isConfigEnabled(config.enableSecurity ?: false)
+		boolean enableSecurity = config.enableSecurity ? isConfigEnabled(config.enableSecurity) : false
 		String hostname = config.hostname ?: 'localhost:8080'
 		String addAppName = config.add.appName ?: 'no'
 		JSON iceservers  = cfg.stunServers as JSON

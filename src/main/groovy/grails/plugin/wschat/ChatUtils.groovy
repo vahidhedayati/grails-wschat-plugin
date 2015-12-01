@@ -48,7 +48,8 @@ class ChatUtils extends WsChatConfService {
 			}
 			wsChatMessagingService.updateLiveList(username,[fromUser:username, fromRoom:room, hasAdmin:hasLiveAdmin],userSession)
 		}
-		if (userType== ChatUser.CHAT_LIVE_USER_ADMIN) {
+		if (userType== ChatUser.CHAT_LIVE_USER_ADMIN||userType== ChatUser.CHAT_ADMIN) {
+			println "-- sending user list"
 			wsChatMessagingService.updateLiveList(username,[:],userSession)
 		}
 	}
