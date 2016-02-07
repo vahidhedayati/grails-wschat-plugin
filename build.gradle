@@ -16,7 +16,7 @@ plugins {
     id "com.jfrog.bintray" version "1.2"
 }
 
-version "3.0.11"
+version "3.0.12"
 group "org.grails.plugins"
 
 apply plugin: 'maven-publish'
@@ -65,10 +65,10 @@ dependencies {
     testCompile "org.grails:grails-plugin-testing"
 
     console "org.grails:grails-console"
-    compile 'org.grails.plugins:ajax-tags:1.0.0.BUILD-SNAPSHOT'
+    compile 'org.grails.plugins:ajax-tags:1.0.0'
     compile 'javax.websocket:javax.websocket-api:1.0'
-    compile 'org.grails.plugins:mail:2.0.0.RC1'
-    compile 'org.grails.plugins:spring-security-core:3.0.0.M1'
+    compile 'org.grails.plugins:mail:2.0.0.RC4'
+    compile 'org.grails.plugins:spring-security-core:3.0.3'
 }
 
 task wrapper(type: Wrapper) {
