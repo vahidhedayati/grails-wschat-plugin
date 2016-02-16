@@ -169,30 +169,32 @@ class WsChatAuthService extends WsChatConfService   {
 	}
 	void addBotToChatRoom(String roomName, String userType, boolean addBot=null, String message=null, String uri=null, String user=null) {
 		ConfigBean bean = new ConfigBean()
-		if (!message) {
-			message = bean.botMessage
-		}
-		if (!uri) {
-			uri = bean.uri
-		}
-		if (!addBot) {
-			addBot = bean.enable_Chat_Bot
-		}
-		String botUser = roomName+"_"+bean.assistant
-		if (!isBotinRoom(botUser)  && addBot) {
-			Session currentSession = chatClientListenerService.p_connect(uri, botUser, roomName)
-			Boolean userExists=false
-			if (user) {
-				def cc = ChatCustomerBooking.findByUsername(user)
-				if (cc && cc?.name) {
-					userExists=true
+		if (bean.enable_Chat_Bot==true && bean.wsProtocol=='ws') {
+			if (!message) {
+				message = bean.botMessage
+			}
+			if (uri) {
+				bean.uri = uri
+			}
+			if (!addBot) {
+				addBot = bean.enable_Chat_Bot
+			}
+			String botUser = roomName + "_" + bean.assistant
+			if (!isBotinRoom(botUser) && addBot) {
+				Session currentSession = chatClientListenerService.p_connect(bean, botUser, roomName)
+				Boolean userExists = false
+				if (user) {
+					def cc = ChatCustomerBooking.findByUsername(user)
+					if (cc && cc?.name) {
+						userExists = true
+					}
 				}
+				if (bean.liveChatAskName && userType == ChatUser.CHAT_LIVE_USER && userExists == false) {
+					message += "\n" + bean.liveChatNameMessage
+				}
+				log.debug "${message}"
+				chatClientListenerService.sendDelayedMessage(currentSession, message, 1000)
 			}
-			if (bean.liveChatAskName && userType==ChatUser.CHAT_LIVE_USER && userExists==false) {
-				message+= "\n"+bean.liveChatNameMessage
-			}
-			log.debug "${message}"
-			chatClientListenerService.sendDelayedMessage(currentSession, message,1000)
 		}
 	}
 
