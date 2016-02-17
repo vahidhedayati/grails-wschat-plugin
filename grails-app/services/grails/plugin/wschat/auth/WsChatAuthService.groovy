@@ -169,7 +169,7 @@ class WsChatAuthService extends WsChatConfService   {
 	}
 	void addBotToChatRoom(String roomName, String userType, boolean addBot=null, String message=null, String uri=null, String user=null) {
 		ConfigBean bean = new ConfigBean()
-		if (bean.enable_Chat_Bot==true && bean.wsProtocol=='ws') {
+		if (bean.enable_Chat_Bot && !bean.isSecure) {
 			if (!message) {
 				message = bean.botMessage
 			}

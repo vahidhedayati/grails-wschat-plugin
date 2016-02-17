@@ -9,6 +9,14 @@ class ConfigBean implements Validateable {
 	public static final String chatEndPoint = 'WsChatEndpoint'
 	public static final String camEndPoint = 'WsCamEndpoint'
 	public static final String fileEndPoint = 'WsChatFileEndpoint'
+	public final String rootp=rootPath
+	public final String KEYSTORE =  getConfig('KEYSTORE') ?: "/home/user/IdeaProjects/wschat/tomcat.jks"
+	public final String KEYPASSWORD = getConfig('KEYPASSWORD') ?:"changeit"
+
+	public final String wsProtocol = getConfig('wsProtocol') ?: 'ws'
+	public final String siteProtocol = getConfig('siteProtocol') ?: 'http'
+	public final boolean isSecure
+
 	public final String hostname = getConfig('hostname') ?: 'localhost:8080'
 	public final boolean addAppName = getConfig('addAppName')?validateBool(getConfig('addAppName')):false
 	public final boolean showtitle = getConfig('showtitle')?validateBool(getConfig('showtitle')):true
@@ -32,6 +40,15 @@ class ConfigBean implements Validateable {
 	String room
 	ArrayList rooms
 	String chatuser
+	String uri
+
+
+	boolean getIsSecure() {
+		if (wsProtocol=='wss') {
+			return true
+		}
+		return false
+	}
 
 	String getChatuser() {
 		if (chatuser) {
@@ -50,33 +67,33 @@ class ConfigBean implements Validateable {
 	}
 
 	String getUrl() {
-		String url="http://${hostname}/${appName}/${chatPoint}/"
+		String url="${siteProtocol}://${hostname}/${appName}/${chatPoint}/"
 		if (!addAppName) {
-			url="http://${hostname}/${chatPoint}/"
+			url="${siteProtocol}://${hostname}/${chatPoint}/"
 		}
 		return url
 	}
 
 	String getUri() {
-		String uri="ws://${hostname}/${appName}/${chatEndPoint}/"
+		String uri="${wsProtocol}://${hostname}/${appName}/${chatEndPoint}/"
 		if (!addAppName) {
-			uri="ws://${hostname}/${chatEndPoint}/"
+			uri="${wsProtocol}://${hostname}/${chatEndPoint}/"
 		}
 		return uri
 	}
 
 	String getCamEndpoint() {
-		String camEndpoint="ws://${hostname}/${appName}/${camEndPoint}/"
+		String camEndpoint="${wsProtocol}://${hostname}/${appName}/${camEndPoint}/"
 		if (!addAppName) {
-			camEndpoint="ws://${hostname}/${camEndPoint}/"
+			camEndpoint="${wsProtocol}://${hostname}/${camEndPoint}/"
 		}
 		return camEndpoint
 	}
 
 	String getFileEndpoint() {
-		String fileEndpoint="ws://${hostname}/${appName}/${fileEndPoint}/"
+		String fileEndpoint="${wsProtocol}://${hostname}/${appName}/${fileEndPoint}/"
 		if (!addAppName) {
-			fileEndpoint="ws://${hostname}/${fileEndPoint}/"
+			fileEndpoint="${wsProtocol}://${hostname}/${fileEndPoint}/"
 		}
 		return fileEndpoint
 	}
@@ -86,6 +103,7 @@ class ConfigBean implements Validateable {
 		room(nullable:true)
 		rooms(nullable:true)
 		chatuser(nullable:true)
+		uri(nullable:true)
 	}
 
 	//worker for the boolean logic
@@ -105,6 +123,9 @@ class ConfigBean implements Validateable {
 		if (!value) {
 			return errors.rejectValue(propertyName,"invalid.$propertyName",[''] as Object[],'')
 		}
+	}
+	def getRootPath() {
+		Holders.config.parentContext.getResource("WEB-INF/grails-app/views/layouts")
 	}
 
 	def getConf(String configProperty) {

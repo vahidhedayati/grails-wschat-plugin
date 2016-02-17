@@ -1,10 +1,11 @@
 package grails.plugin.wschat.client
 
 import grails.converters.JSON
-import org.grails.web.json.JSONObject
 import grails.plugin.wschat.WsChatConfService
 import grails.plugin.wschat.beans.ConfigBean
+import org.apache.tomcat.websocket.WsWebSocketContainer
 
+import javax.websocket.ClientEndpointConfig
 import javax.websocket.ContainerProvider
 import javax.websocket.Session
 
@@ -62,7 +63,7 @@ public class ChatClientListenerService extends WsChatConfService {
 
 	def connectUserRoom = { String user, String room, Closure closure ->
 		ConfigBean bean = new ConfigBean()
-		Session oSession = p_connect(bean.uri, user, room)
+		Session oSession = p_connect(bean, user, room)
 		try {
 			closure(oSession)
 		} catch (e) {
@@ -76,7 +77,7 @@ public class ChatClientListenerService extends WsChatConfService {
 	def connectRoom = { String room, Closure closure ->
 		ConfigBean bean = new ConfigBean()
 		String oUsername = config.app.id ?: "[${(Math.random() * 1000).intValue()}]-$room";
-		Session oSession = p_connect(bean.uri, oUsername, room)
+		Session oSession = p_connect(bean, oUsername, room)
 		try {
 			closure(oSession)
 		} catch (e) {
@@ -91,29 +92,46 @@ public class ChatClientListenerService extends WsChatConfService {
 		ConfigBean bean = new ConfigBean()
 		def room = wsChatRoomService.returnRoom(true)
 		String oUsername = config.app.id ?: "[${(Math.random() * 1000).intValue()}]-$room";
-		Session csession = p_connect(bean.uri, oUsername, room)
+		Session csession = p_connect(bean, oUsername, room)
 		return csession
 	}
 
-	Session p_connect(String uri, String username, String room) {
-		String oRoom = room ?: config.room
-		URI oUri
-		if (uri) {
-			oUri = URI.create(uri + oRoom);
-		}
-		def container = ContainerProvider.getWebSocketContainer()
+	Session p_connect(ConfigBean bean, String username, String room) {
 		Session oSession
-		try {
-			oSession = container.connectToServer(ChatClientEndpoint.class, oUri)
-			oSession.basicRemote.sendText(CONNECTOR + username+",chat")
-		} catch (Exception e) {
-			e.printStackTrace()
-			if (oSession && oSession.isOpen()) {
-				oSession.close()
+
+		//ensure bot is not loaded if not enabled
+		//with ssl should really be disabled
+		//unless user knows what their doing with ssl config to load in the keys
+		//refer to https://github.com/vahidhedayati/grails-wschat-plugin/wiki/ssl-stuff
+
+		if (bean.enable_Chat_Bot==true && bean.wsProtocol=='ws') {
+			String oRoom = room ?: config.room
+			URI oUri
+			if (bean.uri) {
+				oUri = URI.create(bean.uri + oRoom);
 			}
-			return null
+			def container = ContainerProvider.getWebSocketContainer()
+
+			try {
+
+				if (bean.isSecure) {
+					ClientEndpointConfig clientEndpointConfig = ClientEndpointConfig.Builder.create().build()
+					clientEndpointConfig.getUserProperties().put(WsWebSocketContainer.SSL_TRUSTSTORE_PROPERTY, bean.KEYSTORE)
+					clientEndpointConfig.getUserProperties().put(WsWebSocketContainer.SSL_TRUSTSTORE_PWD_PROPERTY, bean.KEYPASSWORD)
+					oSession = container.connectToServer(PragmaticEndpoint.class, clientEndpointConfig, oUri);
+				} else {
+					oSession = container.connectToServer(ChatClientEndpoint.class, oUri)
+				}
+				oSession.basicRemote.sendText(CONNECTOR + username + ",chat")
+			} catch (Exception e) {
+				e.printStackTrace()
+				if (oSession && oSession.isOpen()) {
+					oSession.close()
+				}
+				return null
+			}
+			oSession.userProperties.put("username", username)
 		}
-		oSession.userProperties.put("username", username)
 		return oSession
 	}
 

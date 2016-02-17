@@ -102,7 +102,7 @@ class WsChatTagLib extends WsChatConfService {
 			bean.setRoom(wsChatRoomService.returnRoom(true))
 		}
 
-		Session oSession = chatClientListenerService.p_connect(bean.uri, bean.user, bean.room)
+		Session oSession = chatClientListenerService.p_connect(bean, bean.user, bean.room)
 		try{
 			//closure(session)
 			if (bean.sendType == 'message') {
