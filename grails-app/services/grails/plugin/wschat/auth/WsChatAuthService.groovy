@@ -162,33 +162,34 @@ class WsChatAuthService extends WsChatConfService   {
 		if (isBotinRoom(botUser)  && addBot) {
 			Session currentSession = getChatUser(botUser, roomName)
 			if (currentSession) {
-				wsChatMessagingService.messageUser(currentSession, [message:"<span class='roomPerson'>${username}: </span><span class='roomMessage'>${message.replaceAll("\\<.*?>","")}</span>"])
+                String msg="<span class='roomPerson'>${username}: </span><span class='roomMessage'>${message.replaceAll("\\<.*?>","")}</span>"
+				wsChatMessagingService.messageUser(currentSession, [message:msg])
 				//wsChatMessagingService.messageUser(currentSession, [message:"${username}: ${message}"])
 			}
 		}
 	}
 	void addBotToChatRoom(String roomName, String userType, boolean addBot=null, String message=null, String uri=null, String user=null) {
 		ConfigBean bean = new ConfigBean()
-		if (bean.enable_Chat_Bot && !bean.isSecure) {
-			if (!message) {
-				message = bean.botMessage
-			}
-			if (uri) {
-				bean.uri = uri
-			}
-			if (!addBot) {
-				addBot = bean.enable_Chat_Bot
-			}
-			String botUser = roomName + "_" + bean.assistant
-			if (!isBotinRoom(botUser) && addBot) {
-				Session currentSession = chatClientListenerService.p_connect(bean, botUser, roomName)
-				Boolean userExists = false
-				if (user) {
-					def cc = ChatCustomerBooking.findByUsername(user)
-					if (cc && cc?.name) {
-						userExists = true
-					}
+		if (!message) {
+			message = bean.botMessage
+		}
+		if (uri) {
+			bean.uri = uri
+		}
+		if (!addBot) {
+			addBot = bean.enable_Chat_Bot
+		}
+		String botUser = roomName + "_" + bean.assistant
+		if (!isBotinRoom(botUser) && addBot) {
+			Session currentSession = chatClientListenerService.p_connect(bean, botUser, roomName)
+			Boolean userExists = false
+			if (user) {
+				def cc = ChatCustomerBooking.findByUsername(user)
+				if (cc && cc?.name) {
+					userExists = true
 				}
+			}
+			if (currentSession) {
 				if (bean.liveChatAskName && userType == ChatUser.CHAT_LIVE_USER && userExists == false) {
 					message += "\n" + bean.liveChatNameMessage
 				}

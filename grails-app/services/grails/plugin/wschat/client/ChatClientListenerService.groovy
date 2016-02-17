@@ -98,40 +98,32 @@ public class ChatClientListenerService extends WsChatConfService {
 
 	Session p_connect(ConfigBean bean, String username, String room) {
 		Session oSession
-
-		//ensure bot is not loaded if not enabled
-		//with ssl should really be disabled
-		//unless user knows what their doing with ssl config to load in the keys
-		//refer to https://github.com/vahidhedayati/grails-wschat-plugin/wiki/ssl-stuff
-
-		if (bean.enable_Chat_Bot==true && bean.wsProtocol=='ws') {
-			String oRoom = room ?: config.room
-			URI oUri
-			if (bean.uri) {
-				oUri = URI.create(bean.uri + oRoom);
-			}
-			def container = ContainerProvider.getWebSocketContainer()
-
-			try {
-
-				if (bean.isSecure) {
+		String oRoom = room ?: config.room
+		URI oUri
+		if (bean.uri) {
+			oUri = URI.create(bean.uri + oRoom);
+		}
+		def container = ContainerProvider.getWebSocketContainer()
+		try {
+			if (bean.isSecure) {
+				if (bean.enable_Chat_Bot) {
 					ClientEndpointConfig clientEndpointConfig = ClientEndpointConfig.Builder.create().build()
 					clientEndpointConfig.getUserProperties().put(WsWebSocketContainer.SSL_TRUSTSTORE_PROPERTY, bean.KEYSTORE)
 					clientEndpointConfig.getUserProperties().put(WsWebSocketContainer.SSL_TRUSTSTORE_PWD_PROPERTY, bean.KEYPASSWORD)
 					oSession = container.connectToServer(PragmaticEndpoint.class, clientEndpointConfig, oUri);
-				} else {
-					oSession = container.connectToServer(ChatClientEndpoint.class, oUri)
 				}
-				oSession.basicRemote.sendText(CONNECTOR + username + ",chat")
-			} catch (Exception e) {
-				e.printStackTrace()
-				if (oSession && oSession.isOpen()) {
-					oSession.close()
-				}
-				return null
+			} else {
+				oSession = container.connectToServer(ChatClientEndpoint.class, oUri)
 			}
-			oSession.userProperties.put("username", username)
+			oSession.basicRemote.sendText(CONNECTOR + username + ",chat")
+		} catch (Exception e) {
+			e.printStackTrace()
+			if (oSession && oSession.isOpen()) {
+				oSession.close()
+			}
+			return oSession
 		}
+		oSession.userProperties.put("username", username)
 		return oSession
 	}
 
