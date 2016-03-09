@@ -19,7 +19,7 @@ class SearchBean {
 	def offset 
 	String inputid = id 
 	Map viewUsers
-	String username 
+	String username
 	Boolean hasAdmin
 	
 	Integer getOffset() { 

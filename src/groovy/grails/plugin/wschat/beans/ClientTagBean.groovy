@@ -20,15 +20,18 @@ class ClientTagBean extends InitiationBean {
 
 	String user
 	String frontuser
-	//String getFrontuser() {
-		//frontuser=user+frontUser 
-		//if (frontuser && frontuser!=user) {
-		//	receivers.add(frontuser)
-		//}
-	//}
+
+	// TODO --- a mess getter setting something
+	// causing issue left out for now
+	/*
+	String getFrontuser() {
+		frontuser=user+frontUser 
+		receivers.add(frontuser)
+	}
+	*/
 	void setReceivers(String input) {
 		if (frontuser && user) {
-			receivers << user+frontUser 
+			receivers << user+frontUser
 		}
 	}
 

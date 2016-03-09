@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-----------
 <g:if test="${enduser?.verifyAppVersion().equals('assets')}">
 	<g:if test="${!request.xhr }">
     	<meta name='layout' content="achat"/>

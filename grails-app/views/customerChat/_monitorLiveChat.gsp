@@ -22,38 +22,17 @@
 		<button id="themeChanger4" class="btn btn-default btn-xs"/>
 	</div>
 	<g:render template="/il8n"/>
-	<span id="liveChatUsersList" ></span>
-	<div id="cmessage" style="display:none;"></div>
+	<span id="liveChatUsersList" />
+	<div id="cmessage" style="display:none;"/>
 		
 <g:javascript>
+
+
 
  	var baseapp="${bean.appName}";
 	function getApp() {
 		return baseapp;
 	}
- 	
- 	<g:if test="${bean.addAppName=='no'}">
-		var themeuri="/assets/"
-	</g:if>
-	<g:else>
-		var themeuri="/"+baseapp+"/assets/"
-	</g:else>
-	
-	document.getElementById('themeChanger2').onclick = function () { 
-   	 	document.getElementById('chat_theme').href = themeuri+'chat-blue.css';
-	};
-	
-	document.getElementById('themeChanger').onclick = function () { 
-    	document.getElementById('chat_theme').href = themeuri+'chat-red.css';
-	};
-	
-	document.getElementById('themeChanger3').onclick = function () { 
-    	document.getElementById('chat_theme').href = themeuri+'chat-dark.css';
-	};
-	
-	document.getElementById('themeChanger4').onclick = function () { 
-   	 	document.getElementById('chat_theme').href = themeuri+'/chat.css';
-	};
 
 	if (!window.WebSocket) {
 		var msg = "Your browser does not have WebSocket support";
@@ -73,7 +52,7 @@
 		return user;
 	}
 	function getRoom() { 
-	 return roomName;
+	 return room;
 	}
 	var currentRoom;
 	var idList = new Array();
@@ -81,7 +60,6 @@
 	var debug = "${bean.debug}";
 	
 	var uri="${bean.uri}${bean.roomName}";
-
 	if (debug == "on") {
 		console.log('Connecting to '+uri);
 	}

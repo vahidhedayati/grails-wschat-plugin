@@ -1,7 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>	${bean.chatTitle}</title>
 	<g:render template="includes" model="${[bean:bean]}"/>
 	<asset:javascript src="rtcmedia/rtclib.js" />
 	<asset:javascript src="rtcmedia/adapter.js" />
@@ -17,8 +13,6 @@
             margin: 0 auto;
         }
     </style>
-</head>
-<body>
 
 <div class="container">
     <video id="videoscreen" autoplay controls></video>

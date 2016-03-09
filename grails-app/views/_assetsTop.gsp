@@ -1,3 +1,5 @@
+
+
 <g:if test="${bean?.jquery}">
 <asset:javascript src="jquery.min.js" />
 </g:if>	
@@ -15,3 +17,5 @@
 <asset:javascript src="jquery.ui.videobox.js" />
 <asset:javascript src="jquery-ui-timepicker-addon.js" />
 <asset:javascript src="jquery-ui-timepicker-addon-i18n.min.js" />
+
+

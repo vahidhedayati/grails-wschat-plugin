@@ -5,9 +5,9 @@ import java.security.SecureRandom
 
 
 class RandomService {
-	
+
 	static transactional  =  false
-	
+
 	static prng = new SecureRandom()
 
 	String randomise(String user) {
@@ -15,7 +15,7 @@ class RandomService {
 				System.currentTimeMillis()).toString()
 				.replaceAll('[^a-zA-Z0-9[:space:]]','')
 	}
-	
+
 	String shortRand(String user) {
 		return (user+prng.nextLong()).replaceAll('[^a-zA-Z0-9[:space:]]','').substring(3,19)
 	}

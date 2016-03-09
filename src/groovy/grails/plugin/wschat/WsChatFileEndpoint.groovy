@@ -1,10 +1,9 @@
 package grails.plugin.wschat
 
-
 import grails.util.Environment
-
-import java.nio.ByteBuffer
-
+import grails.util.Holders
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import javax.servlet.ServletContext
 import javax.servlet.ServletContextEvent
 import javax.servlet.ServletContextListener
@@ -19,14 +18,8 @@ import javax.websocket.server.PathParam
 import javax.websocket.server.ServerContainer
 import javax.websocket.server.ServerEndpoint
 
-import org.codehaus.groovy.grails.web.context.ServletContextHolder as SCH
-import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes as GA
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 @WebListener
-
 @ServerEndpoint("/WsChatFileEndpoint/{user}/{viewer}")
-
 class WsChatFileEndpoint extends ChatUtils implements ServletContextListener {
 
 	private final Logger log = LoggerFactory.getLogger(getClass().name)
@@ -36,17 +29,10 @@ class WsChatFileEndpoint extends ChatUtils implements ServletContextListener {
 		ServletContext servletContext = event.servletContext
 		final ServerContainer serverContainer = servletContext.getAttribute("javax.websocket.server.ServerContainer")
 		try {
-
 			if (Environment.current == Environment.DEVELOPMENT) {
 				serverContainer.addEndpoint(WsChatFileEndpoint)
 			}
-
-			def ctx = servletContext.getAttribute(GA.APPLICATION_CONTEXT)
-
-			def grailsApplication = ctx.grailsApplication
-
-			config = grailsApplication.config.wschat
-			int defaultMaxSessionIdleTimeout = config.camtimeout ?: 0
+			int defaultMaxSessionIdleTimeout = 0 //config.timeout ?: 0
 			serverContainer.defaultMaxSessionIdleTimeout = defaultMaxSessionIdleTimeout
 		}
 		catch (IOException e) {
@@ -63,10 +49,7 @@ class WsChatFileEndpoint extends ChatUtils implements ServletContextListener {
 		userSession.setMaxBinaryMessageBufferSize(1024*512)
 		userSession.setMaxTextMessageBufferSize(1000000)
 
-		def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
-		def grailsApplication = ctx.grailsApplication
-		config = grailsApplication.config.wschat
-
+		def ctx = Holders.applicationContext
 		wsChatAuthService = ctx.wsChatAuthService
 		wsChatUserService = ctx.wsChatUserService
 		wsChatMessagingService = ctx.wsChatMessagingService
@@ -82,7 +65,7 @@ class WsChatFileEndpoint extends ChatUtils implements ServletContextListener {
 			log.error "could not find chat user ! ${viewer}"
 		}
 	}
-	
+
 	@OnMessage
 	public void handleMessage(String message,Session userSession) throws IOException {
 		wsFileService.verifyFileAction(userSession,message)

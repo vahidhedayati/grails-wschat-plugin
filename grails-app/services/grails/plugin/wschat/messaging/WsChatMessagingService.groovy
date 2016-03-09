@@ -6,9 +6,8 @@ import grails.plugin.wschat.ChatMessage
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.OffLineMessage
 import grails.plugin.wschat.WsChatConfService
+import grails.plugin.wschat.ChatCustomerBooking
 import grails.transaction.Transactional
-
-import java.text.DateFormat
 
 import javax.websocket.Session
 
@@ -17,7 +16,8 @@ class WsChatMessagingService extends WsChatConfService {
 
 	def chatUserUtilService
 	def i18nService
-	
+
+
 	void sendMsg(Session userSession,String msg) throws Exception {
 		try {
 			if (userSession && userSession.isOpen()) {
@@ -33,13 +33,13 @@ class WsChatMessagingService extends WsChatConfService {
 			//e.printStackTrace()
 		}
 	}
-	
+
 	void sendDelayedMessage(Session userSession,final String message, int delay) {
 		def asyncProcess = new Thread({
 			sleep(delay)
 			userSession.basicRemote.sendText(message)
-		} as Runnable )
-			asyncProcess.start()
+		} as Runnable)
+		asyncProcess.start()
 	}
 
 	void messageUser(Session userSession,Map msg) {
@@ -66,10 +66,10 @@ class WsChatMessagingService extends WsChatConfService {
 						found = true
 						if (sendIt&&sendIt2) {
 							crec.basicRemote.sendText(myMsgj as String)
-							def msga=i18nService.msg("wschat.pm.sent",'pm sent to ${user}',[user])
+							def msga=i18nService.msg("wschat.pm.sent","pm sent to ${user}",[user])
 							messageUser(userSession,[message:msga])
 						}else{
-							def msga=i18nService.msg("wschat.pm.not.sent.blocked",'Private Message NOT sent to ${user}, you have been blocked !',[user])
+							def msga=i18nService.msg("wschat.pm.not.sent.blocked","Private Message NOT sent to ${user}, you have been blocked !",[user])
 							messageUser(userSession,[message:msga])
 						}
 					}
@@ -80,9 +80,9 @@ class WsChatMessagingService extends WsChatConfService {
 			verifyOfflinePM(user, myMsgj as String, userSession, urecord)
 		}
 	}
-	
+
 	/**
-	 * clientLiveMessage 
+	 * clientLiveMessage
 	 * converts a modified chat window message into a PM
 	 * liveChat client messaging admin of chatRoom
 	 * @param user
@@ -95,28 +95,27 @@ class WsChatMessagingService extends WsChatConfService {
 		boolean isEnabled = boldef(config.dbstore_pm_messages)
 		if (isEnabled) {
 			if (user) {
-				persistMessage(myMsg,user,urecord)
-			}	
+				persistMessage(myMsg, user, urecord)
+			}
 			persistMessage(myMsg,urecord,urecord)
 		}
 		chatNames?.each { String cuser, Map<String,Session> records ->
 			records?.each { String room, Session crec ->
 				if (crec && crec.isOpen() && room==msg.fromRoom) {
-						if (chatUserUtilService.isLiveAdmin(cuser)) {
-							crec.basicRemote.sendText(myMsg)
-							log.debug "User->Admin: ${cuser} ${myMsg}"
-						}
+					if (chatUserUtilService.isLiveAdmin(cuser)) {
+						crec.basicRemote.sendText(myMsg)
+						log.debug "User->Admin: ${cuser} ${myMsg}"
+					}
 				}
 			}
 		}
 	}
-
-	/**
-	 * This is the message convertor from admin back to end user
-	 * @param user
-	 * @param msg
-	 * @param userSession
-	 */
+/**
+ * This is the message convertor from admin back to end user
+ * @param user
+ * @param msg
+ * @param userSession
+ */
 	void adminLiveMessage(String user,Map msg,Session userSession) {
 		def myMsg = (msg as JSON).toString()
 		String urecord = userSession.userProperties.get("username")
@@ -130,15 +129,15 @@ class WsChatMessagingService extends WsChatConfService {
 		chatNames?.each { String cuser, Map<String,Session> records ->
 			records?.each { String room, Session crec ->
 				if (crec && crec.isOpen() && room==msg.fromRoom && cuser==msg.msgTo) {
-						crec.basicRemote.sendText(myMsg)
-						log.debug "Admin->User: ${cuser} ${myMsg}"
+					crec.basicRemote.sendText(myMsg)
+					log.debug "Admin->User: ${cuser} ${myMsg}"
 				}
 			}
 		}
 	}
-	
+
 	/**
-	 * Does two things sends message with 
+	 * Does two things sends message with
 	 * enabeLiveChat:true,  liveMessageInitiate: custom or hardcoded message
 	 * end user receives both json objects and enables their chat space + notifies
 	 * them a member of staff has joined
@@ -161,12 +160,12 @@ class WsChatMessagingService extends WsChatConfService {
 				if (crec && crec.isOpen() && room==msg.fromRoom) {
 					if (!chatUserUtilService.isLiveAdmin(cuser)) {
 						crec.basicRemote.sendText(myMsg)
-					}	
+					}
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * Updates/collects liveChat user details and sends back to valid userTypes
 	 * @param user
@@ -186,21 +185,21 @@ class WsChatMessagingService extends WsChatConfService {
 		//Any admins ? yes gen list and send one list to all
 		if (admins) {
 			String message=populateList(msg) as String
-			admins.each {Session crec->
-				if (crec && crec.isOpen()) { 
+			admins?.each {Session crec->
+				if (crec && crec.isOpen()) {
 					crec.basicRemote.sendText(message)
 				}
-			}	
+			}
 		}
 	}
-	
+
 	/*
 	 * populates a list of admin & livechat users particpating/
 	 * awaiting livechat
 	 */
 	JSON populateList(Map msg) {
 		List result=[]
-		chatNames?.each { String cuser, Map<String,Session> records ->
+		chatNames.each { String cuser, Map<String,Session> records ->
 			records?.each {String croom, Session crec ->
 				if (crec && crec.isOpen() &&  (crec.userProperties.get("userType") == ChatUser.CHAT_LIVE_USER) && cuser!=msg.fromUser) {
 					String userPerm = crec.userProperties.get("userLevel")
@@ -211,25 +210,18 @@ class WsChatMessagingService extends WsChatConfService {
 				}
 			}
 		}
-		
+
 		/*
 		 * GroupBy room collection saving a lot of agro
 		 */
 		def finalResult=[liveChatrooms:result.groupBy{it.room}]
-		return finalResult as JSON			 
+		return finalResult as JSON
 	}
-	
+
 	@Transactional
 	Boolean checkPM(String username, String urecord) {
-		boolean result = true
-		def found = ChatBlockList.findByChatuserAndUsername(currentUser(username),urecord)
-		if (found) {
-			result = false
-		}
-
-		return result
+		return ChatBlockList.findByChatuserAndUsername(currentUser(username),urecord)?false:true
 	}
-
 
 	void broadcast2all(Map msg) {
 		def myMsgj = msg as JSON
@@ -258,6 +250,11 @@ class WsChatMessagingService extends WsChatConfService {
 		}
 	}
 
+	@Transactional
+	ChatUser currentUser(String username) {
+		ChatUser cu =  ChatUser.findByUsername(username)
+		return cu
+	}
 	void jsonmessageUser(Session userSession,String msg) {
 		userSession.basicRemote.sendText(msg as String)
 	}
@@ -269,7 +266,6 @@ class WsChatMessagingService extends WsChatConfService {
 		}
 		uList?.each { String cuser, Session crec ->
 			if (crec && crec.isOpen()) {
-				def cmuser = crec.userProperties.get("camusername").toString()
 				String camuser = crec.userProperties.get("camuser") as String
 				if ((camuser.startsWith(realCamUser+":"))&&(!camuser.toString().endsWith(realCamUser))) {
 					crec.basicRemote.sendText(msg as String)
@@ -304,34 +300,30 @@ class WsChatMessagingService extends WsChatConfService {
 				if (!cm.save()) {
 					log.error "verifyOfflinePM issue:  ${cm.errors}"
 				}
-				def msga=i18nService.msg("wschat.offline.pm.sent",'Offline message sent to ${user}',[user])
+				def msga=i18nService.msg("wschat.offline.pm.sent","Offline message sent to ${user}",[user])
 				messageUser(userSession,[message: msga])
 			} else{
-				def msga=i18nService.msg("wschat.unable.pm.nouser",'Error: ${user} not found - unable to send PM',[user])
+				def msga=i18nService.msg("wschat.unable.pm.nouser","Error: ${user} not found - unable to send PM",[user])
 				messageUser(userSession,[message: msga])
 			}
 		}else{
-			def msga=i18nService.msg("wschat.offline.pm.disabled",'offline messaging not enabled. Message not sent')
+			def msga=i18nService.msg("wschat.offline.pm.disabled","offline messaging not enabled. Message not sent")
 			messageUser(userSession,["message": msga])
 		}
 	}
 
 	@Transactional
-	void persistMessage(String message, String user, String username=null) {
+	private void persistMessage(String message, String user, String username=null) {
 		boolean isEnabled = boldef(config.dbstore)
 		if (isEnabled) {
 			def chat = ChatUser.findByUsername(user)
-			def cm = new ChatMessage(user: username, contents: message, log: chat?.log)
-			if (!cm.save()) {
-				log.error "Persist Message issue: ${cm.errors}"
+			if (chat) {
+				def cm = new ChatMessage(user: username?:user, contents: message, log: chat.log)
+				if (!cm.save()) {
+					log.error "Persist Message issue: ${cm.errors}"
+				}
 			}
 		}
-	}
-
-	@Transactional
-	ChatUser currentUser(String username) {
-		ChatUser cu =  ChatUser.findByUsername(username)
-		return cu
 	}
 
 	private Boolean boldef(def input) {

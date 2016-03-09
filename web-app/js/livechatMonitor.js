@@ -43,7 +43,7 @@ function processMessage(message) {
 				rms.push('<td>'+entry.joinedRoom+'</td>\n');
 				rms.push('<td>'+entry.userPerm+'</td>\n');
 				rms.push('<td>'+entry.isAdmin+'</td>\n');
-				rms.push('<td><a href = "/'+getApp()+'/wsChat/joinLiveChat?roomName='+entry.room+'&username='+getUser()+'">'+joinLabel+' '+entry.room+'</a></td>\n');
+				rms.push('<td><a href="/wsChat/joinLiveChat?roomName='+entry.room+'&username='+getUser()+'">'+joinLabel+' '+entry.room+'</a></td>\n');
 				if (j>=1) {
 					rms.push('\n</tr>\n');
 				}

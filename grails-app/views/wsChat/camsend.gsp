@@ -1,17 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-<g:if test="${enduser?.verifyAppVersion().equals('assets')}">
-	<g:render template="/assets" />
-</g:if>
-<g:else>
-	<g:render template="/resources" />
-</g:else>
-<title>
-	${chatTitle }
-</title>
-</head>
-<body>
+<g:render template="/assets" />
 	<div id="pageHeader">
 		<video id="live" width="300" height="240" autoplay="autoplay"
 			style="display: inline;"></video>

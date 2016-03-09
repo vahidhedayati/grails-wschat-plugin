@@ -62,8 +62,7 @@
 /* style sheets */
 .ui-videobox {
    position: absolute;
-top: 30px;
-
+    top: 50px;
     padding: 2px;
     background:  #CCCCCC;
 }

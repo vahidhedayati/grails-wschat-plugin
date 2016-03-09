@@ -4,15 +4,13 @@ import grails.converters.JSON
 import grails.plugin.wschat.WsChatConfService
 import grails.plugin.wschat.beans.ConfigBean
 
-import javax.websocket.Session
-
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 public class WsChatClientService extends WsChatConfService {
 
 	static transactional  =  false
 
-	def grailsApplication
+
 	def wsChatUserService
 
 	WsChatClientEndpoint conn(String uri, String user ) {
@@ -42,7 +40,7 @@ public class WsChatClientService extends WsChatConfService {
 
 		}
 	}
-	
+
 	void sendPM(WsChatClientEndpoint clientEndPoint, String pmuser, String message) {
 		boolean found
 		ConfigBean bean = new ConfigBean()
@@ -64,7 +62,7 @@ public class WsChatClientService extends WsChatConfService {
 
 
 	void handMessage(WsChatClientEndpoint clientEndPoint, String user,
-			ArrayList pmuser, Map aMap, boolean strictMode,String divId, boolean masterNode) {
+					 ArrayList pmuser, Map aMap, boolean strictMode,String divId, boolean masterNode) {
 
 		clientEndPoint.addMessageHandler(
 				new WsChatClientEndpoint.MessageHandler() {
@@ -112,7 +110,7 @@ public class WsChatClientService extends WsChatConfService {
 
 							if (actionthis) {
 								if ( (actionthis == 'close_connection')
-								|| (actionthis.startsWith('DISCO:-')) ) {
+										|| (actionthis.startsWith('DISCO:-')) ) {
 									clientEndPoint.sendMessage("DISCO:-"+user)
 								}else{
 									if (aMap.containsKey(actionthis)) {
@@ -129,5 +127,4 @@ public class WsChatClientService extends WsChatConfService {
 					}
 				})
 	}
-
 }

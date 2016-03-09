@@ -13,8 +13,7 @@
 <link rel="stylesheet"	href="${resource(dir: 'css', file: 'customer-chat.css')}" type="text/css" media="screen" />
 <script type="text/javascript" src="${resource(dir: 'js', file: 'wschat.js')}"></script>
 <script type="text/javascript" src="${resource(dir: 'js', file: 'livechat1.js')}"></script>
-</g:else>	
-
+</g:else>
 <div id="chatDialog" title="${bean.liveChatTitle}">
 	<div id="chat_div"></div>
 	<div class='col-sm-10'>
@@ -28,7 +27,7 @@
 	<div class="message-thread">
 		<div id="sendMessage">
 			<textarea id="messageBox" name="message"></textarea>
-			<input type="button" id="sendBtn" 
+			<input type="button" id="sendBtn"
 				value="${message(code: 'wschat.send.label', default: 'SEND')}"
 				onClick="sendMessage();">
 			</div>
@@ -57,11 +56,11 @@
              	$(this).hide();
              },
              open: function (event, ui) {
-                $('#chatDialog').css('overflow', 'hidden');
+               $('#chatDialog').css('overflow', 'hidden');
              }
          });
     });
-    
+
  	var baseapp="${bean.appName}";
 	function getApp() {
 		return baseapp;
@@ -122,7 +121,6 @@
        		webSocket.send("CONN:-"+user+",liveChat");
            	scrollToBottom();
        </g:else>
-       	
  	}
 	$('#messageBox').keypress(function(e){
 	if (e.keyCode == 13 && !e.shiftKey) {

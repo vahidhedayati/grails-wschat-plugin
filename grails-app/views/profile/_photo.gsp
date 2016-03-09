@@ -2,12 +2,21 @@
 <html>
 <head>
 <g:if test="${enduser?.verifyAppVersion().equals('assets')}">
-	<meta name='layout' content="achat"/>
+	<g:if test="${!request.xhr }">
+    	<meta name='layout' content="achat"/>
+    </g:if>
+    <g:else>
+    	<g:render template="/assets"/>
+    </g:else>
 </g:if>
 <g:else>
-	<meta name='layout' content="chat"/>
-</g:else>	
-
+	<g:if test="${!request.xhr }">
+    	<meta name='layout' content="chat"/>
+    </g:if>
+    <g:else>
+   		<g:render template="/resources"/>
+   	 </g:else>
+</g:else> 
 
 </head>
 <body>

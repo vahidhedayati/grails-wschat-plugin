@@ -19,9 +19,7 @@
 	</div>
 
 <g:javascript>
-
-	//var user="${bean.chatuser}";
-
+    //var user="${bean.chatuser}";
 	function closeAdminModal() {
 		$('#admincontainer1').modal('hide');
 		$('body').removeClass('modal-open');
@@ -30,9 +28,6 @@
 	}
 	
 </g:javascript>
-	
-	
 	<div id="invitecontainer" style="display:none;">
 		<g:render template="/admin/inviteContainer"/>
 	</div>
-	

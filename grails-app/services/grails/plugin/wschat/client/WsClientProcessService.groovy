@@ -6,10 +6,8 @@ import grails.plugin.wschat.ChatBadWords
 import grails.plugin.wschat.ChatCustomerBooking
 import grails.plugin.wschat.ChatMessage
 import grails.plugin.wschat.ChatUser
-import grails.plugin.wschat.ChatUserProfile
 import grails.plugin.wschat.WsChatConfService
 import grails.plugin.wschat.beans.ChatBotBean
-import grails.plugin.wschat.beans.ConfigBean
 import grails.transaction.Transactional
 
 import javax.websocket.Session
@@ -61,13 +59,16 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  * 
  * 
  import anythingbut.grails.plugin.wschat.MyOverrideService
- // Place your Spring DSL code here
- 	beans = {
- 		wsClientProcessService(MyOverrideService){
- 		chatClientListenerService = ref('chatClientListenerService')
- 		wsChatUserService = ref('wsChatUserService')
- 	}
- }
+
+// Place your Spring DSL code here
+beans = {
+	wsClientProcessService(MyOverrideService){
+		grailsApplication = ref('grailsApplication')
+		chatClientListenerService = ref('chatClientListenerService')
+		wsChatUserService = ref('wsChatUserService')
+	}
+}
+
  * run ctrl shift o (in eclipse based ide's ggts etc and that will import MyChatClientService)
  * 
  */
@@ -79,7 +80,6 @@ public class WsClientProcessService extends WsChatConfService {
 	def wsChatMessagingService
 	def chatUserUtilService
 	def i18nService
-
 	// DO NOT Disconnect automatically - required for live chat!
 	static boolean disco = false
 
@@ -94,11 +94,11 @@ public class WsClientProcessService extends WsChatConfService {
 		String username = userSession.userProperties.get("username") as String
 		//String room = userSession.userProperties.get("room") as String
 		log.debug "DEBUG ${username}: $message"
-		
+
 		//convert all new style messages with html wrapping to pure text
-		//otherwise bot has no idea what to do 
+		//otherwise bot has no idea what to do
 		message=message.replaceAll("\\<.*?>","")
-		
+
 		String assistant = config.liveChatAssistant ?: 'assistant'
 		JSONObject rmesg=JSON.parse(message)
 		String actionthis=''
@@ -150,7 +150,7 @@ public class WsClientProcessService extends WsChatConfService {
 		}
 		//Cut back on DB lookups store chat / admin info into chatBotBean
 		ChatBotBean chatBotBean = userSession.userProperties.get('chatBotBean') as ChatBotBean
-		ChatCustomerBooking ccb  
+		ChatCustomerBooking ccb
 		boolean isLiveAdmin = false
 		boolean emailSent = false
 		boolean adminVerified = false
@@ -160,7 +160,7 @@ public class WsClientProcessService extends WsChatConfService {
 			emailSent	= chatBotBean.emailSent
 			adminVerified = chatBotBean.adminVerified
 		}
-		
+
 		if (disconnect && disconnect == "disconnect") {
 			chatClientListenerService.disconnect(userSession)
 		}
@@ -212,7 +212,7 @@ public class WsClientProcessService extends WsChatConfService {
 			boolean nameRequired = true
 			boolean emailRequired = true
 			boolean helpRequested = false
-			
+
 			String room, userType
 			if (currentSession) {
 				nameRequired = currentSession.userProperties.get("nameRequired") as boolean
@@ -248,7 +248,7 @@ public class WsClientProcessService extends WsChatConfService {
 					chatClientListenerService.sendMessage(userSession, msga)
 					ccb.active=true
 					ccb.save()
-					
+
 				} else if (!isLiveAdmin && nameRequired && actionthis && askName && ccb) {
 					ccb.active=true
 					ccb.save()
@@ -277,7 +277,7 @@ public class WsClientProcessService extends WsChatConfService {
 						def msga=i18nService.msg("wschat.bot.got.email","Thanks ${ccb?.name?: 'Guest'},, I have ${email} as your email now ${additional}",[ccb?.name?: 'Guest', email, additional])
 						chatClientListenerService.sendMessage(userSession, msga)
 					}
-					
+
 				} else if (actionthis && msgFrom){
 					boolean isEnabled = boldef(config.store_live_messages)
 					if (isEnabled) {
@@ -309,11 +309,11 @@ public class WsClientProcessService extends WsChatConfService {
 			}
 		}
 	}
-	
+
 	private void setBotBean(Session userSession, String msgFrom, ChatBotBean cbean=null) {
 		if (!cbean) {
 			cbean = new ChatBotBean()
-		}	
+		}
 		cbean.username=msgFrom
 		ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(msgFrom)
 		if (ccb) {

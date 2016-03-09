@@ -7,9 +7,6 @@
 <g:else>
 	<link rel="stylesheet" href="${resource(dir: 'css', file: 'ticTacToe.css')}" type="text/css">
 </g:else>
-<style>
-
-</style>
 <title>
 	${chatTitle}
 </title>

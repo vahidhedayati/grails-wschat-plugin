@@ -1,13 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
 
 <g:render template="includes" model="${[bean:bean]}"/>
-<title>
-	${bean.chatTitle }
-</title>
-</head>
-<body>
 <input type="hidden" id="roomidInput" value="${bean.user}">
 <section id="room" class="section room">
 	<div class="video-wrapper">

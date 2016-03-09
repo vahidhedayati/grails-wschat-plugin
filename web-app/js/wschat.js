@@ -1,5 +1,5 @@
 var config = {
-		width : 155, //px
+		width : 300, //px
 		gap : 2,
 		maxBoxes : 10,
 		messageSent : function(dest, msg) {
@@ -15,7 +15,7 @@ function verifyAdded(uid) {
 		added="true";
 	}
 	return added;
-}
+}		
 
 
 function adduList(uid) { 
@@ -61,12 +61,15 @@ function verifyPosition(uid) {
 	var idx = idList.indexOf(uid);
 	if(idx == -1) {
 		idList.push(uid);
-	    if (idList.length>1) {
-		    var getNextOffset = function() {
-			    return (config.width + config.gap) * idList.length;
-		    };
-		    $("#"+uid).chatbox("option", "offset", getNextOffset());
-	    }
+		var getNextOffset = function() {
+            return (config.width + config.gap) * (idList.length-1);
+        };
+        if (idList.length>1) {
+              $("#"+uid).chatbox("option", "offset", getNextOffset());
+        }
+	  //  }else if (idList.length>1) {
+      //      $("#"+uid).chatbox("option", "offset",305);
+	  //  }
 	}
 }
 
@@ -77,23 +80,37 @@ function wrapIt(value) {
 function htmlEncode(value){
 	return $('<div/>').text(value).html();
 }
+/*
+function adminRooms(isAdmin) {
+	if (isAdmin=="true") {
+		var strUrl = "/wsChat/adminMenu", strReturn = "";
+		  jQuery.ajax({
+		    url: strUrl,
+		    success: function(html) {
+		      strReturn = html;
+		    },
+		    async:false
+		  });
+		return strReturn;
+	}
+}
+*/
 
 function actOnEachLine(textarea, func) {
 	var lines = textarea.replace(/\r\n/g, "\n").split("\n");
 	var newLines, newValue, i;
 	// Use the map() method of Array where available
 	if (typeof lines.map != "undefined") {
-		newLines = lines.map(func);
+	newLines = lines.map(func);
 	} else {
-		newLines = [];
-		i = lines.length;
-		while (i--) {
-			newLines[i] = func(lines[i]);
-		}
+	newLines = [];
+	i = lines.length;
+	while (i--) {
+	newLines[i] = func(lines[i]);
+	}
 	}
 	textarea.value = newLines.join("\r\n");
-}
-
+	}
 function processChatMessage(message) {
 	var jsonData=JSON.parse(message.data);
 	if (jsonData.system!=null) {
@@ -103,7 +120,7 @@ function processChatMessage(message) {
 			WebCam.close();
 		}	
 	}
-}	
+}
 
 function joinRoom(user,room) {
 	webSocket.send("/joinRoom "+user+","+room);
@@ -130,14 +147,7 @@ function banuser(user) {
 	$('#banuserField').html(user);
 	$('#banuser').show();
 }
-function viewLiveChats(user) {
-	if (isAdmin=="true") {
-		$.get("/"+getApp()+"/wsChat/viewLiveChats",function(data){
-			$('#adminsContainer').hide().html(data).fadeIn('slow');
-		});
-		$('#admincontainer').show();
-	}
-}
+
 function viewUsers(user) {
 	if (isAdmin=="true") {
 		$.get("/"+getApp()+"/wsChat/viewUsers",function(data){
@@ -155,33 +165,30 @@ function createConference(user) {
 		$('#admincontainer').show();
 	}
 }
-function liveChatsRooms(user) {
+
+function viewLiveChats(user) {
 	if (isAdmin=="true") {
-		$.get("/"+getApp()+"/wsChat/liveChatsRooms",function(data){
+		$.get("/"+getApp()+"/wsChat/viewLiveChats",function(data){
 			$('#adminsContainer').hide().html(data).fadeIn('slow');
 		});
 		$('#admincontainer').show();
 	}
 }
-function joinLiveChatRoom(room,user) {
-	 webSocket.send("/joinLiveChatRoom "+user+","+room);
-}
-
 function viewLiveLogs(user) {
 	if (isAdmin=="true") {
 		$.get("/"+getApp()+"/wsChat/viewLiveLogs?username="+user,function(data){
-			$('inviteUserContainer').hide().html(data).fadeIn('slow');
+			$('#inviteUserContainer').hide().html(data).fadeIn('slow');
 		});
-		$('invitecontainer').show();
+		$('#invitecontainer').show();
 	}
 }
 
 function viewLogs(user) {
 	if (isAdmin=="true") {
 		$.get("/"+getApp()+"/wsChat/viewLogs?username="+user,function(data){
-			$('inviteUserContainer').hide().html(data).fadeIn('slow');
+			$('#inviteUserContainer').hide().html(data).fadeIn('slow');
 		});
-		$('invitecontainer').show();
+		$('#invitecontainer').show();
 	}
 }
 
@@ -265,6 +272,46 @@ function removefriend(addid,user) {
 	webSocket.send("/removefriend "+user+","+addid);
 	$('#chatMessages').append(addid+' '+removedFrom+' '+user+' '+friendLabel+' '+listLabel+'\n');
 }
+
+function isGameOn(uid) {
+ 	var camadded="false";
+ 	var idx = gameOn.indexOf(uid);
+ 	if (idx != -1) {
+		camadded="true";
+ 	}
+	return camadded;
+}
+function delGame(uid) {
+ 	var i = gameOn.indexOf(uid);
+ 	if(i != -1) {
+ 		mediaOn.splice(i, 1);
+	}
+}
+function addGame(uid) {
+ 	var idx = gameOn.indexOf(uid);
+	if(idx == -1) {
+ 		mediaOn.push(uid);
+	}
+}
+
+function getGame(user) {
+ 	$.get("/"+getApp()+"/wsChat/xojoin?user="+user,function(data){
+ 		$('#camViewContainer').html(data);
+ 	});
+ }
+
+function sendGame() {
+	$.get("/"+getApp()+"/wsChat/xo",function(data){
+ 		$('#myCamContainer').html(data);
+	});
+ 	webSocket.send("/gameenabled "+user);
+}
+
+function disableGame() {
+ 	delGame(user);
+ 	webSocket.send("/gamedisabled "+user);
+}
+
 
 function verifyCam(uid) {
 	var camadded="false";
@@ -371,27 +418,6 @@ function delMediaList(uid) {
 		mediaOn.splice(i, 1);
 	}
 }
-function isGameOn(uid) {
-	var camadded="false";
-	var idx = gameOn.indexOf(uid);
-	if (idx != -1) {
-		camadded="true";
-	}
-	return camadded;
-}	
-function delGame(uid) {
-	var i = gameOn.indexOf(uid);
-	if(i != -1) {
-		mediaOn.splice(i, 1);
-	}
-}
-function addGame(uid) {
-	var idx = gameOn.indexOf(uid);
-	if(idx == -1) {
-		mediaOn.push(uid);
-	}	
-}
-
 function isCamOn(uid) {
 	var camadded="false";
 	var idx = camOn.indexOf(uid);
@@ -471,25 +497,6 @@ function sendCam() {
 	webSocket.send("/camenabled "+user);
 }
 
-
-function getGame(user) {
-	$.get("/"+getApp()+"/wsChat/xojoin?user="+user,function(data){
-		$('#camViewContainer').html(data);
-	});
-}
-
-function sendGame() {
-	$.get("/"+getApp()+"/wsChat/xo",function(data){
-		$('#myCamContainer').html(data);
-	});
-	webSocket.send("/gameenabled "+user);
-}
-
-function disableGame() {
-	delGame(user);
-	webSocket.send("/gamedisabled "+user);
-}
-
 function getWebrtc(user,rtcType) {
 	$.get("/"+getApp()+"/wsChat/webrtcrec?user="+user+"&rtc="+rtcType,function(data){
 		$('#camViewContainer').html(data);
@@ -504,12 +511,35 @@ function sendWebrtc(rtcType) {
 }
 
 
+/*
+function getWebrtc(user) {
+	$.get("/"+getApp()+"/wsChat/webrtcrec?user="+user,function(data){
+		$('#camViewContainer').html(data);
+	});
+}
+
+function sendWebrtc() {
+	$.get("/"+getApp()+"/wsChat/webrtcsend?user="+user,function(data){
+		$('#myCamContainer').html(data);
+	});
+	webSocket.send("/webrtcenabled "+user);
+}
+*/
 function disablertc() {
 	delCamList(user);
 	webSocket.send("/webrtcdisabled "+user);
+	//WebCam.send("DISCO:-");
+	//WebCam.onclose = function() { }
+	//WebCam.close();
 }
 
 function verifyCamPosition(uid) {
+	/*
+	var idx = camList.indexOf(uid);
+	if(idx == -1) {
+		camList.push(uid);
+	}	
+	 */
 	if (camList.length>1) { 
 		var getNextOffset = function() {
 			return (config.width + config.gap) * camList.length;
@@ -517,7 +547,6 @@ function verifyCamPosition(uid) {
 		$("#"+uid).videobox("option", "offset", getNextOffset());
 	} 		
 }
-
 
 function enableCam(camuser, camaction,viewtype){
 	var goahead=false;
@@ -535,8 +564,9 @@ function enableCam(camuser, camaction,viewtype){
 	if (goahead==true) { 
 		$(function(event, ui) {
 			var vbox = null;
+			//console.log('no vbox'+camaction+'--'+viewtype+'--'+cmuser);
 			if(vbox) {
-				if (camaction=="disable"){
+				if (camaction=="disable") {
 					vbox.videobox("option", "vidManager").closeBox();
 				}else{
 					vbox.videobox("option", "vidManager").toggleBox();
@@ -581,11 +611,11 @@ function enableCam(camuser, camaction,viewtype){
 		} else if (viewtype=="webcam") {
 			disableAV();
 		} else if (viewtype=="fileshare") {
-			disableFile();
-		} else if (viewtype=="mediastream") {
-			disableMedia();	
-		} else if (viewtype=="game") {
-			disableGame();	
+       		disableFile();
+       	} else if (viewtype=="mediastream") {
+       		disableMedia();
+       	} else if (viewtype=="game") {
+       		disableGame();
 		}
 	}
 }
@@ -602,29 +632,26 @@ function closeChatPMs()  {
 	for	(index = 0; index < idList.length; index++) {
 		$("#"+idList[index]).chatbox("option", "boxManager").toggleBox();
 
-	} 	
+	}
 }
 function closeVideos()  {
 	for	(index = 0; index < camList.length; index++) {
 		$("#"+camList[index]).videobox("option", "vidManager").toggleBox();
-	} 		
-}
-
-/*
-function adminRooms(isAdmin) {
-	if (isAdmin=="true") {
-		var strUrl = "/"+getApp()+"/wsChat/adminMenu", strReturn = "";
-		  jQuery.ajax({
-		    url: strUrl,
-		    success: function(html) {
-		      strReturn = html;
-		    },
-		    async:false
-		  });
-		return strReturn;
 	}
 }
-*/
+
+function liveChatsRooms(user) {
+	if (isAdmin=="true") {
+		$.get("/"+getApp()+"/wsChat/liveChatsRooms",function(data){
+			$('#adminsContainer').hide().html(data).fadeIn('slow');
+		});
+		$('#admincontainer').show();
+	}
+}
+function joinLiveChatRoom(room,user) {
+	 webSocket.send("/joinLiveChatRoom "+user+","+room);
+}
+
 
 /*
  * This appears under admin liveChat window
@@ -632,15 +659,15 @@ function adminRooms(isAdmin) {
  * to display in liveChat window which imitates pm window
  */
 function sendLiveChatPM(receiver,sender,pm,room) {
+    var added=verifyAdded(sender);
 	$(function(event, ui) {
 		var box = null;
 		if(box) {
 			box.chatbox("option", "boxManager").toggleBox();
 		}else {
-			var added=verifyAdded(sender);
 			var el="#"+sender
 			if (added=="false") {
-				var el = document.createElement('div')
+				el = document.createElement('div')
 				el.setAttribute('id', sender);
 				//el.setAttribute('draggable', true);
 			}
@@ -657,33 +684,34 @@ function sendLiveChatPM(receiver,sender,pm,room) {
 			});
 		}
 	});
-	verifyPosition(sender);
+	 if (added=="false") {
+	    verifyPosition(sender);
+	}
 	$("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);
 }
 
 function livepmuser(suser,sender,room) {
+var added=verifyAdded(suser);
 	var sus=suser ? suser : user
 	$(function(event, ui) {
 		var box = null;
 		if(box) {
 			box.chatbox("option", "boxManager").toggleBox();
 		}else {
-			var added=verifyAdded(suser);
 			var el="#"+suser
 			if (added=="false") {
-				var el = document.createElement('div')
+				el = document.createElement('div')
 				el.setAttribute('id', suser);
+			} else {
+			    $(el).chatbox("option", "boxManager").toggleBox();
 			}
 			box = $(el).chatbox({id:suser,
 				user:{key : "value"},
-
 				title : "LIVECHAT: "+suser,
 				messageSent : function(id, user, msg) {
 				    if (added=="false") {
-				        console.log('verifying added '+suser)
 				        verifyPosition(suser);
 				    }
-				    console.log('sending message '+msg)
 					$("#"+suser).chatbox("option", "boxManager").addMsg(suser, msg);
 					webSocket.send("/cl "+suser+","+room+":"+msg);
 				}
@@ -701,25 +729,28 @@ function sendLiveMessage() {
 			messageBox.value="";
 			messageBox.value.replace(/^\s*[\r\n]/gm, "");
 			scrollToBottom();
-		}  
+		}
 	}else {
 		webSocket.send("DISCO:-"+user);
 		$('#chatMessages').append(user+' '+disconnectingMessage+"\n");
 		messageBox.value="";
 		webSocket.close();
-	}   
+	}
 }
 
+
+
 function sendPM(receiver,sender,pm) {
+    var added=verifyAdded(sender);
 	$(function(event, ui) {
 		var box = null;
 		if(box) {
 			box.chatbox("option", "boxManager").toggleBox();
 		}else {
-			var added=verifyAdded(sender);
+
 			var el="#"+sender
 			if (added=="false") {
-				var el = document.createElement('div');
+				el = document.createElement('div');
 				el.setAttribute('id', sender);
 			}
 			box =  $(el).chatbox({id:sender,
@@ -739,7 +770,10 @@ function sendPM(receiver,sender,pm) {
 			});
 		}
 	});
-	verifyPosition(sender);
+	if (added=="false") {
+      	verifyPosition(suser);
+    }
+	//verifyPosition(sender);
 	$("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);
 }
 
@@ -774,7 +808,6 @@ function pmuser(suser,sender) {
 		}
 	});
 }
-
 
 function sendMessage() {
 	if (messageBox.value!="/disco") {
@@ -816,7 +849,6 @@ function processCamClose(message) {
 	WebCam.send("DISCO:-");
 	WebCam.close();
 }
-
 function processError(message) {
 	$('#chatMessages').append(errorMessage+"<br/>");
 }
@@ -830,10 +862,10 @@ function toggleBlock(caller,called,calltext) {
 		if($(called).is(":hidden")) {
  			$(caller).html(hideLabel+' '+calltext).fadeIn('slow');
     	}else{
-        	$(caller).html(showLabel+' '+calltext).fadeIn('slow');	
-        	
+        	$(caller).html(showLabel+' '+calltext).fadeIn('slow');
+
     	}
  		$(called).slideToggle("fast");
- 	
+
   	});
 }

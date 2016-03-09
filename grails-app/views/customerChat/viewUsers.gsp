@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <g:if test="${enduser?.verifyAppVersion().equals('assets')}">
 	<g:if test="${!request.xhr }">
     	<meta name='layout' content="achat"/>
@@ -17,9 +16,8 @@
     <g:else>
    		<g:render template="/resources"/>
    	 </g:else>
-</g:else>    
-    
-   <title>${chatTitle }</title>
+</g:else>   
+<title>${chatTitle }</title>
 </head>
 <body>
 <g:render template="/customerChat/viewUsers"/>

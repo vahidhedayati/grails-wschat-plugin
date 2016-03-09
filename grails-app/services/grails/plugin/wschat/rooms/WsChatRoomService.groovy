@@ -10,9 +10,9 @@ class WsChatRoomService extends WsChatConfService {
 
 	def wsChatMessagingService
 	def wsChatUserService
-	
+
 	public static List DEFAULT_ROOM = ChatRoomList.DEFAULT_ROOM.collect{['room':it]}
-	
+
 	void sendRooms(Session userSession) {
 		wsChatMessagingService.messageUser(userSession,roomList())
 	}
@@ -32,7 +32,7 @@ class WsChatRoomService extends WsChatConfService {
 	}
 
 	@Transactional
-	void addRoom(Session userSession,String roomName, String roomType=ChatRoomList.DEFAULT_ROOM_TYPE) {
+	void addRoom(Session userSession,String roomName, String roomType= ChatRoomList.DEFAULT_ROOM_TYPE) {
 		if (isAdmin(userSession)) {
 			def nr = new ChatRoomList()
 			nr.room = roomName
@@ -45,7 +45,7 @@ class WsChatRoomService extends WsChatConfService {
 	}
 
 	@Transactional
-	void addManualRoom(String roomName, String roomType=ChatRoomList.DEFAULT_ROOM_TYPE) {
+	void addManualRoom(String roomName, String roomType= ChatRoomList.DEFAULT_ROOM_TYPE) {
 		def record = ChatRoomList?.findByRoomAndRoomType(roomName, roomType)
 		if (!record) {
 			def nr = new ChatRoomList()
@@ -86,6 +86,7 @@ class WsChatRoomService extends WsChatConfService {
 	Map roomList() {
 		List uList = (config?.rooms.collect{['room':it]}  +ChatRoomList?.findAllByRoomType(ChatRoomList.DEFAULT_ROOM_TYPE)*.room?.unique()?.collect{['room':it]}) ?: DEFAULT_ROOM
 		Map finalList = [rooms: uList]
-		return finalList 
+		return finalList
 	}
+
 }

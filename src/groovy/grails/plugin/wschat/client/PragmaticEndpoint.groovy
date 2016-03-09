@@ -1,38 +1,30 @@
 package grails.plugin.wschat.client
 
 import grails.util.Holders
-
-import javax.websocket.ClientEndpoint
-import javax.websocket.CloseReason
-import javax.websocket.EndpointConfig
-import javax.websocket.OnClose
-import javax.websocket.OnError
-import javax.websocket.OnMessage
-import javax.websocket.OnOpen
-import javax.websocket.Session
-import javax.websocket.server.PathParam
-
-
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import javax.websocket.*
+import javax.websocket.server.PathParam
 
-@ClientEndpoint
-public class ChatClientEndpoint  {
+//Used by SSL Client Socket connection
+//TODO Still need to ensure this actually all works
+
+public class PragmaticEndpoint extends Endpoint {
 	 
 	private final Logger log = LoggerFactory.getLogger(getClass().name)
 	private Session userSession = null
 	private WsClientProcessService wsClientProcessService
-	
-	@OnOpen
-	public void handleOpen(Session userSession,EndpointConfig c,@PathParam("room") String room) {
+
+	@Override
+	public void onOpen(final Session session, EndpointConfig ec) {
 		this.userSession = userSession
-		
+
 		//def ctx= SCH.servletContext.getAttribute(GA.APPLICATION_CONTEXT)
 		def ctx = Holders.applicationContext
 		wsClientProcessService = ctx.wsClientProcessService
 	}
-	
+
 	@OnClose
 	public void onClose(final Session userSession, final CloseReason reason) {
 		this.userSession = null

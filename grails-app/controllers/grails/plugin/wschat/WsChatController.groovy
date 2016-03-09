@@ -1,13 +1,16 @@
 package grails.plugin.wschat
 
 import grails.converters.JSON
+import grails.plugin.springsecurity.annotation.Secured
 import grails.plugin.wschat.beans.ConnectTagBean
 import grails.plugin.wschat.beans.CustomerChatTagBean
 import grails.plugin.wschat.beans.LiveChatBean
 import grails.plugin.wschat.beans.LoginBean
 import grails.plugin.wschat.beans.RoomBean
 import grails.plugin.wschat.beans.SearchBean
+import grails.plugin.wschat.beans.SignupBean
 import grails.plugin.wschat.beans.UserBean
+
 
 class WsChatController extends WsChatConfService {
 
@@ -19,24 +22,110 @@ class WsChatController extends WsChatConfService {
 	def wsChatContService
 	def wsChatAuthService
 	def chatUserUtilService
-	
+	def springSecurityService
+
+
+	def signup() {
+		def bean = new SignupBean()
+		render (view:'/login/signup', model:[bean:bean])
+	}
+
+	def register(SignupBean bean) {
+		if (!bean.validate()) {
+			render(view:'/login/signup', model:[bean:bean])
+			return
+		}
+		wsChatAuthService.addSecurityUser(bean)
+		redirect(controller: "wsChat",action: "index")
+	}
+
+	//---------------------- Start Index
+	/**
+	 * index default action checks if configuration has enabled security
+	 * if so sent to authIndex
+     */
 	def index(ConnectTagBean bean) {
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderIndex(bean)
+	}
+
+	@Secured(['ROLE_USER','ROLE_ADMIN'])
+	def authIndex(ConnectTagBean bean) {
+		session.wschatuser=springSecurityService.currentUser as String
+		bean.chatuser = session.wschatuser
+		renderIndex(bean)
+	}
+
+	private void renderIndex(ConnectTagBean bean) {
 		bean.addLayouts=true
 		bean.setRooms(wsChatRoomService.returnRoom())
 		if (bean.process) {
 			render "Default sign in page disabled"
 			return
 		}
-		[bean:bean]
+		render (view: 'index', model: [bean:bean])
+	}
+	//---------------------- End Index
+
+	//---------------------- Start login
+	def login(LoginBean bean) {
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}", params:params)
+			return
+		}
+		renderLogin(bean)
+	}
+	@Secured(['ROLE_USER','ROLE_ADMIN'])
+	def authLogin(LoginBean bean) {
+		renderLogin(bean)
+	}
+	private void renderLogin(LoginBean bean) {
+		if (bean.process) {
+			render "Default sign in page disabled"
+			return
+		}
+		if (!bean.username && session.wschatuser) {
+			bean.username=session.wschatuser
+		}
+		if (!bean.validate()) {
+			flash.message = bean.errors
+			redirect(controller: "wsChat",action: "index")
+			return
+		}else{
+			session.wschatuser = bean.username
+			session.wschatroom = bean.room
+			redirect(controller: "wsChat", action: "chat")
+			return
+		}
+	}
+	//---------------------- End login
+
+	//---------------------- Start chat
+	def chat(ConnectTagBean bean) {
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderChat(bean)
 	}
 
-	def chat(ConnectTagBean bean) {
-		bean.addLayouts=true
+	@Secured(['ROLE_USER','ROLE_ADMIN'])
+	def authChat(ConnectTagBean bean) {
+		session.wschatuser=springSecurityService.currentUser as String
+		renderChat(bean)
+	}
+
+	private void renderChat(ConnectTagBean bean) {
+		bean.setAddLayouts(true)
 		bean.chatuser = session.wschatuser
 		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(true)
 		wsChatAuthService.addBotToChatRoom(bean.room, 'chat', bean.enable_Chat_Bot, bean.botMessage, bean.uri)
-		[bean:bean]
+		render (view: 'chat', model: [bean:bean])
 	}
+	//---------------------- End chat
 
 	def sendfile(RoomBean bean) {
 		bean.chatuser = session.wschatuser
@@ -56,23 +145,6 @@ class WsChatController extends WsChatConfService {
 		[bean:bean]
 	}
 
-	def login(LoginBean bean) {
-		if (bean.process) {
-			render "Default sign in page disabled"
-			return
-		}
-		if (!bean.validate()) {
-			flash.message = bean.errors
-			redirect(controller: "wsChat",action: "index")
-			return
-		}else{
-			session.wschatuser = bean.username
-			session.wschatroom = bean.room
-			redirect(controller: "wsChat", action: "chat")
-			return
-		}
-	}
-
 	def verifyprofile(String username) {
 		Map vp = wsChatContService.verifyProfile(username)
 		def photos = vp.photos
@@ -90,9 +162,9 @@ class WsChatController extends WsChatConfService {
 		if (cdate) {
 			def model = [cdate:cdate,profile:profile,chatuser:chatuser,username:username]
 			render template: '/profile/editprofile', model:model
-		}else{
-			render "Not authorised!"
+			return
 		}
+		render "Not authorised!"
 	}
 
 	def uploadPhoto(String username) {
@@ -142,6 +214,22 @@ class WsChatController extends WsChatConfService {
 		}
 	}
 
+	def xo(ConnectTagBean bean) {
+		bean.chatuser = session.wschatuser
+		bean.room = bean.chatuser
+		ChatUser cu = wsChatUserService.currentUser(bean.chatuser)
+		String uri="ws://${bean.hostname}${bean.addAppName?'/'+bean.appName:''}/ticTacToe/start/${cu.id}/${bean.chatuser}"
+		[bean:bean, uri:uri]
+	}
+
+	def xojoin(UserBean bean) {
+		bean.chatuser = session.wschatuser
+		ChatUser cu = wsChatUserService.currentUser(bean.user)
+		bean.room = bean.user
+		String uri="ws://${bean.hostname}${bean.addAppName?'/'+bean.appName:''}/ticTacToe/join/${cu.id}/${bean.chatuser}"
+		render view: 'xo', model: [bean:bean, uri:uri]
+	}
+
 	def camsend(UserBean bean) {
 		[bean:bean]
 	}
@@ -159,36 +247,52 @@ class WsChatController extends WsChatConfService {
 		bean.chatuser = session.wschatuser
 		[bean:bean]
 	}
-	
-	def xo(ConnectTagBean bean) {
-		bean.chatuser = session.wschatuser
-		bean.room = bean.chatuser
-		ChatUser cu = wsChatUserService.currentUser(bean.chatuser)
-		String uri="ws://${bean.hostname}${bean.addAppName?'/'+bean.appName:''}/ticTacToe/start/${cu.id}/${bean.chatuser}"
-		[bean:bean, uri:uri]
+
+	//---------------------- start liveChatsRooms
+	def liveChatsRooms() {
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderLiveChatsRooms()
 	}
-	
-	def xojoin(UserBean bean) {
-		bean.chatuser = session.wschatuser
-		ChatUser cu = wsChatUserService.currentUser(bean.user)
-		bean.room = bean.user
-		String uri="ws://${bean.hostname}${bean.addAppName?'/'+bean.appName:''}/ticTacToe/join/${cu.id}/${bean.chatuser}"
-		render view: 'xo', model: [bean:bean, uri:uri]
+
+	@Secured(['ROLE_ADMIN'])
+	def authLiveChatRooms() {
+		renderLiveChatsRooms()
 	}
-	
-	def liveChatsRooms(SearchBean bean) { 
+
+	private void  renderLiveChatsRooms() {
 		if (isAdmin) {
+			Map bean = [:]
 			bean.uList= wsChatUserService.genAllLiveRooms()
 			bean.userListCount=bean.uList?.size()
 			render (template: '/admin/viewLiveChatRooms', model: [bean:bean])
+			return
 		}
+		render "Not authorised!"
+		return
 	}
-	
+	//---------------------- End liveChatsRooms
+
 	def autocomplete() {
 		render autoCompleteService.autocomplete(params)
 	}
-	
+	//---------------------- start viewUsers
 	def viewUsers(SearchBean bean) {
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderViewUsers(bean)
+	}
+
+	@Secured(['ROLE_ADMIN'])
+	def authViewUsers(SearchBean bean) {
+		renderViewUsers(bean)
+	}
+
+	private void renderViewUsers(SearchBean bean) {
 		if (isAdmin) {
 			bean.uList = wsChatUserService.genAllUsers()
 			def gUsers = wsChatContService.viewUsers(bean.s ?: '', bean.sortby, bean.order, bean.offset, bean.max , bean.inputid)
@@ -202,9 +306,11 @@ class WsChatController extends WsChatConfService {
 			} else {
 				render (view: '/admin/viewUsers', model: model)
 			}
+			return
 		}
-		render 'Not Authorized'
+		render ''
 	}
+	//---------------------- end viewUsers
 
 	def search(String mq) {
 		if (isAdmin) {
@@ -219,9 +325,7 @@ class WsChatController extends WsChatConfService {
 		if (isAdmin) {
 			def returnResult = wsChatUserService.findaUser(uid)
 			render returnResult as JSON
-			return
 		}
-		render 'Not Authorized'
 	}
 
 	def addUser(String username) {
@@ -242,7 +346,6 @@ class WsChatController extends WsChatConfService {
 	def addUserEmail(String username,String email) {
 		if (isAdmin && email) {
 			wsChatProfileService.addProfile(username, [email: email], false)
-			return
 		}
 		render "attempted add of ${email}"
 	}
@@ -260,8 +363,21 @@ class WsChatController extends WsChatConfService {
 		}
 		[startDate:startDate, endDate:endDate]
 	}
+	//---------------------- start addBooking
+	def addBooking() {
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderAddBooking()
+	}
 
-	def addBooking(){
+	@Secured(['ROLE_ADMIN'])
+	def authAddBooking() {
+		renderAddBooking()
+	}
+
+	private void renderAddBooking() {
 		if (isAdmin) {
 			def invite = params.invites
 			if(invite instanceof String) {
@@ -279,45 +395,88 @@ class WsChatController extends WsChatConfService {
 		}
 		render 'Not Authorized'
 	}
-	
+	//---------------------- end addBooking
+
 	/* liveChat */
 	def loadChat(String user, String controller, String action,String roomName) {
 		CustomerChatTagBean bean = new CustomerChatTagBean()
 		if (user) {
 			bean.user = user
 			bean.guestUser = false
-		} else { 
+		} else {
 			bean.guestUser = true
 			bean.user = 'Guest'+session.id
-		} 
+		}
 		bean.controller = controller
 		bean.action = action
 		bean.roomName = roomName
 		wsChatBookingService.saveCustomerBooking(bean)
 		render view: '/customerChat/chatPage', model: [bean:bean]
 	}
-	
+
+	//---------------------- start joinLiveChat
 	def joinLiveChat(String roomName,String username) {
-		boolean isLiveAdmin = chatUserUtilService.isLiveAdmin(username)
+		Map bean=[roomName:roomName,username:username]
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderJoinLiveChat(bean)
+	}
+
+	@Secured(['ROLE_ADMIN'])
+	def authJoinLiveChat(Map bean) {
+		renderJoinLiveChat(bean.roomName,bean.username)
+	}
+
+	private void renderJoinLiveChat(Map bean) {
+		boolean isLiveAdmin = chatUserUtilService.isLiveAdmin(bean.username)
 		if (isLiveAdmin) {
-			session.wschatuser = username
-			session.wschatroom = roomName
+			session.wschatuser = bean.username
+			session.wschatroom = bean.roomName
 			session.livechat = true
 			redirect(controller: "wsChat", action: "liveChat")
 			return
-		}	
+		}
 		render 'Not Authorized'
 	}
-	
+	//---------------------- end joinLiveChat
+
 	def liveChat(LiveChatBean bean) {
-		bean.addLayouts=true
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderLiveChat(bean)
+
+	}
+
+	@Secured(['ROLE_ADMIN'])
+	def authLiveChat(LiveChatBean bean) {
+		renderLiveChat(bean)
+	}
+	private void renderLiveChat(LiveChatBean bean) {
+	bean.addLayouts=true
 		bean.chatuser = session.wschatuser
 		bean.livechat = session.livechat
 		bean.room = session.wschatroom ?: wsChatRoomService.returnRoom(true)
 		render view: '/customerChat/livechat', model: [bean:bean]
 	}
-	
-	def viewLiveChats(CustomerChatTagBean bean) { 
+
+	//---------------------- start viewLiveChats
+	def viewLiveChats(CustomerChatTagBean bean) {
+		if (wsconf.enableSecurity) {
+			redirect(controller: "${controllerName}",action: "auth${upperCaseFirst(actionName)}")
+			return
+		}
+		renderViewLiveChats(bean)
+	}
+	@Secured(['ROLE_ADMIN'])
+	def authViewLiveChat(CustomerChatTagBean bean) {
+		renderViewLiveChats(bean)
+	}
+
+	private void renderViewLiveChats(CustomerChatTagBean bean) {
 		if (isAdmin) {
 			bean.uList = ChatCustomerBooking.list()
 			Map model = [bean:bean]
@@ -331,19 +490,20 @@ class WsChatController extends WsChatConfService {
 		}
 		render 'Not Authorized'
 	}
-	
+	//---------------------- end viewLiveChats
+
 	def viewLiveLogs(String username) {
 		def livelogs = wsChatBookingService.findLiveLogs(username)
 		render template: '/customerChat/viewLiveLogs', model: [livelogs:livelogs]
 	}
-	
+
 	/* end live chat */
-	
+
 	def viewLogs(String username) {
 		def chatlogs = wsChatUserService.findLogs(username)
 		render template: '/admin/viewLogs', model: [chatlogs:chatlogs]
 	}
-	
+
 	def searchLiveChat(String mq) {
 		if (isAdmin) {
 			Map ss = wsChatUserService.search(mq)
@@ -352,13 +512,11 @@ class WsChatController extends WsChatConfService {
 		}
 		render ''
 	}
-	
+
 	def addaRoom() {
 		if (isAdmin) {
 			render template : '/room/addaRoom'
-			return
 		}
-		render ''
 	}
 
 	def delaRoom() {
@@ -407,4 +565,9 @@ class WsChatController extends WsChatConfService {
 	private Boolean getIsAdmin() {
 		wsChatUserService.validateAdmin(session.wschatuser)
 	}
+
+	private String upperCaseFirst(String s) {
+		s.substring(0,1).toUpperCase() + s.substring(1)
+	}
+
 }

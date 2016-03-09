@@ -11,7 +11,7 @@ class WsChatClientController extends WsChatConfService {
 	def index() { 
 		[ clientMaster:clientMaster, clientSlave:clientSlave]
 	}
-	
+
 	def masterList() {
 		if (clientMaster) {
 			render clientMaster as JSON
@@ -19,15 +19,15 @@ class WsChatClientController extends WsChatConfService {
 		}
 		render ''
 	}
-	
+
 	def slaveList() {
 		if (clientSlave) {
 			render clientSlave as JSON
 			return
-		}			
+		}
 		render ''
 	}
-	
+
 	def showMasters() {
 		render (view: 'index', model: [clientMaster:clientMaster])
 	}
@@ -45,6 +45,4 @@ class WsChatClientController extends WsChatConfService {
 		clientMaster.clear()
 		render "clientMaster truncated"
 	}
-	
-		
 }

@@ -7,7 +7,8 @@
 </div>
 </div>
 </div>
-<div id="resultSet">
+	<div class="container">
+		<div class='modal-body'>
 	<table  class="col-sm-12">
 	<thead><th>From</th><th>Message:</th><th>Date</th></thead>
 	<tbody>
@@ -20,6 +21,7 @@
 	</g:each>
 	</tbody>
 	</table>
+</div>
 </div>
 </div>
 </div>

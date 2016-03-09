@@ -25,9 +25,9 @@ class WsChatBookingService  extends WsChatConfService {
 	def wsChatRoomService
 	def wsChatAuthService
 	LinkGenerator grailsLinkGenerator
-	
-	static prng = new SecureRandom()
 
+
+	static prng = new SecureRandom()
 
 	@Transactional
 	ArrayList findLiveLogs(String username) {
@@ -44,8 +44,8 @@ class WsChatBookingService  extends WsChatConfService {
 		}
 		return finalResults
 	}
-	
-	@Transactional 
+
+	@Transactional
 	ChatCustomerBooking saveCustomerBooking(CustomerChatTagBean bean) {
 		ChatCustomerBooking ccb = ChatCustomerBooking.findByUsername(bean.user)
 		if (!ccb) {
@@ -63,9 +63,9 @@ class WsChatBookingService  extends WsChatConfService {
 		//if (inputParams) {
 		//	ccb.params = inputParams
 		//}
-		ccb.save()
+		ccb.save(flush:true)
 	}
-	
+
 	@Transactional
 	Map verifyJoin(String token,String username)	{
 		boolean goahead = false
@@ -83,7 +83,6 @@ class WsChatBookingService  extends WsChatConfService {
 		}
 		return [goahead: goahead, room: room, startDate:startDate, endDate:endDate]
 	}
-	
 
 	Boolean isValid(String startDate,String endDate ) {
 		Boolean yesis = false
@@ -112,9 +111,6 @@ class WsChatBookingService  extends WsChatConfService {
 		}
 		return yesis
 	}
-
-	
-	
 
 	/**
 	 * sendLiveEmail figures out who should get the email and passes it to liveChatRequest below
@@ -147,11 +143,11 @@ class WsChatBookingService  extends WsChatConfService {
 			log.debug "It is likely you have not enabled SMTP service for mail to be sent"
 		}
 	}
-	
+
 	/**
-	 *  This sends an email with a custom body overridable by 
+	 *  This sends an email with a custom body overridable by
 	 * 	wschat.liveChatBody  and wschat.liveChatSubject configured
-	 *  in your application.groovy/BuildConfig.groovy  
+	 *  in your application.groovy/BuildConfig.groovy
 	 * @param ccb
 	 * @param url
 	 * @param thisUser
@@ -166,32 +162,30 @@ class WsChatBookingService  extends WsChatConfService {
 		String defaultbody = """Dear ${contactName},
 			A live chat request has been made ${now}
 			----------------------------------------------------------------------------
-			${ccb?.name} 
+			${ccb?.name}
 			Controller: ${ccb?.controller}
 			Action: ${ccb?.action}
-
 			They are logged into ${room} with the id of ${thisUser} .
 			----------------------------------------------------------------------------
-
 			Please can you go to:
- 
+
 			${url}joinLiveChat?roomName=${room}&username=${adminUsername}
-
-
-			Where the user is waiting for your help 
+			Where the user is waiting for your help
 		"""
-		
 		String body  = 	config?.liveChatBody ?: defaultbody
-		log.debug body
+		log.info  "$body"
 		String subject = config?.liveChatSubject ?: defaultsubject
 		SendMail(contactEmail,'',subject,body)
 	}
-	
+
+
 	@Transactional
 	Map addBooking(ArrayList invites, String conference, String startDate, String endDate) {
+
 		def current = new Date().format("dd_MM_yyyy_HH_mm")
 		def dFormat = "dd/MM/yyyy HH:mm"
 		SimpleDateFormat df = new SimpleDateFormat(dFormat)
+
 		conference = conference+"_"+current
 		def dateTime = df.parse(startDate)
 		def endDateTime = df.parse(endDate)
@@ -210,7 +204,7 @@ Please join chat on [CHATURL]
 		wsChatRoomService.addManualRoom(conference,'booking')
 		invites.each { user->
 			def found=ChatUser.findByUsername(user)
-		if (found.profile) {
+			if (found.profile) {
 				def foundprofile=found.profile
 				def uid = found.username + new UID().toString() + prng.nextLong() + System.currentTimeMillis()
 				MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -219,6 +213,7 @@ Please join chat on [CHATURL]
 				String parsedToken = token.toString().replaceAll('[^a-zA-Z0-9[:space:]]','')
 
 				def sendMap = [username: found.username]
+
 				def chaturl = grailsLinkGenerator.link(controller: 'wsChat', action: 'joinBooking', id: parsedToken, params: sendMap, absolute: 'true')
 				def myMap = [username: found.username, emailAddress: foundprofile.email,token: parsedToken, booking:myConference]
 				def inviteInstance = new ChatBookingInvites(myMap)
@@ -227,9 +222,9 @@ Please join chat on [CHATURL]
 				}else{
 					String sendbody = body.replace('[PERSON]', found.username).replace('[CHATURL]', chaturl)
 					if (config.debug) {
-						log.debug "MSG: ${subject}\n${sendbody}"
+						log.info "MSG: ${subject}\n${sendbody}"
 					}
-					SendMail(foundprofile.email,'',subject,sendbody)
+					SendMail(foundprofile.email, '', subject, sendbody)
 				}
 			}
 		}
@@ -257,9 +252,11 @@ Please join chat on [CHATURL]
 				else {
 					to email
 				}
+
 				if (config.emailFrom) {
 					from "${config.emailFrom}"
 				}
+
 				if (ccrecipients) {
 					cc ccrecipients
 				}
@@ -284,7 +281,6 @@ Please join chat on [CHATURL]
 		}
 		catch (e) {
 			//throw new Exception(e.message)
-			//log.error messageSource.getMessage('default.issue.sending.email.label', ["${e.message}"].toArray(), "Problem sending email ${e.message}", LCH.getLocale()),e
 			log.error "Problem sending email ${e.message}"
 		}
 	}

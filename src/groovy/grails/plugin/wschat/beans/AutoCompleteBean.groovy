@@ -24,12 +24,14 @@ class AutoCompleteBean extends ConfigBean {
 	
 	String userTemplate=getConfig('autocomplete')
 	
+
 	Boolean getRequire() {
 		return validateBool(require)
 	}
 	Boolean getRequired() {
 		return validateBool(required)
 	}
+
 	String getName() { 
 		if (!name) {
 			name=id

@@ -5,7 +5,6 @@ import grails.validation.Validateable
 
 @Validateable
 class CustomerChatTagBean extends ClientTagBean {
-
 	String name
 	//String username
 	String emailAddress
@@ -17,6 +16,7 @@ class CustomerChatTagBean extends ClientTagBean {
 	List userList
 	public final String liveChatTitle = getConfig('liveChatTitle') ?:'Customer Chat'
 	public final String botLiveMessage = getConfig('botLiveMessage') ?: 'Welcome, this is an automated message, attempting to retrieve a member of staff for you. Please wait'
+
 	String id
 	Integer max = Math.min(max ?: 10, 1000)
 	String s
@@ -28,11 +28,12 @@ class CustomerChatTagBean extends ClientTagBean {
 	def offset
 	String inputid = id
 	Map viewUsers
+
 	JSON inactiveLCTitle=["background":"black","color":"white"] as JSON
 	JSON inactiveLCBody=["background":"#ddd","color":"#000"] as JSON
 	JSON activeLCTitle=["background-colour":"#FF0000","background":"#c00","color":"white"] as JSON
 	JSON activeLCBody=["background":"#FFF","color":"#000"] as JSON
-	
+
 	Integer getOffset() {
 		int off=0
 		if (offset && offset instanceof String) {
@@ -40,11 +41,11 @@ class CustomerChatTagBean extends ClientTagBean {
 		}
 		return off
 	}
-	
+
 	Date startTime
 	Boolean guestUser=true
 	Boolean active=true
-	
+
 	static constraints = {
 		name(nullable:true)
 		//username(nullable:true)
@@ -66,7 +67,7 @@ class CustomerChatTagBean extends ClientTagBean {
 		activeLCBody(nullable:true)
 		//id(nullable: false, validator: validateInput)
 	}
-	
+
 	void setInactiveLCTitle(Map input) {
 		if (input){
 			inactiveLCTitle=input as JSON
@@ -87,8 +88,8 @@ class CustomerChatTagBean extends ClientTagBean {
 			activeLCBody=input as JSON
 		}
 	}
-	
-	String getActiveLCBody() { 
+
+	String getActiveLCBody() {
 		return activeLCBody as String
 	}
 	String getInactiveLCBody() {
@@ -100,4 +101,5 @@ class CustomerChatTagBean extends ClientTagBean {
 	String getInactiveLCTitle() {
 		return inactiveLCTitle as String
 	}
+
 }

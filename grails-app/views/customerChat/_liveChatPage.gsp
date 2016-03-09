@@ -29,19 +29,16 @@
 	<div class="message-thread" id="waiting" style="display:none;">
 		<div id="sendMessage">
 			<textarea id="messageBox" name="message"></textarea>
-			<input type="button" id="sendBtn"
+			<input type="button"  id="sendBtn"
 				value="${message(code: 'wschat.send.label', default: 'SEND')}"
 				onClick="sendLiveMessage();" >
 			</div>
 		</div>
 	</div>
 </div>
-
-
 <g:javascript>
 	var at=${bean.activeLCTitle.encodeAsRaw()};
 	var ab=${bean.activeLCBody.encodeAsRaw()};
-	
 	$(function() {
 	 	$( "#chatDialog" ).dialog({
 			autoOpen: true,
@@ -132,8 +129,8 @@
        </g:else>
        	$('#chatMessages').append("${message(code: 'wschat.please.wait.for.staff.label', default: 'Please wait for member of staff')}\n");
        	$('#messageBox').prop("readonly", true);
-		$(".ui-widget-header,.ui-state-default,.ui-button").css(${bean.inactiveLCTitle.encodeAsRaw()});
-		$(".ui-dialog-content,.ui-widget-content").css(${bean.inactiveLCBody.encodeAsRaw()});
+       	$(".ui-widget-header,.ui-state-default,.ui-button").css(${bean.inactiveLCTitle.encodeAsRaw()});
+     	$(".ui-dialog-content,.ui-widget-content").css(${bean.inactiveLCBody.encodeAsRaw()});
  	}
 	$('#messageBox').keypress(function(e){
 	if (e.keyCode == 13 && !e.shiftKey) {

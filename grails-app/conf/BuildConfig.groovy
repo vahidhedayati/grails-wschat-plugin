@@ -31,6 +31,7 @@ grails.project.dependency.resolution = {
 		runtime ":pluginbuddy:0.3"
 		compile ":remote-pagination:0.4.8"
 		compile ":mail:1.0.7"
+		compile "org.grails.plugins:spring-security-core:2.0.0"
 	}
 
 

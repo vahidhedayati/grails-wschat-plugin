@@ -14,3 +14,6 @@
 </g:else>
 <asset:javascript src="camclient.js" />
 <asset:javascript src="client.js" />
+
+
+

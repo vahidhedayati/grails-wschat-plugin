@@ -2,6 +2,7 @@ package grails.plugin.wschat
 
 import grails.converters.JSON
 
+
 class AutoCompleteService {
 	
 	static transactional  =  false
@@ -22,4 +23,6 @@ class AutoCompleteService {
 		results = results?.collect {[label:it.username]}?.unique()
 		return results as JSON
 	}
+	
+	
 }

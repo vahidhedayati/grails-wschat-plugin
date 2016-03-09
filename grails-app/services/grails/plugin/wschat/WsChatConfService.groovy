@@ -7,13 +7,11 @@ import java.util.concurrent.ConcurrentMap
 
 import javax.websocket.Session
 
-
 class WsChatConfService implements UserMaps{
 
 	static transactional  =  false
 
 	def grailsApplication
-
 
 	/*
 	 * ChatUser ConcurrentHashMap
@@ -31,11 +29,10 @@ class WsChatConfService implements UserMaps{
 	boolean chatUserExists(String username) {
 		return chatUsers.contains(username)
 	}
-
 	boolean destroyChatUser(String username) {
 		return chatroomUsers.remove(username) != null
 	}
-	
+
 	/*
 	 * CamUser ConcurrentHashMap
 	 */
@@ -55,7 +52,7 @@ class WsChatConfService implements UserMaps{
 	boolean destroyCamUser(String username) {
 		return camUsers.remove(username) != null
 	}
-	
+
 	/*
 	 * fileroomUser ConcurrentHashMap
 	 */
@@ -75,7 +72,8 @@ class WsChatConfService implements UserMaps{
 	boolean destroyFileUser(String username) {
 		return fileroomUsers.remove(username) != null
 	}
-	
+
+
 	public static final String CONNECTOR = "CONN:-"
 	public static final String LIVE_CONNECTOR = "LIVECONN:-"
 	public static final String DISCONNECTOR = "DISCO:-"
@@ -85,18 +83,19 @@ class WsChatConfService implements UserMaps{
 
 	//static final Set<HashMap<String[],String[]>> clientMaster = ([:] as Set).asSynchronized()
 	//static final Set<HashMap<String[],String[]>> clientSlave = ([:] as Set).asSynchronized()
+
 	Map getWsconf() {
 		String process = config.disable.login ?: 'no'
 		String chatTitle = config.title ?: 'Grails Websocket Chat'
 		String chatHeader = config.heading ?: 'Grails websocket chat'
-
+		boolean enableSecurity = config.enableSecurity ? isConfigEnabled(config.enableSecurity) : false
 		String hostname = config.hostname ?: 'localhost:8080'
-		String addAppName = config.add.appName ?: 'yes'
-		JSON iceservers = grailsApplication.config.stunServers as JSON
+		String addAppName = config.add.appName ?: 'no'
+		JSON iceservers  = grailsApplication.config.stunServers as JSON
 		String showtitle = config.showtitle ?: 'yes'
 		return [process:process, chatTitle:chatTitle,
 			chatHeader:chatHeader,  hostname:hostname, addAppName:addAppName,
-			iceservers:iceservers, showtitle:showtitle]
+			iceservers:iceservers, showtitle:showtitle,enableSecurity:enableSecurity]
 	}
 
 	boolean isConfigEnabled(String input) {
@@ -123,7 +122,7 @@ class WsChatConfService implements UserMaps{
 	String getFrontend() {
 		return config.frontenduser ?: '_frontend'
 	}
-
+	
 	ConfigObject getConfig() {
 		return grailsApplication.config.wschat ?: ''
 	}

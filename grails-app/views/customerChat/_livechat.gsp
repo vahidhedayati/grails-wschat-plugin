@@ -6,7 +6,7 @@
 	<g:render template="/resources" model="${[bean:bean]}"/>
 	<g:render template="/resourcesTop" model="${[bean:bean]}"/>
 </g:else>
-<title>${bean.chatTitle}</title>
+<title>${bean.chatTitle }</title>
 <g:render template="/navbar" />
 <div id="siteContent" class="container">
 	<g:if test="${bean.showtitle}">
@@ -36,7 +36,7 @@
 		<g:render template="/admin/master"/>
 	</div>
 	<div class="pull-right btn btn-default">
-		<a id="showChatDialog"><g:message code="wschat.hide.chat.room" default="${g.message(code: 'wschat.chat.hide.room.caps', default: 'HIDE CHAT ROOM')}"/></a>
+		<g:message code="wschat.hide.chat.room" default="${g.message(code: 'wschat.chat.hide.room.caps', default: 'HIDE CHAT ROOM')}"/></a>
 	</div>
 	<g:javascript>
 		toggleBlock('#showChatDialog','#chatDialog','${g.message(code: 'wschat.chat.room.caps', default: 'CHAT ROOM')}');
@@ -80,9 +80,8 @@
 			</ul>
 		</div>
 	</nav>
-</div>			
-				
-<g:javascript>
+</div>
+    <g:javascript>
 	$( "#roomBlock" ).resizable();
  	$( "#friendsBlock" ).resizable();
  	
@@ -123,7 +122,7 @@
 	// Convert grails variable values to javascript format
 	var user="${bean.chatuser}";
 	var hostname="${bean.hostname}";
-	var room = "${bean.room}";
+
 	function getHostName() {
 		return hostname;
 	}
@@ -131,9 +130,10 @@
 	function getUser() {
 		return user;
 	}
-	function getRoom() { 
-	 return room;
-	}
+	var room = "${bean.room}";
+	function getRoom() {
+    	 return room;
+    }
 	var currentRoom;
 	var idList = new Array();
 	var camList = new Array();
@@ -172,39 +172,38 @@
     webSocket.onmessage=function(message) {processMessage(message);	};
 		
    function processOpen(message) {
-   	if (debug == "on") {
-			console.log('${g.message(code:'wschat.connecting.user', default:'Opening  connection for to')} ${bean.chatuser}');
-		}
-    	<g:if test="${!bean.chatuser}">
-       		$('#chatMessages').append("${g.message(code:'wschat.no.username.error', default:'Chat denied no username')} \n");
-       		webSocket.send("LIVEDISCO:-"+user);
-       	 	webSocket.close();
-       	</g:if>
-		<g:else>
-       		webSocket.send("LIVECONN:-"+user+",liveChat");
+     		if (debug == "on") {
+  			console.log('${g.message(code:'wschat.connecting.user', default:'Opening  connection for to')} ${bean.chatuser}');
+  		}
+      	<g:if test="${!bean.chatuser}">
+         		$('#chatMessages').append("${g.message(code:'wschat.no.username.error', default:'Chat denied no username')} \n");
+         		webSocket.send("LIVEDISCO:-"+user);
+         	 	webSocket.close();
+         	</g:if>
+          <g:else>
+         	webSocket.send("LIVECONN:-"+user+",liveChat");
+            scrollToBottom();
             webSocket.send("/enableUsers "+user+",${bean.room}");
-          	scrollToBottom();
-       </g:else>
- 	}
-	
-	
-	
-	$('#messageBox').keypress(function(e){
-	if (e.keyCode == 13 && !e.shiftKey) {
-		e.preventDefault();
-	}
-	if(e.which == 13){
-		var tmb=messageBox.value.replace(/^\s*[\r\n]/gm, "");
-		if (tmb!="") {
-			$("#messageBox").val().trim();
-			sendMessage();
-			messageBox.focus();
-		}
-	}
-	});
-	
-     window.onbeforeunload = function() {
-       webSocket.send("LIVEDISCO:-"+user);
-     }
-</g:javascript>
+         </g:else>
+   	}
 
+
+
+  	$('#messageBox').keypress(function(e){
+  	if (e.keyCode == 13 && !e.shiftKey) {
+  		e.preventDefault();
+  	}
+  	if(e.which == 13){
+  		var tmb=messageBox.value.replace(/^\s*[\r\n]/gm, "");
+  		if (tmb!="") {
+  			$("#messageBox").val().trim();
+  			sendMessage();
+  			messageBox.focus();
+  		}
+  	}
+  	});
+
+   window.onbeforeunload = function() {
+       webSocket.send("LIVEDISCO:-"+user);
+   }
+</g:javascript>

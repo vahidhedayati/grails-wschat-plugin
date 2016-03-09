@@ -1,9 +1,4 @@
-<g:if test="${enduser?.verifyAppVersion().equals('assets')}">
-	<g:render template="/assets" model="${[bean:bean]}"/>
-</g:if>
-<g:else>	
-	<g:render template="/resources" model="${[bean:bean]}"/>
-</g:else>
+<g:render template="/assets" model="${[bean:bean]}"/>
 <title>${bean.chatTitle }</title>
 <g:render template="/navbar" />
 <div id="siteContent" class="container">
@@ -83,9 +78,8 @@
 			</div>
 		</div>
 	</div>
-</div>	
-<g:javascript>
-	$( "#roomBlock" ).resizable();
+</div>
+	<g:javascript>
  	$( "#friendsBlock" ).resizable();
  	
  	var baseapp="${bean.appName}";
@@ -99,7 +93,7 @@
 	<g:else>
 		var themeuri="/"+baseapp+"/assets/"
 	</g:else>
-	
+
 	document.getElementById('themeChanger2').onclick = function () { 
    	 	document.getElementById('chat_theme').href = themeuri+'chat-blue.css';
 	};
@@ -113,7 +107,7 @@
 	};
 	
 	document.getElementById('themeChanger4').onclick = function () { 
-   	 	document.getElementById('chat_theme').href = themeuri+'/chat.css';
+   	 	document.getElementById('chat_theme').href = themeuri+'chat.css';
 	};
 
 	if (!window.WebSocket) {
@@ -140,8 +134,8 @@
 	var camOn = new Array();
 	var fileOn = new Array();
 	var mediaOn = new Array();
-	var rtcOn = new Array();
 	var gameOn = new Array();
+	var rtcOn = new Array();
 	var isAdmin="${'false' }";
 	var debug = "${bean.debug}";
 			
@@ -162,6 +156,7 @@
 	if (debug == "on") {
 		console.log('Connecting to '+uri);
 	}
+	
 	var webSocket=new WebSocket(uri);
     var chatMessages=document.getElementById("chatMessages");
     var onlineUsers=document.getElementById("onlineUsers");
@@ -184,10 +179,9 @@
        		webSocket.send("CONN:-"+user+",chat");
            	scrollToBottom();
            	webSocket.send("/listRooms");
-      
        </g:else>
  	}
-	
+
 	$('#messageBox').keypress(function(e){
 	if (e.keyCode == 13 && !e.shiftKey) {
 		e.preventDefault();
@@ -202,9 +196,9 @@
 	}
 	});
 	
-	window.onbeforeunload = function() {
-		webSocket.send("deactive_chat_bot");
-       webSocket.send("DISCO:-"+user);
+    window.onbeforeunload = function() {
+    	webSocket.send("deactive_chat_bot");
+		webSocket.send("DISCO:-"+user);
      }
 </g:javascript>
 

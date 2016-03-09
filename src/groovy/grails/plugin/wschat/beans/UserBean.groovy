@@ -8,13 +8,16 @@ import grails.validation.Validateable
 class UserBean extends ConfigBean {
 
 	//static final String defaultPerm = 'user'
-	
+
+
 	String user
 	String rtc
 	String chatuser
+
 	String template
 	String wschatjs
 	String usermenujs
+
 	def iceservers =getConf('stunServers')
 	//JSON iceservers = grailsApplication.config.stunServers as JSON
 	//= getConfig('iceservers') as ArrayList
@@ -27,7 +30,7 @@ class UserBean extends ConfigBean {
 		user(nullable: false, validator: validateInput)
 		rtc(nullable:true)
 		chatuser(nullable:true)
-		iceservers(nullable:true)		
+		iceservers(nullable:true)
 		template(nullable:true)
 		wschatjs(nullable:true)
 		usermenujs(nullable:true)
