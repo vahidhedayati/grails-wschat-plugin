@@ -771,7 +771,7 @@ function sendPM(receiver,sender,pm) {
 		}
 	});
 	if (added=="false") {
-      	verifyPosition(suser);
+      	verifyPosition(sender);
     }
 	//verifyPosition(sender);
 	$("#"+sender).chatbox("option", "boxManager").addMsg(sender, pm);
