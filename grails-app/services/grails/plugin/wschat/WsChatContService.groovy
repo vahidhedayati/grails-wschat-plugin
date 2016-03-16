@@ -94,12 +94,12 @@ class WsChatContService extends WsChatConfService{
 	@Transactional
 	Map viewUsers(String s, String sortby, String order, Integer offset, Integer max, String id=null) {
 		def total, foundRec
-		def paginationParams = [sort: sortby, order: order, offset: offset, max: max]
+		def paginationParams = [sortby: sortby, order: order, offset: offset, max: max]
 		switch (s) {
 			case 'p':
 				def permissions = ChatPermissions.get(id)
 				if (permissions) {
-					foundRec = ChatUser.findAllByPermissions( permissions, paginationParams)
+					foundRec = ChatUser.findAllByPermissions(permissions, paginationParams)
 					total = ChatUser.countByPermissions(permissions)
 				}
 				break

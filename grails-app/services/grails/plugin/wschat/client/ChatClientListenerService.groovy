@@ -107,8 +107,8 @@ public class ChatClientListenerService extends WsChatConfService {
 			if (bean.isSecure) {
 				if (bean.enable_Chat_Bot) {
 					ClientEndpointConfig clientEndpointConfig = ClientEndpointConfig.Builder.create().build()
-					clientEndpointConfig.getUserProperties().put(WsWebSocketContainer.SSL_TRUSTSTORE_PROPERTY, bean.KEYSTORE)
-					clientEndpointConfig.getUserProperties().put(WsWebSocketContainer.SSL_TRUSTSTORE_PWD_PROPERTY, bean.KEYPASSWORD)
+					//clientEndpointConfig.getUserProperties().put(WsWebSocketContainer.SSL_TRUSTSTORE_PROPERTY, bean.KEYSTORE)
+					//clientEndpointConfig.getUserProperties().put(WsWebSocketContainer.SSL_TRUSTSTORE_PWD_PROPERTY, bean.KEYPASSWORD)
 					oSession = container.connectToServer(PragmaticEndpoint.class, clientEndpointConfig, oUri);
 				}
 			} else {

@@ -1,16 +1,20 @@
 package grails.plugin.wschat.users
 
 import grails.converters.JSON
+import grails.plugin.wschat.ChatAuth
+import grails.plugin.wschat.ChatAuthChatRole
 import grails.plugin.wschat.ChatBanList
 import grails.plugin.wschat.ChatBlockList
 import grails.plugin.wschat.ChatFriendList
+import grails.plugin.wschat.ChatMessage
 import grails.plugin.wschat.ChatUser
 import grails.plugin.wschat.ChatUserProfile
 import grails.plugin.wschat.WsChatConfService
-import grails.plugin.wschat.ChatMessage
 import grails.transaction.Transactional
 import groovy.time.TimeCategory
+
 import java.text.SimpleDateFormat
+
 import javax.websocket.Session
 
 
@@ -39,8 +43,28 @@ class WsChatUserService extends WsChatConfService  {
 		}
 		return finalResults
 	}
-
-
+	@Transactional
+	def deleteUser(Session userSession, String username) {
+		Boolean useris = isAdmin(userSession)
+		if (useris) {
+			ChatUser user = ChatUser.findByUsername(username)
+			if (user) {
+				user.photos.clear()
+				user.friends.clear()
+				user.blocked.clear()
+				user.log.delete()
+				user.offlog.delete()
+				user.profile.delete()
+				user.delete()
+			}
+			def springUser = ChatAuth.findByUsername(username)
+			if (springUser) {
+				ChatAuthChatRole.findAllByChatAuth(springUser).each{it.delete()}
+				springUser.delete()
+			}
+		}
+	}
+	
 	Map findaUser(String uid) {
 		def returnResult=[:]
 		def found=ChatUser.findByUsername(uid)

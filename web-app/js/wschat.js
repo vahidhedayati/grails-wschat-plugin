@@ -191,6 +191,9 @@ function viewLogs(user) {
 		$('#invitecontainer').show();
 	}
 }
+function deleteUser(user,username) { 
+	webSocket.send("/deleteUser "+user+","+username);
+}
 
 function createEmail(user,newuser) {
 	if (isAdmin=="true") {

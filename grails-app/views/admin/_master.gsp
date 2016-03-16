@@ -1,23 +1,12 @@
   <div id="adminConfirmation"></div>
-
-	<div class="modal fade" id="admincontainer1" role="dialog">
-	<div class="modal-dialog">
-	<div class="modal-content">
-	<div id="adminsContainer">
-
-			
-				
-
-	
-	
-		
-	
+<div class="modal fade" id="admincontainer1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+			<div id="adminsContainer">
+			</div>
+		</div>
 	</div>
-	</div>
-	</div>
-
-	</div>
-
+</div>	
 <g:javascript>
     //var user="${bean.chatuser}";
 	function closeAdminModal() {
