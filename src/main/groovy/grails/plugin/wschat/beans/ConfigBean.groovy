@@ -62,7 +62,7 @@ class ConfigBean implements Validateable {
 	}
 
 	String getAppName() {
-		String appName= grails.util.Metadata.current.applicationName ?: Holders.grailsApplication.metadata['app.name']
+		String appName= grails.util.Metadata.current.applicationName ?: Holders.grailsApplication.metadata['app.name']  ?: ''
 		return appName
 	}
 
@@ -125,7 +125,7 @@ class ConfigBean implements Validateable {
 		}
 	}
 	def getRootPath() {
-		Holders.config.parentContext.getResource("WEB-INF/grails-app/views/layouts")
+		Holders.config.parentContext.getResource("WEB-INF/grails-app/views/layouts") ?: ''
 	}
 
 	def getConf(String configProperty) {

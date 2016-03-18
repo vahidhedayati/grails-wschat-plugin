@@ -101,5 +101,4 @@ class CustomerChatTagBean extends ClientTagBean  implements Validateable {
 	String getInactiveLCTitle() {
 		return inactiveLCTitle as String
 	}
-
 }

@@ -8,7 +8,7 @@ class ConnectTagBean extends InitiationBean implements Validateable {
 	String wschatjs
 	String usermenujs
 	def updateProfile = false
-	def profile
+	Map profile
 
 	public ConnectTagBean() {
 		super
@@ -18,12 +18,12 @@ class ConnectTagBean extends InitiationBean implements Validateable {
 		return validateBool(updateProfile)
 	}
 
-	Map getProfile() {
+	/*Map getProfile() {
 		if (profile) {
 			return profile as Map
 		}
 	}
-	
+	*/
 	static constraints = {
 		chatuser(nullable: false)
 		template(nullable:true)

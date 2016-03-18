@@ -9,26 +9,24 @@ class SearchBean implements Validateable {
 	String order = 'desc'
 	Integer userListCount = 0
 	String divupdate='adminsContainer'
-	String pageSizes ='10'
+	Integer pageSizes =10
 	String sortby = "lastUpdated"
 	List allcat
 	ArrayList uList
 	List userList
 	String action='list'
-	def offset 
+	Integer offset 
 	String inputid = id 
 	Map viewUsers
 	String username
 	Boolean hasAdmin
 	
-	Integer getOffset() { 
-		int off=0
-		if (offset && offset instanceof String) {
-			off = offset as int
-		}
-		return off
+	void setOffset(String t) {
+		offset=(t as int) ?: 0
 	}
-	
+	void setPageSizes(String t) {
+		pageSizes=(t as int) ?: 10
+	}
 	static constraints = {
 		id(nullable: false, validator: validateInput)
 		s(nullable:true)

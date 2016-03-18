@@ -133,7 +133,12 @@ class ChatUtils extends WsChatConfService {
 				String userRoom = v.msg
 				String msg = getConfig('enableUsersMessage')  ?: 'A member of staff has joined'
 				wsChatMessagingService.adminEnableEndScreens(user,[fromUser:username, msgTo:user, fromRoom:userRoom, enabeLiveChat:'yes',  liveMessageInitiate:msg],userSession)
-
+			} else if (message.startsWith("/deleteUser ")) {
+				if (isAdmin(userSession)) {
+					def v= parseInput("/deleteUser ",message)
+					String user = v.user
+					wsChatUserService.deleteUser(userSession,user)
+				}
 			} else if (message.startsWith("/verifyAdmin")) {
 				Boolean useris = isAdmin(userSession)
 				def myMsg1 = [:]

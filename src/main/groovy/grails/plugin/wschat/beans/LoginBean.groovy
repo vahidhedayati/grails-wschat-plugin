@@ -21,5 +21,4 @@ class LoginBean extends ConfigBean implements Validateable {
 			return errors.rejectValue(propertyName,"invalid.$propertyName",[''] as Object[],'')
 		}
 	}
-
 }

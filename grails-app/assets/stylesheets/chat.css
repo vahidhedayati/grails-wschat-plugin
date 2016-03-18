@@ -4,12 +4,12 @@
 
 
 .nickname {
-    color: #f00;
-    font-weight: bold;
+	color: #f00;
+	font-weight: bold;
 }
 .msg {
-    color: #444;
-    font-weight: normal;
+	color: #444;
+	font-weight: normal;
 }
 
 .inline-right {
@@ -17,14 +17,14 @@
 	*display:inline;
 	*zoom:1;
 	float:right;
-	
+
 }
 .inline-left {
 	display:inline-block;
 	*display:inline;
 	*zoom:1;
 	float:left;
-	
+
 }
 #sendMessage  textarea {
 	height: 3em;
@@ -36,10 +36,10 @@
 }
 
 .ui-widget-header,.ui-state-default, ui-button{
-    background: #a0a0a0;
-    border: 1px solid #cfcfcf;
-    color: #FFFFFF;
-    font-weight: bold;
+	background: #a0a0a0;
+	border: 1px solid #cfcfcf;
+	color: #FFFFFF;
+	font-weight: bold;
 }
 
 ul.one-to-many {
@@ -79,7 +79,7 @@ fieldset.embedded legend {
 
 .errors,
 .message {
-	
+
 	line-height: 2;
 	margin: 1em 2em;
 	padding: 0.25em;
@@ -92,4 +92,21 @@ fieldset.embedded legend {
 	-moz-box-shadow: 0 0 0.25em #b2d1ff;
 	-webkit-box-shadow: 0 0 0.25em #b2d1ff;
 	box-shadow: 0 0 0.25em #b2d1ff;
+}
+#admincontainer .modal-body, #roomcontainer .modal-body{
+	width: 100%;
+	height: 100%;
+	background: rgba(203, 190, 139, 0.67);
+}
+#admincontainer .modal-content,#roomcontainer .modal-content {
+	/*background: transparent important!;*/
+	background: rgba(125, 159, 203, 0.67);
+}
+#admincontainer .modal-dialog, #roomcontainer .modal-dialog{
+	position:absolute;
+	left:0;
+	top:0;
+	width: 100%;
+	height: 100%;
+	background: rgba(125, 159, 203, 0.67);
 }
