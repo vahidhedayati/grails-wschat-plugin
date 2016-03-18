@@ -708,7 +708,7 @@ var added=verifyAdded(suser);
 			} else {
 			    $(el).chatbox("option", "boxManager").toggleBox();
 			}
-			box = $(el).chatbox({id:suser,
+			box = $(el).chatbox({id:sender,
 				user:{key : "value"},
 				title : "LIVECHAT: "+suser,
 				messageSent : function(id, user, msg) {
@@ -792,7 +792,7 @@ function pmuser(suser,sender) {
 				var el = document.createElement('div');
 				el.setAttribute('id', suser);
 			}
-			box = $(el).chatbox({id:suser,
+			box = $(el).chatbox({id:sender,
 				user:{key : "value"},
 				title : "PM: "+suser,
 				messageSent : function(id, user, msg) {
