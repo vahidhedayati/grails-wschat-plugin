@@ -1,7 +1,6 @@
 package grails.plugin.wschat
 
 import grails.converters.JSON
-import grails.plugin.springsecurity.annotation.Secured
 import grails.plugin.wschat.beans.ConnectTagBean
 import grails.plugin.wschat.beans.CustomerChatTagBean
 import grails.plugin.wschat.beans.LiveChatBean
@@ -52,7 +51,6 @@ class WsChatController extends WsChatConfService {
 		renderIndex(bean)
 	}
 
-	@Secured(['ROLE_USER','ROLE_ADMIN'])
 	def authIndex(ConnectTagBean bean) {
 		session.wschatuser=springSecurityService.currentUser as String
 		bean.chatuser = session.wschatuser
@@ -78,7 +76,6 @@ class WsChatController extends WsChatConfService {
 		}
 		renderLogin(bean)
 	}
-	@Secured(['ROLE_USER','ROLE_ADMIN'])
 	def authLogin(LoginBean bean) {
 		renderLogin(bean)
 	}
@@ -112,7 +109,6 @@ class WsChatController extends WsChatConfService {
 		renderChat(bean)
 	}
 
-	@Secured(['ROLE_USER','ROLE_ADMIN'])
 	def authChat(ConnectTagBean bean) {
 		session.wschatuser=springSecurityService.currentUser as String
 		renderChat(bean)
@@ -257,7 +253,6 @@ class WsChatController extends WsChatConfService {
 		renderLiveChatsRooms()
 	}
 
-	@Secured(['ROLE_ADMIN'])
 	def authLiveChatRooms() {
 		renderLiveChatsRooms()
 	}
@@ -287,7 +282,6 @@ class WsChatController extends WsChatConfService {
 		renderViewUsers(bean)
 	}
 
-	@Secured(['ROLE_ADMIN'])
 	def authViewUsers(SearchBean bean) {
 		renderViewUsers(bean)
 	}
@@ -372,7 +366,6 @@ class WsChatController extends WsChatConfService {
 		renderAddBooking()
 	}
 
-	@Secured(['ROLE_ADMIN'])
 	def authAddBooking() {
 		renderAddBooking()
 	}
@@ -424,7 +417,6 @@ class WsChatController extends WsChatConfService {
 		renderJoinLiveChat(bean)
 	}
 
-	@Secured(['ROLE_ADMIN'])
 	def authJoinLiveChat(Map bean) {
 		renderJoinLiveChat(bean.roomName,bean.username)
 	}
@@ -451,7 +443,6 @@ class WsChatController extends WsChatConfService {
 
 	}
 
-	@Secured(['ROLE_ADMIN'])
 	def authLiveChat(LiveChatBean bean) {
 		renderLiveChat(bean)
 	}
@@ -471,7 +462,6 @@ class WsChatController extends WsChatConfService {
 		}
 		renderViewLiveChats(bean)
 	}
-	@Secured(['ROLE_ADMIN'])
 	def authViewLiveChat(CustomerChatTagBean bean) {
 		renderViewLiveChats(bean)
 	}

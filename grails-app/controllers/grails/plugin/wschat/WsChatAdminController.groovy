@@ -1,6 +1,5 @@
 package grails.plugin.wschat
 
-import grails.plugin.springsecurity.annotation.Secured
 import grails.plugin.wschat.beans.SearchBean
 
 class WsChatAdminController extends WsChatConfService {
@@ -20,7 +19,6 @@ class WsChatAdminController extends WsChatConfService {
 		}
 		renderIndex()
 	}
-	@Secured(['ROLE_ADMIN'])
 	def authIndex() {
 		session.wschatuser=springSecurityService.currentUser as String
 		renderIndex()
@@ -44,7 +42,6 @@ class WsChatAdminController extends WsChatConfService {
 		}
 		renderViewUsers(bean)
 	}
-	@Secured(['ROLE_ADMIN'])
 	def authViewUsers(SearchBean bean) {
 		session.wschatuser=springSecurityService.currentUser as String
 		renderViewUsers(bean)
